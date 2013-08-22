@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="etl">
+	<title>ETL (Extract-Transform-Load)</title>
+	<subtitle>ETL或ELT （extract）、转置（transform）、加载（load）</subtitle>
+	<para>http://zh.wikipedia.org/wiki/ETL</para>
+	<screen>
+Kettle http://www.ketl.org
+
+http://www.cloveretl.org/
+
+http://www.xaware.org/
+
+Apatar http://www.apatar.org/
+
+http://www.enhydra.org/
+	</screen>
+</chapter>

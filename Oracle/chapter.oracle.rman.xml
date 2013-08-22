@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="oracle.rman">
+	<title>RMAN</title>
+	<section>
+		<title>数据库模式</title>
+		<para>数据库必须是归档模式，使用下面SQL查询当前数据库模式</para>
+		<programlisting>
+		<![CDATA[
+SQL> archive log list;
+Database log mode              Archive Mode
+Automatic archival             Enabled
+Archive destination            USE_DB_RECOVERY_FILE_DEST
+Oldest online log sequence     66
+Next log sequence to archive   68
+Current log sequence           68
+		]]>
+		</programlisting>
+		<para>如果已经是归档模式可跳过此步,下面是切换服务器到归档模式的方法：</para>
+		<programlisting>
+		<![CDATA[
+[oracle@oracle ~]$ sqlplus /nolog (启动sqlplus)
+
+SQL> conn / as sysdba (以DBA身份连接数据库)
+
+SQL> shutdown immediate; (立即关闭数据库)
+
+SQL> startup mount (启动实例并加载数据库，但不打开)
+
+SQL> alter database archivelog; (更改数据库为归档模式)
+
+SQL> alter database open; (打开数据库)
+
+SQL> alter system archive log start; (启用自动归档)
+
+SQL> exit (退出)
+		]]>
+		</programlisting>
+		<para>rman 采用块备份，查看块信息使用下面SQL语句</para>
+		<programlisting>
+select * from dba_extents
+		</programlisting>
+	</section>
+	<section id="rman.full">
+		<title>完全备份</title>
+		<screen>
+run {
+allocate channel d1 type disk;
+backup format='/opt/oracle/backup/%d_%N_%s.bk' tablespace users;
+release channel d1;
+}
+		</screen>
+		<para>下面让我来演示给你看</para>
+		<screen>
+		<![CDATA[
+[oracle@oracle ~]$ mkdir /opt/oracle/backup
+[oracle@oracle ~]$ rman target sys/passw0rd nocatalog
+
+Recovery Manager: Release 11.2.0.1.0 - Production on Mon Jun 13 12:03:20 2011
+
+Copyright (c) 1982, 2009, Oracle and/or its affiliates.  All rights reserved.
+
+connected to target database: WCSDB (DBID=2970836713)
+using target database control file instead of recovery catalog
+
+RMAN> run {
+allocate channel d1 type disk;
+backup format='/opt/oracle/backup/%d_%N_%s.bk' tablespace users;
+release channel d1;
+} 2> 3> 4> 5>
+
+allocated channel: d1
+channel d1: SID=36 device type=DISK
+
+Starting backup at 13-JUN-11
+channel d1: starting full datafile backup set
+channel d1: specifying datafile(s) in backup set
+input datafile file number=00004 name=/opt/oracle/oradata/wcsdb/users01.dbf
+channel d1: starting piece 1 at 13-JUN-11
+channel d1: finished piece 1 at 13-JUN-11
+piece handle=/opt/oracle/backup/WCSDB_USERS_1.bk tag=TAG20110613T120325 comment=NONE
+channel d1: backup set complete, elapsed time: 00:00:01
+Finished backup at 13-JUN-11
+
+released channel: d1
+
+RMAN>
+		]]>
+		</screen>
+		<para>查看备份结果</para>
+		<screen>
+		<![CDATA[
+RMAN> list backup of tablespace users;
+
+
+List of Backup Sets
+===================
+
+
+BS Key  Type LV Size       Device Type Elapsed Time Completion Time
+------- ---- -- ---------- ----------- ------------ ---------------
+1       Full    1.30M      DISK        00:00:01     13-JUN-11
+        BP Key: 1   Status: AVAILABLE  Compressed: NO  Tag: TAG20110613T120325
+        Piece Name: /opt/oracle/backup/WCSDB_USERS_1.bk
+  List of Datafiles in backup set 1
+  File LV Type Ckp SCN    Ckp Time  Name
+  ---- -- ---- ---------- --------- ----
+  4       Full 1561686    13-JUN-11 /opt/oracle/oradata/wcsdb/users01.dbf
+		]]>
+		</screen>
+		<para>备份目录下面是刚刚生成的备份文件</para>
+		<screen>
+		<![CDATA[
+$ ls /opt/oracle/backup
+WCSDB_USERS_1.bk
+		]]>
+		</screen>
+		<example>
+			<title>full backup</title>
+			<screen>
+			<![CDATA[
+# crontab -u oracle -l
+0 1 * * * /opt/oracle/rman/backup.sh
+			]]>
+			</screen>
+			<screen>
+			<![CDATA[
+# cat .bash_profile
+export ORACLE_BASE=/opt/oracle
+export ORACLE_HOME=$ORACLE_BASE/product/11.2.0/dbhome_1
+export ORACLE_SID=orcl
+export PATH=$PATH:$HOME/bin:$ORACLE_HOME/bin
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/usr/lib
+
+# cat /opt/oracle/rman/backup.sh
+rman target sys/passw0rd@orcl msglog=/opt/oracle/rman/log/`date +"%Y%m%d%H%M"`.log cmdfile=/opt/oracle/rman/orcl.rman
+			]]>
+			</screen>
+			<screen>
+			<![CDATA[
+# cat /opt/oracle/rman/orcl.rman
+run {
+   allocate channel c1 type disk;
+   allocate channel c2 type disk;
+   configure retention policy to recovery window of 6 days;
+   configure controlfile autobackup on;
+   configure backup optimization  on;
+   configure device type disk parallelism 4 backup type to compressed backupset;
+   configure controlfile autobackup format for device type disk to '/opt/oracle/backup/rman/%F.ctl';
+   sql 'alter system switch logfile';
+   backup full database format '/opt/oracle/backup/rman/df_%t_%s_%p.bak' tag='full' include current controlfile;
+   sql 'alter system archive log current';
+   backup  archivelog all  format '/opt/oracle/backup/rman/arc_%U_%s.bak' delete all input;
+   release channel c1;
+   release channel c2;
+}
+crosscheck backup;
+delete noprompt expired backup;
+delete noprompt obsolete;
+exit
+			]]>
+			</screen>
+		</example>
+	</section>
+	<section id="incremental">
+		<title>增量备份</title>
+		<screen>
+RMAN> BACKUP INCREMENTAL LEVEL 0 DATABASE;
+RMAN> BACKUP INCREMENTAL LEVEL 1 TABLESPACE SYSTEM DATAFILE 'ora_home/oradata/ tools01.dbf';
+RMAN> BACKUP INCREMENTAL LEVEL = 1 CUMULATIVE TABLESPACE users;
+		</screen>
+		<para>网上发现的脚步，署名不详</para>
+		<screen>
+run{
+allocate channel c1 type disk;
+allocate channel c2 type disk;
+allocate channel c3 type disk;
+backup full tag 'dbfull' format '/u01/oradata/backup/full%u_%s_%p' database include current controlfile;
+sql 'alter system archive log current';
+backup filesperset 3 format '/u01/oradata/backup/arch%u_%s_%p' archivelog all delete input;
+release channel c1;
+release channel c2;
+release channel c3;
+}
+
+零级备份脚本
+run{
+allocate channel c1 type disk;
+allocate channel c2 type disk;
+allocate channel c3 type disk;
+backup incremental level 0 tag ‘db0’ format ‘/u01/oradata/backup/db0%u_%s_%p’ database skip readonly;
+sql ‘alter system archive log current’;
+backup filesperset 3 format ‘/u01/oradata/backup/arch%u_%s_%p’ archivelog all delete input;
+release channel c1;
+release channel c2;
+release channel c3;
+}
+
+一级备份脚本
+run{
+allocate channel c1 type disk;
+allocate channel c2 type disk;
+allocate channel c3 type disk;
+backup incremental level 1 tag ‘db1’ format ‘/u01/oradata/backup/db1%u_%s_%p’ database skip readonly;
+sql ‘alter system archive log current’;
+backup filesperset 3 format ‘/u01/oradata/backup/arch%u_%s_%p’ archivelog all delete input;
+release channel c1;
+release channel c2;
+release channel c3;
+}
+		</screen>
+		<para>网上发现的脚步，没有署名，我也没有测试过，仅供参考</para>
+		<screen>
+		<![CDATA[
+do_rman.sh
+
+#!/bin/bash
+#set env
+export NLS_LANG=AMERICAN_AMERICA.ZHS16GBK
+export PATH=$ORACLE_HOME/bin:$PATH
+
+TARGET_SID=$TARGET_SID
+RMAN_SID=$RMAN_SID
+
+export PATH=$ORACLE_HOME/bin:$PATH
+DATE=`date +%w`
+DATE_2=`date +%Y%m%d`
+BACKUP_PATH=$ORACLE_BASE/admin/$ORACLE_SID/rman/backup
+LEVEL=$@
+BIN=$ORACLE_HOME/bin
+# Delete the data backuped last time
+
+rm -rf $BACKUP_PATH/data/$DATE/*
+
+if [ $# != 1 ]; then
+	echo "usage: do_rman.sh n
+	where n is the rman backup level(0,1,2 is permitted)."
+	exit 1
+fi
+if [ $@ -ne 0 -a $@ -ne 1 -a $@ -ne 2 ]; then
+	echo "usage: do_rman.sh n
+	where n is the rman backup level(Only 0,1,2 is permitted)."
+	exit 2
+fi
+echo "[do_rman] rman is starting."
+if [ $LEVEL = 0 ]; then
+	$BIN/rman log $BACKUP_PATH/log/level.$TARGET_SID.$LEVEL.$DATE_2.log < connect target /;
+	connect catalog rman/rman@$RMAN_SID;
+	resync catalog;
+	run{
+		allocate channel c1 type disk ;
+		crosscheck backupset of archivelog all ;
+		backup filesperset 3 format '$BACKUP_PATH/data/$DATE/arch.%d.live.$LEVEL.%t'(archivelog from time 'sysdate-7' all delete input) ;
+		delete noprompt expired backupset of archivelog all ;
+		release channel c1 ;
+	}
+
+	run{
+		allocate channel c2 type disk ;
+		crosscheck backupset of database ;
+		backup incremental level $LEVEL filesperset 3 format '$BACKUP_PATH/data/$DATE/data.%d.live.$LEVEL.%t'(database include current controlfile) ;
+		delete noprompt expired backupset of database ;
+		delete noprompt obsolete ;
+		release channel c2 ;
+	}
+	exit;
+EOF
+
+else
+	$BIN/rman log $BACKUP_PATH/log/level.$TARGET_SID.$LEVEL.$DATE_2.log < connect target sys/sys202;
+	connect catalog rman/rman@$RMAN_SID;
+	resync catalog;
+	run{
+		allocate channel c1 type disk ;
+		crosscheck backupset of archivelog all ;
+		backup filesperset 3 format '$BACKUP_PATH/data/$DATE/arch.%d.live.$LEVEL.%t' (archivelog from time 'sysdate-1' all) ;
+		delete noprompt expired backupset of archivelog all ;
+		release channel c1 ;
+	}
+
+	run{
+		allocate channel c2 type disk ;
+		crosscheck backupset of database ;
+		backup incremental level $LEVEL filesperset 3 format '$BACKUP_PATH/data/$DATE/data.%d.live.$LEVEL.%t' (database include current controlfile) ;
+		delete noprompt expired backupset of database ;
+		delete noprompt obsolete ;
+		release channel c2 ;
+	}
+
+	exit;
+EOF
+fi
+
+echo "[do_rman] rman is success."
+		]]>
+		</screen>
+	</section>
+	<section>
+		<title>恢复数据库</title>
+		<screen>
+		<![CDATA[
+%rman target=rman/rman@mydb
+
+RMAN> startup nomount
+
+RMAN> restore database;
+
+RMAN> recover database;
+
+RMAN> alter database open;
+		]]>
+		</screen>
+		<para>网上找到的文档，署名不详，我没有测试过是否可以运行</para>
+		<screen>
+		<![CDATA[
+设定参数:
+CONFIGURE CONTROLFILE AUTOBACKUP FORMAT FOR DEVICE TYPE DISK TO '/arch/rman/controlfile%F.ctnl';
+CONFIGURE CHANNEL 1 DEVICE TYPE DISK FORMAT   '/arch/rman/full%t.bak';
+
+数据库rman 全备
+rman>backup database plus archivelog delete input;
+备份产生的三个文件
+-rw-r----- 1 oracle oinstall   7143424 Jan 28 18:05 controlfilec-2719028776-20100128-01.ctnl
+-rw-r----- 1 oracle oinstall  41074688 Jan 28 18:03 full709495428.bak
+-rw-r----- 1 oracle oinstall 763379712 Jan 28 18:05 full709495432.bak
+-rw-r----- 1 oracle oinstall     17920 Jan 28 18:05 full709495518.bak
+
+
+rman恢复
+------------------
+1、启动数据库到 nomount 状态
+$sqlplus / as sysdba
+SQL> startup nomount
+
+2、spfile 恢复
+$rman nocatalog
+rman> connect target /
+run {
+allocate channel c1 DEVICE TYPE DISK format '/arch/rman/controlfile%F.ctnl';
+restore spfile to pfile '/arch/pfile.ora' from '/arch/rman/controlfilec-2719028776-20100128-01.ctnl';
+release channel c1;
+}
+
+3、控制文件恢复
+run {
+allocate channel c1 DEVICE TYPE DISK format '/arch/rman/controlfile%F.ctnl';
+restore controlfile from '/arch/rman/controlfilec-2719028776-20100128-01.ctnl';
+release channel c1;
+}
+
+4、全库恢复
+在恢复控制文件的情况下，可以修改数据到 mount状态，进行全库的恢复
+rman> alter database mount;
+run {
+allocate channel c1 device type disk format '/arch/rman/full%t.bak';
+restore database;
+release channel c1;
+}
+
+5、恢复archivelog
+run {
+allocate channel c1 device type disk format '/arch/rman/full%t.bak';
+restore archivelog all;
+}
+run {
+allocate channel c1 device type disk format '/arch/rman/full%t.bak';
+restore archivelog from logseq=72 until logseq=73;
+}
+
+6、redolog 恢复
+SQL>recover database using backup controlfile until cancel;
+SQL>alter database open resetlogs;  //现在有redolog 产生了，还有temp表空间文件也生成了或者分开两步执行
+
+SQL>select * from dual;
+全库成功恢复
+		]]>
+		</screen>
+	</section>
+	<section id="rman.tar">
+		<title>是用tar打包rman文件</title>
+		<screen>
+# find /opt/oracle/rman/ -type f -mtime 1 -printf "%CY-%Cm-%Cd %Cr %s %f\n"
+
+tar --newer="2011-07-04" -zcvf backup.tar.gz /opt/oracle/rman/
+
+find /opt/oracle/rman/ -type f -mtime 1 | xargs tar zcvf oracle_2011-07-04.tgz
+
+rsync -azP `find /opt/oracle/rman/ -type f -mtime 1` test@172.16.0.5:/home/test
+		</screen>
+	</section>
+</section>

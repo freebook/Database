@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="tablespace">
+	<title>Oracle 表空间</title>
+	<section>
+		<title>查询空闲表空间</title>
+		<screen>
+select tablespace_name,file_id,block_id,bytes,blocks from dba_free_space;
+		</screen>
+	</section>
+	<section>
+		<title>创建表空间</title>
+		<screen>
+create tablespace test
+datafile '/opt/app/oracle/oradata/test.dbf' size 8M
+autoextend on
+next 5M
+maxsize 10M;
+		</screen>
+		<para>maxsize unlimited 是大小不受限制</para>
+		<screen>
+create tablespace test
+datafile '/opt/app/oracle/oradata/test.dbf' size 800M
+autoextend on
+next 50M
+maxsize unlimited
+
+
+		</screen>
+		<para>unform表示区的大小相同，默认为1M</para>
+		<screen>
+create tablespace test
+datafile '/opt/app/oracle/oradata/test.dbf' size 800M
+autoextend on
+next 50M
+maxsize 1000M
+extent management local uniform;
+		</screen>
+		<para>unform size 500K表示区的大小相同，为500K</para>
+		<screen>
+create tablespace test
+datafile '/opt/app/oracle/oradata/test.dbf' size 800M
+autoextend on
+next 50M
+maxsize 1000M
+extent management local uniform size 500K;
+		</screen>
+
+		<para>autoallocate 表示区的大小由随表的大小自动动态改变</para>
+		<screen>
+create tablespace test
+datafile '/opt/app/oracle/oradata/test.dbf' size 800M
+autoextend on
+next 50M
+maxsize 1000M
+extent management local autoallocate;
+		</screen>
+		<para>temporary	创建字典管理临时表空间</para>
+		<screen>
+create tablespace test
+datafile '/opt/app/oracle/oradata/test.dbf' size 800M
+autoextend on
+next 50M
+maxsize 1000M
+temporary;
+		</screen>
+		<section id="tablespace.tempfile">
+			<title>临时表空间</title>
+			<para>创建临时表空间，语句中的datafile都换为tempfile</para>
+			<screen>
+create temporary tablespace test
+tempfile '/opt/app/oracle/oradata/test.dbf' size 800M
+autoextend on
+next 50M
+maxsize 1000M
+			</screen>
+		</section>
+	</section>
+	<section>
+		<title>更改表空间属性</title>
+		<para>更改自动扩展属性</para>
+		<screen>
+ alter database datafile
+    '/opt/app/oracle/oradata/test.dbf',
+    '/opt/app/oracle/oradata/test01.dbf'
+    '/opt/app/oracle/oradata/test02.dbf'
+    autoextend off;
+		</screen>
+
+		<section>
+			<title>修改表空间大小</title>
+			<para></para>
+			<screen>
+先查询数据文件名称、大小和路径的信息，语句如下：
+
+select tablespace_name,file_id,bytes,file_name from dba_data_files;
+
+增加表空间，修改文件大小语句如下
+
+alter database datafile '需要增加的数据文件路径，即上面查询出来的路径 ' resize 800M;
+			</screen>
+		</section>
+	</section>
+	<section>
+		<title>删除表空间</title>
+		<screen>
+drop tablespace test including contents and datafiles
+		</screen>
+	</section>
+</chapter>

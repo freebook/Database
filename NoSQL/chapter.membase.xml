@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="membase">
+	<title>Membase</title>
+	<chapterinfo>
+		<keywordset>
+			<keyword>membase, memcache</keyword>
+		</keywordset>
+	</chapterinfo>
+</chapter>

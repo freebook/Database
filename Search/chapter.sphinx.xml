@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="sphinx">
+	<title>Sphinx</title>
+	<para>http://sphinxsearch.com/</para>
+
+	<screen>
+sudo apt-get install sphinxsearch
+	</screen>
+	<para>/etc/sphinxsearch/sphinx.conf</para>
+	<screen>
+sudo cp /etc/sphinxsearch/sphinx-min.conf.dist /etc/sphinxsearch/sphinx.conf
+	</screen>
+	<para>创建测试数据库并导入测试数据</para>
+	<screen>
+	<![CDATA[
+$ wget http://sphinxsearch.googlecode.com/svn/trunk/example.sql
+$ mysql -h localhost -uroot -p < example.sql
+$ mysql -h localhost -uroot -p
+CREATE USER 'test'@'localhost' IDENTIFIED BY  '';
+GRANT SELECT ON test.* TO 'test'@'localhost';
+FLUSH PRIVILEGES;
+mysql> quit
+
+
+$ echo "select * from documents" | mysql -utest -p test
+Enter password:
+id      group_id        group_id2       date_added      title   content
+1       1       5       2011-02-12 15:29:34     test one        this is my test document number one. also checking search within phrases.
+2       1       6       2011-02-12 15:29:34     test two        this is my test document number two
+3       2       7       2011-02-12 15:29:34     another doc     this is another group
+4       2       8       2011-02-12 15:29:34     doc number four this is to test groups
+
+	]]>
+	</screen>
+	<para>创建索引</para>
+	<command><![CDATA[sudo indexer <index>]]></command>
+	<screen>
+	<![CDATA[
+$ sudo indexer test1
+
+Sphinx 0.9.8.1-release (r1533)
+Copyright (c) 2001-2008, Andrew Aksyonoff
+
+using config file '/etc/sphinxsearch/sphinx.conf'...
+indexing index 'test1'...
+collected 4 docs, 0.0 MB
+sorted 0.0 Mhits, 100.0% done
+total 4 docs, 193 bytes
+total 0.012 sec, 16531.05 bytes/sec, 342.61 docs/sec
+	]]>
+	</screen>
+	<screen>
+$ sudo /etc/init.d/sphinxsearch start
+Starting sphinx: Sphinx 0.9.8.1-release (r1533)
+Copyright (c) 2001-2008, Andrew Aksyonoff
+
+using config file '/etc/sphinxsearch/sphinx.conf'...
+creating server socket on 0.0.0.0:3312
+sphinx.
+	</screen>
+	<para>测试</para>
+	<para>search "keyword"</para>
+	<screen>
+	<![CDATA[
+$ search test
+Sphinx 0.9.8.1-release (r1533)
+Copyright (c) 2001-2008, Andrew Aksyonoff
+
+using config file '/etc/sphinxsearch/sphinx.conf'...
+index 'test1': query 'test ': returned 3 matches of 3 total in 0.000 sec
+
+displaying matches:
+1. document=1, weight=2, group_id=1, date_added=Sat Feb 12 15:29:34 2011
+        id=1
+        group_id=1
+        group_id2=5
+        date_added=2011-02-12 15:29:34
+        title=test one
+        content=this is my test document number one. also checking search within phrases.
+2. document=2, weight=2, group_id=1, date_added=Sat Feb 12 15:29:34 2011
+        id=2
+        group_id=1
+        group_id2=6
+        date_added=2011-02-12 15:29:34
+        title=test two
+        content=this is my test document number two
+3. document=4, weight=1, group_id=2, date_added=Sat Feb 12 15:29:34 2011
+        id=4
+        group_id=2
+        group_id2=8
+        date_added=2011-02-12 15:29:34
+        title=doc number four
+        content=this is to test groups
+
+words:
+1. 'test': 3 documents, 5 hits
+
+	]]>
+	</screen>
+	<screen>
+wget http://sphinxsearch.googlecode.com/svn/trunk/api/sphinxapi.php
+wget http://sphinxsearch.googlecode.com/svn/trunk/api/test.php
+php test.php test
+	</screen>
+</chapter>

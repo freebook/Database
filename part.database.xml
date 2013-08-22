@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<part id="database">
+	<title>Database Relational</title>
+	<screen>
+What are the difference between DDL, DML and DCL commands?
+DDL is Data Definition Language statements. Some examples:
+CREATE - to create objects in the database
+ALTER - alters the structure of the database
+DROP - delete objects from the database
+TRUNCATE - remove all records from a table, including all spaces allocated for
+
+the records are removed
+COMMENT - add comments to the data dictionary
+GRANT - gives user's access privileges to database
+REVOKE - withdraw access privileges given with the GRANT command
+
+
+DML is Data Manipulation Language statements. Some examples:
+SELECT - retrieve data from the a database
+INSERT - insert data into a table
+UPDATE - updates existing data within a table
+DELETE - deletes all records from a table, the space for the records remain
+CALL - call a PL/SQL or Java subprogram
+EXPLAIN PLAN - explain access path to data
+LOCK TABLE - control concurrency
+
+
+DCL is Data Control Language statements. Some examples:
+COMMIT - save work done
+SAVEPOINT - identify a point in a transaction to which you can later roll back
+ROLLBACK - restore database to original since the last COMMIT
+SET TRANSACTION - Change transaction options like what rollback segment to use
+	</screen>
+<chapter id="db.engines">
+	<title>DB-Engines - DB-Engines Ranking</title>
+	<para><ulink url="http://db-engines.com/en/ranking" /></para>
+</chapter>
+	&chapter.test.xml;
+	&chapter.etl.xml;
+	&chapter.migration.xml;
+	&chapter.greensql.xml;
+<chapter id="db.design">
+	<title>Database design &amp; E-R diagram</title>
+	<section id="dbdesigner">
+		<title>opensource database design tools</title>
+		<para>DBDesigner 4 - http://www.fabforce.net/dbdesigner4/</para>
+	</section>
+	<section id="codebydesign">
+		<title>OpenSystemArchitect</title>
+		<para>http://www.codebydesign.com</para>
+	</section>
+	<section id="sqlpower">
+		<title>SQL Power Architect</title>
+		<para>http://www.sqlpower.ca/</para>
+	</section>
+</chapter>
+
+</part>

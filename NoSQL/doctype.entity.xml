@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<!ENTITY part.nosql.xml					SYSTEM "part.nosql.xml">
+	<!ENTITY chapter.nosql.xml				SYSTEM "chapter.nosql.xml">
+	<!ENTITY chapter.cassandra.xml			SYSTEM "chapter.cassandra.xml">
+	<!ENTITY chapter.mongodb.xml			SYSTEM "chapter.mongodb.xml">
+	<!ENTITY chapter.mongo.xml				SYSTEM "chapter.mongo.xml">
+	<!ENTITY chapter.mongo.gui.xml			SYSTEM "chapter.mongo.gui.xml">
+	<!ENTITY chapter.membase.xml			SYSTEM "chapter.membase.xml">
+	<!ENTITY chapter.redis.xml				SYSTEM "chapter.redis.xml">
+	<!ENTITY chapter.hypertable.xml			SYSTEM "chapter.hypertable.xml">

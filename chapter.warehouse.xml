@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="warehouse">
+	<title>Data Warehouse</title>
+	<subtitle>Building the Data Warehouse</subtitle>
+	<screen>
+Applications
+Middleware
+Database
+Operating System
+Virtual Machine
+Storage
+
+
+Management
+Virtualization
+Networking
+Storage
+Server	
+	</screen>
+	<section>
+		<title>元数据（Metadata）</title>
+	</section>
+	<section>
+		<title>数据集市（DataMarts）</title>
+	</section>
+	
+</chapter>

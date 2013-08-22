@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="index"><?dbhtml dir="mongodb" ?>
+	<title>MongoDB</title>
+	<para>http://www.mongodb.org/</para>
+	<section id="mongodb.quickstart">
+		<title>Quickstart</title>
+		<section id="mongodb.bin">
+			<title>二进制tar包安装</title>
+			<para>Install MongoDB</para>
+			<screen>
+wget http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-1.5.5.tgz
+
+debian:/srv# tar zxf mongodb-linux-x86_64-1.5.5.tgz
+debian:/srv# ln -s mongodb-linux-x86_64-1.5.5 mongodb
+			</screen>
+			<para>Create a data directory</para>
+			<para>By default MongoDB will store data in /data/db, but it won't automatically create that directory. To create it, do:</para>
+			<screen>
+$ sudo mkdir -p /data/db/
+$ sudo chown `id -u` /data/db
+			</screen>
+			<para>You can also tell MongoDB to use a different data directory, with the --dbpath option.</para>
+			<para>Run and connect to the server</para>
+			<para>First, start the MongoDB server in one terminal:</para>
+			<screen>
+$ ./mongodb/bin/mongod
+			</screen>
+			<para>In a separate terminal, start the shell, which will connect to localhost by default:</para>
+			<screen>
+$ ./mongodb/bin/mongo
+> db.foo.save( { a : 1 } )
+> db.foo.find()
+			</screen>
+			<para>Congratulations, you've just saved and retrieved your first document with MongoDB!</para>
+			<example>
+				<title>MongoDB Test</title>
+				<screen>
+				<![CDATA[
+debian:/srv/mongodb/bin# ./mongo
+MongoDB shell version: 1.5.5
+connecting to: test
+[initandlisten] Thu Jul 22 16:42:07 connection accepted from 127.0.0.1:42876 #1
+> db.foo.save({a:1})
+Thu Jul 22 16:42:23 allocating new datafile /data/db/test.ns, filling with zeroes...
+Thu Jul 22 16:42:23 done allocating datafile /data/db/test.ns, size: 16MB,  took 0.025 secs
+Thu Jul 22 16:42:23 allocating new datafile /data/db/test.0, filling with zeroes...
+Thu Jul 22 16:42:23 done allocating datafile /data/db/test.0, size: 64MB,  took 0.105 secs
+[conn1] Thu Jul 22 16:42:23 building new index on { _id: 1 } for test.foo
+[conn1] Thu Jul 22 16:42:23 Buildindex test.foo idxNo:0 { name: "_id_", ns: "test.foo", key: { _id: 1 } }
+[conn1] Thu Jul 22 16:42:23 done for 0 records 0secs
+[conn1] Thu Jul 22 16:42:23 insert test.foo 136ms
+> Thu Jul 22 16:42:23 allocating new datafile /data/db/test.1, filling with zeroes...
+Thu Jul 22 16:42:24 done allocating datafile /data/db/test.1, size: 128MB,  took 0.228 secs
+> db.foo.find()
+{ "_id" : ObjectId("4c48046f74050cbf6c9a0ef6"), "a" : 1 }
+
+> use neo
+switched to db neo
+> db.foo.save({a:1})
+Thu Jul 22 16:54:50 allocating new datafile /data/db/neo.ns, filling with zeroes...
+Thu Jul 22 16:54:50 done allocating datafile /data/db/neo.ns, size: 16MB,  took 0.026 secs
+Thu Jul 22 16:54:50 allocating new datafile /data/db/neo.0, filling with zeroes...
+Thu Jul 22 16:54:50 done allocating datafile /data/db/neo.0, size: 64MB,  took 0.122 secs
+[conn1] Thu Jul 22 16:54:50 building new index on { _id: 1 } for neo.foo
+[conn1] Thu Jul 22 16:54:50 Buildindex neo.foo idxNo:0 { name: "_id_", ns: "neo.foo", key: { _id: 1 } }
+Thu Jul 22 16:54:50 allocating new datafile /data/db/neo.1, filling with zeroes...
+[conn1] Thu Jul 22 16:54:50 done for 0 records 0.01secs
+[conn1] Thu Jul 22 16:54:50 insert neo.foo 164ms
+> Thu Jul 22 16:54:50 done allocating datafile /data/db/neo.1, size: 128MB,  took 0.217 secs
+
+> db.foo.find()
+{ "_id" : ObjectId("4c48075a74050cbf6c9a0ef7"), "a" : 1 }
+>
+
+> db.neo.save({a:1})
+[conn1] Thu Jul 22 16:58:32 building new index on { _id: 1 } for neo.neo
+[conn1] Thu Jul 22 16:58:32 Buildindex neo.neo idxNo:0 { name: "_id_", ns: "neo.neo", key: { _id: 1 } }
+[conn1] Thu Jul 22 16:58:32 done for 0 records 0.024secs
+> db.neo.find()
+{ "_id" : ObjectId("4c48083874050cbf6c9a0ef8"), "a" : 1 }
+
+				]]>
+				</screen>
+			</example>
+			<para>Starting Mongo</para>
+			<para>Running as a Daemon</para>
+			<screen>
+ $ ./mongod --fork --logpath /var/log/mongodb.log --logappend
+			</screen>
+		</section>
+		<section id="mongodb.ubuntu">
+			<title>Ubuntu MongoDB</title>
+			<para></para>
+			<screen>
+$ sudo apt-get install mongodb-server mongodb-clients
+			</screen>
+			<screen>
+$ /etc/init.d/mongodb
+Usage: /etc/init.d/mongodb {start|stop|force-stop|restart|force-reload|status}
+			</screen>
+		</section>
+		<section id="mongodb.centos">
+			<title>CentOS MongoDB</title>
+			<screen>
+# yum install mongodb-server
+
+# chkconfig mongod on
+
+# service mongod start
+			</screen>
+			<para>单独安装客户端</para>
+			<screen>
+# yum install mongodb
+			</screen>
+		</section>
+		<section>
+			<title>MongoDB + Hadoop</title>
+			<para>Hadoop Connector</para>
+			<para>http://docs.mongodb.org/ecosystem/tutorial/getting-started-with-hadoop/</para>
+
+			<screen>
+git clone https://github.com/mongodb/mongo-hadoop.git
+git checkout release-1.0
+			</screen>
+			<screen>
+# vim build.sbt
+hadoopRelease in ThisBuild := "cdh4"
+			</screen>
+			<screen>
+./sbt package
+			</screen>
+			<screen>
+			<![CDATA[
+wget --no-check-certificate https://github.com/downloads/mongodb/mongo-java-driver/mongo-2.7.3.jar
+cp mongo-2.7.3.jar /usr/lib/hadoop/lib/
+cp core/target/mongo-hadoop-core_cdh3u3-1.0.0.jar /usr/lib/hadoop/lib/
+			]]>
+			</screen>
+			<para>待续......</para>
+		</section>
+	</section>
+
+	<section id="mongodb.security">
+		<title>Security and Authentication</title>
+		<para>开启认证</para>
+		<screen>
+# vim /etc/mongodb.conf
+auth = true
+		</screen>
+		<para>重载配置文件</para>
+		<screen>
+# /etc/init.d/mongod reload
+Stopping mongod:                                           [  OK  ]
+Starting mongod:                                           [  OK  ]
+		</screen>
+		<section>
+			<title>超级管理员</title>
+			<screen>
+			<![CDATA[
+> use admin
+switched to db admin
+> db.addUser('neo','chen')
+{
+        "user" : "neo",
+        "readOnly" : false,
+        "pwd" : "68ace374737253d87e0ec91d4fcb673d"
+}
+
+> db.system.users.find()
+{ "_id" : ObjectId("4c481404b9db6474d2fcb76f"), "user" : "neo", "readOnly" : false, "pwd" : "68ace374737253d87e0ec91d4fcb673d" }
+
+> db.auth('neo','chen')
+1
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>数据库用户</title>
+			<para>注意，只有创建了超级管理后，下面的操作才会生效</para>
+			<screen>
+			<![CDATA[
+> use neo
+switched to db neo
+> db.addUser('neo','chen')
+{
+        "user" : "neo",
+        "readOnly" : false,
+        "pwd" : "68ace374737253d87e0ec91d4fcb673d"
+}
+
+> db.system.users.find()
+{ "_id" : ObjectId("4c481404b9db6474d2fcb76f"), "user" : "neo", "readOnly" : false, "pwd" : "68ace374737253d87e0ec91d4fcb673d" }
+
+> db.auth('neo','chen')
+1
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>删除用户</title>
+			<para>Deleting Users 删除用户</para>
+			<para>To delete a user:</para>
+			<screen>
+			<![CDATA[
+db.system.users.remove( { user: username } )
+			]]>
+			</screen>
+		</section>
+	</section>
+	<section id="mongodb.replication">
+		<title>Replication</title>
+		<screen>
+创建主：
+
+Mongod –port 28018 –dbpath /var/mongodb/master –master
+
+ 创建从：
+
+Mongod –port 28019 –dbpath /var/mongodb/slave –slave –source localhost:28018
+
+		</screen>
+	</section>
+	<section id="mongodb.drivers">
+		<title>Drivers</title>
+		<section>
+			<title>Using MongoDB in PHP</title>
+			<para>Installing the PHP Driver</para>
+			<screen>
+sudo pecl install mongo
+			</screen>
+			<para>Open your php.ini file and add to it:</para>
+			<screen>
+extension=mongo.so
+			</screen>
+			<example>
+				<title>Using MongoDB in PHP</title>
+				<screen>
+				<![CDATA[
+[root@subversion html]# cat mongo.php
+<?php
+
+// connect
+$m = new Mongo('192.168.3.9');
+
+// select a database
+$db = $m->comedy;
+$collection = $db->cartoons;
+
+// add an element
+$obj = array( "title" => "Calvin and Hobbes", "author" => "Bill Watterson" );
+$collection->insert($obj);
+
+// add another element, with a different "shape"
+$obj = array( "title" => "XKCD", "online" => true );
+$collection->insert($obj);
+
+// find everything in the collection
+$cursor = $collection->find();
+
+// iterate through the results
+foreach ($cursor as $obj) {
+    echo $obj["title"] . "\n";
+}
+
+// disconnect
+$m->close();
+
+?>
+				]]>
+				</screen>
+				<para></para>
+				<screen>
+[root@subversion html]# php mongo.php
+Calvin and Hobbes
+XKCD
+[root@subversion html]# php mongo.php
+Calvin and Hobbes
+XKCD
+Calvin and Hobbes
+XKCD
+				</screen>
+				<para></para>
+				<screen>
+				<![CDATA[
+> use comedy
+switched to db comedy
+> db.foo.find()
+> db.cartoons.find()
+{ "_id" : ObjectId("4c481d2b9503c17611000000"), "title" : "Calvin and Hobbes", "author" : "Bill Watterson" }
+{ "_id" : ObjectId("4c481d2b9503c17611010000"), "title" : "XKCD", "online" : true }
+{ "_id" : ObjectId("4c481d2f9503c17711000000"), "title" : "Calvin and Hobbes", "author" : "Bill Watterson" }
+{ "_id" : ObjectId("4c481d2f9503c17711010000"), "title" : "XKCD", "online" : true }
+>
+				]]>
+				</screen>
+			</example>
+		</section>
+	</section>
+	&chapter.mongo.xml;
+
+	&chapter.mongo.gui.xml;
+</chapter>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="oracle.cli">
+	<title>CLI</title>
+	&chapter.oracle.sqlplus.xml;
+	<section id="lsnrctl">
+		<title>lsnrctl</title>
+	</section>	
+	&chapter.oracle.rman.xml;
+</chapter>

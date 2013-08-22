@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<part id="index"><?dbhtml dir="postgresql" ?>
+	<title>PostgreSQL</title>
+
+	<para></para>
+	<para><ulink url="/postgres">PostgreSQL 实用实例参考</ulink></para>
+
+	&chapter.postgres.xml;
+
+</part>

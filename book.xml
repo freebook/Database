@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Id: book.xml 593 2013-05-21 11:01:33Z netkiller $ -->
+<!DOCTYPE subject SYSTEM "/usr/share/xml/docbook/schema/dtd/5.0/docbook.dtd"
+	[
+	<!ENTITY homepage "http://netkiller.sf.net/">
+	<!ENTITY mirror "http://netkiller.github.com/">
+
+	<!ENTITY Neo "http://netkiller.sf.net/">
+	<!ENTITY BG7NYT "&Neo;">
+	<!ENTITY Netkiller "<emphasis><trademark>Netkiller</trademark></emphasis>">
+
+	<!ENTITY book.info.legalnotice.xml		SYSTEM "../common/book.info.legalnotice.xml">
+	<!ENTITY book.info.abstract.xml			SYSTEM "../common/book.info.abstract.xml">
+	<!ENTITY book.info.author.xml			SYSTEM "../common/book.info.author.xml">
+    <!ENTITY book.preface.xml           	SYSTEM "../common/book.preface.xml">
+	<!ENTITY preface.about.me.xml       	SYSTEM "../common/about.me.xml">
+	<!ENTITY book.dedication.xml       		SYSTEM "../common/book.dedication.xml">
+<!--
+	<!ENTITY book.preface SYSTEM "book.preface.xml">
+	<!ENTITY book.dedication SYSTEM "book.dedication.xml">
+	<!ENTITY book.appendix SYSTEM "book.appendix.xml">
+	<!ENTITY book.history SYSTEM "book.history.xml">
+
+	<!ENTITY part.design.xml 				SYSTEM "part.design.xml">
+	<!ENTITY chapter.design.rdbms.xml 		SYSTEM "chapter.design.rdbms.xml">
+	<!ENTITY chapter.design.hdbms.xml		SYSTEM "chapter.design.hdbms.xml">
+	<!ENTITY chapter.design.ordbms.xml		SYSTEM "chapter.design.ordbms.xml">
+
+-->
+	<!ENTITY % mysql.doctype.entity.xml 	SYSTEM "MySQL/doctype.entity.xml">
+	%mysql.doctype.entity.xml;
+
+	<!ENTITY part.postgres.xml		 		SYSTEM "part.postgres.xml">
+	<!ENTITY % postgresql.doctype.entity.xml 	SYSTEM "PostgreSQL/doctype.entity.xml">
+	%postgresql.doctype.entity.xml;
+
+	<!ENTITY % oracle.doctype.entity.xml 	SYSTEM "Oracle/doctype.entity.xml">
+	%oracle.doctype.entity.xml;
+
+	<!ENTITY % nosql.doctype.entity.xml 	SYSTEM "NoSQL/doctype.entity.xml">
+	%nosql.doctype.entity.xml;
+
+	<!ENTITY % search.doctype.entity.xml 	SYSTEM "Search/doctype.entity.xml">
+	%search.doctype.entity.xml;
+
+	<!ENTITY part.database 					SYSTEM "part.database.xml">
+	<!ENTITY chapter.greensql.xml			SYSTEM "chapter.greensql.xml">
+	<!ENTITY chapter.etl.xml				SYSTEM "chapter.etl.xml">
+	<!ENTITY chapter.migration.xml			SYSTEM "chapter.migration.xml">
+	<!ENTITY chapter.test.xml 				SYSTEM "chapter.test.xml">
+
+	<!ENTITY home "<![CDATA[ <ulink url='&homepage;'>&homepage;</ulink> ]]>">
+
+]>
+<book xml:base="http://netkiller.sourceforge.net/database/"
+	xmlns="http://docbook.org/ns/docbook" xml:lang="zh-cn">
+	<bookinfo>
+		<title>Netkiller Database 手札</title>
+		<subtitle>PostgreSQL, MySQL, Oracle ...</subtitle>
+
+		<authorgroup>
+			&book.info.author.xml;
+		</authorgroup>
+
+		<copyright>
+			<year>2009</year>
+			<year>2010</year>
+			<year>2011</year>
+			<year>2012</year>
+			<year>2013</year>
+			<holder>Netkiller(Neo Chan). All rights reserved.</holder>
+		</copyright>
+
+		<publisher>
+			<publishername>Neo</publishername>
+		</publisher>
+		<isbn>ISBN#</isbn>
+		<edition>User's Guide version 1.0 for Linux</edition>
+		<pubdate>$Date: 2013-05-21 19:01:33 +0800 (Tue, 21 May 2013) $</pubdate>
+		<releaseinfo>文档初创于<date>April 6, 2008</date></releaseinfo>
+
+		&book.info.legalnotice.xml;
+		&book.info.abstract.xml;
+		<keywordset>
+		    <keyword>MySQL</keyword>
+		    <keyword>PostgreSQL</keyword>
+		    <keyword>Oracle</keyword>
+		    <keyword>NoSQL</keyword>
+		    <keyword>ER</keyword>
+		    <keyword>TokyoCabinet/Tyrant, Memcache, Membase, Redis, Flare, Voldemort, LevelDB</keyword>
+		    <keyword>MongoDB</keyword>
+		    <keyword>GreenSQL</keyword>
+		    <keyword>RDBMS, ORDBMS</keyword>
+		</keywordset>
+	</bookinfo>
+
+<!-- =========================================================================== -->
+	&book.dedication.xml;
+<!-- =========================================================================== -->
+	&book.preface.xml;
+	&part.database;
+
+	&part.mysql.xml;
+	&part.postgres.xml;
+	&part.oracle.xml;
+	&part.nosql.xml;
+	&part.search.xml;
+
+<!-- ===========================================================================
+	&book.history;
+	&book.appendix;
+-->
+</book>

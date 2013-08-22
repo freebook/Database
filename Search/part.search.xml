@@ -1,0 +1,35 @@
+<part id="index"><?dbhtml dir="search" ?>
+	<title>Search Engine</title>
+
+	&chapter.solr.xml;
+	&chapter.nutch.xml;
+	&chapter.sphinx.xml;
+
+<chapter id="lucene">
+	<title>Lucene</title>
+	<para>http://lucene.apache.org/</para>
+	<para></para>
+</chapter>
+
+<chapter id="mg4j">
+	<title>MG4J</title>
+	<para>http://mg4j.dsi.unimi.it/</para>
+</chapter>
+
+<chapter id="phpdig">
+	<title>PhpDig</title>
+	<para>http://www.phpdig.net/</para>
+	<para>
+		PhpDig is a web spider and search engine written in PHP, using a MySQL database and flat file support. PhpDig builds a glossary with words found in indexed pages. On a search query, it displays a result page containing the search keys, ranked by occurrence.
+	</para>
+</chapter>
+<chapter id="mahout">
+	<title>Mahout</title>
+	<para>http://mahout.apache.org/</para>
+</chapter>
+<chapter id="elasticsearch">
+	<title>elasticsearch</title>
+	<para>http://www.elasticsearch.org/</para>
+</chapter>
+
+</part>

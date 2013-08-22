@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<!ENTITY part.oracle.xml 				SYSTEM "part.oracle.xml">
+	<!ENTITY chapter.oracle 				SYSTEM "chapter.oracle.xml">
+	<!ENTITY chapter.oracle.gui.xml			SYSTEM "chapter.oracle.gui.xml">
+	<!ENTITY chapter.oracle.cli.xml			SYSTEM "chapter.oracle.cli.xml">
+	<!ENTITY chapter.oracle.install.xml 	SYSTEM "chapter.oracle.install.xml">
+	<!ENTITY chapter.oracle.sqlplus.xml 	SYSTEM "chapter.oracle.sqlplus.xml">
+	<!ENTITY chapter.oracle.rman.xml	 	SYSTEM "chapter.oracle.rman.xml">

@@ -1,0 +1,1089 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="oracle.install">
+	<title>Installing Oracle Database</title>
+	<section id="oracle.server.10gR2">
+	<title>Installing Oracle Database 10g Release 2 on Linux x86</title>
+	<para>reference: http://www.oracle.com/technology/pub/articles/smiley_10gdb_install.html</para>
+	<para>To make these changes, cut and paste the following commands as root: </para>
+
+	<procedure>
+		<title>Configure linux step by step</title>
+		<step>
+			<para>Verifying Your Installation</para>
+			<screen>
+rpm -q binutils compat-db control-center gcc gcc-c++ glibc glibc-common \
+gnome-libs libstdc++ libstdc++-devel make pdksh sysstat xscreensaver libaio openmotif21
+			</screen>
+			<para>installing package</para>
+			<screen>
+yum install compat-gcc-32 compat-gcc-32-c++ compat-gcc-32-g77 compat-libf2c-32 compat-libstdc++-296 compat-libstdc++-33 compat-db compat-readline43
+			</screen>
+		</step>
+		<step>
+			<para>Verifying System Requirements</para>
+			<screen>
+grep MemTotal /proc/meminfo
+grep SwapTotal /proc/meminfo
+			</screen>
+			<para>Swap = mem * 2</para>
+		</step>
+		<step>
+			<para>Create the Oracle Groups and User Account</para>
+			<screen>
+groupadd oinstall
+groupadd dba
+useradd -m -g oinstall -G dba oracle
+passwd oracle
+id oracle
+			</screen>
+		</step>
+		<step>
+			<para>Create Directories</para>
+			<screen>
+mkdir -p /u01/app/oracle
+chown -R oracle:oinstall /u01/app/oracle
+chmod -R 775 /u01/app/oracle
+			</screen>
+		</step>
+		<step>
+			<para>Configuring the Linux Kernel Parameters</para>
+			<screen>
+			<![CDATA[
+cat >> /etc/sysctl.conf <<EOF
+kernel.shmall = 2097152
+kernel.shmmax = 536870912
+kernel.shmmni = 4096
+kernel.sem = 250 32000 100 128
+fs.file-max = 65536
+net.ipv4.ip_local_port_range = 1024 65000
+net.core.rmem_default=262144
+net.core.wmem_default=262144
+net.core.rmem_max=262144
+net.core.wmem_max=262144
+EOF
+/sbin/sysctl -p
+			]]>
+			</screen>
+			<para>Run the following commands as root to verify your settings: </para>
+			<screen>
+/sbin/sysctl -a | grep shm
+/sbin/sysctl -a | grep sem
+/sbin/sysctl -a | grep file-max
+/sbin/sysctl -a | grep ip_local_port_range
+/sbin/sysctl -a | grep rmem_default
+/sbin/sysctl -a | grep rmem_max
+/sbin/sysctl -a | grep wmem_default
+/sbin/sysctl -a | grep wmem_max
+			</screen>
+		</step>
+		<step>
+			<para>Setting Shell Limits for the oracle User</para>
+			<screen>
+			<![CDATA[
+cat >> /etc/security/limits.conf <<EOF
+oracle soft nproc 2047
+oracle hard nproc 16384
+oracle soft nofile 1024
+oracle hard nofile 65536
+EOF
+			]]>
+			</screen>
+			<!--
+			<![CDATA[
+cat >> /etc/pam.d/login <<EOF
+session required /lib/security/pam_limits.so
+EOF
+			]]>
+			 -->
+		</step>
+		<step>
+			<para>/etc/profile</para>
+			<screen>
+			<![CDATA[
+cat >> /etc/profile <<EOF
+if [ \$USER = "oracle" ]; then
+ if [ \$SHELL = "/bin/ksh" ]; then
+ ulimit -p 16384
+ ulimit -n 65536
+ else
+ ulimit -u 16384 -n 65536
+ fi
+ umask 022
+fi
+EOF
+
+cat >> /etc/csh.login <<EOF
+if ( \$USER == "oracle" ) then
+ limit maxproc 16384
+ limit descriptors 65536
+ umask 022
+endif
+EOF
+			]]>
+			</screen>
+		</step>
+		<step>
+			<para>.bash_profile</para>
+			<screen>
+# su - oracle
+$ vim .bash_profile
+
+export ORACLE_BASE=/u01/app/oracle
+export ORACLE_HOME=$ORACLE_BASE/product/10.2.0.1
+export ORACLE_SID=orcl
+export PATH=$PATH:$HOME/bin:$ORACLE_HOME/bin
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/usr/lib
+			</screen>
+		</step>
+	</procedure>
+	<procedure>
+		<title>Installing Oracle</title>
+		<step>
+			<para>编辑 /10201_database_linux32/database/install/oraparam.ini 添加</para>
+			<screen>
+vim 10201_database_linux32/database/install/oraparam.ini
+
+### #[Certified Versions]
+
+Linux=redhat-3,SuSE-9,redhat-4,centos-5,UnitedLinux-1.0,asianux-1,asianux-2
+
+[Linux-centos-5.1-optional]
+TEMP_SPACE=80
+SWAP_SPACE=150
+MIN_DISPLAY_COLORS=256
+			</screen>
+		</step>
+		<step>
+			<para>install</para>
+			<screen>
+			<![CDATA[
+gunzip xxxx.cpio.gz
+cpio -idmv < xxxx.cpio
+export LANG=en_US
+./runInstaller
+			]]>
+			</screen>
+		</step>
+		<step>
+			<para>dbstart</para>
+			<screen>
+# su - oracle
+# dbstart
+
+提示打开 /ade/vikrkuma_new/oracle/bin/tnslsnr 失败
+			</screen>
+			<para>编辑 /u01/app/oracle/product/10.2.0.1/bin/dbstart</para>
+			<screen>
+# Set this to bring up Oracle Net Listener
+ORACLE_HOME_LISTNER=/ade/vikrkuma_new/oracle
+
+应该是在78行，将其改为：
+
+# Set this to bring up Oracle Net Listener
+ORACLE_HOME_LISTNER=$ORACLE_HOME
+			</screen>
+			<para>/etc/oratable 将最后一行的最后一个字符由 “N” 改为 “Y”</para>
+			<screen>
+orcl: /u01/app/oracle/product/10.2.0.1:Y
+			</screen>
+		</step>
+	</procedure>
+
+	<procedure>
+		<title>Configuring Storage</title>
+		<step>
+			<para>Partition the Disks</para>
+			<screen>
+fdisk -l /dev/sdb
+			</screen>
+		</step>
+		<step>
+			<para>Filesystems</para>
+			<para>ZFS or btrfs</para>
+		</step>
+		<step>
+			<para>Create the Mount Point</para>
+			<screen>
+			<![CDATA[
+mkdir /u02
+			]]>
+			</screen>
+			<para>Add the New Filesystem to /etc/fstab</para>
+			<screen>
+			<![CDATA[
+/dev/sdb1 /u02 xfs defaults 1 1
+			]]>
+			</screen>
+			<para>Mount the New Filesystem</para>
+			<screen>
+			<![CDATA[
+mount /u02
+df -h /u02
+			]]>
+			</screen>
+		</step>
+		<step>
+			<para>Create Oracle Directories and Set Permissions</para>
+			<screen>
+			<![CDATA[
+mkdir -p /u02/oradata/demo1
+chown -R oracle:oinstall /u02/oradata
+chmod -R 775 /u02/oradata
+			]]>
+			</screen>
+		</step>
+		<step>
+			<para>Create a New Tablespace in the New Filesystem</para>
+			<screen>
+			<![CDATA[
+Ex:
+$ sqlplus
+
+SQL*Plus: Release 10.2.0.1.0 - Production on Sun Nov 27 15:50:50 2005
+
+Copyright (c) 1982, 2005, Oracle.  All rights reserved.
+
+Enter user-name: system
+Enter password:
+
+Connected to:
+Oracle Database 10g Enterprise Edition Release 10.2.0.1.0 - Production
+With the Partitioning, OLAP and Data Mining options
+
+SQL> create tablespace data1
+  2  datafile '/u02/oradata/demo1/data1_01.dbf' size 100m
+  3  extent management local
+  4  segment space management auto;
+
+Tablespace created.
+
+Now you can use the new tablespace to store database objects such as tables and indexes.
+
+Ex:
+SQL> create table demotab (id number(5) not null primary key,
+ 2 name varchar2(50) not null,
+ 3 amount number(9,2))
+ 4 tablespace data1;
+
+Table created.
+			]]>
+			</screen>
+		</step>
+	</procedure>
+	</section>
+	<section id="oracle.server.11gR2">
+		<title>11gR2</title>
+		<screen>
+unzip linux.x64_11gR2_database_1of2.zip
+unzip linux.x64_11gR2_database_2of2.zip
+
+[oracle@wcs ~]$ vi .bash_profile
+export TMP=/tmp
+export TMPDIR=$TMP
+export ORACLE_BASE=/opt/oracle/
+export ORACLE_HOME=$ORACLE_BASE/product/11.2.0/dbhome_1
+export ORACLE_SID=orcl
+export ORACLE_TERM=xterm
+export ORACLE_HOME_LISTNER=$ORACLE_HOME
+export PATH=$ORACLE_HOME/bin:$PATH
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/lib64:/usr/lib64:/usr/local/lib64:/usr/X11R6/lib64/
+export CLASSPATH=$ORACLE_HOME/JRE:$ORACLE_HOME/jlib:$ORACLE_HOME/rdbms/jlib
+export LD_ASSUME_KERNEL=2.6.18
+export NLS_LANG="AMERICAN_AMERICA.ZHS16GBK"
+
+		</screen>
+		<screen>
+		<![CDATA[
+cat >> /etc/sysctl.conf <<EOF
+fs.aio-max-nr = 3145728
+fs.file-max = 6815744
+kernel.shmall = 1073741824
+kernel.shmmax = 4398046511104
+kernel.shmmni = 4096
+kernel.sem = 250 32000 100 142
+net.ipv4.ip_local_port_range = 9000 65500
+net.core.rmem_default = 262144
+net.core.rmem_max = 4194304
+net.core.wmem_default = 262144
+net.core.wmem_max = 1048576
+EOF
+/sbin/sysctl -p
+		]]>
+		</screen>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-1.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-2.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-3.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-4.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-5.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-6.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-7.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-8.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-9.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-10.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-11.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-12.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-13.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-14.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-15.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-16.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-17.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-18.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-19.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-20.png" srccredit="neo" width=""/></para>
+		<para>切换到root用户运行下面脚本</para>
+		<screen>
+/opt/oracle/oraInventory/orainstRoot.sh
+/opt/oracle/product/11.2.0.1/client/root.sh
+		</screen>
+		<screen>
+[root@oracle ~]# /opt/oracle/oraInventory/orainstRoot.sh
+Changing permissions of /opt/oracle/oraInventory.
+Adding read,write permissions for group.
+Removing read,write,execute permissions for world.
+
+Changing groupname of /opt/oracle/oraInventory to oinstall.
+The execution of the script is complete.
+
+[root@oracle ~]# /opt/oracle/product/11.2.0/dbhome_1/root.sh
+Running Oracle 11g root.sh script...
+
+The following environment variables are set as:
+    ORACLE_OWNER= oracle
+    ORACLE_HOME=  /opt/oracle/product/11.2.0/dbhome_1
+
+Enter the full pathname of the local bin directory: [/usr/local/bin]:
+   Copying dbhome to /usr/local/bin ...
+   Copying oraenv to /usr/local/bin ...
+   Copying coraenv to /usr/local/bin ...
+
+
+Creating /etc/oratab file...
+Entries will be added to the /etc/oratab file as needed by
+Database Configuration Assistant when a database is created
+Finished running generic part of root.sh script.
+Now product-specific root actions will be performed.
+Finished product-specific root actions.
+
+		</screen>
+	</section>
+	<section id="oracle.client">
+		<title>Installing Oracle Client</title>
+		<para>orains.sh</para>
+		<screen>
+#!/bin/bash
+groupadd oinstall
+groupadd dba
+useradd -m -g oinstall -G dba oracle
+echo "oracle:oracle" | chpasswd
+id oracle
+mkdir -p /opt/oracle
+chown oracle.oinstall /opt/oracle
+		</screen>
+		<screen>
+		<![CDATA[
+cat >> /etc/sysctl.conf <<EOF
+kernel.shmall = 2097152
+kernel.shmmax = 536870912
+kernel.shmmni = 4096
+kernel.sem = 250 32000 100 128
+fs.file-max = 65536
+net.ipv4.ip_local_port_range = 32768 61000
+net.core.rmem_default=262144
+net.core.wmem_default=262144
+net.core.rmem_max=4194304
+net.core.wmem_max=262144
+EOF
+/sbin/sysctl -p
+		]]>
+		</screen>
+		<para>Run the following commands as root to verify your settings: </para>
+		<screen>
+/sbin/sysctl -a | grep shm
+/sbin/sysctl -a | grep sem
+/sbin/sysctl -a | grep file-max
+/sbin/sysctl -a | grep ip_local_port_range
+/sbin/sysctl -a | grep rmem_default
+/sbin/sysctl -a | grep rmem_max
+/sbin/sysctl -a | grep wmem_default
+/sbin/sysctl -a | grep wmem_max
+		</screen>
+		<screen>
+export TMP=/tmp
+export TMPDIR=/tmp
+export ORACLE_BASE=/opt/oracle
+export ORACLE_HOME=$ORACLE_BASE/product/11.2.0.1/client
+export PATH=$ORACLE_HOME/bin:$PATH
+		</screen>
+		<screen>
+yum install sysstat libaio-devel glibc-devel elfutils-libelf-devel unixODBC unixODBC-devel
+
+unzip linux.x64_11gR2_client.zip
+
+[oracle@wcs ~]$ cd client/
+[oracle@wcs client]$ ./runInstaller
+		</screen>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-client-1.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-client-2.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-client-3.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-client-4.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-client-5.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/oracle-client-6.png" srccredit="neo" width=""/></para>
+		<para>登录到root用户运行下面脚本</para>
+		<screen>
+/opt/oracle/oraInventory/orainstRoot.sh
+/opt/oracle/product/11.2.0.1/client/root.sh
+		</screen>
+		<screen>
+[root@wcs oracle]# /opt/oracle/oraInventory/orainstRoot.sh
+Changing permissions of /opt/oracle/oraInventory.
+Adding read,write permissions for group.
+Removing read,write,execute permissions for world.
+
+Changing groupname of /opt/oracle/oraInventory to oinstall.
+The execution of the script is complete.
+[root@wcs oracle]# /opt/oracle/product/11.2.0.1/client/root.sh
+Running Oracle 11g root.sh script...
+
+The following environment variables are set as:
+    ORACLE_OWNER= oracle
+    ORACLE_HOME=  /opt/oracle/product/11.2.0.1/client
+
+Enter the full pathname of the local bin directory: [/usr/local/bin]:
+   Copying dbhome to /usr/local/bin ...
+   Copying oraenv to /usr/local/bin ...
+   Copying coraenv to /usr/local/bin ...
+
+
+Creating /etc/oratab file...
+Entries will be added to the /etc/oratab file as needed by
+Database Configuration Assistant when a database is created
+Finished running generic part of root.sh script.
+Now product-specific root actions will be performed.
+
+		</screen>
+		<para>至此，Oracle客户端安装完毕</para>
+	</section>
+	<section id="oracle.install.silence">
+		<title>Silence Install - Database</title>
+		<section>
+			<title>Response File</title>
+			<para>创建response文件 /home/oracle/db.rsp</para>
+			<screen>
+			<![CDATA[
+[oracle@oracle ~]$ cat db.rsp
+
+#-------------------------------------------------------------------------------
+# Do not change the following system generated value.
+#-------------------------------------------------------------------------------
+oracle.install.responseFileVersion=/oracle/install/rspfmt_dbinstall_response_schema_v11_2_0
+
+#-------------------------------------------------------------------------------
+# The installation option can be one of the following
+# 1. INSTALL_DB_SWONLY
+# 2. INSTALL_DB_AND_CONFIG
+# 3. UPGRADE_DB
+#-------------------------------------------------------------------------------
+oracle.install.option=INSTALL_DB_AND_CONFIG
+
+#-------------------------------------------------------------------------------
+# This variable holds the hostname of the system as set by the user.
+# It can be used to force the installation to use an alternative
+# hostname rather than using the first hostname found on the system
+# (e.g., for systems with multiple hostnames and network interfaces).
+#-------------------------------------------------------------------------------
+ORACLE_HOSTNAME=oracle.example.com
+
+#-------------------------------------------------------------------------------
+# Unix group to be set for the inventory directory.
+#-------------------------------------------------------------------------------
+UNIX_GROUP_NAME=oinstall
+
+#-------------------------------------------------------------------------------
+# Inventory location.
+#-------------------------------------------------------------------------------
+INVENTORY_LOCATION=/opt/oracle/oraInventory
+
+#-------------------------------------------------------------------------------
+# Specify the languages in which the components will be installed.
+#
+# en   : English                  ja   : Japanese
+# fr   : French                   ko   : Korean
+# ar   : Arabic                   es   : Latin American Spanish
+# bn   : Bengali                  lv   : Latvian
+# pt_BR: Brazilian Portuguese     lt   : Lithuanian
+# bg   : Bulgarian                ms   : Malay
+# fr_CA: Canadian French          es_MX: Mexican Spanish
+# ca   : Catalan                  no   : Norwegian
+# hr   : Croatian                 pl   : Polish
+# cs   : Czech                    pt   : Portuguese
+# da   : Danish                   ro   : Romanian
+# nl   : Dutch                    ru   : Russian
+# ar_EG: Egyptian                 zh_CN: Simplified Chinese
+# en_GB: English (Great Britain)  sk   : Slovak
+# et   : Estonian                 sl   : Slovenian
+# fi   : Finnish                  es_ES: Spanish
+# de   : German                   sv   : Swedish
+# el   : Greek                    th   : Thai
+# iw   : Hebrew                   zh_TW: Traditional Chinese
+# hu   : Hungarian                tr   : Turkish
+# is   : Icelandic                uk   : Ukrainian
+# in   : Indonesian               vi   : Vietnamese
+# it   : Italian
+#
+# Example : SELECTED_LANGUAGES=en,fr,ja
+#-------------------------------------------------------------------------------
+SELECTED_LANGUAGES=en
+
+#-------------------------------------------------------------------------------
+# Complete path of the Oracle Home
+#-------------------------------------------------------------------------------
+ORACLE_HOME=/opt/oracle/product/11.2.0/dbhome_1
+
+#-------------------------------------------------------------------------------
+# Complete path of the Oracle Base.
+#-------------------------------------------------------------------------------
+ORACLE_BASE=/opt/oracle
+
+#-------------------------------------------------------------------------------
+# Installation Edition of the component.
+#
+# The value should contain only one of these choices.
+# EE     : Enterprise Edition
+# SE     : Standard Edition
+# SEONE  : Standard Edition One
+# PE     : Personal Edition (WINDOWS ONLY)
+#-------------------------------------------------------------------------------
+oracle.install.db.InstallEdition=EE
+
+#-------------------------------------------------------------------------------
+# This property is considered only if InstallEdition is EE.
+#
+# true  : Components mentioned as part of 'customComponents' property
+#         are considered for install.
+# false : Value for 'customComponents' is not considered.
+#-------------------------------------------------------------------------------
+oracle.install.db.isCustomInstall=false
+
+#-------------------------------------------------------------------------------
+# This property is considered only if 'IsCustomInstall' is set to true
+#
+# Description: List of Enterprise Edition Options you would like to install.
+#
+#              The following choices are available. You may specify any
+#              combination of these choices.  The components you choose should
+#              be specified in the form "internal-component-name:version"
+#              Below is a list of components you may specify to install.
+#
+#              oracle.oraolap:11.2.0.0.2 - Oracle OLAP
+#              oracle.rdbms.dm:11.2.0.0.2 - Oracle Data Mining RDBMS Files
+#              oracle.rdbms.dv:11.2.0.0.2 - Oracle Database Vault option
+#              oracle.rdbms.lbac:11.2.0.0.2 - Oracle Label Security
+#              oracle.rdbms.partitioning:11.2.0.0.2 - Oracle Partitioning
+#              oracle.rdbms.rat:11.2.0.0.2 - Oracle Real Application Testing
+#              oracle.clrintg.ode_net:11.2.0.0.2 - Oracle Database Extensions for .NET 1.x (Windows)
+#              oracle.clrintg.ode_net_2:11.2.0.0.2 - Oracle Database Extensions for .NET 2.0 (Windows)
+#-------------------------------------------------------------------------------
+oracle.install.db.customComponents=
+
+#-------------------------------------------------------------------------------
+oracle.install.db.DBA_GROUP=dba
+
+#-------------------------------------------------------------------------------
+oracle.install.db.OPER_GROUP=dba
+
+#-------------------------------------------------------------------------------
+# This variable represents the cluster node names selected by the .
+# user for installation
+#-------------------------------------------------------------------------------
+oracle.install.db.CLUSTER_NODES=
+
+#-------------------------------------------------------------------------------
+# One of the following
+# - GENERAL_PURPOSE
+# - TRANSACTION_PROCESSING
+# - DATAWAREHOUSE
+#-------------------------------------------------------------------------------
+oracle.install.db.config.starterdb.type=GENERAL_PURPOSE
+
+#-------------------------------------------------------------------------------
+# Global Database Name
+#-------------------------------------------------------------------------------
+oracle.install.db.config.starterdb.globalDBName=orcl.example.com
+
+#-------------------------------------------------------------------------------
+# The Starter Database SID
+#-------------------------------------------------------------------------------
+oracle.install.db.config.starterdb.SID=orcl
+
+#-------------------------------------------------------------------------------
+# Database character set
+#
+#  One of the following
+#  AL32UTF8, WE8ISO8859P15, WE8MSWIN1252, EE8ISO8859P2,
+#  EE8MSWIN1250, NE8ISO8859P10, NEE8ISO8859P4, BLT8MSWIN1257,
+#  BLT8ISO8859P13, CL8ISO8859P5, CL8MSWIN1251, AR8ISO8859P6,
+#  AR8MSWIN1256, EL8ISO8859P7, EL8MSWIN1253, IW8ISO8859P8,
+#  IW8MSWIN1255, JA16EUC, JA16EUCTILDE, JA16SJIS, JA16SJISTILDE,
+#  KO16MSWIN949, ZHS16GBK, TH8TISASCII, ZHT32EUC, ZHT16MSWIN950,
+#  ZHT16HKSCS, WE8ISO8859P9, TR8MSWIN1254, VN8MSWIN1258
+#-------------------------------------------------------------------------------
+oracle.install.db.config.starterdb.characterSet=AL32UTF8
+#-------------------------------------------------------------------------------
+# Specify the total memory allocation for the database. (in MB)
+# Value should be at least 256 MB, and should not exceed the
+# total physical memory available on the system.
+# Example: oracle.install.db.config.starterdb.memoryLimit=40
+#-------------------------------------------------------------------------------
+oracle.install.db.config.starterdb.memoryLimit=6218
+oracle.install.db.config.starterdb.memoryOption=true
+
+#-------------------------------------------------------------------------------
+# This variable controls whether to load Example Schemas onto
+# the starter database or not.
+#-------------------------------------------------------------------------------
+oracle.install.db.config.starterdb.installExampleSchemas=true
+
+#-------------------------------------------------------------------------------
+# This include enabling audit settings, configuring password
+# profiles and revoking some grants to public. These settings
+# are provided by default.  You may choose to disable all.
+#-------------------------------------------------------------------------------
+oracle.install.db.config.starterdb.enableSecuritySettings=true
+
+#-------------------------------------------------------------------------------
+oracle.install.db.config.starterdb.password.ALL=
+
+#-------------------------------------------------------------------------------
+oracle.install.db.config.starterdb.password.SYS=
+
+#-------------------------------------------------------------------------------
+oracle.install.db.config.starterdb.password.SYSTEM=
+
+#-------------------------------------------------------------------------------
+oracle.install.db.config.starterdb.password.SYSMAN=
+
+#-------------------------------------------------------------------------------
+oracle.install.db.config.starterdb.password.DBSNMP=
+
+#-------------------------------------------------------------------------------
+# Can be one of the following
+# 1. GRID_CONTROL
+# 2. DB_CONTROL
+#
+oracle.install.db.config.starterdb.control=DB_CONTROL
+
+#-------------------------------------------------------------------------------
+# Determines the Management Service to use if Grid Control
+# is selected to manage the database.
+#-------------------------------------------------------------------------------
+oracle.install.db.config.starterdb.gridcontrol.gridControlServiceURL=
+
+#-------------------------------------------------------------------------------
+# Determines whether to receive email notification for
+# critical alerts when using DB control.
+#-------------------------------------------------------------------------------
+oracle.install.db.config.starterdb.dbcontrol.enableEmailNotification=false
+
+#-------------------------------------------------------------------------------
+oracle.install.db.config.starterdb.dbcontrol.emailAddress=
+
+#-------------------------------------------------------------------------------
+oracle.install.db.config.starterdb.dbcontrol.SMTPServer=
+
+#-------------------------------------------------------------------------------
+oracle.install.db.config.starterdb.automatedBackup.enable=false
+
+#-------------------------------------------------------------------------------
+oracle.install.db.config.starterdb.automatedBackup.osuid=
+
+#-------------------------------------------------------------------------------
+oracle.install.db.config.starterdb.automatedBackup.ospwd=
+
+#-------------------------------------------------------------------------------
+# Can be one of the following
+# - FILE_SYSTEM_STORAGE
+# - ASM_STORAGE
+#-------------------------------------------------------------------------------
+oracle.install.db.config.starterdb.storageType=FILE_SYSTEM_STORAGE
+
+#-------------------------------------------------------------------------------
+# Database file location:
+# directory for datafiles, control files, redo logs.
+#
+# Applicable only when oracle.install.db.config.starterdb.storage=FILE_SYSTEM_STORAGE
+#-------------------------------------------------------------------------------
+oracle.install.db.config.starterdb.fileSystemStorage.dataLocation=/opt/oracle/oradata
+
+#-------------------------------------------------------------------------------
+# Backup and recovery location
+#
+# Applicable only when oracle.install.db.config.starterdb.storage=FILE_SYSTEM_STORAGE
+#-------------------------------------------------------------------------------
+oracle.install.db.config.starterdb.fileSystemStorage.recoveryLocation=
+
+#-------------------------------------------------------------------------------
+# Name of ASM disk group to be used for storage.
+#
+# Applicable only when oracle.install.db.config.starterdb.storageType=ASM_STORAGE
+#-------------------------------------------------------------------------------
+oracle.install.db.config.asm.diskGroup=
+
+#-------------------------------------------------------------------------------
+# Password for ASMSNMP user of the ASM instance.
+#
+# Applicable only when oracle.install.db.config.starterdb.storage=ASM_STORAGE
+#-------------------------------------------------------------------------------
+oracle.install.db.config.asm.ASMSNMPPassword=
+
+#------------------------------------------------------------------------------
+# Specify the My Oracle Support Account Username.
+#
+#  Example   : MYORACLESUPPORT_USERNAME=metalink
+#------------------------------------------------------------------------------
+MYORACLESUPPORT_USERNAME=neo.chen@msn.com
+
+#------------------------------------------------------------------------------
+# Specify the My Oracle Support Account Username password.
+#
+# Example    : MYORACLESUPPORT_PASSWORD=password
+#------------------------------------------------------------------------------
+MYORACLESUPPORT_PASSWORD=
+
+#------------------------------------------------------------------------------
+# Specify whether to enable the user to set the password for
+# My Oracle Support credentials. The value can be either true or false.
+# If left blank it will be assumed to be false.
+#
+# Example    : SECURITY_UPDATES_VIA_MYORACLESUPPORT=true
+#------------------------------------------------------------------------------
+SECURITY_UPDATES_VIA_MYORACLESUPPORT=false
+
+#------------------------------------------------------------------------------
+# Specify whether user wants to give any proxy details for connection.
+# The value can be either true or false. If left blank it will be assumed
+# to be false.
+#
+# Example    : DECLINE_SECURITY_UPDATES=false
+#------------------------------------------------------------------------------
+DECLINE_SECURITY_UPDATES=false
+
+#------------------------------------------------------------------------------
+# Specify the Proxy server name. Length should be greater than zero.
+#
+# Example    : PROXY_HOST=proxy.domain.com
+#------------------------------------------------------------------------------
+PROXY_HOST=
+
+#------------------------------------------------------------------------------
+# Specify the proxy port number. Should be Numeric and atleast 2 chars.
+#
+# Example    : PROXY_PORT=25
+#------------------------------------------------------------------------------
+PROXY_PORT=
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>OS 配置脚本</title>
+			<para>/home/oracle/orains.sh</para>
+			<screen>
+			<![CDATA[
+#!/bin/bash
+ORACLE_BASE=/opt/oracle
+ORACLE_PASSWORD="oracle"
+
+groupadd oinstall
+groupadd dba
+useradd -m -g oinstall -G dba oracle
+echo "oracle:$ORACLE_PASSWORD" | chpasswd
+
+mkdir -p $ORACLE_BASE
+chown -R oracle:oinstall $ORACLE_BASE
+chmod -R 775 $ORACLE_BASE
+
+cat >> /etc/sysctl.conf <<EOF
+fs.aio-max-nr = 3145728
+fs.file-max = 6815744
+kernel.shmall = 1073741824
+kernel.shmmax = 4398046511104
+kernel.shmmni = 4096
+kernel.sem = 250 32000 100 142
+net.ipv4.ip_local_port_range = 9000 65500
+net.core.rmem_default = 262144
+net.core.rmem_max = 4194304
+net.core.wmem_default = 262144
+net.core.wmem_max = 1048576
+EOF
+
+cat >> /etc/security/limits.conf <<EOF
+oracle soft nproc 2048
+oracle hard nproc 16384
+oracle soft nofile 1024
+oracle hard nofile 65536
+EOF
+
+cat >> /home/oracle/.bash_profile <<\EOF
+export TMP=/tmp
+export TMPDIR=$TMP
+export ORACLE_HOSTNAME=$(hostname)
+export ORACLE_BASE=/opt/oracle
+export ORACLE_HOME=$ORACLE_BASE/product/11.2.0/dbhome_1
+export ORACLE_SID=orcl
+export ORACLE_TERM=xterm
+export PATH=$ORACLE_HOME/bin:$PATH
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/lib64:/usr/lib64:/usr/local/lib64
+export CLASSPATH=$ORACLE_HOME/JRE:$ORACLE_HOME/jlib:$ORACLE_HOME/rdbms/jlib
+export LD_ASSUME_KERNEL=2.6.18
+export NLS_LANG="american_america.UTF8"
+export NLS_LANG="AMERICAN_AMERICA.US7ASCII"
+#export NLS_LANG="AMERICAN_AMERICA.ZHS16GBK"
+#export NLS_LANG="SIMPLIFIED CHINESE_CHINA.ZHS16GBK"
+#export NLS_LANG="TRADITIONAL CHINESE_TAIWAN.ZHT16MSWIN950"
+#export NLS_LANG="JAPANESE_JAPAN.WE8MSWIN1252"
+EOF
+
+cat >> /home/oracle/.bashrc <<\EOF
+alias sysdba='sqlplus "/ as sysdba"'
+EOF
+
+cat >> /etc/oraInst.loc <<EOF
+inventory_loc=$ORACLE_BASE/oraInventory
+inst_group=oinstall
+EOF
+chmod 664 /etc/oraInst.loc
+
+cat >> /etc/yum.repos.d/rhel-source-local.repo <<\EOF
+[rhel-source-local]
+name=Red Hat Enterprise Linux $releasever - Source
+baseurl=file:///media/cdrom0/Server
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+EOF
+
+yum install gcc gcc-c++ glibc-devel libstdc++ libstdc++-devel libaio-devel sysstat libaio-devel elfutils-libelf-devel unixODBC unixODBC-devel
+
+			]]>
+			</screen>
+			<screen>
+su - root
+/home/oracle/orains.sh
+			</screen>
+		</section>
+		<section>
+			<title>运行 runInstaller</title>
+			<screen>
+unzip linux.x64_11gR2_database_1of2.zip
+unzip linux.x64_11gR2_database_2of2.zip
+cd database
+./runInstaller -silent -noconfig -responseFile /home/oracle/db.rsp
+			</screen>
+			<para>检查安装日志</para>
+			<screen>
+ls /opt/oracle/oraInventory/logs/
+			</screen>
+		</section>
+	</section>
+	<section id="oracle.install.silence.client">
+		<title>Silence Install - Client</title>
+		<screen>
+		<![CDATA[
+###############################################################################
+## Copyright(c) Oracle Corporation 1998,2008. All rights reserved.           ##
+##                                                                           ##
+## Specify values for the variables listed below to customize                ##
+## your installation.                                                        ##
+##                                                                           ##
+## Each variable is associated with a comment. The comment                   ##
+## can help to populate the variables with the appropriate                   ##
+## values.							             ##
+##                                                                           ##
+###############################################################################
+
+#-------------------------------------------------------------------------------
+# Do not change the following system generated value.
+#-------------------------------------------------------------------------------
+oracle.install.responseFileVersion=http://www.oracle.com/2007/install/rspfmt_clientinstall_response_schema_v11_2_0
+
+#-------------------------------------------------------------------------------
+# This variable holds the hostname of the system as set by the user.
+# It can be used to force the installation to use an alternative
+# hostname rather than using the first hostname found on the system
+# (e.g., for systems with multiple hostnames and network interfaces).
+ORACLE_HOSTNAME=wcs.example.com
+#-------------------------------------------------------------------------------
+# Unix group to be set for the inventory directory.
+UNIX_GROUP_NAME=oinstall
+#-------------------------------------------------------------------------------
+# Inventory location.
+INVENTORY_LOCATION=/opt/oracle/oraInventory
+#-------------------------------------------------------------------------------
+# Specify the languages in which the components will be installed.
+#
+# en   : English                  ja   : Japanese
+# fr   : French                   ko   : Korean
+# ar   : Arabic                   es   : Latin American Spanish
+# bn   : Bengali                  lv   : Latvian
+# pt_BR: Brazilian Portuguese     lt   : Lithuanian
+# bg   : Bulgarian                ms   : Malay
+# fr_CA: Canadian French          es_MX: Mexican Spanish
+# ca   : Catalan                  no   : Norwegian
+# hr   : Croatian                 pl   : Polish
+# cs   : Czech                    pt   : Portuguese
+# da   : Danish                   ro   : Romanian
+# nl   : Dutch                    ru   : Russian
+# ar_EG: Egyptian                 zh_CN: Simplified Chinese
+# en_GB: English (Great Britain)  sk   : Slovak
+# et   : Estonian                 sl   : Slovenian
+# fi   : Finnish                  es_ES: Spanish
+# de   : German                   sv   : Swedish
+# el   : Greek                    th   : Thai
+# iw   : Hebrew                   zh_TW: Traditional Chinese
+# hu   : Hungarian                tr   : Turkish
+# is   : Icelandic                uk   : Ukrainian
+# in   : Indonesian               vi   : Vietnamese
+# it   : Italian
+#
+# Example : SELECTED_LANGUAGES=en,fr,ja
+SELECTED_LANGUAGES=en
+#-------------------------------------------------------------------------------
+# Complete path of the Oracle Home
+ORACLE_HOME=/opt/oracle/product/11.2.0.1/client
+#-------------------------------------------------------------------------------
+# Complete path of the Oracle Base.
+ORACLE_BASE=/opt/oracle
+#------------------------------------------------------------------------------
+#Name       : INSTALL_TYPE
+#Datatype   : String
+#Description: Installation type of the component.
+#
+#             The following choices are available. The value should contain
+#             only one of these choices.
+#             InstantClient : InstantClient
+#             Administrator : Administrator
+#             Runtime       : Runtime
+#             Custom        : Custom
+#
+#Example    : INSTALL_TYPE = "Administrator"
+#------------------------------------------------------------------------------
+oracle.install.client.installType=Administrator
+#-------------------------------------------------------------------------------
+# Name       : oracle.install.client.customComponents
+# Datatype   : StringList
+#
+# This property is considered only if INSTALL_TYPE is set to "Custom"
+#
+# Description: List of Client Components you would like to install
+#
+#   The following choices are available. You may specify any
+#   combination of these choices.  The components you choose should
+#   be specified in the form "internal-component-name:version"
+#   Below is a list of components you may specify to install.
+#
+# oracle.sqlj:11.2.0.1.0 -- "Oracle SQLJ"
+# oracle.rdbms.util:11.2.0.1.0 -- "Oracle Database Utilities"
+# oracle.javavm.client:11.2.0.1.0 -- "Oracle Java Client"
+# oracle.sqlplus:11.2.0.1.0 -- "SQL*Plus"
+# oracle.dbjava.jdbc:11.2.0.1.0 -- "Oracle JDBC/THIN Interfaces"
+# oracle.ldap.client:11.2.0.1.0 -- "Oracle Internet Directory Client"
+# oracle.rdbms.oci:11.2.0.1.0 -- "Oracle Call Interface (OCI)"
+# oracle.precomp:11.2.0.1.0 -- "Oracle Programmer"
+# oracle.xdk:11.2.0.1.0 -- "Oracle XML Development Kit"
+# oracle.network.aso:11.2.0.1.0 -- "Oracle Advanced Security"
+# oracle.assistants.oemlt:11.2.0.1.0 -- "Enterprise Manager Minimal Integration"
+# oracle.oraolap.mgmt:11.2.0.1.0 -- "OLAP Analytic Workspace Manager and Worksheet"
+# oracle.network.client:11.2.0.1.0 -- "Oracle Net"
+# oracle.ordim.client:11.2.0.1.0 -- "Oracle Multimedia Client Option"
+# oracle.ons:11.2.0.0.0 -- "Oracle Notification Service"
+# oracle.odbc:11.2.0.1.0 -- "Oracle ODBC Driver"
+# oracle.has.client:11.2.0.1.0 -- "Oracle Clusterware High Availability API"
+# oracle.dbdev:11.2.0.1.0 -- "Oracle SQL Developer"
+# oracle.rdbms.scheduler:11.2.0.1.0 -- "Oracle Scheduler Agent"
+#
+# Example    : oracle.install.client.customComponents="oracle.precomp:11.2.0.1.0","oracle.ons:11.2.0.0.0","oracle.oraolap.mgmt:11.2.0.1.0","oracle.rdbms.scheduler:11.2.0.1.0"
+#-------------------------------------------------------------------------------
+oracle.install.client.customComponents=
+#-------------------------------------------------------------------------------
+#Name       : MTS_PORT
+#Datatype   : int
+#Description: Port number to be used for by the Oracle MTS Recovery Service to listen
+#		  for requests. This needs to be entered in case oracle.ntoramts is
+#	        selected in the list of custom components in custom install
+#
+#
+#Example    : MTS_PORT = 2030
+#------------------------------------------------------------------------------
+oracle.install.client.oramtsPortNumber=
+
+#------------------------------------------------------------------------------
+# Host name to be used for by the Oracle Scheduler Agent.
+# This needs to be entered in case oracle.rdbms.scheduler is selected in the
+# list of custom components during custom install
+#
+# Example    : oracle.install.client.schedulerAgentHostName = acme.domain.com
+#------------------------------------------------------------------------------
+oracle.install.client.schedulerAgentHostName=
+
+#------------------------------------------------------------------------------
+# Port number to be used for by the Oracle Scheduler Agent.
+# This needs to be entered in case oracle.rdbms.scheduler is selected in the
+# list of custom components during custom install
+#
+# Example: oracle.install.client.schedulerAgentPortNumber = 1500
+#------------------------------------------------------------------------------
+oracle.install.client.schedulerAgentPortNumber=
+		]]>
+		</screen>
+		<screen>
+		<![CDATA[
+#!/bin/bash
+groupadd oinstall
+groupadd dba
+useradd -m -g oinstall -G dba oracle
+echo "oracle:oracle" | chpasswd
+id oracle
+
+mkdir -p /opt/oracle
+chown oracle.oinstall /opt/oracle
+
+cat >> /etc/sysctl.conf <<EOF
+kernel.shmall = 2097152
+kernel.shmmax = 536870912
+kernel.shmmni = 4096
+kernel.sem = 250 32000 100 128
+fs.file-max = 65536
+net.ipv4.ip_local_port_range = 32768 61000
+net.core.rmem_default=262144
+net.core.wmem_default=262144
+net.core.rmem_max=4194304
+net.core.wmem_max=262144
+EOF
+/sbin/sysctl -p
+
+cat >> /home/oracle/.bash_profile <<\EOF
+export TMP=/tmp
+export TMPDIR=/tmp
+export ORACLE_BASE=/opt/oracle
+export ORACLE_HOME=$ORACLE_BASE/product/11.2.0.1/client
+export PATH=$ORACLE_HOME/bin:$PATH
+EOF
+
+cat >> /home/oracle/.bashrc <<\EOF
+alias sysdba='sqlplus "/ as sysdba"'
+EOF
+		]]>
+		</screen>
+		<screen>
+yum install sysstat libaio-devel glibc-devel elfutils-libelf-devel unixODBC unixODBC-devel
+
+unzip linux.x64_11gR2_client.zip
+
+cd client/
+./runInstaller -silent -noconfig -responseFile /home/oracle/client.rsp
+		</screen>
+		<screen>
+# /opt/oracle/oraInventory/orainstRoot.sh
+# /opt/oracle/product/11.2.0.1/client/root.sh
+		</screen>
+	</section>
+</chapter>

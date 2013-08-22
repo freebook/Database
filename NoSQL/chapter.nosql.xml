@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+	&chapter.mongodb.xml;
+	&chapter.redis.xml;
+	&chapter.cassandra.xml;
+	&chapter.hypertable.xml;
+	&chapter.membase.xml;
+
+	<chapter id="tokyotyrant">
+		<title>TokyoCabinet/Tyrant</title>
+		<para>http://www.162cm.com/p/tokyotyrant.html</para>
+		<screen>
+# yum install tokyocabinet tokyocabinet-devel -y
+		</screen>
+	</chapter>
+
+	<chapter id="flare">
+		<title>Flare</title>
+	</chapter>
+	<chapter id="voldemort">
+		<title>Voldemort</title>
+		<para></para>
+	</chapter>
+	<chapter id="leveldb">
+		<title>LevelDB</title>
+		<para>LevelDB is a fast key-value storage library written at Google that provides an ordered mapping from string keys to string values.</para>
+		<para><ulink url="http://code.google.com/p/leveldb/"></ulink></para>
+	</chapter>
+
+	<chapter id="CouchDB">
+		<title>CouchDB</title>
+	</chapter>
+	<chapter id="RethinkDB">
+		<title>RethinkDB</title>
+		<para>http://www.rethinkdb.com/</para>
+	</chapter>
+	<chapter id="HyperDex">
+		<title>HyperDex</title>
+		<para>http://hyperdex.org/</para>
+	</chapter>

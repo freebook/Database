@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="oracle.gui">
+	<title>Oracle Gui</title>
+	<section id="dbca">
+		<title>Create instance</title>
+		<screen>
+[oracle@wcs ~]$ dbca
+		</screen>
+	</section>
+	<section id="netca">
+		<title>Oracle Net Configuration Assistant</title>
+	</section>
+	<section id="em">
+		<title>Oracle Enterprise Manager</title>
+		<para>启动em</para>
+		<command>emctl start dbconsole</command>
+		<screen>
+[oracle@oracle ~]$ emctl start dbconsole
+Oracle Enterprise Manager 11g Database Control Release 11.2.0.1.0
+Copyright (c) 1996, 2009 Oracle Corporation.  All rights reserved.
+https://oracle.example.com:1158/em/console/aboutApplication
+Starting Oracle Enterprise Manager 11g Database Control ..... started.
+------------------------------------------------------------------
+Logs are generated in directory /opt/oracle/product/11.2.0/dbhome_1/oracle.example.com_wcsdb/sysman/log
+		</screen>
+		<screen>
+https://oracle.example.com:1158/em
+		</screen>
+		<para>使用system用户登录</para>
+		<para>停止em</para>
+		<command>emctl stop dbconsole</command>
+		<screen>
+[oracle@oracle ~]$ emctl stop dbconsole
+Oracle Enterprise Manager 11g Database Control Release 11.2.0.1.0
+Copyright (c) 1996, 2009 Oracle Corporation.  All rights reserved.
+https://oracle.example.com:1158/em/console/aboutApplication
+Stopping Oracle Enterprise Manager 11g Database Control ...
+ ...  Stopped.
+
+		</screen>
+	</section>
+	<section id="phporaadmin">
+		<title>Other GUI - phpOraAdmin</title>
+		<para>http://phporaadmin.sourceforge.net</para>
+		<screen>
+
+		</screen>
+	</section>
+</chapter>

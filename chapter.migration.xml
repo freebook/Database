@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="migration">
+	<title>数据迁移</title>
+	<subtitle>data migration</subtitle>
+	<section id="sqoop">
+		<title>Apache Sqoop</title>
+		<para>http://sqoop.apache.org/</para>
+		<screen>
+export SQOOP_HOME=/srv/sqoop/
+export PATH=$SQOOP_HOME/bin:$PATH
+		</screen>
+		<para>MYSQL转HDFS-示例</para>
+		<screen>
+./sqoop import --connect jdbc:mysql://192.168.0.1:3306/mydb --username root --password mypass --table mytable -m 1 --target-dir /mysql/yourtable/$today
+		</screen>
+		<para>HDFS转MYSQ-示例</para>
+		<screen>
+./sqoop export --connect jdbc:mysql://192.168.0.1:3306/mydb --username root --password mypass --table mytable --fields-terminated-by ',' --export-dir /mysql/yourtable/$today
+		</screen>
+	</section>
+</chapter>
