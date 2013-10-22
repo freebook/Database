@@ -16,7 +16,7 @@ export CLASSPATH="./:/usr/share/java/:/usr/local/apache-solr/example/multicore/l
 export JAVA_OPTS="-Xms128m -Xmx1024m"
 		</screen>
 	</example>
-	<section>
+	<section id="solr.embedded.jetty">
 		<title>Embedded Jetty</title>
 		<screen>
 		<![CDATA[
@@ -29,7 +29,7 @@ java -jar start.jar
 		</screen>
 		<para>multicore: java -Dsolr.solr.home=multicore -jar start.jar</para>
 	</section>
-	<section>
+	<section id="solr.jetty">
 		<title>Jetty</title>
 		<para>http://jetty.mortbay.org/jetty/</para>
 		<procedure>
@@ -71,7 +71,7 @@ wget http://dist.codehaus.org/jetty/jetty-6.1.18/jetty-6.1.18.zip
 			</step>
 		</procedure>
 	</section>
-	<section>
+	<section id="solr.tomcat">
 		<title>Tomcat</title>
 		<para>http://tomcat.apache.org/</para>
 		<procedure>
@@ -106,7 +106,7 @@ vim /usr/local/apache-tomcat/conf/Catalina/localhost/solr.xml
 			</step>
 		</procedure>
 	</section>
-	<section>
+	<section id="solr.php">
 		<title>solr-php-client</title>
 		<para>http://code.google.com/p/solr-php-client/</para>
 		<screen>
@@ -115,7 +115,7 @@ tar zxvf SolrPhpClient.2009-03-11.tgz
 sudo mv SolrPhpClient/Apache /usr/share/php/
 		</screen>
 	</section>
-	<section>
+	<section id="solr.multicore">
 		<title>multicore</title>
 		<para>solr.xml</para>
 		<screen>
@@ -224,7 +224,7 @@ java -Durl=http://localhost:8983/solr/article/update -Dcommit=yes -jar ../exampl
 		]]>
 		</screen>
 	</section>
-	<section>
+	<section id="solr.analyzer">
 		<title>中文分词</title>
 		<section>
 			<title>ChineseTokenizerFactory</title>
