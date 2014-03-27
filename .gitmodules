@@ -4,3 +4,6 @@
 [submodule "MySQL"]
 	path = MySQL
 	url = https://github.com/freebook/MySQL.git
+[submodule "NoSQL"]
+	path = NoSQL
+	url = https://github.com/freebook/NoSQL.git
