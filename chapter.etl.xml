@@ -18,4 +18,8 @@ http://www.enhydra.org/
 		<title>Kettle</title>
 		<para>http://community.pentaho.com/projects/data-integration/</para>
 	</section>
+	<section id="suro">
+		<title>suro</title>
+		<para>https://github.com/Netflix/suro</para>
+	</section>
 </chapter>
