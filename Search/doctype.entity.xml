@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!ENTITY part.search.xml				SYSTEM "part.search.xml">
 <!ENTITY chapter.solr.xml				SYSTEM "chapter.solr.xml">
+<!ENTITY chapter.solr.old.xml			SYSTEM "chapter.solr.old.xml">
 <!ENTITY chapter.nutch.xml				SYSTEM "chapter.nutch.xml">
 <!ENTITY chapter.sphinx.xml				SYSTEM "chapter.sphinx.xml">

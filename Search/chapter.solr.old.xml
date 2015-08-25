@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="solr-1.3.0"><?dbhtml dir="search" ?>
+	<title>Solr 1.3.0</title>
+	<para>http://lucene.apache.org/solr/</para>
+	<para>java 采用apt-get安装</para>
+	<example>
+		<title>/etc/profile.d/java.sh</title>
+		<screen>
+################################################
+### Java environment by neo
+################################################
+export JAVA_HOME=/usr
+export JRE_HOME=/usr
+export PATH=$PATH:/usr/local/apache-tomcat/bin/:/usr/local/jetty-6.1.18/bin
+export CLASSPATH="./:/usr/share/java/:/usr/local/apache-solr/example/multicore/lib"
+export JAVA_OPTS="-Xms128m -Xmx1024m"
+		</screen>
+	</example>
+	<section id="solr.embedded.jetty">
+		<title>Embedded Jetty</title>
+		<screen>
+		<![CDATA[
+wget http://apache.freelamp.com/lucene/solr/1.3.0/apache-solr-1.3.0.tgz
+tar zxvf apache-solr-1.3.0.tgz
+ln -s apache-solr-1.3.0 ../apache-solr
+cd ../apache-solr/example/
+java -jar start.jar
+		]]>
+		</screen>
+		<para>multicore: java -Dsolr.solr.home=multicore -jar start.jar</para>
+	</section>
+	<section id="solr.jetty">
+		<title>Jetty</title>
+		<para>http://jetty.mortbay.org/jetty/</para>
+		<procedure>
+			<title>apt-get install</title>
+			<step>
+				<para>install</para>
+				<screen>
+				<![CDATA[
+$ sudo apt-get install libxpp3-java
+$ sudo apt-get install solr-jetty
+				]]>
+				</screen>
+			</step>
+
+			<step>
+				<para>firewall</para>
+				<screen>
+				<![CDATA[
+$ sudo ufw allow 8280
+				]]>
+				</screen>
+			</step>
+
+			<step>
+				<para>Testing.</para>
+				<para>http://172.16.0.1:8280/</para>
+				<para>http://172.16.0.1:8280/admin/ (user:admin, passwd:admin)</para>
+			</step>
+		</procedure>
+		<procedure>
+			<title>source codes install</title>
+			<step>
+				<para>download</para>
+				<screen>
+				<![CDATA[
+wget http://dist.codehaus.org/jetty/jetty-6.1.18/jetty-6.1.18.zip
+				]]>
+				</screen>
+			</step>
+		</procedure>
+	</section>
+	<section id="solr.tomcat">
+		<title>Tomcat</title>
+		<para>http://tomcat.apache.org/</para>
+		<procedure>
+			<step>
+				<para>download</para>
+				<screen>
+				<![CDATA[
+cd /usr/local/src
+
+wget http://apache.etoak.com/tomcat/tomcat-6/v6.0.20/bin/apache-tomcat-6.0.20.tar.gz
+wget http://apache.freelamp.com/lucene/solr/1.3.0/apache-solr-1.3.0.tgz
+
+tar zxvf apache-tomcat-6.0.20.tar.gz
+ln -s apache-tomcat-6.0.20 ../apache-tomcat
+
+tar zxvf apache-solr-1.3.0.tgz
+ln -s apache-solr-1.3.0 ../apache-solr
+				]]>
+				</screen>
+			</step>
+			<step>
+				<para>solr.xml</para>
+				<screen>
+				<![CDATA[
+vim /usr/local/apache-tomcat/conf/Catalina/localhost/solr.xml
+
+<Context docBase="/usr/local/apache-solr/dist/apache-solr-1.3.0.war" debug="0" crossContext="true" >
+   <Environment name="solr/home" type="java.lang.String" value="/usr/local/apache-solr/example/solr" override="true" />
+</Context>
+				]]>
+				</screen>
+			</step>
+		</procedure>
+	</section>
+	<section id="solr.php">
+		<title>solr-php-client</title>
+		<para>http://code.google.com/p/solr-php-client/</para>
+		<screen>
+wget http://solr-php-client.googlecode.com/files/SolrPhpClient.2009-03-11.tgz
+tar zxvf SolrPhpClient.2009-03-11.tgz
+sudo mv SolrPhpClient/Apache /usr/share/php/
+		</screen>
+	</section>
+	<section id="solr.multicore">
+		<title>multicore</title>
+		<para>solr.xml</para>
+		<screen>
+		<![CDATA[
+vim /usr/local/apache-solr/example/multicore/solr.xml
+
+<?xml version="1.0" encoding="UTF-8" ?>
+<solr persistent="false">
+  <cores adminPath="/admin/cores">
+    <core name="core0" instanceDir="core0" />
+    <core name="core1" instanceDir="core1" />
+
+    <core name="article" instanceDir="article" />
+
+  </cores>
+</solr>
+		]]>
+		</screen>
+		<para>core directory and config file</para>
+		<screen>
+		<![CDATA[
+mkdir -p article/conf
+
+vim article/conf/solrconfig.xml
+
+<?xml version="1.0" encoding="UTF-8" ?>
+<config>
+  <updateHandler class="solr.DirectUpdateHandler2" />
+  <requestDispatcher handleSelect="true" >
+    <requestParsers enableRemoteStreaming="false" multipartUploadLimitInKB="2048" />
+  </requestDispatcher>
+  <requestHandler name="standard" class="solr.StandardRequestHandler" default="true" />
+  <requestHandler name="/update" class="solr.XmlUpdateRequestHandler" />
+  <requestHandler name="/admin/" class="org.apache.solr.handler.admin.AdminHandlers" />
+  <admin>
+    <defaultQuery>solr</defaultQuery>
+  </admin>
+</config>
+
+vim article/conf/schema.xml
+
+<?xml version="1.0" ?>
+<schema name="example core zero" version="1.1">
+  <types>
+   <fieldType name="sint" class="solr.SortableIntField" sortMissingLast="true" omitNorms="true"/>
+   <fieldtype name="string"  class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
+   <fieldType name="date" class="solr.DateField" sortMissingLast="true" omitNorms="true"/>
+   <fieldType name="text" class="solr.TextField" positionIncrementGap="100" />
+  </types>
+ <fields>
+  <!-- general -->
+  <field name="id"      type="sint"   indexed="true"  stored="true"  multiValued="false" required="true"/>
+  <field name="type"    type="string"   indexed="true"  stored="true"  multiValued="false" />
+  <field name="name"    type="string"   indexed="true"  stored="true"  multiValued="false" />
+  <field name="title"   type="string"   indexed="true"  stored="true"  multiValued="false" />
+  <field name="content"   type="text"   indexed="true"  stored="true"  multiValued="false" />
+  <field name="timestamp" type="date" indexed="true" stored="true" default="NOW"/>
+ </fields>
+ <!-- field to use to determine and enforce document uniqueness. -->
+ <uniqueKey>id</uniqueKey>
+ <!-- field for the QueryParser to use when an explicit fieldname is absent -->
+ <defaultSearchField>content</defaultSearchField>
+ <!-- SolrQueryParser configuration: defaultOperator="AND|OR" -->
+ <solrQueryParser defaultOperator="OR"/>
+	<copyField source="title" dest="content"/>
+	<copyField source="name" dest="content"/>
+</schema>
+		]]>
+		</screen>
+		<para>commit datas</para>
+		<screen>
+		<![CDATA[
+vim test.xml
+
+<add>
+	<doc>
+	  <field name="id">1</field>
+	  <field name="name">Hello world</field>
+	</doc>
+
+	<doc>
+	  <field name="id">2</field>
+	  <field name="title">Title Hello world</field>
+	</doc>
+
+	<doc>
+	  <field name="id">3</field>
+	  <field name="name">Hello world 1</field>
+	  <field name="content">Content 1</field>
+	</doc>
+
+	<doc>
+	  <field name="id">4</field>
+	  <field name="name">Name Neo</field>
+	</doc>
+
+	<doc>
+	  <field name="id">5</field>
+	  <field name="name">Last Chan</field>
+	</doc>
+</add>
+
+
+java -Durl=http://localhost:8983/solr/article/update -Dcommit=yes -jar ../exampledocs/post.jar test.xml
+
+		]]>
+		</screen>
+	</section>
+	<section id="solr.analyzer">
+		<title>中文分词</title>
+		<section>
+			<title>ChineseTokenizerFactory</title>
+			<screen>
+			<![CDATA[
+<fieldType name="text" class="solr.TextField" >
+    <analyzer>
+        <tokenizer class="org.apache.solr.analysis.ChineseTokenizerFactory"/>
+    </analyzer>
+</fieldType>
+			]]>
+			</screen>
+		</section>
+
+		<section>
+			<title>CJK</title>
+			<screen>
+			<![CDATA[
+<fieldType name="text" class="solr.TextField" positionIncrementGap="100">
+	<analyzer>
+    	<tokenizer class="solr.CJKTokenizerFactory"/>
+	</analyzer>
+</fieldType>
+			]]>
+			</screen>
+		</section>
+
+		<section>
+			<title>mmseg4j</title>
+			<para>http://code.google.com/p/mmseg4j/</para>
+			<para>install</para>
+			<screen>
+			<![CDATA[
+$ cd /usr/local/src/
+$ wget http://mmseg4j.googlecode.com/files/mmseg4j-1.7.2.zip
+$ unzip mmseg4j-1.7.2.zip
+$ mkdir /usr/local/apache-solr/example/multicore/lib
+$ cp /usr/local/src/mmseg4j-1.7.2/mmseg4j-all-1.7.2.jar /usr/local/apache-solr/example/multicore/lib
+$ cd mmseg4j-1.7.2/
+			]]>
+			</screen>
+			<para>test</para>
+			<screen>
+$ java -Dmmseg.dic.path=/usr/local/apache-solr/example/solr -jar mmseg4j-all-1.7.2.jar 这里是字符串
+$ java -Dmmseg.dic.path=/usr/local/apache-solr/example/solr -cp .:mmseg4j-all-1.7.2.jar com.chenlb.mmseg4j.example.Simple 这里是字符串
+$ java -Dmmseg.dic.path=/usr/local/apache-solr/example/solr -cp .:mmseg4j-all-1.7.2.jar com.chenlb.mmseg4j.example.MaxWord 这里是字符串
+			</screen>
+			<para>mmseg4j 在 solr 中主要支持两个参数：mode、dicPath。mode 表示是什么模式分词（有效值：simplex、complex、max-word，如果输入了无效的默认用 max-word。）。dicPath 是词库目录可以是绝对目录，也可以是相对目录（是相对 solr.home 目录下的，dic 就会在 solr.home/dic 目录下找词库文件），如果不指定就是默认在 CWD/data 目录（程序运行当前目录的data子目录）下找。</para>
+			<para>分词例子</para>
+			<screen>
+			<![CDATA[
+<fieldtype name="textComplex" class="solr.TextField">
+	<analyzer>
+		<tokenizer class="com.chenlb.mmseg4j.solr.MMSegTokenizerFactory"
+			mode="complex" dicPath="dic">
+		</tokenizer>
+	</analyzer>
+</fieldtype>
+
+<fieldtype name="textMaxWord" class="solr.TextField">
+	<analyzer>
+		<tokenizer class="com.chenlb.mmseg4j.solr.MMSegTokenizerFactory"
+			mode="max-word" dicPath="dic">
+		</tokenizer>
+	</analyzer>
+</fieldtype>
+
+<fieldtype name="textSimple" class="solr.TextField">
+	<analyzer>
+		<tokenizer class="com.chenlb.mmseg4j.solr.MMSegTokenizerFactory"
+			mode="simple" dicPath="/usr/local/apache-solr/example/solr/my_dic">
+		</tokenizer>
+	</analyzer>
+</fieldtype>
+			]]>
+			</screen>
+			<para>添加到schema.xml</para>
+			<screen>
+			<![CDATA[
+<fieldType name="text" class="solr.TextField" positionIncrementGap="100" >
+    <analyzer>
+        <tokenizer class="com.chenlb.mmseg4j.solr.MMSegTokenizerFactory" mode="complex" dicPath="dic"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+    </analyzer>
+</fieldType>
+			]]>
+			</screen>
+			<para>http://localhost:8080/solr/admin/analysis.jsp 在 Field 的下拉菜单选择 name，然后在应用输入 complex。可以看 mmseg4j 的分词的结果.</para>
+		</section>
+		<section>
+			<title>中文分词“庖丁解牛” Paoding Analysis</title>
+			<screen>
+$ cd /usr/local/src/
+$ mkdir paoding-analysis-2.0.4-beta
+$ cd paoding-analysis-2.0.4-beta/
+$ wget http://paoding.googlecode.com/files/paoding-analysis-2.0.4-beta.zip
+$ unzip paoding-analysis-2.0.4-beta.zip
+$ cp paoding-analysis.jar /usr/local/apache-solr/example/multicore/lib/
+			</screen>
+			<para>ChineseTokenizerFactory</para>
+			<screen>
+			</screen>
+		</section>
+	</section>
+</section>
