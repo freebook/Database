@@ -67,6 +67,38 @@ http://localhost:8983/solr/admin/cores?action=CREATE&name=solr_docs&instanceDir=
   "core":"solr_docs"}
 		]]>
 		</screen>
+		
+		<section>
+			<title>Schema</title>
+			<para></para>
+			<!-- cp -r ./server/solr/configsets/basic_configs ./server/solr/test -->
+			<screen>
+			<![CDATA[
+$ bin/solr create -c test
+
+Setup new core instance directory:
+/srv/solr/server/solr/test
+
+Creating new core 'test' using command:
+http://localhost:8983/solr/admin/cores?action=CREATE&name=test&instanceDir=test
+
+{
+  "responseHeader":{
+    "status":0,
+    "QTime":246},
+  "core":"test"}
+			]]>
+			</screen>
+			<example>
+				<title>Solr - schema.xml</title>
+				<screen>
+				<![CDATA[
+				
+
+				]]>
+				</screen>
+			</example>
+		</section>
 	</section>
 	<section id="index">
 		<title>索引</title>
