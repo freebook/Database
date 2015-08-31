@@ -67,13 +67,8 @@ http://localhost:8983/solr/admin/cores?action=CREATE&name=solr_docs&instanceDir=
   "core":"solr_docs"}
 		]]>
 		</screen>
-		
-		<section>
-			<title>Schema</title>
-			<para></para>
-			<!-- cp -r ./server/solr/configsets/basic_configs ./server/solr/test -->
-			<screen>
-			<![CDATA[
+		<screen>
+		<![CDATA[
 $ bin/solr create -c test
 
 Setup new core instance directory:
@@ -87,6 +82,19 @@ http://localhost:8983/solr/admin/cores?action=CREATE&name=test&instanceDir=test
     "status":0,
     "QTime":246},
   "core":"test"}
+		]]>
+		</screen>		
+		<section>
+			<title>Schema</title>
+			<para></para>
+			<screen>
+cd server/solr/
+cp -r configsets/sample_techproducts_configs new_core			
+			</screen>
+			<!-- cp -r ./server/solr/configsets/basic_configs ./server/solr/test -->
+			<screen>
+			<![CDATA[
+
 			]]>
 			</screen>
 			<example>
