@@ -2,8 +2,90 @@
 <chapter id="oracle.cli">
 	<title>CLI</title>
 	&chapter.oracle.sqlplus.xml;
+	<section>
+		<title>exp/imp</title>
+
+	<section id="exp">
+		<title>exp</title>
+		<para>将数据库中system用户与sys用户的表导出</para>
+		<screen>
+exp system/password@TEST file=d:\data.dmp owner=(system,sys)
+		</screen>
+		<para>指定导出表</para>
+		<screen>
+exp system/password@DB1 file= d:\data.dmp tables=(table1,table2)
+		</screen>
+		<para>将数据库中的表table1中的字段filed1以"130"打头的数据导出</para>
+		<screen>
+exp system/password@TEST file=d:\data.dmp tables=(table1) query=" where filed1 like '130%'"
+		</screen>
+		<para>压缩导出文件</para>
+		<screen>
+exp system/password@TEST file=d:\data.dmp full=y compress=y
+		</screen>
+	</section>
+	<section id="imp">
+		<title>imp</title>
+		<screen>
+imp system/password full=y file=database.dmp
+		</screen>
+		<section>
+			<title>A用户导出B用户导入</title>
+			<para>创建parfile文件内容如下</para>
+			<screen>
+vim parfile.par
+
+FROMUSER=USERA
+TOUSER=USERB
+ROWS=Y
+INDEXES=Y
+GRANTS=Y
+CONSTRAINTS=Y
+BUFFER=409600
+file=data.dmp
+log=data.log
+			</screen>
+			<para>导入命令如下</para>
+			<screen>
+imp parfile=/filepath/parfile.par
+			</screen>
+		</section>
+	</section>
+	</section>
+	<section>
+		<title>expdp/impdp</title>
+		<para>创建 dump 目录与用户</para>
+		<screen>
+create directory mydump as '/u01/oracle'；
+
+grant read, write on directory mydump to dumpuser
+		</screen>
+		<section>
+			<title>expdp</title>
+			<para>导出用户的数据</para>
+			<screen>
+expdp dumpuser/password directory=mydump dumpfile=user.dmp
+			</screen>
+			<para>导出表数据</para>
+			<screen>
+expdp dumpuser/password directory=mydump dumpfile=table.dmp tables=test1,test2
+			</screen>
+		</section>
+		<section>
+			<title>impdp</title>
+			<para>导入该用户数据</para>
+			<screen>
+impdp dumpuser/password directory=mydump dumpfile=user.dmp
+			</screen>
+			<para>导出表数据</para>
+			<screen>
+impdp dumpuser/password directory=mydump dumpfile=table.dmp
+			</screen>
+		</section>
+	</section>
+
 	<section id="lsnrctl">
 		<title>lsnrctl</title>
-	</section>	
+	</section>
 	&chapter.oracle.rman.xml;
 </chapter>
