@@ -3,6 +3,14 @@
 	<title>Oracle 12c 安装可</title>
 	<section id="server">
 		<title>Server 安装</title>
+		<screen>
+unzip linuxamd64_12c_database_1of2.zip
+unzip linuxamd64_12c_database_2of2.zip
+
+cd  database/
+./runInstaller
+		</screen>
+
 		<para><graphic  format="png" fileref="../images/oracle/12c/server/server1.png" srccredit="neo" width=""/></para>
 		<para><graphic  format="png" fileref="../images/oracle/12c/server/server2.png" srccredit="neo" width=""/></para>
 		<para><graphic  format="png" fileref="../images/oracle/12c/server/server3.png" srccredit="neo" width=""/></para>
@@ -19,24 +27,24 @@
 		<para><graphic  format="png" fileref="../images/oracle/12c/server/server14.png" srccredit="neo" width=""/></para>
 		<para><graphic  format="png" fileref="../images/oracle/12c/server/server15.png" srccredit="neo" width=""/></para>
 		<screen>
-[root@localhost ~]# /opt/oraInventory/orainstRoot.sh 
+[root@localhost ~]# /opt/oraInventory/orainstRoot.sh
 Changing permissions of /opt/oraInventory.
 Adding read,write permissions for group.
 Removing read,write,execute permissions for world.
 
 Changing groupname of /opt/oraInventory to oinstall.
-The execution of the script is complete.		
+The execution of the script is complete.
 		</screen>
-		
+
 		<screen>
-[root@localhost ~]# /opt/oracle/product/12.1.0/dbhome_1/root.sh 
+[root@localhost ~]# /opt/oracle/product/12.1.0/dbhome_1/root.sh
 Performing root user operation.
 
 The following environment variables are set as:
     ORACLE_OWNER= oracle
     ORACLE_HOME=  /opt/oracle/product/12.1.0/dbhome_1
 
-Enter the full pathname of the local bin directory: [/usr/local/bin]: 
+Enter the full pathname of the local bin directory: [/usr/local/bin]:
    Copying dbhome to /usr/local/bin ...
    Copying oraenv to /usr/local/bin ...
    Copying coraenv to /usr/local/bin ...
@@ -59,5 +67,13 @@ Now product-specific root actions will be performed.
 		<para><graphic  format="png" fileref="../images/oracle/12c/client/client5.PNG" srccredit="neo" width=""/></para>
 		<para><graphic  format="png" fileref="../images/oracle/12c/client/client6.PNG" srccredit="neo" width=""/></para>
 		<para><graphic  format="png" fileref="../images/oracle/12c/client/client7.PNG" srccredit="neo" width=""/></para>
-	</section>	
+	</section>
+	<section>
+		<title>卸载 Oracle</title>
+		<para>卸载或者重装运行下面命令清理Oracle</para>
+		<screen>
+# rm -rf /etc/oratab /etc/oraInst.loc 
+# rm -rf /opt/oracle /opt/oraInventory /opt/ORCLfmap/		
+		</screen>
+	</section>
 </chapter>
