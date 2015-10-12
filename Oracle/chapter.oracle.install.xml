@@ -463,16 +463,6 @@ Now product-specific root actions will be performed.
 		</screen>
 		<para>至此，Oracle客户端安装完毕</para>
 	</section>
-	<section>
-		<title>Oracle 12c Client for Windows 10</title>
-		<para><graphic  format="png" fileref="../images/oracle/12c/client/client1.PNG" srccredit="neo" width=""/></para>
-		<para><graphic  format="png" fileref="../images/oracle/12c/client/client2.PNG" srccredit="neo" width=""/></para>
-		<para><graphic  format="png" fileref="../images/oracle/12c/client/client3.PNG" srccredit="neo" width=""/></para>
-		<para><graphic  format="png" fileref="../images/oracle/12c/client/client4.PNG" srccredit="neo" width=""/></para>
-		<para><graphic  format="png" fileref="../images/oracle/12c/client/client5.PNG" srccredit="neo" width=""/></para>
-		<para><graphic  format="png" fileref="../images/oracle/12c/client/client6.PNG" srccredit="neo" width=""/></para>
-		<para><graphic  format="png" fileref="../images/oracle/12c/client/client7.PNG" srccredit="neo" width=""/></para>
-	</section>
 	<section id="oracle.install.silence">
 		<title>Silence Install - Database</title>
 		<section>

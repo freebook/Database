@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="install">
+	<title>Oracle 12c 安装可</title>
+	<section id="server">
+		<title>Server 安装</title>
+		<para><graphic  format="png" fileref="../images/oracle/12c/server/server1.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/12c/server/server2.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/12c/server/server3.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/12c/server/server4.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/12c/server/server5.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/12c/server/server6.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/12c/server/server7.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/12c/server/server8.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/12c/server/server9.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/12c/server/server10.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/12c/server/server11.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/12c/server/server12.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/12c/server/server13.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/12c/server/server14.png" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/12c/server/server15.png" srccredit="neo" width=""/></para>
+		<screen>
+[root@localhost ~]# /opt/oraInventory/orainstRoot.sh 
+Changing permissions of /opt/oraInventory.
+Adding read,write permissions for group.
+Removing read,write,execute permissions for world.
+
+Changing groupname of /opt/oraInventory to oinstall.
+The execution of the script is complete.		
+		</screen>
+		
+		<screen>
+[root@localhost ~]# /opt/oracle/product/12.1.0/dbhome_1/root.sh 
+Performing root user operation.
+
+The following environment variables are set as:
+    ORACLE_OWNER= oracle
+    ORACLE_HOME=  /opt/oracle/product/12.1.0/dbhome_1
+
+Enter the full pathname of the local bin directory: [/usr/local/bin]: 
+   Copying dbhome to /usr/local/bin ...
+   Copying oraenv to /usr/local/bin ...
+   Copying coraenv to /usr/local/bin ...
+
+
+Creating /etc/oratab file...
+Entries will be added to the /etc/oratab file as needed by
+Database Configuration Assistant when a database is created
+Finished running generic part of root script.
+Now product-specific root actions will be performed.
+
+		</screen>
+	</section>
+	<section id="oracle_12c_for_windows_10">
+		<title>Oracle 12c Client for Windows 10</title>
+		<para><graphic  format="png" fileref="../images/oracle/12c/client/client1.PNG" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/12c/client/client2.PNG" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/12c/client/client3.PNG" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/12c/client/client4.PNG" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/12c/client/client5.PNG" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/12c/client/client6.PNG" srccredit="neo" width=""/></para>
+		<para><graphic  format="png" fileref="../images/oracle/12c/client/client7.PNG" srccredit="neo" width=""/></para>
+	</section>	
+</chapter>

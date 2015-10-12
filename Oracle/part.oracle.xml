@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <part id="index"><?dbhtml dir="Oracle" ?>
 	<title>Oracle</title>
-	&chapter.oracle.install.xml;
+	&chapter.12c.install.xml; 
 	&chapter.oracle;
 	&chapter.oracle.gui.xml;
 	&chapter.oracle.cli.xml;
+	&chapter.tablespace.xml;
+	&chapter.oracle.install.xml;
 </part>
