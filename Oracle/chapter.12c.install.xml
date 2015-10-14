@@ -73,11 +73,18 @@ Now product-specific root actions will be performed.
 	
 	<section id="desktop">
 		<title>Desktop 安装</title>
-		<para>Desktop 是指安装在桌面计算机，笔记本电脑上的数据</para>
+		<para>Desktop 是指安装在桌面计算机，笔记本电脑上的数据库，占用资源比较少。</para>
 		<para><graphic  format="png" fileref="../images/oracle/12c/desktop/server1.png" srccredit="neo" width=""/></para>
+		<para>如果你想接收Oracle发来的关于数据库安全的邮件，请填写email地址</para>
+		<para>勾去选项 I wish to receive security updates via My Oracle Support. </para>
+		<para><graphic  format="png" fileref="../images/oracle/12c/desktop/server1-1.png" srccredit="neo" width=""/></para>
+		<para>点击Yes按钮继续</para>
 		<para><graphic  format="png" fileref="../images/oracle/12c/desktop/server2.png" srccredit="neo" width=""/></para>
 		<para><graphic  format="png" fileref="../images/oracle/12c/desktop/server3.png" srccredit="neo" width=""/></para>
 		<para><graphic  format="png" fileref="../images/oracle/12c/desktop/server4.png" srccredit="neo" width=""/></para>
+		<para>Character set 选择 Unicode(AL32UTF8)</para>
+		<para>输入 Administrative password 与 Confirm password 两个密码。</para>
+		<para>勾去选项 Create as Container database</para>
 		<para><graphic  format="png" fileref="../images/oracle/12c/desktop/server5.png" srccredit="neo" width=""/></para>
 		<para><graphic  format="png" fileref="../images/oracle/12c/desktop/server6.png" srccredit="neo" width=""/></para>
 		<para><graphic  format="png" fileref="../images/oracle/12c/desktop/server7.png" srccredit="neo" width=""/></para>
@@ -88,7 +95,6 @@ Now product-specific root actions will be performed.
 		<para><graphic  format="png" fileref="../images/oracle/12c/desktop/server12.png" srccredit="neo" width=""/></para>
 		<para><graphic  format="png" fileref="../images/oracle/12c/desktop/server13.png" srccredit="neo" width=""/></para>
 		<para><graphic  format="png" fileref="../images/oracle/12c/desktop/server14.png" srccredit="neo" width=""/></para>
-		<para><graphic  format="png" fileref="../images/oracle/12c/desktop/server15.png" srccredit="neo" width=""/></para>
 	</section>
 	<section id="netca">
 		<title>Oracle Net Services Configuration</title>
