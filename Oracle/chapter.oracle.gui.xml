@@ -4,7 +4,21 @@
 	<section id="dbca">
 		<title>Create instance</title>
 		<screen>
-[oracle@wcs ~]$ dbca
+[oracle@netkiller ~]$ dbca
+		</screen>
+		<screen>
+dbca -silent -createDatabase -templateName General_Purpose.dbc
+  -gdbname ora11g -sid ora11g -responseFile NO_VALUE -characterSet AL32UTF8
+  -memoryPercentage 30 -emConfiguration LOCAL
+
+Enter SYSTEM user password:
+password
+Enter SYS user password:
+password
+Copying database files
+1% complete
+3% complete
+...		
 		</screen>
 	</section>
 	<section id="netca">
