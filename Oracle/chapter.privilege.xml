@@ -1,0 +1,117 @@
+<chapter id="privilege">
+	<title>Privilege</title>
+	
+<section id="oracle.user">
+		<title>Account</title>
+		<programlisting>
+select username,account_status from dba_users; 
+		</programlisting>
+		<section>
+			<title>show user</title>
+			<programlisting>
+			<![CDATA[
+SQL> show user;
+USER is "SYS"
+
+SQL> select user from dual;
+
+USER
+------------------------------
+SYS
+
+			]]>
+			</programlisting>
+		</section>
+		<section>
+			<title>DEFAULT_TABLESPACE</title>
+			<para>用户默认表空间</para>
+			<programlisting>
+			<![CDATA[
+SQL> SELECT DEFAULT_TABLESPACE FROM DBA_USERS WHERE USERNAME='WCUSER';
+
+DEFAULT_TABLESPACE
+------------------------------
+WCSDB
+
+SQL> SELECT DEFAULT_TABLESPACE FROM DBA_USERS WHERE USERNAME=(select user from dual);
+
+DEFAULT_TABLESPACE
+------------------------------
+SYSTEM
+
+			]]>
+			</programlisting>
+		</section>
+		<section>
+			<title>unlock/lock</title>
+			<para>帐号加锁与解锁</para>
+			<command>alter user scott account unlock /lock; </command>
+			<programlisting>
+			<![CDATA[
+SQL> alter user scott account unlock;
+
+User altered.
+SQL> select username,account_status from dba_users where username='SCOTT';
+
+USERNAME                       ACCOUNT_STATUS
+------------------------------ --------------------------------
+SCOTT                          EXPIRED
+
+SQL> alter user scott account lock;
+
+User altered.
+
+SQL> select username,account_status from dba_users where username='SCOTT';
+
+USERNAME                       ACCOUNT_STATUS
+------------------------------ --------------------------------
+SCOTT                          EXPIRED & LOCKED
+
+SQL>
+			]]>
+			</programlisting>
+		</section>	
+	</section>	
+	
+	<section id="oracle.user">
+		<title>User</title>
+		<section>
+			<title>Create user</title>
+			<screen>
+create user userName identified by password; 
+			</screen>
+		</section>
+		<section>
+			<title>Drop user</title>
+			<screen>
+drop user userName cascade; 
+			</screen>
+		</section>
+	</section>
+	
+	
+	
+	<section id="oracle.grant">
+		<title>grant</title>
+		<screen>
+		<![CDATA[
+grant dba to lxg;--授予DBA权限  
+grant unlimited tablespace to lxg;--授予不限制的表空间  
+grant select any table to lxg;--授予查询任何表  
+grant select any dictionary to lxg;--授予 查询 任何字典 
+
+grant dba to neo;  
+grant unlimited tablespace to neo;  
+grant select any table to neo;  
+grant select any dictionary to neo; 
+		]]>
+		</screen>
+				
+		<screen>
+		<![CDATA[
+
+		]]>
+		</screen>
+	</section>
+	
+</chapter>

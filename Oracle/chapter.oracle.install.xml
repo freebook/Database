@@ -1086,4 +1086,258 @@ cd client/
 # /opt/oracle/product/11.2.0.1/client/root.sh
 		</screen>
 	</section>
+	
+
+	<section id="oracle.script.8">
+		<title> oracle 817 script</title>
+		<para>Oracle 817 数据库启动脚本</para>
+		<screen>
+		<![CDATA[
+#!/bin/bash
+##############################################################
+# Script to startup and shutdown Oracle and listener
+# File:/etc/rc.d/init.d/orcl
+##############################################################
+# Setup environment for script execution
+#./home/oracle/.bash_profile
+#
+ORACLE_HOME=/u01/app/oracle/product/8.1.7
+# Determine and execute action based on command line parameter
+case "$1" in
+start)
+echo "Starting Oracle database(s) listed in /etc/oratab ..."
+sleep 2
+su - oracle -c "$ORACLE_HOME/bin/dbstart"
+echo "Starting TNS listener ..."
+sleep 2
+su - oracle -c "$ORACLE_HOME/bin/lsnrctl start"
+touch /var/lock/subsys/orcl
+;;
+stop)
+echo "Shutting down TNS listener ..."
+sleep 2
+su - oracle -c "$ORACLE_HOME/bin/lsnrctl stop"
+echo "Shutting down Oracle database(s) listed in /etc/oratab ..."
+su - oracle -c "$ORACLE_HOME/bin/dbshut"
+rm -f /var/lock/subsys/orcl
+;;
+status)
+ps -ax | grep -e ora_ -e tnslsnr
+;;
+*)
+echo "Usage: $1 {start|stop|status}"
+;;
+esac
+exit 0	
+		]]>
+		</screen>
+	</section>
+	<section id="oracle.script.9">
+		<title>Script for automatic startup on boot</title>
+		<screen>
+		<![CDATA[
+#!/bin/bash
+#
+# Run-level Startup script for the Oracle Instance and Listener
+#
+# chkconfig: 345 91 19
+# description: Startup/Shutdown Oracle listener and instance
+
+ORA_HOME="/u01/app/oracle/product/9.2.0.1.0"
+ORA_OWNR="oracle"
+
+# if the executables do not exist -- display error
+
+if [ ! -f $ORA_HOME/bin/dbstart -o ! -d $ORA_HOME ]
+then
+        echo "Oracle startup: cannot start"
+        exit 1
+fi
+
+# depending on parameter -- startup, shutdown, restart 
+# of the instance and listener or usage display 
+
+case "$1" in
+    start)
+        # Oracle listener and instance startup
+        echo -n "Starting Oracle: "
+        su - $ORA_OWNR -c "$ORA_HOME/bin/lsnrctl start"
+        su - $ORA_OWNR -c $ORA_HOME/bin/dbstart
+        touch /var/lock/subsys/oracle
+        echo "OK"
+        ;;
+    stop)
+        # Oracle listener and instance shutdown
+        echo -n "Shutdown Oracle: "
+        su - $ORA_OWNR -c "$ORA_HOME/bin/lsnrctl stop"
+        su - $ORA_OWNR -c $ORA_HOME/bin/dbshut
+        rm -f /var/lock/subsys/oracle
+        echo "OK"
+        ;;
+    reload|restart)
+        $0 stop
+        $0 start
+        ;;
+    *)
+        echo "Usage: $0 start|stop|restart|reload"
+        exit 1
+esac
+exit 0
+		]]>
+		</screen>
+	</section>
+	<section id="oracle.script.rhel">
+		<title>Run level shell script to start Oracle 10g services on RedHat Enterprise Linux (RHAS 4)</title>
+		<screen>
+		<![CDATA[
+#!/bin/bash
+##############################################################
+# Script to startup and shutdown Oracle and listener
+# Author: neo - http://netkiller.8800.org
+# File:/etc/rc.d/init.d/oracle
+# chmod 750 /etc/init.d/oracle
+# chkconfig --add oracle --level 0356
+##############################################################
+# Setup environment for script execution
+export ORACLE_BASE=/u01/app/oracle
+export ORACLE_HOME=/u01/app/oracle/product/10.2.0.1/
+export PATH=$ORACLE_HOME/bin:$ORACLE_HOME/Apache/Apache/bin:$PATH
+export NLS_LANG='croatian_croatia.ee8iso8859p2'
+export ORACLE_SID=orcl
+export DISPLAY=:0
+export USER=oracle
+if [ -f ./home/oracle/.bash_profile ]; then
+        ./home/oracle/.bash_profile
+fi
+
+# Determine and execute action based on command line parameter
+
+# check Oracle db status
+function chkdb_status() {
+
+        # set username
+        SUSER="scott"
+        # set password
+        SPASS="123456"
+
+        sqlplus -s /nolog > /dev/null 2>&1 <<EOF
+whenever sqlerror exit failure
+connect $SUSER/$SPASS
+exit success
+EOF
+
+        if [ $? -ne 0 ]; then
+                echo "Connection failed : DB is down"
+                exit 1
+        else
+                echo "Connection succeeded : DB is up"
+fi
+}
+
+
+function isql {
+        case "$1" in
+                start)
+                        echo  "*** Starting Oracle iSQL Plus *** "
+                        su - $USER -c "$ORACLE_HOME/bin/isqlplusctl start"
+                        echo "*** Note: You can access service at url:  http://$(hostname):5560/isqlplus"
+                        ;;
+                stop)
+                        echo  "*** Stopping Oracle iSQL Plus *** "
+                        su - $USER -c "$ORACLE_HOME/bin/isqlplusctl stop"
+                        ;;
+                *)
+                        echo "Usage: $1 isql {start|stop}"
+                        ;;
+        esac
+
+}
+
+function sqlplus {
+        case "$1" in
+                start)
+
+su - "$oracle_user"<<EOO
+    lsnrctl start
+    apachectl start
+    sqlplus /nolog<<EOS
+      connect / as sysdba
+      startup
+EOS
+EOO
+                        ;;
+                stop)
+su - "$oracle_user"<<EOO
+    lsnrctl stop
+    apachectl stop
+    sqlplus /nolog<<EOS
+      connect / as sysdba
+      shutdown immediate
+EOS
+EOO
+                        ;;
+                *)
+                        echo "Usage: $1 emctl {start|stop}"
+                        ;;
+        esac
+
+}
+function emctl {
+        case "$1" in
+                start)
+                        echo  "*** Starting Oracle Enterprise Manager 10g Database Control ***"
+                        su - $USER -c "$ORACLE_HOME/bin/emctl start dbconsole"
+                        echo "*** Note: You can access service at url:  http://$(hostname):1158/em"
+                        ;;
+                stop)
+                        echo  "*** Stopping Oracle Enterprise Manager 10g Database Control ***"
+                        su - $USER -c "$ORACLE_HOME/bin/emctl stop dbconsole"
+                        ;;
+                *)
+                        echo "Usage: $1 emctl {start|stop}"
+                        ;;
+        esac
+}
+case "$1" in
+        start)
+                echo "Starting Oracle database(s) listed in /etc/oratab ..."
+                sleep 2
+                su - $USER -c "$ORACLE_HOME/bin/dbstart"
+                echo "Starting TNS listener ..."
+                sleep 2
+                su - $USER -c "$ORACLE_HOME/bin/lsnrctl start"
+                touch /var/lock/subsys/orcl
+                ;;
+        stop)
+                echo "Shutting down TNS listener ..."
+                sleep 2
+                su - $USER -c "$ORACLE_HOME/bin/lsnrctl stop"
+                echo "Shutting down Oracle database(s) listed in /etc/oratab ..."
+                su - $USER -c "$ORACLE_HOME/bin/dbshut"
+                rm -f /var/lock/subsys/orcl
+                ;;
+        status)
+                chkdb_status
+                ps -ax | grep -e ora_ -e tnslsnr
+                ;;
+        isql)
+                isql $2
+                ;;
+        sqlplus)
+                sqlplus $2
+                ;;
+        emctl)
+                emctl $2
+                ;;
+        *)
+                echo "Usage: $1 {start|stop|status}"
+                echo
+                echo "Usage: $1 [isql | sqlplus | emctl] {start|stop}"
+                ;;
+esac
+exit 0
+		]]>
+		</screen>
+	</section>	
+	
 </chapter>

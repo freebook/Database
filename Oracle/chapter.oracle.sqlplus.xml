@@ -1,6 +1,6 @@
 <section id="oracle.sqlplus">
 	<title>SQL*Plus</title>
-	<screen>
+	<screen id="nolog">
 		<![CDATA[
 [oracle@wcs ~]$ sqlplus /nolog
 
@@ -28,10 +28,10 @@ SQL>
 	]]>
 	</screen>
 
-		<section id="oracle.startup">
-			<title>startup/shutdown</title>
-			<screen>
-			<![CDATA[
+	<section id="startup">
+		<title>startup/shutdown</title>
+		<screen>
+		<![CDATA[
 [oracle@localhost ~]$ sqlplus
 
 SQL*Plus: Release 10.2.0.1.0 - Production on Tue Jan 5 09:44:13 2010
@@ -40,26 +40,30 @@ Copyright (c) 1982, 2005, Oracle.  All rights reserved.
 
 Enter user-name: sys as sysdba
 Enter password:
-
-SYS@orcl> startup
-			]]>
+		]]>
+		</screen>
+		<screen>
+		<![CDATA[
+SQL> conn / as sysdba;
+		]]>
+		</screen>
+		<section id="startup">
+			<title>startup</title>
+			<screen>
+SYS@orcl> startup			
 			</screen>
+		</section>
+		<section>
+			<title>shutdown</title>
 			<screen>
 			<![CDATA[
 SYS@orcl> shutdown immediate
 			]]>
-			</screen>		
+			</screen>
 		</section>
-		<section id="oracle.startup">
-			<title>conn</title>
-			<screen>
-			<![CDATA[
-SQL> conn / as sysdba;
-			]]>
-			</screen>				
-		</section>
-	
-	<section>
+	</section>
+
+	<section id="glogin.sql">
 		<title>$ORACLE_HOME/sqlplus/admin/glogin.sql</title>
 		<screen>
 		<![CDATA[
@@ -71,7 +75,7 @@ col sal format 999,999.999
 		]]>
 		</screen>
 	</section>		
-	<section>
+	<section id="sql">
 		<title>@运行SQL</title>
 		<screen>
 		<![CDATA[

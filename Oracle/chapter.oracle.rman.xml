@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<section id="oracle.rman">
+<section id="rman">
 	<title>RMAN</title>
-	<section>
+	<section id="rman.archive">
 		<title>数据库模式</title>
 		<para>数据库必须是归档模式，使用下面SQL查询当前数据库模式</para>
 		<programlisting>
@@ -294,7 +294,7 @@ echo "[do_rman] rman is success."
 		]]>
 		</screen>
 	</section>
-	<section>
+	<section id="rman.restore">
 		<title>恢复数据库</title>
 		<screen>
 		<![CDATA[
@@ -387,4 +387,12 @@ find /opt/oracle/rman/ -type f -mtime 1 | xargs tar zcvf oracle_2011-07-04.tgz
 rsync -azP `find /opt/oracle/rman/ -type f -mtime 1` test@172.16.0.5:/home/test
 		</screen>
 	</section>
+	<section id="find">
+		<title>打包 rman 备份文件</title>
+		<screen>
+find -type f -mtime 1 |xargs ls -l|wc -l
+
+find /u01/backup/rman/ -type f -mtime 1 |xargs tar -zcvf oracle.2011-6-6.tgz
+		</screen>
+	</section>	
 </section>

@@ -2,11 +2,29 @@
 <chapter id="oracle.cli">
 	<title>CLI</title>
 	&chapter.oracle.sqlplus.xml;
-	<section>
+	<section id="exp.imp">
 		<title>exp/imp</title>
+		<para>创建导入，导出用户</para>
+		<screen>
+		<![CDATA[
+sqlplus /nolog
+conn system/manager
 
+GRANT CREATE USER,DROP USER,ALTER USER ,CREATE ANY VIEW , 
+   DROP ANY VIEW,EXP_FULL_DATABASE,IMP_FULL_DATABASE, 
+      DBA,CONNECT,RESOURCE,CREATE SESSION TO 用户名字;
+		]]>
+		</screen>
 	<section id="exp">
 		<title>exp</title>
+		<para>导出命令</para>
+		<screen>
+		<![CDATA[
+exp USER/PASSWORD@SID FILE=/opt/oracle/backup/***.DMP   //保存数据； 
+exp USER/PASSWORD@SID FILE=/opt/oracle/backup/***.DMP full=y //全部导出； 
+		]]>
+		</screen>
+		
 		<para>将数据库中system用户与sys用户的表导出</para>
 		<screen>
 exp system/password@TEST file=d:\data.dmp owner=(system,sys)
@@ -26,6 +44,12 @@ exp system/password@TEST file=d:\data.dmp full=y compress=y
 	</section>
 	<section id="imp">
 		<title>imp</title>
+		<para>导入命令用法</para>
+		<screen>
+		<![CDATA[
+imp user/password@orcl file=/opt/oracle/backup/***.dmp full=y ignore=y; 
+		]]>
+		</screen>
 		<screen>
 imp system/password full=y file=database.dmp
 		</screen>
@@ -52,7 +76,7 @@ imp parfile=/filepath/parfile.par
 		</section>
 	</section>
 	</section>
-	<section>
+	<section id="expdp.impdp">
 		<title>expdp/impdp</title>
 		<para>创建 dump 目录与用户</para>
 		<screen>

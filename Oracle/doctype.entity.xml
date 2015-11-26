@@ -8,3 +8,5 @@
 	<!ENTITY chapter.oracle.sqlplus.xml 	SYSTEM "chapter.oracle.sqlplus.xml">
 	<!ENTITY chapter.oracle.rman.xml	 	SYSTEM "chapter.oracle.rman.xml">
 	<!ENTITY chapter.tablespace.xml			SYSTEM "chapter.tablespace.xml">
+	<!ENTITY chapter.privilege.xml			SYSTEM "chapter.privilege.xml">
+	<!ENTITY chapter.administrator.xml		SYSTEM "chapter.administrator.xml">

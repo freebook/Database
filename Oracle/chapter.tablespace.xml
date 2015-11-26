@@ -7,7 +7,7 @@
 select tablespace_name,file_id,block_id,bytes,blocks from dba_free_space;
 		</screen>
 	</section>
-	<section>
+	<section id="create.tablespace">
 		<title>创建表空间</title>
 		<screen>
 create tablespace test
@@ -75,11 +75,11 @@ maxsize 1000M
 			</screen>
 		</section>
 	</section>
-	<section>
+	<section id="alter.database">
 		<title>更改表空间属性</title>
 		<para>更改自动扩展属性</para>
 		<screen>
- alter database datafile
+alter database datafile
     '/opt/app/oracle/oradata/test.dbf',
     '/opt/app/oracle/oradata/test01.dbf'
     '/opt/app/oracle/oradata/test02.dbf'
@@ -100,10 +100,12 @@ alter database datafile '需要增加的数据文件路径，即上面查询出�
 			</screen>
 		</section>
 	</section>
-	<section>
+	<section id="drop.tablespace">
 		<title>删除表空间</title>
 		<screen>
+drop tablespace "空间名" including contents and datafiles
+
 drop tablespace test including contents and datafiles
-		</screen>
+		</screen>		
 	</section>
 </chapter>
