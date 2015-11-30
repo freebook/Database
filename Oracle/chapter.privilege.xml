@@ -5,6 +5,10 @@
 		<title>Account</title>
 		<programlisting>
 select username,account_status from dba_users; 
+
+select username,account_status from dba_users where account_status='OPEN';
+
+select username,account_status from dba_users t where t.default_tablespace = 'USERS' and t.account_status = 'OPEN';
 		</programlisting>
 		<section>
 			<title>show user</title>
@@ -18,7 +22,6 @@ SQL> select user from dual;
 USER
 ------------------------------
 SYS
-
 			]]>
 			</programlisting>
 		</section>
@@ -39,6 +42,13 @@ DEFAULT_TABLESPACE
 ------------------------------
 SYSTEM
 
+
+SQL> select username,account_status from dba_users t where t.default_tablespace = 'USERS' and t.account_status = 'OPEN';
+
+USERNAME                       ACCOUNT_STATUS
+------------------------------ --------------------------------
+FINANCE                        OPEN
+NEWS                           OPEN
 			]]>
 			</programlisting>
 		</section>
@@ -87,31 +97,64 @@ create user userName identified by password;
 drop user userName cascade; 
 			</screen>
 		</section>
+		<section>
+			<title>修改密码</title>
+			<para>输入 sqlplus /nolog 回车</para>
+			<screen>
+$ sqlplus /nolog
+
+SQL> conn /as sysdba
+
+SQL>alter user system identified by "123456";
+SQL>alter user sys identified by "123456";
+			</screen>
+		</section>
+		<section>
+			<title>Reset Password 忘记密码重置密码</title>
+			<para>密码文件 orapwORACLE_SID 这里的SID是orcl，所以密码文件是 orapworcl</para>
+			<screen>
+orapwd file=$ORACLE_HOME/dbs/orapworcl password=newpass			
+			</screen>
+		</section>
 	</section>
-	
-	
-	
+
 	<section id="oracle.grant">
 		<title>grant</title>
+		<para>授予DBA权限，不限制的表空间，查询任何表，查询任何字典</para>
 		<screen>
 		<![CDATA[
-grant dba to lxg;--授予DBA权限  
-grant unlimited tablespace to lxg;--授予不限制的表空间  
-grant select any table to lxg;--授予查询任何表  
-grant select any dictionary to lxg;--授予 查询 任何字典 
-
 grant dba to neo;  
 grant unlimited tablespace to neo;  
 grant select any table to neo;  
 grant select any dictionary to neo; 
 		]]>
 		</screen>
-				
-		<screen>
-		<![CDATA[
+		<section>
+			<title>Granting and Revoking SYSDBA and SYSOPER Privileges</title>
+			<para>Granting and Revoking SYSDBA and SYSOPER Privileges</para>				
+			<screen>
+			<![CDATA[
+If your server is using an EXCLUSIVE password file, use the GRANT statement to grant the SYSDBA or SYSOPER system privilege to a user, as shown in the following example:
 
-		]]>
-		</screen>
+GRANT SYSDBA TO user;
+
+Use the REVOKE statement to revoke the SYSDBA or SYSOPER system privilege from a user, as shown in the following example:
+
+REVOKE SYSDBA FROM user;
+			]]>
+			</screen>
+			<para>SYSDBA, SYSOPER, SYSASM</para>
+			<screen>
+REVOKE SYSOPER FROM non-SYS-user;
+GRANT SYSOPER TO non-SYS-user;		
+			</screen>
+		</section>
+		<section>
+			<title>EM 权限</title>
+			<screen>
+grant connect, resource, select_catalog_role to username;
+			</screen>
+		</section>
 	</section>
-	
+
 </chapter>

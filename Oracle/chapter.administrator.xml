@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter id="administrator">
 	<title>数据库管理</title>
-	
+
 	<section id="oracle.parameter">
 		<title>parameter</title>
 		<section>
 			<title>db</title>
 			<screen>
-			<![CDATA[		
+			<![CDATA[
 SQL> show parameter db;
 
 NAME                                 TYPE        VALUE
@@ -64,7 +64,7 @@ xml_db_events                        string      enable
 
 			]]>
 			</screen>
-		</section>	
+		</section>
 		<section>
 			<title>instance_name</title>
 			<screen>
@@ -83,7 +83,7 @@ INSTANCE
 orcl
 			]]>
 			</screen>
-		</section>	
+		</section>
 		<section>
 			<title>service_name</title>
 			<screen>
@@ -100,7 +100,7 @@ SQL>
 		<section>
 			<title>global_name</title>
 			<screen>
-			<![CDATA[			
+			<![CDATA[
 SQL> select * from global_name;
 
 GLOBAL_NAME
@@ -113,7 +113,7 @@ ORCL.EXAMPLE.COM
 		<section>
 			<title>db_name</title>
 			<screen>
-			<![CDATA[		
+			<![CDATA[
 SQL> show parameter db_name;
 
 NAME                                 TYPE        VALUE
@@ -217,7 +217,7 @@ workarea_size_policy                 string      AUTO
 
 			]]>
 			</screen>
-		</section>		
+		</section>
 		<section>
 			<title>spfile</title>
 			<screen>
@@ -287,7 +287,7 @@ SQL> select userenv('language') from dual;
 
 USERENV('LANGUAGE')
 ----------------------------------------------------
-AMERICAN_AMERICA.WE8MSWIN1252			
+AMERICAN_AMERICA.WE8MSWIN1252
 			]]>
 			</screen>
 			<screen>
@@ -317,7 +317,7 @@ NLS_CURRENCY															 $
 NLS_TERRITORY															 AMERICA
 NLS_LANGUAGE															 AMERICAN
 
-20 rows selected.			
+20 rows selected.
 			]]>
 			</screen>
 			<screen>
@@ -349,7 +349,7 @@ NLS_NCHAR_CONV_EXCP						 FALSE									   0
 19 rows selected.
 			]]>
 			</screen>
-			
+
 			<screen>
 			<![CDATA[
 SQL> SELECT * FROM v$nls_valid_values;
@@ -947,36 +947,36 @@ SORT								 UCA0620_TCHINESE1						  FALSE 	 0
 
 			]]>
 			</screen>
-			
+
 			<screen>
 			<![CDATA[
 
 			]]>
 			</screen>
-			
+
 			<screen>
 			<![CDATA[
 
 			]]>
 			</screen>
 		</section>
-	</section>		
-	
+	</section>
+
 	<section id="table">
 		<title>显示表</title>
 		<programlisting>
 select * from tab where tabtype='SYNONYM';
 		</programlisting>
 		<programlisting>
-select name,type,referenced_name from user_dependencies;		
+select name,type,referenced_name from user_dependencies;
 		</programlisting>
 	</section>
 	<section id="view">
 		<title>显示试图</title>
 		<programlisting>
-select object_name,created,status from user_objects where object_type in ('VIEW') 
+select object_name,created,status from user_objects where object_type in ('VIEW')
 		</programlisting>
-		
+
 	</section>
 	<section id="procedure">
 		<title>PROCEDURE</title>
@@ -995,17 +995,150 @@ select object_name,created,status from user_objects where object_type in ('FUNCT
 		<title>视图、存储过程、函数</title>
 		<para>查询数据库中的视图、存储过程、函数</para>
 		<screen>
-select object_name,created,status   
-from user_objects  
-where object_type in ('PROCEDURE','FUNCTION','VIEW')  
+select object_name,created,status
+from user_objects
+where object_type in ('PROCEDURE','FUNCTION','VIEW')
 		</screen>
-	</section>	
+	</section>
 	<section id="user_source">
 		<title>查看存储过程源代码</title>
 		<screen>
-select text from user_source where name = 'ADD_DEPT'; 
+select text from user_source where name = 'ADD_DEPT';
 
 select text from all_source where name = 'ADD_DEPT';
 		</screen>
 	</section>
-</chapter>	
+	<section id="internal_use">
+		<title>切换字符集</title>
+		<section>
+			<title>切换到 GBK</title>
+			<screen>
+			<![CDATA[
+SQL> shutdown immediate;
+SQL> startup mount;
+SQL> alter system enable restricted session;
+SQL> alter system set job_queue_processes=0;
+SQL> alter database open;
+SQL> alter database character set internal_use ZHS16GBK;
+SQL> shutdown immediate;
+SQL> startup
+SQL> alter system disable restricted session;
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>切到 UTF-8</title>
+			<screen>
+			<![CDATA[
+sqlplus "/ as sysdba"
+SQL> SHUTDOWN IMMEDIATE
+SQL> STARTUP MOUNT
+SQL> ALTER SYSTEM ENABLE RESTRICTED SESSION;
+SQL> ALTER SYSTEM SET JOB_QUEUE_PROCESSES=0;
+SQL> ALTER SYSTEM SET AQ_TM_PROCESSES=0;
+SQL> ALTER DATABASE OPEN
+SQL> ALTER DATABASE NATIONAL CHARACTER SETINTERNAL_USE UTF8;
+SQL> SHUTDOWN IMMEDIATE
+SQL> STARTUP
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>切到 AL32UTF8</title>
+			<screen>
+			<![CDATA[
+SQL> shutdown immediate;
+SQL> startup mount;
+SQL> alter system enable restricted session;
+SQL> alter system set job_queue_processes=0;
+SQL> alter database open;
+SQL> alter database character set internal_use AL32UTF8;
+SQL> shutdown immediate;
+SQL> startup
+SQL> alter system disable restricted session;
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>切换过程实例</title>
+			<example>
+				<title>Oracle 字符集切换实例</title>
+				<screen>
+				<![CDATA[
+C:\Users\Administrator>sqlplus
+
+SQL*Plus: Release 11.2.0.1.0 Production on Mon Nov 30 17:01:10 2015
+
+Copyright (c) 1982, 2010, Oracle.  All rights reserved.
+
+Enter user-name: sys as sysdba
+Enter password:
+
+Connected to:
+Oracle Database 11g Release 11.2.0.1.0 - 64bit Production
+
+SQL> shutdown immediate;
+Database closed.
+Database dismounted.
+ORACLE instance shut down.
+SQL> startup mount;
+ORACLE instance started.
+
+Total System Global Area 3423965184 bytes
+Fixed Size                  2180544 bytes
+Variable Size            1879050816 bytes
+Database Buffers         1526726656 bytes
+Redo Buffers               16007168 bytes
+Database mounted.
+SQL> alter system enable restricted session;
+
+System altered.
+
+SQL> alter system set job_queue_processes=0;
+
+System altered.
+
+SQL> alter database open;
+
+Database altered.
+
+SQL> ALTER DATABASE character set INTERNAL_USE ZHS16GBK;
+
+Database altered.
+
+SQL> shutdown immediate;
+Database closed.
+Database dismounted.
+ORACLE instance shut down.
+SQL> startup
+ORACLE instance started.
+
+Total System Global Area 3423965184 bytes
+Fixed Size                  2180544 bytes
+Variable Size            1879050816 bytes
+Database Buffers         1526726656 bytes
+Redo Buffers               16007168 bytes
+Database mounted.
+Database opened.
+SQL> alter system disable restricted session;
+
+System altered.
+
+SQL>
+
+
+SQL> select userenv('language') from dual;
+
+USERENV('LANGUAGE')
+----------------------------------------------------
+AMERICAN_AMERICA.ZHS16GBK
+
+SQL>
+			]]>
+			</screen>
+
+			</example>
+
+		</section>
+	</section>
+</chapter>

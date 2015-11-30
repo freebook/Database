@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Author: netkiller $ -->
+<!-- $Id: book.xml 559 2013-04-10 07:03:49Z netkiller $ -->
+<!DOCTYPE subject SYSTEM "/usr/share/xml/docbook/schema/dtd/5.0/docbook.dtd"
+	[
+	<!ENTITY homepage "http://netkiller.sourceforge.net/">
+	<!ENTITY mirror "http://netkiller.github.com/">
+
+	<!ENTITY Neo "http://netkiller.sf.net/">
+	<!ENTITY BG7NYT "&Neo;">
+	<!ENTITY Netkiller "<emphasis><trademark>Netkiller</trademark></emphasis>">
+
+	<!ENTITY book.info.author.xml		SYSTEM "../../common/book.info.author.xml">
+	<!ENTITY book.info.legalnotice.xml 	SYSTEM "../../common/book.info.legalnotice.xml">
+	<!ENTITY book.info.abstract.xml 	SYSTEM "../../common/book.info.abstract.xml">
+    <!ENTITY book.preface.xml           SYSTEM "../../common/book.preface.xml">
+	<!ENTITY preface.about.me.xml       SYSTEM "../../common/about.me.xml">
+	<!ENTITY book.dedication.xml       	SYSTEM "../../common/book.dedication.xml">
+
+	<!ENTITY % doctype.entity.xml 			SYSTEM "doctype.entity.xml">
+	%doctype.entity.xml;
+
+]>
+<book xml:base="http://netkiller.sourceforge.net/linux/www"
+	xmlns="http://docbook.org/ns/docbook" xml:lang="zh-cn">
+	<info>
+		<title>Netkiller Oracle 手札</title>
+		<subtitle></subtitle>
+
+		&book.info.author.xml;
+
+		<copyright>
+			<year>2003</year>
+			<year>2015</year>
+			<holder>Netkiller(Neo Chan). All rights reserved.</holder>
+		</copyright>
+
+		<publisher>
+			<publishername>Neo</publishername>
+		</publisher>
+		<isbn>ISBN#</isbn>
+		<edition>User's Guide version 1.0 for Linux</edition>
+		<pubdate>$Date: 2013-04-10 15:03:49 +0800 (Wed, 10 Apr 2013) $</pubdate>
+		<releaseinfo>文档始创于<date>2012-11-16</date></releaseinfo>
+
+		&book.info.legalnotice.xml;
+		&book.info.abstract.xml;
+		<abstract>
+			<title></title>
+		</abstract>
+	</info>
+
+	&book.dedication.xml;
+	&book.preface.xml;
+
+<!-- =========================================================================== -->
+	&chapter.oracle.xml;
+<!-- =========================================================================== -->
+
+</book>
