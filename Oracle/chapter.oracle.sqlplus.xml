@@ -97,5 +97,16 @@ select * from dba_users;
 /
 spool off
 		</screen>
-	</section>			
+	</section>
+	<section>
+		<title>链接数据库</title>
+		<para>Example: Connect to database using Net Service Name and the database net service name is ORCL.</para>
+		<screen>
+sqlplus myusername/mypassword@ORCL
+		</screen>
+		<para></para>
+		<screen>
+sqlplus "user/password@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(Host=192.168.4.9)(Port=1521))(CONNECT_DATA=(SERVER = DEDICATED)(SERVICE_NAME = orcl.example.com)))"		
+		</screen>
+	</section>
 </section>
