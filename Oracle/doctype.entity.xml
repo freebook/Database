@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 	<!ENTITY part.oracle.xml 				SYSTEM "part.oracle.xml">
-	<!ENTITY chapter.oracle 				SYSTEM "chapter.oracle.xml">
+	<!ENTITY chapter.oracle.xml				SYSTEM "chapter.oracle.xml">
 	<!ENTITY chapter.12c.install.xml 		SYSTEM "chapter.12c.install.xml">
 	<!ENTITY chapter.oracle.gui.xml			SYSTEM "chapter.oracle.gui.xml">
 	<!ENTITY chapter.oracle.cli.xml			SYSTEM "chapter.oracle.cli.xml">
@@ -10,3 +10,4 @@
 	<!ENTITY chapter.tablespace.xml			SYSTEM "chapter.tablespace.xml">
 	<!ENTITY chapter.privilege.xml			SYSTEM "chapter.privilege.xml">
 	<!ENTITY chapter.administrator.xml		SYSTEM "chapter.administrator.xml">
+	<!ENTITY chapter.package.xml			SYSTEM "chapter.package.xml">

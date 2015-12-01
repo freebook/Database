@@ -27,7 +27,12 @@ With the Partitioning, OLAP, Data Mining and Real Application Testing options
 SQL>
 	]]>
 	</screen>
-
+	<section id="conn">
+		<title>conn</title>
+		<screen>
+SQL>conn system/manger@orcl as sysdba		
+		</screen>
+	</section>
 	<section id="startup">
 		<title>startup/shutdown</title>
 		<screen>

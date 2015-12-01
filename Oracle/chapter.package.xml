@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="package">
+	<title>程序包</title>
+	<section>
+		<title>执行包中的过程</title>
+		<screen>
+select package_name.function_name (15000) from dual;
+		</screen>
+	</section>
+</chapter>

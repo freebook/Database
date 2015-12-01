@@ -80,11 +80,11 @@ imp parfile=/filepath/parfile.par
 		<title>expdp/impdp</title>
 		<para>创建 dump 目录与用户</para>
 		<screen>
-create directory mydump as '/u01/oracle'；
+create directory mydump as '/u01/oracle';
 
 grant read, write on directory mydump to dumpuser
 		</screen>
-		<section>
+		<section id="expdp">
 			<title>expdp</title>
 			<para>导出用户的数据</para>
 			<screen>
@@ -95,7 +95,7 @@ expdp dumpuser/password directory=mydump dumpfile=user.dmp
 expdp dumpuser/password directory=mydump dumpfile=table.dmp tables=test1,test2
 			</screen>
 		</section>
-		<section>
+		<section id="impdp">
 			<title>impdp</title>
 			<para>导入该用户数据</para>
 			<screen>
@@ -105,6 +105,97 @@ impdp dumpuser/password directory=mydump dumpfile=user.dmp
 			<screen>
 impdp dumpuser/password directory=mydump dumpfile=table.dmp
 			</screen>
+			<screen>
+$ impdp  \'/ as sysdba\' directory=backup dumpfile=user.dmp logfile=user.log tablespaces=dave,bl table_exists_action=replace;			
+			</screen>
+		</section>
+		<section>
+			<title>数据泵演示</title>
+			<para>创建目录</para>
+			<screen>
+mkdir  /opt/oracle/backup			
+			</screen>
+			<para>创建用户</para>
+			<screen>
+create user backup identified by passw0rd;
+GRANT resource,connect,CREATE SESSION,CREATE TABLE,SELECT ANY TABLE,UPDATE ANY TABLE,DELETE ANY TABLE,INSERT ANY TABLE,ALTER ANY TABLE,DROP ANY TABLE TO backup;
+
+
+create directory backup as '/opt/oracle/backup';
+grant read,write on directory backup to backup;		
+			</screen>
+
+			<example>
+				<title>expdp</title>
+				<screen>
+				<![CDATA[
+$ expdp backup/passw0rd dumpfile=backup.dmp directory=backup
+
+Export: Release 11.2.0.1.0 - Production on Tue Dec 1 16:19:56 2015
+
+Copyright (c) 1982, 2009, Oracle and/or its affiliates.  All rights reserved.
+
+Connected to: Oracle Database 11g Enterprise Edition Release 11.2.0.1.0 - 64bit Production
+With the Partitioning, OLAP, Data Mining and Real Application Testing options
+Starting "BACKUP"."SYS_EXPORT_SCHEMA_01":  backup/******** dumpfile=backup.dmp directory=backup 
+Estimate in progress using BLOCKS method...
+Processing object type SCHEMA_EXPORT/TABLE/TABLE_DATA
+Total estimation using BLOCKS method: 0 KB
+Processing object type SCHEMA_EXPORT/PRE_SCHEMA/PROCACT_SCHEMA
+Processing object type SCHEMA_EXPORT/TABLE/TABLE
+Processing object type SCHEMA_EXPORT/TABLE/INDEX/INDEX
+Processing object type SCHEMA_EXPORT/TABLE/CONSTRAINT/CONSTRAINT
+Processing object type SCHEMA_EXPORT/TABLE/INDEX/STATISTICS/INDEX_STATISTICS
+Processing object type SCHEMA_EXPORT/TABLE/COMMENT
+Master table "BACKUP"."SYS_EXPORT_SCHEMA_01" successfully loaded/unloaded
+******************************************************************************
+Dump file set for BACKUP.SYS_EXPORT_SCHEMA_01 is:
+  /opt/oracle/backup/backup.dmp
+Job "BACKUP"."SYS_EXPORT_SCHEMA_01" successfully completed at 16:20:28
+				]]>
+				</screen>
+				<para>运行完成后会在/opt/oracle/backup/目录生成backup.dmp文件</para>
+			</example>
+			
+			<example>
+				<title></title>
+				<para>首先将dmp文件复制到恢复目录中，确认oracle用户有权限访问该文件。</para>
+				<screen>
+mv backup.dmp /opt/oracle/backup/
+chown oracle:oinstall /opt/oracle/backup/backup.dmp
+				</screen>
+				<para>如果不知道目录可以使用下面语句查看</para>
+				<screen>
+				<![CDATA[
+SQL> SELECT directory_name, directory_path FROM dba_directories WHERE directory_name='BACKUP';
+
+DIRECTORY_NAME
+------------------------------
+DIRECTORY_PATH
+------------------------------
+BACKUP
+/opt/oracle/backup
+				]]>
+				</screen>
+				<screen>
+				<![CDATA[
+$ impdp backup/passw0rd directory=backup dumpfile=backup.dmp
+
+Import: Release 11.2.0.1.0 - Production on Tue Dec 1 16:32:34 2015
+
+Copyright (c) 1982, 2009, Oracle and/or its affiliates.  All rights reserved.
+
+Connected to: Oracle Database 11g Enterprise Edition Release 11.2.0.1.0 - 64bit Production
+With the Partitioning, OLAP, Data Mining and Real Application Testing options
+ORA-31655: no data or metadata objects selected for job
+ORA-39154: Objects from foreign schemas have been removed from import
+Master table "BACKUP"."SYS_IMPORT_FULL_01" successfully loaded/unloaded
+Starting "BACKUP"."SYS_IMPORT_FULL_01":  backup/******** directory=backup dumpfile=backup.dmp 
+Job "BACKUP"."SYS_IMPORT_FULL_01" successfully completed at 16:32:36
+				]]>
+				</screen>
+			</example>
+			
 		</section>
 	</section>
 
