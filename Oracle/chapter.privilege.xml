@@ -90,6 +90,10 @@ SQL>
 			<screen>
 create user userName identified by password; 
 			</screen>
+			<para>指定表空间</para>
+			<screen>
+create user neo identified by 123456 default tablespace netkiller;
+			</screen>
 		</section>
 		<section id="drop.user">
 			<title>Drop user</title>
@@ -97,6 +101,12 @@ create user userName identified by password;
 drop user userName cascade; 
 			</screen>
 			<para>cascade 删除用户同时删除该用户所创建的对象。</para>
+		</section>
+		<section id="alter">
+			<title>Alter user</title>
+			<screen>
+alter user neo default tablespace neo;			
+			</screen>
 		</section>
 		<section id="change_password">
 			<title>修改密码</title>
@@ -128,15 +138,6 @@ orapwd file=$ORACLE_HOME/dbs/orapworcl password=newpass
 
 	<section id="oracle.grant">
 		<title>grant</title>
-		<para>授予DBA权限，不限制的表空间，查询任何表，查询任何字典</para>
-		<screen>
-		<![CDATA[
-grant dba to neo;  
-grant unlimited tablespace to neo;  
-grant select any table to neo;  
-grant select any dictionary to neo; 
-		]]>
-		</screen>
 		<section>
 			<title>列出权限</title>
 			<screen>
@@ -611,11 +612,34 @@ SYS			       EXECUTE ANY PROCEDURE			NO
 			]]>			
 			</screen>
 		</section>
-		<section>
-			<title>Granting and Revoking SYSDBA and SYSOPER Privileges</title>
-			<para>Granting and Revoking SYSDBA and SYSOPER Privileges</para>				
+		<section id="revoke">
+			<title>吊销权限</title>
+			<screen>
+REVOKE EXECUTE ANY PROCEDURE FROM scott;			
+			</screen>
+		</section>
+		<section id="system.privileges">
+			<para>授予DBA权限，不限制的表空间，查询任何表，查询任何字典</para>
 			<screen>
 			<![CDATA[
+grant dba to neo;  
+grant unlimited tablespace to neo;  
+grant select any table to neo;  
+grant select any dictionary to neo; 
+			]]>
+			</screen>
+			<title>System Privileges 系统权限</title>
+				<section>
+				<title>EM 权限</title>
+				<screen>
+grant connect, resource, select_catalog_role to username;
+				</screen>
+			</section>
+			<section>
+				<title>Granting and Revoking SYSDBA and SYSOPER Privileges</title>
+				<para>Granting and Revoking SYSDBA and SYSOPER Privileges</para>				
+				<screen>
+				<![CDATA[
 If your server is using an EXCLUSIVE password file, use the GRANT statement to grant the SYSDBA or SYSOPER system privilege to a user, as shown in the following example:
 
 GRANT SYSDBA TO user;
@@ -623,32 +647,22 @@ GRANT SYSDBA TO user;
 Use the REVOKE statement to revoke the SYSDBA or SYSOPER system privilege from a user, as shown in the following example:
 
 REVOKE SYSDBA FROM user;
-			]]>
-			</screen>
-			<para>SYSDBA, SYSOPER, SYSASM</para>
-			<screen>
+				]]>
+				</screen>
+				<para>SYSDBA, SYSOPER, SYSASM</para>
+				<screen>
 REVOKE SYSOPER FROM non-SYS-user;
 GRANT SYSOPER TO non-SYS-user;		
-			</screen>
+				</screen>
+			</section>
 		</section>
-		<section>
-			<title>EM 权限</title>
-			<screen>
-grant connect, resource, select_catalog_role to username;
-			</screen>
-		</section>
-		<section id="revoke">
-			<title>吊销权限</title>
-			<screen>
-REVOKE EXECUTE ANY PROCEDURE FROM scott;			
-			</screen>
-		</section>
-		<section>
-			<title>对象权限</title>
+		<section id="object.privileges">
+			<title>Object Privileges 对象权限</title>
 			<screen>
 			
 			</screen>
 		</section>
+		
 	</section>
 
 </chapter>

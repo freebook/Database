@@ -1,7 +1,8 @@
 <section id="oracle.sqlplus">
 	<title>SQL*Plus</title>
+	<para>sqlplus /nolog</para>
 	<screen id="nolog">
-		<![CDATA[
+	<![CDATA[
 [oracle@wcs ~]$ sqlplus /nolog
 
 SQL*Plus: Release 11.2.0.1.0 Production on Sat May 28 18:19:53 2011
@@ -11,8 +12,11 @@ Copyright (c) 1982, 2009, Oracle.  All rights reserved.
 SQL> conn / as sysdba;
 Connected to an idle instance.
 SQL> exit
-
-		
+	]]>
+	</screen>
+	<para>sqlplus / as sysdba</para>
+	<screen>
+	<![CDATA[
 [oracle@wcs ~]$ sqlplus / as sysdba
 
 SQL*Plus: Release 11.2.0.1.0 Production on Sat May 28 18:31:25 2011
@@ -24,13 +28,16 @@ Connected to:
 Oracle Database 11g Enterprise Edition Release 11.2.0.1.0 - 64bit Production
 With the Partitioning, OLAP, Data Mining and Real Application Testing options
 
-SQL>
+SQL>	
 	]]>
 	</screen>
 	<section id="conn">
 		<title>conn</title>
 		<screen>
-SQL>conn system/manger@orcl as sysdba		
+SQL>conn system/manger@orcl as sysdba
+		</screen>
+		<screen>
+conn sys/sys@ip:1521/orainstance as sysdba		
 		</screen>
 	</section>
 	<section id="startup">

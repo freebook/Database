@@ -6,5 +6,13 @@
 		<screen>
 select package_name.function_name (15000) from dual;
 		</screen>
+		<screen>
+declare
+   result number;
+begin
+   -- Call the function
+   result := package_name.function_name (15000);
+end;		
+		</screen>
 	</section>
 </chapter>

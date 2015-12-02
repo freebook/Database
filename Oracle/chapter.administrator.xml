@@ -1,7 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter id="administrator">
 	<title>数据库管理</title>
+	<section id="lsnrctl">
+		<title>lsnrctl</title>
+		<screen>
+启动监听服务：
+lsnrctl start
 
+停止监听服务：
+lsnrctl stop
+
+查看监听状态：
+lsnrctl status
+		</screen>
+	</section>
 	<section id="oracle.listener">
 		<title>listener.ora</title>
 		<screen>

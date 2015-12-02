@@ -198,9 +198,5 @@ Job "BACKUP"."SYS_IMPORT_FULL_01" successfully completed at 16:32:36
 			
 		</section>
 	</section>
-
-	<section id="lsnrctl">
-		<title>lsnrctl</title>
-	</section>
 	&chapter.oracle.rman.xml;
 </chapter>
