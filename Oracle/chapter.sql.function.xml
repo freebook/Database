@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<chapter id="sql">
+	<title>SQL</title>
+	<section>
+		<title>SYSDATE</title>
+		<screen>
+SELECT SYSDATE-1 FROM DUAL;
+SELECT SYSDATE - INTERVAL '1' DAY FROM DUAL;
+		</screen>
+	</section>
+</chapter>
 <chapter id="function">
 	<title>Funcation</title>
 	<section id="to_char">
@@ -8,6 +18,5 @@
 	
 	<section id="to_date">
 		<title>to_date</title>
-		
 	</section>
 </chapter>
