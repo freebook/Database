@@ -243,7 +243,18 @@ Job "BACKUP"."SYS_IMPORT_FULL_01" successfully completed at 16:32:36
 				]]>
 				</screen>
 			</example>
-			
+		</section>
+		<section>
+			<title>查看dmp文件的表空间</title>
+			<screen>
+impdp \'/ as sysdba\' dumpfile=backup:expdp.dmp sqlfile=backup:expdp.sql
+
+grep 'TABLESPACE' /opt/oracle/backup/expdp.sql | awk '{print $2}' | sort -u
+TABLESPACE
+"TS_DATA_DEF"
+"TS_DATA_IDX"
+UNLIMITED
+			</screen>
 		</section>
 	</section>
 	&chapter.oracle.rman.xml;

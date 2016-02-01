@@ -664,5 +664,75 @@ GRANT SYSOPER TO non-SYS-user;
 		</section>
 		
 	</section>
+	<section>
+		<title>Opening the Encrypted Wallet</title>
+		<para></para>
+		<programlisting>
+		<![CDATA[
+$ sqlplus / as sysdba
 
+SQL*Plus: Release 11.2.0.1.0 Production on Mon Feb 1 15:53:57 2016
+
+Copyright (c) 1982, 2009, Oracle.  All rights reserved.
+
+
+Connected to:
+Oracle Database 11g Enterprise Edition Release 11.2.0.1.0 - 64bit Production
+With the Partitioning, OLAP, Data Mining and Real Application Testing options
+
+SQL> select * from v$encryption_wallet;
+
+WRL_TYPE
+--------------------
+WRL_PARAMETER
+-----------------------------------------------------------------------------
+STATUS
+------------------
+file
+/opt/oracle/admin/orcl/wallet
+CLOSED
+		
+		]]>
+		</programlisting>
+		<screen>
+		<![CDATA[
+		$ orapki wallet create -wallet /opt/oracle/admin/orcl/wallet -auto_login_local
+Oracle PKI Tool : Version 11.2.0.1.0 - Production
+Copyright (c) 2004, 2009, Oracle and/or its affiliates. All rights reserved.
+
+Enter password:       
+Enter password again:   
+                                                                                    
+[oracle@orcl ~]$ ll /opt/oracle/admin/orcl/wallet
+total 8
+-rw------- 1 oracle oinstall 3589 Feb  1 15:58 cwallet.sso
+-rw------- 1 oracle oinstall 3512 Feb  1 15:58 ewallet.p12
+		]]>
+		</screen>
+		<programlisting>
+		<![CDATA[
+		SQL> select * from v$encryption_wallet;
+
+WRL_TYPE
+--------------------
+WRL_PARAMETER
+--------------------
+STATUS
+------------------
+file
+/opt/oracle/admin/orcl/wallet
+OPEN_NO_MASTER_KEY
+		]]>
+		</programlisting>
+
+		<para>The Wallet must be open before opening the database:</para>
+		<screen>
+		<![CDATA[
+SQL> startup mount;
+SQL> alter system set wallet open identified by "password";
+SQL> alter database open;
+		]]>
+		</screen>
+		<para>待续......</para>
+	</section>
 </chapter>
