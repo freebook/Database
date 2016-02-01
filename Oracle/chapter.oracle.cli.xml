@@ -81,8 +81,10 @@ imp parfile=/filepath/parfile.par
 		<para>创建 dump 目录与用户</para>
 		<screen>
 create directory mydump as '/u01/oracle';
-
+		</screen>
+		<screen>
 grant read, write on directory mydump to dumpuser
+grant read,write on directory backup to finance;		
 		</screen>
 		<section id="expdp">
 			<title>expdp</title>
@@ -90,10 +92,36 @@ grant read, write on directory mydump to dumpuser
 			<screen>
 expdp dumpuser/password directory=mydump dumpfile=user.dmp
 			</screen>
-			<para>导出表数据</para>
+			<para>导出指定表数据</para>
 			<screen>
 expdp dumpuser/password directory=mydump dumpfile=table.dmp tables=test1,test2
 			</screen>
+			<para>按用户导</para>
+			<screen>
+expdp scott/tiger@orcl schemas=scott dumpfile=expdp.dmp DIRECTORY=backup;			
+			</screen>
+			<para>并行进程进程数</para>
+			<screen>
+expdp scott/tiger@orcl directory=backup dumpfile=scott3.dmp parallel=40 job_name=scott3			
+			</screen>
+			<para>指定查询条件</para>
+			<screen>
+expdp scott/tiger@orcl directory=backup dumpfile=expdp.dmp Tables=emp query='WHERE age=20';			
+			</screen>
+			<para>按表空间导</para>
+			<screen>
+expdp system/manager DIRECTORY=backup DUMPFILE=tablespace.dmp TABLESPACES=temp,example;			
+			</screen>
+			<para>导整个数据库</para>
+			<screen>
+expdp system/manager DIRECTORY=backup DUMPFILE=full.dmp FULL=y;			
+			</screen>
+			<para></para>
+			<screen>
+			</screen>
+			<para></para>
+			<screen>			
+			</screen>			
 		</section>
 		<section id="impdp">
 			<title>impdp</title>
@@ -107,6 +135,26 @@ impdp dumpuser/password directory=mydump dumpfile=table.dmp
 			</screen>
 			<screen>
 $ impdp  \'/ as sysdba\' directory=backup dumpfile=user.dmp logfile=user.log tablespaces=dave,bl table_exists_action=replace;			
+			</screen>
+			<para>导到指定Schemas下</para>
+			<screen>
+impdp scott/tiger DIRECTORY=backup DUMPFILE=expdp.dmp SCHEMAS=scott;
+			</screen>
+			<para>改变表的所有者</para>
+			<screen>
+impdp system/manager DIRECTORY=backup DUMPFILE=expdp.dmp TABLES=scott.dept REMAP_SCHEMA=scott:system;
+			</screen>
+			<para>导入表空间</para>
+			<screen>
+impdp system/manager DIRECTORY=backup DUMPFILE=tablespace.dmp TABLESPACES=example;
+			</screen>
+			<para>导入数据库</para>
+			<screen>
+impdb system/manager DIRECTORY=dump_dir DUMPFILE=full.dmp FULL=y;			
+			</screen>
+			<para>追加数据</para>
+			<screen>
+impdp system/manager DIRECTORY=backup DUMPFILE=expdp.dmp SCHEMAS=system TABLE_EXISTS_ACTION			
 			</screen>
 		</section>
 		<section>
