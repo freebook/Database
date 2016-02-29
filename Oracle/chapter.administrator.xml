@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter id="administrator">
+<chapter id="index"><?dbhtml dir="administrator" ?>
 	<title>数据库管理</title>
 	<section id="lsnrctl">
 		<title>lsnrctl</title>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter>
+	<title>FAQ</title>
+	<section>
+		<title>ORA-01658: unable to create INITIAL extent for segment in tablespace</title>
+		<subtitle>ORA-39171: Job is experiencing a resumable wait.</subtitle>
+		<para>问题原因表空间已满</para>
+		<screen>
+ORA-39171: Job is experiencing a resumable wait.
+ORA-01658: unable to create INITIAL extent for segment in tablespace FINANCE		
+		</screen>
+		<para>解决方法 MAXSIZE 改为 UNLIMITED</para>
+		<screen>
+ALTER DATABASE DATAFILE '/opt/oracle/oradata/orcl/finance.dbf' AUTOEXTEND ON NEXT 5M MAXSIZE UNLIMITED
+		</screen>
+	</section>
+</chapter>

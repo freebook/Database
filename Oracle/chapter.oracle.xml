@@ -5,5 +5,7 @@
 	&chapter.oracle.gui.xml;
 	&chapter.oracle.cli.xml;
 	&chapter.package.xml;
+	&chapter.monitor.xml;
+	&chapter.faq.xml;
 	&chapter.oracle.install.xml;
 	

@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="index"><?dbhtml dir="monitor" ?>
+	<title>Oracle 监控</title>
+	<section id="logfile">
+		<title>Oracle日志的路径</title>
+		<screen>
+		<![CDATA[
+SQL> select * from v$logfile;
+
+    GROUP# STATUS  TYPE    MEMBER				         IS_
+---------- ------- ------- ---------------------------- ----
+	 3	   ONLINE  /opt/oracle/oradata/orcl/redo03.log	  NO
+	 2	   ONLINE  /opt/oracle/oradata/orcl/redo02.log	  NO
+	 1	   ONLINE  /opt/oracle/oradata/orcl/redo01.log	  NO
+
+SQL>
+		]]>
+		</screen>
+	</section>
+	<section id="v$sql">
+		<title>SQL 日志监控</title>
+		<screen>
+		<![CDATA[
+SQL> select * from v$sql;
+
+SQL> select * from v$sqlarea;		
+		]]>
+		</screen>
+		
+		<screen>
+		<![CDATA[
+SQL> select sql_text from v$sql where rownum<10;
+
+SQL_TEXT
+----------------------------------------------------------------------------------------------------------
+/* OracleOEM */ 	 SELECT SEVERITY_INDEX, CRITICAL_INICDENTS, WARNING_INCIDENTS from v$incmeter_summary
+SELECT LAST_LOAD_TIME FROM MGMT_TARGETS WHERE TARGET_GUID=:B1
+SELECT LAST_LOAD_TIME FROM MGMT_TARGETS WHERE TARGET_GUID=:B1
+SELECT LAST_LOAD_TIME FROM MGMT_TARGETS WHERE TARGET_GUID=:B1
+SELECT LAST_LOAD_TIME FROM MGMT_TARGETS WHERE TARGET_GUID=:B1
+SELECT LAST_LOAD_TIME FROM MGMT_TARGETS WHERE TARGET_GUID=:B1
+SELECT LAST_LOAD_TIME FROM MGMT_TARGETS WHERE TARGET_GUID=:B1
+SELECT LAST_LOAD_TIME FROM MGMT_TARGETS WHERE TARGET_GUID=:B1
+SELECT LAST_LOAD_TIME FROM MGMT_TARGETS WHERE TARGET_GUID=:B1
+
+9 rows selected.
+
+SQL> 
+	
+		]]>
+		</screen>
+		
+		<screen>
+		<![CDATA[
+SQL> select sql_text from v$sqlarea where rownum<100;
+
+SQL_TEXT
+----------------------------------------------------------------------------------------------------------
+/* OracleOEM */ 	 SELECT SEVERITY_INDEX, CRITICAL_INICDENTS, WARNING_INCIDENTS from v$incmeter_summary
+SELECT LAST_LOAD_TIME FROM MGMT_TARGETS WHERE TARGET_GUID=:B1
+SELECT BLACKOUT_GUID, START_TIME, END_TIME, STATUS FROM MGMT_BLACKOUT_WINDOWS WHERE TARGET_GUID=:B2 AND START_TIME <= :B1
+UPDATE MGMT_TARGETS SET LAST_LOAD_TIME=:B2 WHERE TARGET_GUID = :B1 AND (LAST_LOAD_TIME < :B2 OR LAST_LOAD_TIME IS NULL)
+SELECT ROWID FROM EMDW_TRACE_DATA WHERE LOG_TIMESTAMP < :B2 AND CONTEXT_TYPE_ID = NVL(:B1 ,CONTEXT_TYPE_ID) ORDER BY ROWID ASC
+SELECT SYSTEM_JOB, JOB_NAME, JOB_OWNER FROM MGMT_JOB WHERE JOB_ID=:B1
+update sys.job$ set this_date=:1 where job=:2
+...
+...
+...
+SELECT * FROM AQ_MNTR_MSGS_PERSQSUBS where rownum <=1
+
+SQL_TEXT
+----------------------------------------------------------------------------------------------------------
+select timestamp, flags from fixed_obj$ where obj#=:1
+SELECT STEP_STATUS FROM MGMT_JOB_EXECUTION WHERE STEP_ID=:B1
+
+99 rows selected.
+
+SQL>
+		]]>
+		</screen>
+		<para>查看 module</para>
+		<screen>
+		<![CDATA[
+SQL> select module from v$sql group by module;
+
+MODULE
+----------------------------------------------------------------
+
+SQL Developer
+Oracle Enterprise Manager.string history purge
+Data Pump Worker
+OEM.BoundedPool
+SEVERITY EVALUATION
+STREAMS
+emagent_SQL_oracle_database
+OEM.SystemPool
+sqlplus@orcl.example.com (TNS V1-V3)
+OMS
+DBMS_SCHEDULER
+Oracle Enterprise Manager.rollup
+OEM.CacheModeWaitPool
+OEM.DefaultPool
+Oracle Enterprise Manager.metric error purge
+SQL*Plus
+Oracle Enterprise Manager.purge system performan
+Oracle Enterprise Manager.purge system error log
+MMON_SLAVE
+emagent_AQMetrics
+perl@orcl.example.com (TNS V1-V3)
+JDBC Thin Client
+Oracle Enterprise Manager.Metric Engine
+
+EM_PING
+Oracle Enterprise Manager.current metric purge
+
+27 rows selected.		
+		]]>
+		</screen>
+		<para>查询JDBC SQL操作日志</para>
+		<screen>
+		<![CDATA[
+SQL> select module,first_load_time,sql_text from v$sql  where MODULE='JDBC Thin Client' and rownum<10 order by first_load_time desc;
+
+MODULE			 FIRST_LOAD_TIME		      SQL_TEXT
+---------------------------------------------------------------- ---------------------------------------------------------------------------- 
+JDBC Thin Client	 2016-02-29/16:47:35      INSERT INTO CUSTOMER VALUES (LPAD(CUSTOMER.NEXTVAL, 27, 0), :B8 , :B7 , :B6 , :B5 , SYSDATE, :B4 , :B3 , :B2 , :B1 )
+JDBC Thin Client	 2016-02-29/10:08:25      SELECT * FROM LOTTERYS WHERE ID = :B1 FOR UPDATE NOWAIT
+JDBC Thin Client	 2016-02-29/10:08:25      SELECT COUNT(1) FROM ADMIN WHERE (FUNCTIONRIGHTS LIKE '%,' || :B2 || ',%') AND LOGINNAME = :B1
+JDBC Thin Client	 2016-02-29/09:52:41      SELECT SUM(C.AMOUNT) AMOUNT FROM LOTTERYS C WHERE  FLAG = :1
+JDBC Thin Client	 2016-02-29/09:51:32      SELECT COUNT(1) COUNT FROM CUSTOMER WHERE LOGINNAME = :1
+JDBC Thin Client	 2016-02-29/09:29:06      BEGIN ...
+JDBC Thin Client	 2016-02-29/09:29:06      SELECT ...
+JDBC Thin Client	 2016-02-29/09:28:15      SELECT ...
+JDBC Thin Client	 2016-02-29/09:25:34      SELECT FLAG FROM ADMIN WHERE LOGINNAME = :B1
+
+9 rows selected.
+
+		]]>
+		</screen>
+		<para>查看 SQL Developer 操作日志</para>
+		<screen>
+		<![CDATA[
+SQL> select module,first_load_time,sql_text from v$sql  where MODULE='SQL Developer' and rownum<10 order by first_load_time desc;
+
+MODULE			FIRST_LOAD_TIME	     	SQL_TEXT
+---------------------------------------------------------------- ---------------------------------------------------------------------------- 
+SQL Developer	2016-02-29/16:18:42	     BEGIN DBMS_OUTPUT.ENABLE() ; END;
+SQL Developer	2016-02-29/14:14:18	     select * from customer order by id desc
+SQL Developer	2016-02-29/09:47:31	     SELECT TEXT FROM SYS.DBA_SOURCE	WHERE TYPE = :TYPE AND OWNER = :OWNER AND NAME = :NAME	ORDER BY LINE
+SQL Developer	2016-02-29/09:30:44	     SELECT /*OracleDatabaseImpl.ALL_PARTITIONING_QUERY*/	  VALUE FROM V$OPTION WHERE PARAMETER='Partitioning'
+SQL Developer	2016-02-29/09:27:31	     select 1 from dba_dependencies where 1=2
+SQL Developer	2016-02-29/09:20:00	     ...
+SQL Developer	2016-02-29/09:19:22	     ...
+SQL Developer	2016-02-29/09:19:16	     select 1 from dba_triggers where 1=2
+SQL Developer	2016-02-29/09:19:14	     select sys_context('USERENV','SESSIONID') from dual
+
+9 rows selected.
+		]]>
+		</screen>
+		<para>SQL*Plus 操作日志</para>
+		<screen>
+		<![CDATA[
+SQL> select module,first_load_time,sql_text from v$sql  where MODULE='SQL*Plus' order by first_load_time desc;
+
+MODULE		FIRST_LOAD_TIME	     	SQL_TEXT
+---------------------------------------------------------------- ---------------------------------------------------------------------------- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+SQL*Plus	2015-12-02/08:54:58	    insert into sys.aud$( sessionid,entryid,statement,ntimestamp#, userid,userhost,terminal,action#,returncode, logoff$lread,logoff$pread,logoff$lwrite,logoff$dead, logoff$time,comment$text,spare1,clientid,sessioncpu,proxy$sid,user$guid, instance#,process#,auditid,dbid) values(:1,:2,:3,SYS_EXTRACT_UTC(SYSTIMESTAMP),     :4,:5,:6,:7,:8,	:9,:10,:11,:12,     cast(SYS_EXTRACT_UTC(systimestamp) as date),:13,:14,:15,:16,:17,:18,     :19,:20,:21,:22)
+		]]>
+		</screen>
+		<section>
+			<title>查询性能分析</title>
+			<screen>
+			<![CDATA[
+SQL> SELECT * FROM (select PARSING_USER_ID,EXECUTIONS,SORTS, COMMAND_TYPE,DISK_READS,sql_text FROM v$sqlarea order BY disk_reads DESC )where ROWNUM<10 ;
+
+PARSING_USER_ID EXECUTIONS	SORTS COMMAND_TYPE DISK_READS SQL_TEXT
+--------------- ---------- ---------- ------------ ---------- -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	     30        226	    0		 3    1304810 SELECT TO_CHAR(current_timestamp AT TIME ZONE 'GMT', 'YYYY-MM-DD HH24:MI:SS TZD') AS curr_timestamp, COUNT(username) AS failed_count FROM  sys.dba_audit_session WHERE returncode != 0 AND TO_CHAR(timestamp, 'YYYY-MM-DD HH24:MI:SS') >= TO_CHAR(current_timestamp - TO_DSINTERVAL('0 0:30:00'), 'YYYY-MM-DD HH24:MI:SS')
+	    100     128587	    0		47	61115 DECLARE job BINARY_INTEGER := :job; next_date DATE := :mydate;  broken BOOLEAN := FALSE; BEGIN EMD_MAINTENANCE.EXECUTE_EM_DBMS_JOB_PROCS(); :mydate := next_date; IF broken THEN :b := 1; ELSE :b := 0; END IF; END;
+	      0       8408	    0		 3	16041 select /*+ index(idl_ub1$ i_idl_ub11) +*/ piece#,length,piece from idl_ub1$ where obj#=:1 and part=:2 and version=:3 order by piece#
+	      0 	 9	    0		 3	14618 select o.name, o.owner# from obj$ o, type$ t  where o.oid$ = t.tvoid and	bitand(t.properties,8388608) = 8388608 and (sysdate-o.ctime) > 0.0007
+	      0       8408	    0		 3	10717 select /*+ index(idl_ub2$ i_idl_ub21) +*/ piece#,length,piece from idl_ub2$ where obj#=:1 and part=:2 and version=:3 order by piece#
+	      0      34791	    0		 3	10171 select order#,columns,types from access$ where d_obj#=:1
+	     99 	14	    0		47	 8238 BEGIN CUSTOMER.CustomerOverDue(:1 ); END;
+	     99 	14	    0		 3	 8222 SELECT NAME, CREATEDATE,FLAG FROM CUSTOMER WHERE TYPE = 't'
+	     30 	 1	    0		 3	 5917 SELECT TO_CHAR(TO_TIMESTAMP('2016-02-28' , 'YYYY-MM-DD') AT TIME ZONE 'GMT', 'YYYY-MM-DD HH24:MI:SS TZD') AS curr_timestamp, COUNT(username) AS failed_count FROM sys.dba_audit_session WHERE returncode != 0 AND TO_CHAR(CAST(timestamp AS DATE) , 'YYYY-MM-DD') >= '2016-02-28' AND TO_CHAR(CAST(timestamp AS DATE) , 'YYYY-MM-DD') < TO_CHAR((TO_DATE('2016-02-28', 'YYYY-MM-DD') + 1), 'YYYY-MM-DD')
+
+9 rows selected.
+			
+			]]>
+			</screen>
+			
+		</section>
+		<section>
+			<title>IO性能分析</title>			
+			<screen>
+			<![CDATA[
+SELECT se.sid,se.serial#,pr.SPID,se.username,se.status, se.terminal,se.program,se.MODULE,se.sql_address,st.event,st. 
+p1text,si.physical_reads, si.block_changes FROM v$session se,v$session_wait st, 
+v$sess_io si,v$process pr WHERE st.sid=se.sid AND st.sid=si.sid AND se.PADDR=pr.ADDR AND se.sid>6 AND st. 
+wait_time=0 AND st.event NOT LIKE '%SQL%' ORDER BY physical_reads DESC			
+			]]>
+			</screen>
+		</section>
+	</section>
+	<section id="session">
+		<title>session</title>
+		<para>查看用户正在执行的SQL</para>
+		<screen>
+		<![CDATA[
+SQL> SELECT osuser, username, sql_text from v$session a, v$sqltext b where a.sql_address =b.address order by address, piece;
+
+OSUSER			       USERNAME 		      SQL_TEXT
+------------------------------ ------------------------------ ----------------------------------------------------------------
+oracle			       SYSMAN			      BEGIN EMD_NOTIFICATION.QUEUE_READY(:1, :2, :3); END;
+oracle			       SYS			      SELECT osuser, username, sql_text from v$session a, v$sqltext b
+oracle			       SYS			       where a.sql_address =b.address order by address, piece
+linea			       Neo			      UPDATE gt_scheduler_config SET report_date = TO_DATE(:1 ,'yyyy-M
+linea			       Neo			      M-dd HH24:mi:ss') WHERE id = :2
+		]]>
+		</screen>
+		
+		<screen>
+		<![CDATA[
+SQL> select sid,username,sql_text from v$session a,v$sqltext_with_newlines b where a.SQL_ADDRESS=b.ADDRESS;
+
+       SID USERNAME			  SQL_TEXT
+---------- ------------------------------ ----------------------------------------------------------------
+       177 SYSMAN			  BEGIN EMD_NOTIFICATION.QUEUE_READY(:1, :2, :3); END;
+	95 SYS				  lines b where a.SQL_ADDRESS=b.ADDRESS
+	95 SYS				  select sid,username,sql_text from v$session a,v$sqltext_with_new		
+		]]>
+		</screen>		
+	</section>
+	<section id="report">
+		<title>SQL Monitoring Report</title>
+		<para>监控级别</para>
+		<screen>
+		<![CDATA[
+SQL> show parameter statistics_level
+
+NAME				     TYPE	 VALUE
+------------------------------------ ----------- ------------------------------
+statistics_level		     string	 TYPICAL
+		
+SQL> select statistics_name,session_status,system_status,activation_level,session_settable from v$statistics_level where statistics_name = 'SQL Monitoring';
+
+STATISTICS_NAME 						 SESSION_ SYSTEM_S ACTIVAT SES
+---------------------------------------------------------------- -------- -------- ------- ---
+SQL Monitoring							 ENABLED  ENABLED  TYPICAL YES
+	
+		]]>
+		</screen>
+		<screen>
+		<![CDATA[
+SQL> show parameter control_manage
+
+NAME				     TYPE	 VALUE
+------------------------------------ ----------- ------------------------------
+control_management_pack_access	     string	 DIAGNOSTIC+TUNING
+		
+		]]>
+		</screen>
+				
+		<para>强制对某个SQL使用实时监控</para>
+		<screen>
+		<![CDATA[
+select /*+ monitor */ count(*) from emp where sal > 5000;
+		]]>
+		</screen>
+		<para>禁止实时监控：</para>
+		<screen>
+		<![CDATA[
+select /*+ no_monitor */ count(*) from emp where sal > 5000;		
+		]]>
+		</screen>		
+		
+		<para>SQL监控报表</para>
+		<screen>
+		<![CDATA[
+SQL> select dbms_sqltune.report_sql_monitor from dual;
+
+REPORT_SQL_MONITOR
+--------------------------------------------------------------------------------
+SQL Monitoring Report
+
+SQL Text
+------------------------------
+DECLARE job BINAR
+
+		]]>
+		</screen>
+	</section>
+</chapter>

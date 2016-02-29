@@ -11,3 +11,5 @@
 	<!ENTITY chapter.privilege.xml			SYSTEM "chapter.privilege.xml">
 	<!ENTITY chapter.administrator.xml		SYSTEM "chapter.administrator.xml">
 	<!ENTITY chapter.package.xml			SYSTEM "chapter.package.xml">
+	<!ENTITY chapter.monitor.xml			SYSTEM "chapter.monitor.xml">
+	<!ENTITY chapter.faq.xml				SYSTEM "chapter.faq.xml">
