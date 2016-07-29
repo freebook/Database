@@ -140,7 +140,7 @@ sudo /bin/systemctl enable elasticsearch.service
 	</section>
 	<section id="document">
 		<title>文档API</title>
-		<section>
+		<section id="quickstart">
 			<title>快速上手</title>
 			<para>文档通过 _index、_type、_id 元数据(metadata)，确定 URL 唯一</para>
 			<screen>
@@ -191,7 +191,7 @@ GET /<_index>/<_type>/<_id>
 			</screen>
 			<para>后面会详细讲解 PUT与GET的使用方法以及相关参数</para>
 		</section>
-		<section>
+		<section id="put">
 			<title>写入 PUT/POST</title>
 			<para>通过 PUT 写入数据</para>
 			<screen>
@@ -228,7 +228,7 @@ curl -XGET 'http://localhost:9200/website/news/AVY0RJrvJRTrBLpmYzBH?pretty'
 			
 		</section>
 		
-		<section>
+		<section id="get">
 			<title>获取 GET</title>
 			<para>通过 GET 读取数据</para>
 			<screen>
@@ -281,7 +281,7 @@ curl -XGET 'http://localhost:9200/website/news/AVY0RJrvJRTrBLpmYzBH?pretty'
 				</screen>
 			</section>
 		</section>
-		<section>
+		<section id="head">
 			<title>检查记录是否存在</title>
 			<screen>
 [root@localhost elasticsearch]# curl -i -XHEAD http://localhost:9200/website/blog/1
@@ -298,6 +298,21 @@ Content-Length: 0
 			<para>HTTP/1.1 404 Not Found 表示数据不存在</para>
 		</section>
 		<section>
+			<title>删除 Delete</title>
+			<para>删除 _index</para>
+			<screen>
+curl -XDELETE http://localhost:9200/information/?pretty
+			</screen>
+			<para>删除 _mapping</para>
+			<screen>
+curl -XDELETE http://localhost:9200/information/news/_mapping?pretty			
+			</screen>
+			<para>删除对象</para>
+			<screen>
+curl -XDELETE http://localhost:9200/information/news/1?pretty			
+			</screen>
+		</section>
+		<section id="param">
 			<title>参数</title>
 			<section>
 				<title>pretty 格式化 json</title>
@@ -341,7 +356,7 @@ Content-Length: 0
 		<screen>
 # curl -XGET 'http://localhost:9200/_all/news,blog/_search?pretty'
 		</screen>
-		<section>
+		<section id="search.page">
 			<title>分页</title>
 			<para>该功能与SQL的LIMIT关键字结果一样，Elasticsearch接受size和from两个参数参数：</para>
 			<para>size: 返回结果集数量，默认10，用法与SQL中的 Limit相同</para>
@@ -355,7 +370,7 @@ Content-Length: 0
 			]]>
 			</screen>
 		</section>
-		<section>
+		<section id="query">
 			<title>字符串搜索</title>
 			<screen>
 			<![CDATA[
@@ -375,6 +390,131 @@ Content-Length: 0
 			<![CDATA[
 +name:(neo jam) +age:<30 +date:>1980-09-10
 			]]>
+			</screen>
+		</section>
+	</section>
+	<section id="plugin">
+		<title>Plugin 插件管理</title>
+		<section>
+			<title>手工安装插件</title>
+			<screen>
+cd /usr/local/src/
+wget https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v1.9.4/elasticsearch-analysis-ik-1.9.4.zip
+cd /usr/share/elasticsearch/plugins
+mkdir ik
+cd ik
+unzip /usr/local/src/elasticsearch-analysis-ik-1.9.4.zip
+
+/etc/init.d/elasticsearch restart
+			</screen>
+		</section>
+		<section>
+			<title>plugin 命令</title>
+			<screen>
+plugin -install medcl/elasticsearch-analysis-ik/1.9.0 			
+			</screen>
+		</section>
+		<section>
+			<title>插件测试</title>
+			<screen>
+			<![CDATA[
+curl -XDELETE http://localhost:9200/information/news/_mapping?pretty
+curl -XDELETE http://localhost:9200/information/?pretty
+
+curl -XPUT http://localhost:9200/information
+curl -XPOST http://localhost:9200/information/news/_mapping?pretty -d'
+{
+    "news": {
+            "_all": {
+            "analyzer": "ik_max_word",
+            "search_analyzer": "ik_max_word",
+            "term_vector": "no",
+            "store": "false"
+        },
+        "properties": {
+            "content": {
+                "type": "string",
+                "store": "no",
+                "term_vector": "with_positions_offsets",
+                "analyzer": "ik_max_word",
+                "search_analyzer": "ik_max_word",
+                "include_in_all": "true",
+                "boost": 8
+            }
+        }
+    }
+}'
+
+curl -XPOST http://localhost:9200/information/news/ -d'
+{"title": "越南胡志明游记·教堂·管风琴的天籁之音","content":"这是我平生第一次去教堂，也是第一次完整的参加宗教仪式。当我驻足教堂外的时候，耳边传来天籁之音，是管风琴，确切的说是电子风琴。真正的管风琴造价昂贵，管风琴通常需要根据教堂尺寸定制，无法量产。我记得中国只有4座管风琴，深圳音乐厅有一座。"}
+'
+curl -XPOST http://localhost:9200/information/news/ -d'
+{"title": "越南胡志明游记·信仰·法事","content":"佛经的形成过程是与佛教的发展相始终的，按照佛教发展的时间顺序，最早形成的是小乘佛教三藏，之后形成的是大乘佛教三藏，最后形成的是密宗三藏。"}
+'
+
+curl -XPOST http://localhost:9200/information/news/_search  -d'
+{
+    "query" : { "term" : { "content" : "佛经" }},
+    "highlight" : {
+        "pre_tags" : ["<strong>", "<strong>"],
+        "post_tags" : ["</strong>", "</strong>"],
+        "fields" : {
+            "content" : {}
+        }
+    }
+}'		
+
+curl -XPOST http://localhost:9200/information/news/_search  -d'
+{
+    "query" : { "term" : { "content" : "中国" }},
+    "highlight" : {
+        "pre_tags" : ["<b>", "<i>"],
+        "post_tags" : ["</b>", "</i>"],
+        "fields" : {
+            "content" : {}
+        }
+    }
+}'	
+			]]>
+			</screen>
+		</section>
+	</section>
+	<section id="mapping">
+		<title>映射</title>
+		<screen>
+		
+		</screen>
+		<section>
+			<title>删除 _mapping </title>
+			<screen>
+curl -XDELETE http://localhost:9200/information/news/_mapping?pretty		
+			</screen>
+		</section>
+		<section>
+			<title>创建 _mapping</title>
+			<screen>
+curl -XPOST http://localhost:9200/information/news/_mapping?pretty -d'
+{
+    "news": {
+        "_all": {
+	       "analyzer": "ik_max_word",
+	       "search_analyzer": "ik_max_word",
+	       "term_vector": "no",
+	       "store": "false"
+        },
+        "properties": {
+            "content": {
+                "type": "string",
+                "store": "no",
+                "term_vector": "with_positions_offsets",
+                "analyzer": "ik_max_word",
+                "search_analyzer": "ik_max_word",
+                "include_in_all": "true",
+                "boost": 8
+            }
+        }
+    }
+}'
 			</screen>
 		</section>
 	</section>
