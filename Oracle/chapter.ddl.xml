@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="ddl">
+	<title>表</title>
+	<section>
+		<title>约束检查</title>
+		<para>实现MySQL那样的枚举类型</para>
+		<screen>
+CREATE TABLE sizes (
+   size ENUM('small', 'medium', 'large')
+);
+		</screen>
+		<para>具体实现</para>
+		<screen>
+		<![CDATA[
+CREATE TABLE sizes (
+  size VARCHAR2(10) CHECK( size IN ('small','medium','large') )
+);		
+		]]>
+		</screen>
+	</section>
+<!--
+	<section id="index">
+		<title>索引</title>
+		<screen>
+
+		</screen>
+		<para></para>
+		<screen>
+
+		</screen>
+		<para></para>
+		<screen>
+
+		</screen>
+		<para></para>
+		<screen>
+
+		</screen>
+
+		<para></para>
+		<screen>
+
+		</screen>
+		<para></para>
+		<screen>
+
+		</screen>
+		<example>
+			<title></title>
+			<screen>
+			<![CDATA[
+		
+			]]>
+			</screen>
+		</example>
+		<section id="tablespace.tempfile">
+			<title></title>
+			<para></para>
+			<screen>
+
+			</screen>
+		</section>
+	</section>
+	<section id="key">
+		<title></title>
+		<para></para>
+		<screen>
+
+		</screen>
+
+		<section>
+			<title></title>
+			<para></para>
+			<screen>
+
+			</screen>
+		</section>
+	</section>
+	<section id="">
+		<title></title>
+		<screen>
+
+		</screen>		
+	</section>
+-->	
+</section>

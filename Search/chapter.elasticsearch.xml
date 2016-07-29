@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="index"><?dbhtml dir="elasticsearch" ?>
+	<title>Elasticsearch</title>
+	<para>http://www.elasticsearch.org/</para>
+	<section id="install">
+		<title>安装 Elasticsearch</title>
+		<section>
+			<title>RPM 安装</title>
+			<screen>
+yum localinstall https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/rpm/elasticsearch/2.3.4/elasticsearch-2.3.4.rpm
+			</screen>
+		</section>
+		<section>
+			<title>YUM 安装</title>
+			<screen>
+			<![CDATA[
+rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch
+
+cat >> /etc/yum.repos.d/elasticsearch.repo <<EOF
+[elasticsearch-2.x]
+name=Elasticsearch repository for 2.x packages
+baseurl=https://packages.elastic.co/elasticsearch/2.x/centos
+gpgcheck=1
+gpgkey=https://packages.elastic.co/GPG-KEY-elasticsearch
+enabled=1
+EOF
+
+yum install elasticsearch
+
+sudo /bin/systemctl daemon-reload
+sudo /bin/systemctl enable elasticsearch.service
+			]]>
+			</screen>
+			<para>查看 RPM 包中所含文件</para>
+			<screen>
+[root@localhost ~]# rpm -ql elasticsearch-2.3.4-1.noarch 
+/etc/elasticsearch
+/etc/elasticsearch/elasticsearch.yml
+/etc/elasticsearch/logging.yml
+/etc/elasticsearch/scripts
+/etc/init.d/elasticsearch
+/etc/sysconfig/elasticsearch
+/usr/lib/sysctl.d
+/usr/lib/sysctl.d/elasticsearch.conf
+/usr/lib/systemd/system/elasticsearch.service
+/usr/lib/tmpfiles.d
+/usr/lib/tmpfiles.d/elasticsearch.conf
+/usr/share/elasticsearch/LICENSE.txt
+/usr/share/elasticsearch/NOTICE.txt
+/usr/share/elasticsearch/README.textile
+/usr/share/elasticsearch/bin
+/usr/share/elasticsearch/bin/elasticsearch
+/usr/share/elasticsearch/bin/elasticsearch-systemd-pre-exec
+/usr/share/elasticsearch/bin/elasticsearch.in.sh
+/usr/share/elasticsearch/bin/plugin
+/usr/share/elasticsearch/lib
+/usr/share/elasticsearch/lib/HdrHistogram-2.1.6.jar
+/usr/share/elasticsearch/lib/apache-log4j-extras-1.2.17.jar
+/usr/share/elasticsearch/lib/commons-cli-1.3.1.jar
+/usr/share/elasticsearch/lib/compiler-0.8.13.jar
+/usr/share/elasticsearch/lib/compress-lzf-1.0.2.jar
+/usr/share/elasticsearch/lib/elasticsearch-2.3.4.jar
+/usr/share/elasticsearch/lib/guava-18.0.jar
+/usr/share/elasticsearch/lib/hppc-0.7.1.jar
+/usr/share/elasticsearch/lib/jackson-core-2.6.6.jar
+/usr/share/elasticsearch/lib/jackson-dataformat-cbor-2.6.6.jar
+/usr/share/elasticsearch/lib/jackson-dataformat-smile-2.6.6.jar
+/usr/share/elasticsearch/lib/jackson-dataformat-yaml-2.6.6.jar
+/usr/share/elasticsearch/lib/jna-4.1.0.jar
+/usr/share/elasticsearch/lib/joda-convert-1.2.jar
+/usr/share/elasticsearch/lib/joda-time-2.9.4.jar
+/usr/share/elasticsearch/lib/jsr166e-1.1.0.jar
+/usr/share/elasticsearch/lib/jts-1.13.jar
+/usr/share/elasticsearch/lib/log4j-1.2.17.jar
+/usr/share/elasticsearch/lib/lucene-analyzers-common-5.5.0.jar
+/usr/share/elasticsearch/lib/lucene-backward-codecs-5.5.0.jar
+/usr/share/elasticsearch/lib/lucene-core-5.5.0.jar
+/usr/share/elasticsearch/lib/lucene-grouping-5.5.0.jar
+/usr/share/elasticsearch/lib/lucene-highlighter-5.5.0.jar
+/usr/share/elasticsearch/lib/lucene-join-5.5.0.jar
+/usr/share/elasticsearch/lib/lucene-memory-5.5.0.jar
+/usr/share/elasticsearch/lib/lucene-misc-5.5.0.jar
+/usr/share/elasticsearch/lib/lucene-queries-5.5.0.jar
+/usr/share/elasticsearch/lib/lucene-queryparser-5.5.0.jar
+/usr/share/elasticsearch/lib/lucene-sandbox-5.5.0.jar
+/usr/share/elasticsearch/lib/lucene-spatial-5.5.0.jar
+/usr/share/elasticsearch/lib/lucene-spatial3d-5.5.0.jar
+/usr/share/elasticsearch/lib/lucene-suggest-5.5.0.jar
+/usr/share/elasticsearch/lib/netty-3.10.5.Final.jar
+/usr/share/elasticsearch/lib/securesm-1.0.jar
+/usr/share/elasticsearch/lib/snakeyaml-1.15.jar
+/usr/share/elasticsearch/lib/spatial4j-0.5.jar
+/usr/share/elasticsearch/lib/t-digest-3.0.jar
+/usr/share/elasticsearch/modules
+/usr/share/elasticsearch/modules/lang-expression
+/usr/share/elasticsearch/modules/lang-expression/antlr4-runtime-4.5.1-1.jar
+/usr/share/elasticsearch/modules/lang-expression/asm-5.0.4.jar
+/usr/share/elasticsearch/modules/lang-expression/asm-commons-5.0.4.jar
+/usr/share/elasticsearch/modules/lang-expression/lang-expression-2.3.4.jar
+/usr/share/elasticsearch/modules/lang-expression/lucene-expressions-5.5.0.jar
+/usr/share/elasticsearch/modules/lang-expression/plugin-descriptor.properties
+/usr/share/elasticsearch/modules/lang-expression/plugin-security.policy
+/usr/share/elasticsearch/modules/lang-groovy
+/usr/share/elasticsearch/modules/lang-groovy/groovy-2.4.6-indy.jar
+/usr/share/elasticsearch/modules/lang-groovy/lang-groovy-2.3.4.jar
+/usr/share/elasticsearch/modules/lang-groovy/plugin-descriptor.properties
+/usr/share/elasticsearch/modules/lang-groovy/plugin-security.policy
+/usr/share/elasticsearch/modules/reindex
+/usr/share/elasticsearch/modules/reindex/plugin-descriptor.properties
+/usr/share/elasticsearch/modules/reindex/reindex-2.3.4.jar
+/usr/share/elasticsearch/plugins
+/var/lib/elasticsearch
+/var/log/elasticsearch
+/var/run/elasticsearch
+			</screen>
+		</section>
+		<section>
+			<title>测试安装是否正常</title>
+			<para>启动</para>
+			<screen>
+/etc/init.d/elasticsearch start			
+			</screen>
+			<para>链接测试</para>
+			<screen>
+[root@localhost ~]# curl -X GET http://localhost:9200/
+{
+  "name" : "Jack of Hearts",
+  "cluster_name" : "elasticsearch",
+  "version" : {
+    "number" : "2.3.4",
+    "build_hash" : "e455fd0c13dceca8dbbdbb1665d068ae55dabe3f",
+    "build_timestamp" : "2016-06-30T11:24:31Z",
+    "build_snapshot" : false,
+    "lucene_version" : "5.5.0"
+  },
+  "tagline" : "You Know, for Search"
+}
+			</screen>
+		</section>
+	</section>
+	<section id="document">
+		<title>文档API</title>
+		<section>
+			<title>快速上手</title>
+			<para>文档通过 _index、_type、_id 元数据(metadata)，确定 URL 唯一</para>
+			<screen>
+			<![CDATA[
+GET /<_index>/<_type>/<_id>		
+			]]>		
+			</screen>
+			<screen>
+# curl -XPUT 'http://localhost:9200/website/profile/1' -d '{
+	"name" : "neo",
+	"nickname" : "netkiller",
+	"age" : "35",
+	"message" : "Helloworld !!!"
+}'
+
+# curl -XGET 'http://localhost:9200/website/profile/1?pretty'
+{
+  "_index" : "website",
+  "_type" : "profile",
+  "_id" : "1",
+  "_version" : 1,
+  "found" : true,
+  "_source" : {
+    "name" : "neo",
+    "nickname" : "netkiller",
+    "age" : "35",
+    "message" : "Helloworld !!!"
+  }
+}
+
+# curl -XPUT 'http://localhost:9200/website/blog/1?pretty' -d '{
+>   "title": "My first blog entry",
+>   "text":  "Just trying this out...",
+>   "date":  "2014/01/01"
+> }'
+{
+  "_index" : "website",
+  "_type" : "blog",
+  "_id" : "1",
+  "_version" : 1,
+  "_shards" : {
+    "total" : 2,
+    "successful" : 1,
+    "failed" : 0
+  },
+  "created" : true
+}
+			</screen>
+			<para>后面会详细讲解 PUT与GET的使用方法以及相关参数</para>
+		</section>
+		<section>
+			<title>写入 PUT/POST</title>
+			<para>通过 PUT 写入数据</para>
+			<screen>
+[root@localhost ~]# curl -XPUT 'http://localhost:9200/twitter/tweet/1' -d '{
+>     "user" : "kimchy",
+>     "post_date" : "2009-11-15T14:12:12",
+>     "message" : "trying out Elasticsearch"
+> }'
+{"_index":"twitter","_type":"tweet","_id":"1","_version":1,"_shards":{"total":2,"successful":1,"failed":0},"created":true}			
+			</screen>
+			
+			<para>使用 UUID 替代 _id, 注意使用UUID 必须使用 POST方式提交，不能使用 PUT。</para>
+			<screen>
+curl -XPOST 'http://localhost:9200/website/news/?pretty' -d '{
+  "title": "My first news entry",
+  "text":  "Just trying this out..."
+}'
+{
+  "_index" : "website",
+  "_type" : "news1",
+  "_id" : "AVY0RJrvJRTrBLpmYzBH",
+  "_version" : 1,
+  "_shards" : {
+    "total" : 2,
+    "successful" : 1,
+    "failed" : 0
+  },
+  "created" : true
+}
+
+curl -XGET 'http://localhost:9200/website/news/AVY0RJrvJRTrBLpmYzBH?pretty'
+			</screen>
+			<para>提交后会输出 "_id" : "AVY0RJrvJRTrBLpmYzBH"，查询时将此放到放到URL中即可。</para>
+			
+		</section>
+		
+		<section>
+			<title>获取 GET</title>
+			<para>通过 GET 读取数据</para>
+			<screen>
+[root@localhost ~]# curl -XGET 'http://localhost:9200/twitter/tweet/1'
+{"_index":"twitter","_type":"tweet","_id":"1","_version":1,"found":true,"_source":{
+    "user" : "kimchy",
+    "post_date" : "2009-11-15T14:12:12",
+    "message" : "trying out Elasticsearch"
+}}
+			</screen>
+			<section>
+				<title>_source</title>
+				<para>只返回 _source 数据，去掉元数据</para>
+				<screen>
+# curl -XGET 'http://localhost:9200/website/news1/AVY0Q4SqdtH0Up0t-WB2/_source?pretty'
+{
+  "title" : "My first news entry",
+  "text" : "Just trying this out..."
+}
+				</screen>
+				<para>选择字段 _source=title，超过一个字段使用逗号分隔_source=title,text。</para>
+				<screen>
+				<![CDATA[
+# curl -XGET 'http://localhost:9200/website/news1/AVY0Q4SqdtH0Up0t-WB2?_source=title&pretty'
+{
+  "_index" : "website",
+  "_type" : "news1",
+  "_id" : "AVY0Q4SqdtH0Up0t-WB2",
+  "_version" : 1,
+  "found" : true,
+  "_source" : {
+    "title" : "My first news entry"
+  }
+}
+
+# curl -XGET 'http://localhost:9200/website/news1/AVY0Q4SqdtH0Up0t-WB2?_source=title,text&pretty'
+{
+  "_index" : "website",
+  "_type" : "news1",
+  "_id" : "AVY0Q4SqdtH0Up0t-WB2",
+  "_version" : 1,
+  "found" : true,
+  "_source" : {
+    "text" : "Just trying this out...",
+    "title" : "My first news entry"
+  }
+}
+
+				]]>
+				</screen>
+			</section>
+		</section>
+		<section>
+			<title>检查记录是否存在</title>
+			<screen>
+[root@localhost elasticsearch]# curl -i -XHEAD http://localhost:9200/website/blog/1
+HTTP/1.1 200 OK
+Content-Type: text/plain; charset=UTF-8
+Content-Length: 0
+
+[root@localhost elasticsearch]# curl -i -XHEAD http://localhost:9200/website/blog/100
+HTTP/1.1 404 Not Found
+Content-Type: text/plain; charset=UTF-8
+Content-Length: 0
+			</screen>
+			<para>HTTP/1.1 200 OK 表示已经找到你要的数据</para>
+			<para>HTTP/1.1 404 Not Found 表示数据不存在</para>
+		</section>
+		<section>
+			<title>参数</title>
+			<section>
+				<title>pretty 格式化 json</title>
+				<screen>
+# curl -XGET 'http://localhost:9200/twitter/tweet/1?pretty'
+{
+  "_index" : "twitter",
+  "_type" : "tweet",
+  "_id" : "1",
+  "_version" : 1,
+  "found" : true,
+  "_source" : {
+    "user" : "kimchy",
+    "post_date" : "2009-11-15T14:12:12",
+    "message" : "trying out Elasticsearch"
+  }
+}			
+				</screen>
+			</section>
+		</section>
+	</section>
+	<section id="search">
+		<title>搜索</title>
+		<para>搜索所有内容</para>
+		<screen>
+# curl -XGET 'http://localhost:9200/_search?pretty'	
+# curl -XGET 'http://localhost:9200/_all/_search?pretty'			
+		</screen>
+		<para>指定 _index 搜索</para>
+		<screen>
+# curl -XGET 'http://localhost:9200/website/_search?pretty'
+# curl -XGET 'http://localhost:9200/website/news/_search?pretty'
+		</screen>
+		<para>指定 _type 搜索</para>
+		<screen>
+# curl -XGET 'http://localhost:9200/website,twitter/_search?pretty'
+# curl -XGET 'http://localhost:9200/website/news,blog/_search?pretty'
+# curl -XGET 'http://localhost:9200/website,twitter/news,blog/_search?pretty'
+		</screen>
+		<para>所有 _index 包含指定 _type 搜索</para>
+		<screen>
+# curl -XGET 'http://localhost:9200/_all/news,blog/_search?pretty'
+		</screen>
+		<section>
+			<title>分页</title>
+			<para>该功能与SQL的LIMIT关键字结果一样，Elasticsearch接受size和from两个参数参数：</para>
+			<para>size: 返回结果集数量，默认10，用法与SQL中的 Limit相同</para>
+			<para>from: 偏移量，默认0，用法与 SQL中的 Offset相同</para>
+			<para>如果你想每页显示10个结果，那么请求如下：</para>
+			<screen>
+			<![CDATA[
+第一页 GET /_search?size=10
+第二页 GET /_search?size=10&from=10
+第三页 GET /_search?size=10&from=20
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>字符串搜索</title>
+			<screen>
+			<![CDATA[
+# curl -XGET 'http://localhost:9200/_all/_search?q=neo&pretty'
+			]]>			
+			</screen>
+			<para>同时满足两个条件</para>
+			<screen>
++name:neo +age:30
+			</screen>
+			<para>查找name为mary 或者 john的数据</para>
+			<screen>
++name:(mary john)
+			</screen>
+			<para>查询姓名是neo或者jam并且年龄小于30岁同时1980-09-10之后出生的</para>
+			<screen>
+			<![CDATA[
++name:(neo jam) +age:<30 +date:>1980-09-10
+			]]>
+			</screen>
+		</section>
+	</section>
+</chapter>

@@ -4,7 +4,8 @@
 	&chapter.solr.xml;
 	&chapter.nutch.xml;
 	&chapter.sphinx.xml;
-
+	&chapter.elasticsearch.xml;
+	
 <chapter id="lucene">
 	<title>Lucene</title>
 	<para>http://lucene.apache.org/</para>
@@ -26,10 +27,6 @@
 <chapter id="mahout">
 	<title>Mahout</title>
 	<para>http://mahout.apache.org/</para>
-</chapter>
-<chapter id="elasticsearch">
-	<title>elasticsearch</title>
-	<para>http://www.elasticsearch.org/</para>
 </chapter>
 
 </part>
