@@ -4,6 +4,7 @@
 	&chapter.administrator.xml;
 	&chapter.oracle.gui.xml;
 	&chapter.oracle.cli.xml;
+	&chapter.ddl.xml;
 	&chapter.package.xml;
 	&chapter.monitor.xml;
 	&chapter.faq.xml;

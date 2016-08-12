@@ -1,23 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<section id="ddl">
-	<title>表</title>
-	<section>
-		<title>约束检查</title>
-		<para>实现MySQL那样的枚举类型</para>
-		<screen>
+<chapter>
+	<title>ddl</title>
+
+	<section id="ddl">
+		<title>表</title>
+		<section>
+			<title>约束检查</title>
+			<para>实现MySQL那样的枚举类型</para>
+			<screen>
 CREATE TABLE sizes (
    size ENUM('small', 'medium', 'large')
 );
-		</screen>
-		<para>具体实现</para>
-		<screen>
-		<![CDATA[
+			</screen>
+			<para>具体实现</para>
+			<screen>
+			<![CDATA[
 CREATE TABLE sizes (
   size VARCHAR2(10) CHECK( size IN ('small','medium','large') )
 );		
-		]]>
-		</screen>
-	</section>
+			]]>
+			</screen>
+		</section>
 <!--
 	<section id="index">
 		<title>索引</title>
@@ -76,11 +79,42 @@ CREATE TABLE sizes (
 			</screen>
 		</section>
 	</section>
-	<section id="">
-		<title></title>
-		<screen>
 
-		</screen>		
-	</section>
 -->	
-</section>
+	</section>
+	<section id="sequence">
+		<title>SEQUENCE 序列</title>
+		<para>查看序列</para>
+		<screen>
+SELECT SEQUENCE_NAME,MIN_VALUE,MAX_VALUE,INCREMENT_BY,LAST_NUMBER FROM USER_SEQUENCES; 
+		</screen>
+		<para>创建序列</para>
+		<screen>
+INCREMENT BY： 指定序列号之间的间隔，该值可为正的或负的整数，但不可为0.序列为升序。忽略该子句时，缺省值为1.
+START WITH：指定生成的第一个序列号。在升序时，序列可从比最小值大的值开始，缺省值为序列的最小值。对于降序，序列可由比最大值小的值开始，缺省值为序列的最大值。
+MAXVALUE：指定序列可生成的最大值。
+NOMAXVALUE：为升序指定最大值为1027，为降序指定最大值为-1.
+MINVALUE：指定序列的最小值。
+NOMINVALUE：为升序指定最小值为1.为降序指定最小值为-1026.
+NOCYCLE：一直累加，不循环		
+		</screen>
+		<screen>
+CREATE SEQUENCE "NEO"."NEO_SEQUENCE_ID";
+or
+CREATE SEQUENCE "NEO"."NEO_SEQUENCE_ID"  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+		</screen>
+		<para>使用序列</para>
+		<para>下一个值</para>
+		<screen>
+SELECT NEO_SEQUENCE_ID.NEXTVAL FROM DUAL;
+		</screen>
+		<para>当前值</para>
+		<screen>
+SELECT NEO_SEQUENCE_ID.CURRVAL FROM DUAL;
+		</screen>
+		<para>删除缓存</para>
+		<section>
+DROP SEQUENCE "NEO"."NEO_SEQUENCE_ID";
+		</section>
+	</section>
+</chapter>
