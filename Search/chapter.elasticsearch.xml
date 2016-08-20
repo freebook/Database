@@ -478,6 +478,89 @@ curl -XPOST http://localhost:9200/information/news/_search  -d'
 			]]>
 			</screen>
 		</section>
+		<section>
+			<title>新闻资讯应用案例</title>
+			<screen>
+			<![CDATA[
+curl -XDELETE http://so.netkiller.cn:9200/information/news/_mapping?pretty
+curl -XDELETE http://so.netkiller.cn:9200/information/?pretty
+
+curl -XPUT http://so.netkiller.cn:9200/information
+
+curl -XPOST http://so.netkiller.cn:9200/information/news/_mapping?pretty -d'
+{
+    "news": {
+            "_all": {
+            "analyzer": "ik_max_word",
+            "search_analyzer": "ik_max_word",
+            "term_vector": "no",
+            "store": "false"
+        },
+        "properties": {
+		"title": {
+                "type": "string",
+                "store": "no",
+                "term_vector": "with_positions_offsets",
+                "analyzer": "ik_max_word",
+                "search_analyzer": "ik_max_word",
+                "include_in_all": "true",
+                "boost": 8
+            },
+            "content": {
+                "type": "string",
+                "store": "no",
+                "term_vector": "with_positions_offsets",
+                "analyzer": "ik_max_word",
+                "search_analyzer": "ik_max_word",
+                "include_in_all": "true",
+                "boost": 8
+            },
+	"tag": {
+                "type": "string",
+                "store": "no",
+                "term_vector": "with_positions_offsets",
+                "analyzer": "ik_max_word",
+                "search_analyzer": "ik_max_word",
+                "include_in_all": "true",
+                "boost": 8
+            }
+        }
+    }
+}'
+
+curl -XPOST 'http://so.netkiller.cn:9200/information/news/5?pretty' -d '{
+  "title":"新闻标题",
+  "content":"新闻内容",
+  "tag":"新闻标签"
+}'
+
+curl -XPOST http://so.netkiller.cn:9200/information/news/_search  -d'
+{
+    "query" : { "term" : { "content" : "王宝强" }},
+    "highlight" : {
+        "pre_tags" : ["<b>", "<b>"],
+        "post_tags" : ["</b>", "</b>"],
+        "fields" : {
+            "content" : {}
+        }
+    }
+}'
+
+
+curl -XPOST http://so.netkiller.cn:9200/information/news/_search  -d'
+{
+    "query" : { "term" : { "tag" : "娱乐" }},
+    "highlight" : {
+        "pre_tags" : ["<b>", "<b>"],
+        "post_tags" : ["</b>", "</b>"],
+        "fields" : {
+            "tag" : {}
+        }
+    }
+}'
+			]]>
+			</screen>
+		</section>
 	</section>
 	<section id="mapping">
 		<title>映射</title>
