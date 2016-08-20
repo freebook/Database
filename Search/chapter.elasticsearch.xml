@@ -518,4 +518,36 @@ curl -XPOST http://localhost:9200/information/news/_mapping?pretty -d'
 			</screen>
 		</section>
 	</section>
+	<section id="faq">
+		<title>FAQ</title>
+		<section>
+			<title>Plugin [analysis-ik] is incompatible with Elasticsearch [2.3.5]. Was designed for version [2.3.4]</title>
+			<screen>
+			<![CDATA[
+[2016-08-20 19:18:40,930][INFO ][node                     ] [Morg] version[2.3.5], pid[31494], build[90f439f/2016-07-27T10:36:52Z]
+[2016-08-20 19:18:40,930][INFO ][node                     ] [Morg] initializing ...
+[2016-08-20 19:18:41,360][ERROR][bootstrap                ] Exception
+java.lang.IllegalArgumentException: Plugin [analysis-ik] is incompatible with Elasticsearch [2.3.5]. Was designed for version [2.3.4]
+	at org.elasticsearch.plugins.PluginInfo.readFromProperties(PluginInfo.java:118)
+	at org.elasticsearch.plugins.PluginsService.getPluginBundles(PluginsService.java:378)
+	at org.elasticsearch.plugins.PluginsService.<init>(PluginsService.java:128)
+	at org.elasticsearch.node.Node.<init>(Node.java:158)
+	at org.elasticsearch.node.Node.<init>(Node.java:140)
+	at org.elasticsearch.node.NodeBuilder.build(NodeBuilder.java:143)
+	at org.elasticsearch.bootstrap.Bootstrap.setup(Bootstrap.java:178)
+	at org.elasticsearch.bootstrap.Bootstrap.init(Bootstrap.java:270)
+	at org.elasticsearch.bootstrap.Elasticsearch.main(Elasticsearch.java:35)
+			]]>
+			</screen>
+			<para>解决方案</para>
+			<screen>
+cd /usr/share/elasticsearch/plugins/ik
+vim plugin-descriptor.properties
+
+elasticsearch.version=2.3.4
+改为
+elasticsearch.version=2.3.5
+			</screen>
+		</section>
+	</section>
 </chapter>
