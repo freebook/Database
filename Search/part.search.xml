@@ -2,9 +2,9 @@
 	<title>Search Engine</title>
 
 	&chapter.solr.xml;
+	&chapter.elasticsearch.xml;
 	&chapter.nutch.xml;
 	&chapter.sphinx.xml;
-	&chapter.elasticsearch.xml;
 	
 <chapter id="lucene">
 	<title>Lucene</title>

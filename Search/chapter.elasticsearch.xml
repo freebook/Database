@@ -495,9 +495,27 @@ curl -XPOST http://so.netkiller.cn:9200/information/news/_mapping?pretty -d'
             "search_analyzer": "ik_max_word",
             "term_vector": "no",
             "store": "false"
-        },
-        "properties": {
-		"title": {
+        	},
+		"properties": {
+			"title": {
+                "type": "string",
+                "store": "no",
+                "term_vector": "with_positions_offsets",
+                "analyzer": "ik_max_word",
+                "search_analyzer": "ik_max_word",
+                "include_in_all": "true",
+                "boost": 8
+			},
+			"content": {
+                "type": "string",
+                "store": "no",
+                "term_vector": "with_positions_offsets",
+                "analyzer": "ik_max_word",
+                "search_analyzer": "ik_max_word",
+                "include_in_all": "true",
+                "boost": 8
+			},
+			"tag": {
                 "type": "string",
                 "store": "no",
                 "term_vector": "with_positions_offsets",
@@ -506,24 +524,9 @@ curl -XPOST http://so.netkiller.cn:9200/information/news/_mapping?pretty -d'
                 "include_in_all": "true",
                 "boost": 8
             },
-            "content": {
-                "type": "string",
-                "store": "no",
-                "term_vector": "with_positions_offsets",
-                "analyzer": "ik_max_word",
-                "search_analyzer": "ik_max_word",
-                "include_in_all": "true",
-                "boost": 8
-            },
-	"tag": {
-                "type": "string",
-                "store": "no",
-                "term_vector": "with_positions_offsets",
-                "analyzer": "ik_max_word",
-                "search_analyzer": "ik_max_word",
-                "include_in_all": "true",
-                "boost": 8
-            }
+            "ctime": { 
+				"type": "date"
+		    }
         }
     }
 }'
@@ -564,9 +567,55 @@ curl -XPOST http://so.netkiller.cn:9200/information/news/_search  -d'
 	</section>
 	<section id="mapping">
 		<title>映射</title>
-		<screen>
-		
-		</screen>
+		<section>
+			<title>查看 _mapping</title>
+			<screen>
+curl -XGET http://localhost:9200/information/news/_mapping?pretty		
+			</screen>
+			<para>数据结构如下</para>
+			<screen>
+{
+  "information" : {
+    "mappings" : {
+      "news" : {
+        "_all" : {
+          "analyzer" : "ik_max_word"
+        },
+        "properties" : {
+          "content" : {
+            "type" : "string",
+            "boost" : 8.0,
+            "term_vector" : "with_positions_offsets",
+            "analyzer" : "ik_max_word",
+            "include_in_all" : true
+          },
+          "ctime" : {
+            "type" : "string"
+          },
+          "division_category_id" : {
+            "type" : "long"
+          },
+          "tag" : {
+            "type" : "string",
+            "boost" : 8.0,
+            "term_vector" : "with_positions_offsets",
+            "analyzer" : "ik_max_word",
+            "include_in_all" : true
+          },
+          "title" : {
+            "type" : "string",
+            "boost" : 8.0,
+            "term_vector" : "with_positions_offsets",
+            "analyzer" : "ik_max_word",
+            "include_in_all" : true
+          }
+        }
+      }
+    }
+  }
+}
+			</screen>	
+		</section>
 		<section>
 			<title>删除 _mapping </title>
 			<screen>
@@ -598,6 +647,385 @@ curl -XPOST http://localhost:9200/information/news/_mapping?pretty -d'
         }
     }
 }'
+			</screen>
+		</section>
+		<section>
+			<title>修改 _mapping</title>
+			<para>修改流程需要经历五步，首先创建新索引，创建新_mapping，导入数据，索引别名，删除旧索引。</para>
+			<para>当然你也可以删除重建索引，为什么会这么折腾呢？因为这样不用停止业务的情况下进行迁移。</para>
+			<screen>
+			<![CDATA[
+# curl -XGET http://localhost:9200/information_v1/news/_mapping?pretty
+{
+  "information_v1" : {
+    "mappings" : {
+      "news" : {
+        "_all" : {
+          "analyzer" : "ik_max_word"
+        },
+        "properties" : {
+          "content" : {
+            "type" : "string",
+            "boost" : 8.0,
+            "term_vector" : "with_positions_offsets",
+            "analyzer" : "ik_max_word",
+            "include_in_all" : true
+          },
+          "ctime" : {
+            "type" : "string"
+          },
+          "division_category_id" : {
+            "type" : "long"
+          },
+          "tag" : {
+            "type" : "string",
+            "boost" : 8.0,
+            "term_vector" : "with_positions_offsets",
+            "analyzer" : "ik_max_word",
+            "include_in_all" : true
+          },
+          "title" : {
+            "type" : "string",
+            "boost" : 8.0,
+            "term_vector" : "with_positions_offsets",
+            "analyzer" : "ik_max_word",
+            "include_in_all" : true
+          }
+        }
+      }
+    }
+  }
+}
+
+			]]>
+			</screen>
+			<para>注意 ctime 数据类型定义错误，现在需要将它改为date日期类型。</para>
+			<para>创建 information_v2 索引</para>
+			<screen>
+			<![CDATA[
+curl -XPUT http://localhost:9200/information_v2
+curl -XPOST http://localhost:9200/information_v2/news/_mapping?pretty -d'
+{
+    "news": {
+            "_all": {
+            "analyzer": "ik_max_word",
+            "search_analyzer": "ik_max_word",
+            "term_vector": "no",
+            "store": "false"
+        	},
+		"properties": {
+			"title": {
+                "type": "string",
+                "store": "no",
+                "term_vector": "with_positions_offsets",
+                "analyzer": "ik_max_word",
+                "search_analyzer": "ik_max_word",
+                "include_in_all": "true",
+                "boost": 8
+			},
+			"content": {
+                "type": "string",
+                "store": "no",
+                "term_vector": "with_positions_offsets",
+                "analyzer": "ik_max_word",
+                "search_analyzer": "ik_max_word",
+                "include_in_all": "true",
+                "boost": 8
+			},
+			"tag": {
+                "type": "string",
+                "store": "no",
+                "term_vector": "with_positions_offsets",
+                "analyzer": "ik_max_word",
+                "search_analyzer": "ik_max_word",
+                "include_in_all": "true",
+                "boost": 8
+            },
+            "ctime": { 
+				"type": "date"
+		    }
+        }
+    }
+}'	
+			]]>
+			</screen>
+			<para>查看全新 _mapping</para>
+			<screen>
+			<![CDATA[
+# curl -XGET http://localhost:9200/information_v2/news/_mapping?pretty
+{
+  "information_v2" : {
+    "mappings" : {
+      "news" : {
+        "_all" : {
+          "analyzer" : "ik_max_word"
+        },
+        "properties" : {
+          "content" : {
+            "type" : "string",
+            "boost" : 8.0,
+            "term_vector" : "with_positions_offsets",
+            "analyzer" : "ik_max_word",
+            "include_in_all" : true
+          },
+          "ctime" : {
+            "type" : "date",
+            "format" : "strict_date_optional_time||epoch_millis"
+          },
+          "tag" : {
+            "type" : "string",
+            "boost" : 8.0,
+            "term_vector" : "with_positions_offsets",
+            "analyzer" : "ik_max_word",
+            "include_in_all" : true
+          },
+          "title" : {
+            "type" : "string",
+            "boost" : 8.0,
+            "term_vector" : "with_positions_offsets",
+            "analyzer" : "ik_max_word",
+            "include_in_all" : true
+          }
+        }
+      }
+    }
+  }
+}
+			]]>
+			</screen>
+			<para>现在导入数据，导入完成后修改别名，将information 从 information_v1 切换到 information_v2</para>
+			<screen>
+			<![CDATA[
+curl -XPOST http://localhost:9200/_aliases -d '
+{
+    "actions": [
+        { "remove": {
+            "alias": "information",
+            "index": "information_v1"
+        }},
+        { "add": {
+            "alias": "information",
+            "index": "information_v2"
+        }}
+    ]
+}
+'
+			]]>
+			</screen>
+			<para>当所以切换完成information_v1 已经没有什么用处了，这时可以删除information_v1</para>
+			<screen>
+			<![CDATA[
+curl -XDELETE http://localhost:9200/information_v1
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>数据类型</title>
+			<para>string, date, long, double, boolean or ip.</para>
+		</section>
+	</section>
+	<section id="alias">
+		<title>Alias management 别名管理</title>
+		<section>
+			<title>查看索引别名</title>
+			<para>没有设置任何别名将返回下面的数据结构</para>
+			<screen>
+# curl -XGET http://localhost:9200/_aliases?pretty
+{
+  "information_v1" : {
+    "aliases" : { }
+  },
+  "information_v2" : {
+    "aliases" : { }
+  }
+}
+			</screen>
+			<para>information 是 information_v1 的别名</para>
+			<screen>
+# curl -XGET http://localhost:9200/_aliases?pretty
+{
+  "information_v1" : {
+    "aliases" : {
+      "information" : { }
+    }
+  },
+  "information_v2" : {
+    "aliases" : { }
+  }
+}
+			</screen>
+		</section>
+		<section>
+			<title>创建索引别名</title>
+			<screen>
+curl -XPUT http://localhost:9200/information_v1
+curl -XPOST http://localhost:9200/information_v1/news/_mapping?pretty -d'
+{
+    "news": {
+            "_all": {
+            "analyzer": "ik_max_word",
+            "search_analyzer": "ik_max_word",
+            "term_vector": "no",
+            "store": "false"
+        	},
+		"properties": {
+			"title": {
+                "type": "string",
+                "store": "no",
+                "term_vector": "with_positions_offsets",
+                "analyzer": "ik_max_word",
+                "search_analyzer": "ik_max_word",
+                "include_in_all": "true",
+                "boost": 8
+			},
+			"content": {
+                "type": "string",
+                "store": "no",
+                "term_vector": "with_positions_offsets",
+                "analyzer": "ik_max_word",
+                "search_analyzer": "ik_max_word",
+                "include_in_all": "true",
+                "boost": 8
+			},
+			"tag": {
+                "type": "string",
+                "store": "no",
+                "term_vector": "with_positions_offsets",
+                "analyzer": "ik_max_word",
+                "search_analyzer": "ik_max_word",
+                "include_in_all": "true",
+                "boost": 8
+            },
+            "ctime": { 
+				"type": "date"
+		    }
+        }
+    }
+}'	
+			</screen>
+			<screen>
+curl -XPOST http://localhost:9200/_aliases -d '
+{
+    "actions": [
+        { "add": {
+            "alias": "information",
+            "index": "information_v1"
+        }}
+    ]
+}
+'
+
+{"acknowledged":true}
+
+			</screen>
+			<para>查看结果</para>
+			<screen>
+# curl -XGET http://localhost:9200/_aliases?pretty
+{
+  "information_v1" : {
+    "aliases" : {
+      "information" : { }
+    }
+  },
+  "information_v2" : {
+    "aliases" : { }
+  }
+}
+
+
+# curl -XGET http://localhost:9200/information/?pretty
+{
+  "information_v1" : {
+    "aliases" : {
+      "information" : { }
+    },
+    "mappings" : {
+      "news" : {
+        "_all" : {
+          "analyzer" : "ik_max_word"
+        },
+        "properties" : {
+          "content" : {
+            "type" : "string",
+            "boost" : 8.0,
+            "term_vector" : "with_positions_offsets",
+            "analyzer" : "ik_max_word",
+            "include_in_all" : true
+          },
+          "ctime" : {
+            "type" : "date",
+            "format" : "strict_date_optional_time||epoch_millis"
+          },
+          "tag" : {
+            "type" : "string",
+            "boost" : 8.0,
+            "term_vector" : "with_positions_offsets",
+            "analyzer" : "ik_max_word",
+            "include_in_all" : true
+          },
+          "title" : {
+            "type" : "string",
+            "boost" : 8.0,
+            "term_vector" : "with_positions_offsets",
+            "analyzer" : "ik_max_word",
+            "include_in_all" : true
+          }
+        }
+      }
+    },
+    "settings" : {
+      "index" : {
+        "creation_date" : "1471929807430",
+        "number_of_shards" : "5",
+        "number_of_replicas" : "1",
+        "uuid" : "gWl8TTT-QnKbKj2BglfG-w",
+        "version" : {
+          "created" : "2030599"
+        }
+      }
+    },
+    "warmers" : { }
+  }
+}
+			
+			</screen>
+		</section>
+
+		<section>
+			<title>修改别名</title>
+			<screen>
+			<![CDATA[
+curl -XPOST http://localhost:9200/_aliases -d '
+{
+    "actions": [
+        { "remove": {
+            "alias": "information",
+            "index": "information_v1"
+        }},
+        { "add": {
+            "alias": "information",
+            "index": "information_v2"
+        }}
+    ]
+}
+'
+			]]>
+			</screen>			
+		</section>
+		<section>
+			<title>删除别名</title>
+			<screen>
+			<![CDATA[
+curl -XPOST http://localhost:9200/_aliases -d '
+{
+    "actions": [
+        { "remove": {
+            "alias": "information","index": "information_v2"
+        }}
+    ]
+}
+'
+			]]>
 			</screen>
 		</section>
 	</section>
