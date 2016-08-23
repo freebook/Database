@@ -356,6 +356,62 @@ curl -XDELETE http://localhost:9200/information/news/1?pretty
 		<screen>
 # curl -XGET 'http://localhost:9200/_all/news,blog/_search?pretty'
 		</screen>
+		<section>
+			<title>query</title>
+			<screen>
+curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
+{
+	"query" : {
+		"match" : {
+			"tag" : "美"   
+		}
+	}
+}
+'
+			</screen>
+		</section>
+		<section>
+			<title>sort</title>
+		
+			<screen>
+curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
+{
+	"query" : {
+		"match" : {"tag" : "美"}
+	},
+	"sort": {
+		"ctime": {"order": "desc", "mode":  "min"}
+	}
+}
+'			</screen>
+		</section>
+		<section>
+			<title>_source</title>
+			<screen>
+curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
+{
+	"query" : {
+		"match" : {
+			"tag" : "美"   
+		}
+	},
+	"_source":["id","title","ctime"]
+}
+'
+
+curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
+{
+	"_source":["id","title","ctime"],
+	"query" : {
+		"match" : {"tag" : "美"}
+	},
+	"sort": {
+		"ctime": {"order": "desc", "mode":  "min"}
+	}
+}
+'	
+			</screen>
+		</section>
 		<section id="search.page">
 			<title>分页</title>
 			<para>该功能与SQL的LIMIT关键字结果一样，Elasticsearch接受size和from两个参数参数：</para>
@@ -391,6 +447,32 @@ curl -XDELETE http://localhost:9200/information/news/1?pretty
 +name:(neo jam) +age:<30 +date:>1980-09-10
 			]]>
 			</screen>
+		</section>
+		<section id="dsl">
+			<title>Query DSL</title>
+			<screen>
+curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
+{
+	"query": {
+	    "multi_match": {
+		    "query":      "国际",
+		    "type":       "cross_fields",
+		    "fields":     [ "title", "content" ],
+		    "operator":   "and"
+	    }
+	},
+	"from": 0,
+	"size": 20,
+	"_source":["id","title","ctime"],
+	"sort": [
+	   {
+	      "ctime": {"order": "desc"}
+	   }
+	]
+	
+}
+'			
+			</screen>		
 		</section>
 	</section>
 	<section id="plugin">
@@ -478,92 +560,7 @@ curl -XPOST http://localhost:9200/information/news/_search  -d'
 			]]>
 			</screen>
 		</section>
-		<section>
-			<title>新闻资讯应用案例</title>
-			<screen>
-			<![CDATA[
-curl -XDELETE http://so.netkiller.cn:9200/information/news/_mapping?pretty
-curl -XDELETE http://so.netkiller.cn:9200/information/?pretty
-
-curl -XPUT http://so.netkiller.cn:9200/information
-
-curl -XPOST http://so.netkiller.cn:9200/information/news/_mapping?pretty -d'
-{
-    "news": {
-            "_all": {
-            "analyzer": "ik_max_word",
-            "search_analyzer": "ik_max_word",
-            "term_vector": "no",
-            "store": "false"
-        	},
-		"properties": {
-			"title": {
-                "type": "string",
-                "store": "no",
-                "term_vector": "with_positions_offsets",
-                "analyzer": "ik_max_word",
-                "search_analyzer": "ik_max_word",
-                "include_in_all": "true",
-                "boost": 8
-			},
-			"content": {
-                "type": "string",
-                "store": "no",
-                "term_vector": "with_positions_offsets",
-                "analyzer": "ik_max_word",
-                "search_analyzer": "ik_max_word",
-                "include_in_all": "true",
-                "boost": 8
-			},
-			"tag": {
-                "type": "string",
-                "store": "no",
-                "term_vector": "with_positions_offsets",
-                "analyzer": "ik_max_word",
-                "search_analyzer": "ik_max_word",
-                "include_in_all": "true",
-                "boost": 8
-            },
-            "ctime": { 
-				"type": "date"
-		    }
-        }
-    }
-}'
-
-curl -XPOST 'http://so.netkiller.cn:9200/information/news/5?pretty' -d '{
-  "title":"新闻标题",
-  "content":"新闻内容",
-  "tag":"新闻标签"
-}'
-
-curl -XPOST http://so.netkiller.cn:9200/information/news/_search  -d'
-{
-    "query" : { "term" : { "content" : "王宝强" }},
-    "highlight" : {
-        "pre_tags" : ["<b>", "<b>"],
-        "post_tags" : ["</b>", "</b>"],
-        "fields" : {
-            "content" : {}
-        }
-    }
-}'
-
-
-curl -XPOST http://so.netkiller.cn:9200/information/news/_search  -d'
-{
-    "query" : { "term" : { "tag" : "娱乐" }},
-    "highlight" : {
-        "pre_tags" : ["<b>", "<b>"],
-        "post_tags" : ["</b>", "</b>"],
-        "fields" : {
-            "tag" : {}
-        }
-    }
-}'
-			]]>
-			</screen>
-		</section>
+		
 	</section>
 	<section id="mapping">
 		<title>映射</title>
@@ -822,6 +819,10 @@ curl -XDELETE http://localhost:9200/information_v1
 		<section>
 			<title>数据类型</title>
 			<para>string, date, long, double, boolean or ip.</para>
+			<section>
+				<title>date</title>
+				<para>elasticsearch 采用 ISO 8601 标准的 date 格式</para>
+			</section>
 		</section>
 	</section>
 	<section id="alias">
@@ -1029,6 +1030,146 @@ curl -XPOST http://localhost:9200/_aliases -d '
 			</screen>
 		</section>
 	</section>
+
+	<section id="example">
+		<title>Example</title>
+	
+		<section>
+			<title>新闻资讯应用案例</title>
+			<screen>
+			<![CDATA[
+curl -XDELETE http://localhost:9200/information_v1/news/_mapping?pretty
+curl -XDELETE http://localhost:9200/information_v1/?pretty
+
+curl -XPUT http://localhost:9200/information_v1
+
+curl -XPOST http://localhost:9200/information_v1/news/_mapping?pretty -d'
+{
+    "news": {
+            "_all": {
+            "analyzer": "ik_max_word",
+            "search_analyzer": "ik_max_word",
+            "term_vector": "no",
+            "store": "false"
+        	},
+		"properties": {
+			"id": { 
+				"type": "long"
+		    },
+			"title": {
+                "type": "string",
+                "store": "no",
+                "term_vector": "with_positions_offsets",
+                "analyzer": "ik_max_word",
+                "search_analyzer": "ik_max_word",
+                "include_in_all": "true",
+                "boost": 8
+			},
+			"content": {
+                "type": "string",
+                "store": "no",
+                "term_vector": "with_positions_offsets",
+                "analyzer": "ik_max_word",
+                "search_analyzer": "ik_max_word",
+                "include_in_all": "true",
+                "boost": 8
+			},
+			"tag": {
+                "type": "string",
+                "store": "no",
+                "term_vector": "with_positions_offsets",
+                "analyzer": "ik_max_word",
+                "search_analyzer": "ik_max_word",
+                "include_in_all": "true",
+                "boost": 8
+            },
+            "ctime": { 
+				"type": "date"
+		    }
+        }
+    }
+}'
+
+curl -XPOST http://localhost:9200/_aliases -d '
+{
+    "actions": [
+        { "add": {
+            "alias": "information",
+            "index": "information_v1"
+        }}
+    ]
+}
+'
+
+curl -XGET http://localhost:9200/information/?pretty
+
+
+curl -XPOST 'http://localhost:9200/information/news/1?pretty' -d '{
+	"id":1,
+	"title":"新闻标题",
+	"content":"新闻内容",
+	"tag":"新闻标签",
+	"ctime":"2011-11-11T11:11:11"
+}'
+
+# curl -XGET 'http://localhost:9200/information/news/1?pretty'
+{
+  "_index" : "information_v1",
+  "_type" : "news",
+  "_id" : "1",
+  "_version" : 1,
+  "found" : true,
+  "_source" : {
+    "id" : 1,
+    "title" : "新闻标题",
+    "content" : "新闻内容",
+    "tag" : "新闻标签",
+    "ctime" : "2011-11-11T11:11:11"
+  }
+}
+
+curl -XPOST http://localhost:9200/information/news/_search?pretty  -d'
+{
+    "query" : { "term" : { "content" : "新闻" }},
+    "highlight" : {
+        "pre_tags" : ["<b>", "<b>"],
+        "post_tags" : ["</b>", "</b>"],
+        "fields" : {
+            "content" : {}
+        }
+    }
+}'
+
+curl -XPOST http://localhost:9200/information/news/_search  -d'
+{
+    "query" : { "term" : { "content" : "王宝强" }},
+    "highlight" : {
+        "pre_tags" : ["<b>", "<b>"],
+        "post_tags" : ["</b>", "</b>"],
+        "fields" : {
+            "content" : {}
+        }
+    }
+}'
+
+
+curl -XPOST http://localhost:9200/information/news/_search  -d'
+{
+    "query" : { "term" : { "tag" : "娱乐" }},
+    "highlight" : {
+        "pre_tags" : ["<b>", "<b>"],
+        "post_tags" : ["</b>", "</b>"],
+        "fields" : {
+            "tag" : {}
+        }
+    }
+}'
+
+
+			]]>
+			</screen>
+		</section>
+	</section>
 	<section id="faq">
 		<title>FAQ</title>
 		<section>
@@ -1058,6 +1199,19 @@ vim plugin-descriptor.properties
 elasticsearch.version=2.3.4
 改为
 elasticsearch.version=2.3.5
+			</screen>
+		</section>
+		<section>
+			<title>mapper_parsing_exception: failed to parse [ctime]</title>
+			<para>date 各位为YYYY-MM-ddTHH:mm:ss，注意中间的字幕T</para>
+			<screen>
+{"type":"date","format":"YYYY-MM-dd'T'HH:mm:ss.SSSZ"}
+
+curl -XPOST "http://localhost:9200/netkiller/news/" -d'
+{
+    "content": "Hello World!",
+    "CreateDate": "2009-11-15T12:12:12"
+}'
 			</screen>
 		</section>
 	</section>
