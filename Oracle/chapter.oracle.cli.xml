@@ -206,7 +206,7 @@ Job "BACKUP"."SYS_EXPORT_SCHEMA_01" successfully completed at 16:20:28
 			</example>
 			
 			<example>
-				<title></title>
+				<title>impdp</title>
 				<para>首先将dmp文件复制到恢复目录中，确认oracle用户有权限访问该文件。</para>
 				<screen>
 mv backup.dmp /opt/oracle/backup/

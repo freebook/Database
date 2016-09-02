@@ -157,4 +157,48 @@ LISTENER =
 # rm -rf /opt/oracle /opt/oraInventory /opt/ORCLfmap/
 		</screen>
 	</section>
+	<section id="sqlplus">
+		<title>Linux 按照 sqlplus</title>
+		<para><ulink url="http://www.oracle.com/technetwork/topics/linuxx86-64soft-092277.html" /></para>
+		<screen>
+oracle-instantclient11.2-basic-11.2.0.4.0-1.x86_64.rpm
+oracle-instantclient11.2-sqlplus-11.2.0.4.0-1.x86_64.rpm
+		</screen>
+		<para>安装</para>
+		<screen>
+yum localinstall oracle-instantclient11.2-*		
+		</screen>
+		<para>创建sqlnet.ora和tnsnames.ora两个文件</para>
+		<screen>
+mkdir -p /usr/lib/oracle/11.2/client64/network/admin
+cd /usr/lib/oracle/11.2/client64/network/admin
+ 
+[root@localhost admin]# cat sqlnet.ora
+NAMES.DIRECTORY_PATH=(TNSNAMES, EZCONNECT)
+ADR_BASE = /usr/lib/oracle/
+
+[root@localhost admin]# cat tnsnames.ora
+XXX =
+   (DESCRIPTION =
+     (ADDRESS = (PROTOCOL = TCP)(HOST = 172.16.0.2)(PORT = 1521))
+     (CONNECT_DATA =
+       (SERVER = DEDICATED)
+       (SERVICE_NAME = DB)
+     )
+   )		
+		</screen>
+		<para>~/.bash_profile</para>
+		<screen>
+ORACLE_HOME=/usr/lib/oracle/11.2/client64
+PATH=$ORACLE_HOME/bin:$PATH
+LD_LIBRARY_PATH=$ORACLE_HOME/lib
+export ORACLE_HOME
+export LD_LIBRARY_PATH
+export TNS_ADMIN=$ORACLE_HOME/network/admin
+export PATH		
+		</screen>
+		<screen>
+sqlplus "username/password@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=192.168.2.1)(PORT=1521))(CONNECT_DATA=(SID=YOURSID)))"		
+		</screen>
+	</section>
 </chapter>

@@ -356,62 +356,7 @@ curl -XDELETE http://localhost:9200/information/news/1?pretty
 		<screen>
 # curl -XGET 'http://localhost:9200/_all/news,blog/_search?pretty'
 		</screen>
-		<section>
-			<title>query</title>
-			<screen>
-curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
-{
-	"query" : {
-		"match" : {
-			"tag" : "美"   
-		}
-	}
-}
-'
-			</screen>
-		</section>
-		<section>
-			<title>sort</title>
 		
-			<screen>
-curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
-{
-	"query" : {
-		"match" : {"tag" : "美"}
-	},
-	"sort": {
-		"ctime": {"order": "desc", "mode":  "min"}
-	}
-}
-'			</screen>
-		</section>
-		<section>
-			<title>_source</title>
-			<screen>
-curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
-{
-	"query" : {
-		"match" : {
-			"tag" : "美"   
-		}
-	},
-	"_source":["id","title","ctime"]
-}
-'
-
-curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
-{
-	"_source":["id","title","ctime"],
-	"query" : {
-		"match" : {"tag" : "美"}
-	},
-	"sort": {
-		"ctime": {"order": "desc", "mode":  "min"}
-	}
-}
-'	
-			</screen>
-		</section>
 		<section id="search.page">
 			<title>分页</title>
 			<para>该功能与SQL的LIMIT关键字结果一样，Elasticsearch接受size和from两个参数参数：</para>
@@ -450,7 +395,25 @@ curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
 		</section>
 		<section id="dsl">
 			<title>Query DSL</title>
-			<screen>
+			<section>
+				<title>match</title>
+				<screen>
+curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
+{
+	"query" : {
+		"match" : {
+			"tag" : "美"   
+		}
+	}
+}
+'
+				</screen>
+				
+			</section>
+			<section>
+				<title>multi_match</title>
+				<para>multi_match 实现多字段查询</para>
+				<screen>
 curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
 {
 	"query": {
@@ -471,8 +434,52 @@ curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
 	]
 	
 }
-'			
-			</screen>		
+'
+				</screen>	
+			</section>	
+			
+			<section>
+				<title>sort</title>
+			
+				<screen>
+curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
+{
+	"query" : {
+		"match" : {"tag" : "美"}
+	},
+	"sort": {
+		"ctime": {"order": "desc", "mode":  "min"}
+	}
+}
+	'			</screen>
+			</section>
+			<section>
+				<title>_source</title>
+				<screen>
+curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
+{
+	"query" : {
+		"match" : {
+			"tag" : "美"   
+		}
+	},
+	"_source":["id","title","ctime"]
+}
+'
+
+curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
+{
+	"_source":["id","title","ctime"],
+	"query" : {
+		"match" : {"tag" : "美"}
+	},
+	"sort": {
+		"ctime": {"order": "desc", "mode":  "min"}
+	}
+}
+'	
+				</screen>
+			</section>			
 		</section>
 	</section>
 	<section id="plugin">

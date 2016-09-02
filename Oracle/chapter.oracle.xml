@@ -7,6 +7,5 @@
 	&chapter.ddl.xml;
 	&chapter.package.xml;
 	&chapter.monitor.xml;
-	&chapter.faq.xml;
 	&chapter.oracle.install.xml;
-	
+	&chapter.faq.xml;
