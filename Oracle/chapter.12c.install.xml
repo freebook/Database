@@ -158,7 +158,7 @@ LISTENER =
 		</screen>
 	</section>
 	<section id="sqlplus">
-		<title>Linux 按照 sqlplus</title>
+		<title>Linux 安装 sqlplus</title>
 		<para><ulink url="http://www.oracle.com/technetwork/topics/linuxx86-64soft-092277.html" /></para>
 		<screen>
 oracle-instantclient11.2-basic-11.2.0.4.0-1.x86_64.rpm
