@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter>
 	<title>FAQ</title>
-	<section>
+	<section id="ORA-01658">
 		<title>ORA-01658: unable to create INITIAL extent for segment in tablespace</title>
 		<subtitle>ORA-39171: Job is experiencing a resumable wait.</subtitle>
 		<para>问题原因表空间已满</para>
@@ -13,5 +13,19 @@ ORA-01658: unable to create INITIAL extent for segment in tablespace FINANCE
 		<screen>
 ALTER DATABASE DATAFILE '/opt/oracle/oradata/orcl/finance.dbf' AUTOEXTEND ON NEXT 5M MAXSIZE UNLIMITED
 		</screen>
+	</section>
+	<section id="ORA-01017">
+		<title>ORA-01017: invalid username/password; logon denied</title>
+		<para>当你确认你的用户密码100%正确而无法登陆时，你要注意了，检查你的密码是否含有特殊字符</para>
+		<para>例如</para>
+		<screen>
+		<![CDATA[
+sqlplus netkiller/[y8$gneojhM~7S@"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=15.84.21.50)(PORT=1521))(LOAD_BALANCE=YES)(FAILOVER=ON)(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=orcl)(FAILOVER_MODE=(TYPE=SESSION)(METHOD=BASIC))))"
+
+ERROR:
+ORA-01017: invalid username/password; logon denied		
+		]]>
+		</screen>
+		<para>解决方法是将特殊字符增加转义符号"\$"</para>
 	</section>
 </chapter>
