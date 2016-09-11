@@ -1,9 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter>
 	<title>ddl</title>
+	<section id="type">
+		<title>字段类型</title>
+		<screen>
+CREATE TABLE "NEO"."TEST_DATE_TABLE" 
+   (	
+    "COLUMN1" DATE DEFAULT sysdate NOT NULL ENABLE, 
+	"COLUMN2" TIMESTAMP (6) DEFAULT current_timestamp
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "TS_NEO_DEF" ;
 
+INSERT INTO "NEO"."TEST_DATE_TABLE" VALUES (DEFAULT, DEFAULT)
+
+		</screen>
+		<section id="date">
+			<title>Date</title>
+			<para>首先说明Oracle Datetime 这样的字段 Date中就包含日期。</para>
+
+			<para>有时你会遇到只有日期，没有显示时间，可以使用下来两种方法解决。</para>
+			<para>方法一：使用 TO_CHAR</para>
+			<screen>
+select TO_CHAR(COLUMN1, 'YYYY-MM-DD HH24:MI:SS') from test_date_table;
+			</screen>
+			<para>方法二：使用</para>
+			<screen>
+ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS';
+select COLUMN1 from test_date_table;
+			</screen>
+		</section>
+		<section>
+			<title>TIMESTAMP</title>
+			<para></para>
+			<screen>
+
+			</screen>
+			<para></para>
+			<screen>
+
+			</screen>
+		</section>		
+	</section>
 	<section id="ddl">
 		<title>表</title>
+		<para>Oracle 主键与其他数据库不同，例如MySQL中PK带有唯一索引功能，而Oracle需要自己创建唯一索引，否则PK数据是可能重复</para>
+		<section id="primary">
+			<screen>
+CREATE TABLE "NEO"."PK_TEST_TABLE" 
+   (	"ID" VARCHAR2(20 BYTE) NOT NULL ENABLE, 
+	 CONSTRAINT "PK_TEST_TABLE_PK" PRIMARY KEY ("ID")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 NOCOMPRESS LOGGING
+  TABLESPACE "TS_NEO_DEF"  ENABLE
+   ) SEGMENT CREATION DEFERRED 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
+  TABLESPACE "TS_NEO_DEF" ;
+			</screen>
+			<para>下面表，可以重复插入ID</para>
+			<screen>
+CREATE TABLE "NEO"."PK_TEST_TABLE" 
+   (	
+		"ID" VARCHAR2(20 BYTE) NOT NULL ENABLE, 
+		PRIMARY KEY ("ID")
+   )	
+			</screen>
+		</section>
 		<section>
 			<title>约束检查</title>
 			<para>实现MySQL那样的枚举类型</para>
@@ -24,9 +87,7 @@ CREATE TABLE sizes (
 <!--
 	<section id="index">
 		<title>索引</title>
-		<screen>
-
-		</screen>
+		
 		<para></para>
 		<screen>
 
@@ -56,29 +117,9 @@ CREATE TABLE sizes (
 			]]>
 			</screen>
 		</example>
-		<section id="tablespace.tempfile">
-			<title></title>
-			<para></para>
-			<screen>
 
-			</screen>
-		</section>
 	</section>
-	<section id="key">
-		<title></title>
-		<para></para>
-		<screen>
-
-		</screen>
-
-		<section>
-			<title></title>
-			<para></para>
-			<screen>
-
-			</screen>
-		</section>
-	</section>
+	
 
 -->	
 	</section>

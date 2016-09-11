@@ -2,6 +2,14 @@
 <chapter id="sql">
 	<title>SQL</title>
 	<section>
+		<title>配置日期合格</title>
+		<screen>
+alter   session   set   nls_date_format='yyyy-mm-dd';
+alter   session   set   nls_date_format='YYYY-MM-DD HH24:MI:SS';
+alter   session   set   nls_date_format='YYYY/MM/DD HH24:MI:SS';		
+		</screen>
+	</section>
+	<section>
 		<title>SYSDATE</title>
 		<screen>
 SELECT SYSDATE-1 FROM DUAL;
@@ -18,5 +26,8 @@ SELECT SYSDATE - INTERVAL '1' DAY FROM DUAL;
 	
 	<section id="to_date">
 		<title>to_date</title>
+		<screen>
+SELECT TO_CHAR(SYSDATE, 'YYYY/MM/DD HH24:MI:SS') AS DATETIME FROM DUAL
+		</screen>
 	</section>
 </chapter>

@@ -84,6 +84,7 @@ set linesize 2000
 set pagesize 100
 col ename format a30 
 col sal format 999,999.999 
+alter session set nls_date_format = 'yyyy-mm-dd hh24:mi:ss';
 		]]>
 		</screen>
 	</section>		

@@ -257,17 +257,6 @@ db_domain                            string      example.com
 SQL>
 			]]>
 			</screen>
-<!--
-			<para></para>
-			<screen>
-alter system set db_domain='domain.org';
-			</screen>
-			<para></para>
-			<screen>
-grep db_domain /opt/oracle/admin/*/pfile/init.ora.*
-grep your_old_db_domain /opt/oracle/product/11.2.0/dbhome_1/network/admin/*
-			</screen>
--->
 		</section>
 		<section>
 			<title>sga</title>
@@ -1063,18 +1052,6 @@ SORT								 UCA0620_TCHINESE1						  FALSE 	 0
 
 			]]>
 			</screen>
-
-			<screen>
-			<![CDATA[
-
-			]]>
-			</screen>
-
-			<screen>
-			<![CDATA[
-
-			]]>
-			</screen>
 		</section>
 	</section>
 
@@ -1123,6 +1100,69 @@ select text from user_source where name = 'ADD_DEPT';
 
 select text from all_source where name = 'ADD_DEPT';
 		</screen>
+	</section>
+	<section id="timezone">
+		<title>日期时间格式</title>
+		<screen>
+		<![CDATA[
+export NLS_LANG=AMERICAN       ---要注意这一句必须指定，不然下一句不生效。
+export NLS_DATE_FORMAT='yyyy-mm-dd hh24:mi:ss'
+		]]>
+		</screen>
+		<section>
+			<title>Date</title>
+			<para>修改当前会话的日期格式</para>
+			<screen>
+alter session set nls_date_format='YYYY-MM-DD HH24:MI:SS';
+			</screen>
+			<para>查看本次会话定义</para>
+			<screen>
+select * from nls_session_parameters where parameter = 'NLS_DATE_FORMAT';
+			</screen>
+			<para>查看本次会话定义</para>
+			<screen>
+SELECT * FROM v$nls_parameters where parameter = 'NLS_DATE_FORMAT';
+			</screen>
+		</section>
+		<section>
+			<title>修改系统日期格式</title>
+		
+			<para>查看数据库定义</para>
+			<screen>
+alter system set nls_date_format='yyyy-mm-dd hh24:mi:ss' scope=spfile;
+select * from nls_database_parameters where parameter = 'NLS_DATE_FORMAT';
+			</screen>
+		</section>	
+		<section>
+			<title>TIMESTAMP</title>
+			<screen>
+ALTER SESSION SET NLS_TIMESTAMP_TZ_FORMAT='DD-MON-RR HH:MI:SSXFF AM TZR';			
+			</screen>
+		</section>
+		<section>
+			<title></title>
+			<para>查看数据库时区信息</para>
+			<screen>
+			<![CDATA[
+select dbtimezone from dual;
+			]]>
+			</screen>
+			<para>查看session时区信息：</para>
+			<screen>
+select sessiontimezone from dual;			
+			</screen>
+			<screen>
+Database的timezone可以在创建数据库的时候指定，如：
+CREATE DATABASE db01
+...
+SET TIME_ZONE='+08:00';
+或者在数据库创建之后通过alter database语句修改，但是只有重启数据库后有效：
+ALTER DATABASE SET TIME_ZONE='+08:00';
+session的timezone可以简单通过alter session语句修改：
+ALTER SESSION SET TIME_ZONE='+08:00';			
+			</screen>
+		</section>
+		
 	</section>
 	<section id="internal_use">
 		<title>切换字符集</title>
