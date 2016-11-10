@@ -13,4 +13,5 @@
 	<!ENTITY chapter.package.xml			SYSTEM "chapter.package.xml">
 	<!ENTITY chapter.monitor.xml			SYSTEM "chapter.monitor.xml">
 	<!ENTITY chapter.ddl.xml				SYSTEM "chapter.ddl.xml">
+	<!ENTITY chapter.dblink.xml				SYSTEM "chapter.dblink.xml">
 	<!ENTITY chapter.faq.xml				SYSTEM "chapter.faq.xml">

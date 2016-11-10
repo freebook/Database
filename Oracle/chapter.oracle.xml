@@ -6,6 +6,7 @@
 	&chapter.oracle.cli.xml;
 	&chapter.ddl.xml;
 	&chapter.package.xml;
+	&chapter.dblink.xml;
 	&chapter.monitor.xml;
 	&chapter.oracle.install.xml;
 	&chapter.faq.xml;
