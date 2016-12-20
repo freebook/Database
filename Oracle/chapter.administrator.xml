@@ -14,7 +14,7 @@ lsnrctl stop
 lsnrctl status
 		</screen>
 	</section>
-	<section id="oracle.listener">
+	<section id="listener">
 		<title>listener.ora</title>
 		<screen>
 		<![CDATA[
@@ -44,7 +44,7 @@ LISTENER =
 	</section>
 	
 
-	<section id="oracle.tns">
+	<section id="tns">
 		<title>TNS 配置</title>
 		<para>tnsnames.ora 文件默认在 network/admin/tnsnames.ora</para>
 		<para>有些情况如你没有权限修改network/admin/tnsnames.ora, 你可以在$HOME下创建一个.tnsnames.ora文件</para>
@@ -118,9 +118,9 @@ oradb =
 		</section>
 	</section>
 
-	<section id="oracle.parameter">
+	<section id="parameter">
 		<title>parameter</title>
-		<section>
+		<section id="db">
 			<title>db</title>
 			<screen>
 			<![CDATA[
@@ -181,7 +181,7 @@ xml_db_events                        string      enable
 			]]>
 			</screen>
 		</section>
-		<section>
+		<section id="instance_name">
 			<title>instance_name</title>
 			<screen>
 			<![CDATA[
@@ -200,7 +200,7 @@ orcl
 			]]>
 			</screen>
 		</section>
-		<section>
+		<section id="service_name">
 			<title>service_name</title>
 			<screen>
 			<![CDATA[
@@ -213,7 +213,7 @@ SQL>
 			]]>
 			</screen>
 		</section>
-		<section>
+		<section id="global_name">
 			<title>global_name</title>
 			<screen>
 			<![CDATA[
@@ -226,7 +226,7 @@ ORCL.EXAMPLE.COM
 			]]>
 			</screen>
 		</section>
-		<section>
+		<section id="db_name">
 			<title>db_name</title>
 			<screen>
 			<![CDATA[
@@ -245,7 +245,7 @@ ORCL
 			]]>
 			</screen>
 		</section>
-		<section>
+		<section id="db_domain">
 			<title>db_domain</title>
 			<screen>
 			<![CDATA[
@@ -273,7 +273,7 @@ sga_target                           big integer 0
 			]]>
 			</screen>
 		</section>
-		<section>
+		<section id="size">
 			<title>size</title>
 			<screen>
 			<![CDATA[
@@ -323,7 +323,7 @@ workarea_size_policy                 string      AUTO
 			]]>
 			</screen>
 		</section>
-		<section>
+		<section id="spfile">
 			<title>spfile</title>
 			<screen>
 			<![CDATA[
@@ -336,7 +336,7 @@ spfile                               string      /opt/oracle/product/11.2.0/dbh
 			]]>
 			</screen>
 		</section>
-		<section>
+		<section id="cache">
 			<title>cache</title>
 			<screen>
 			<![CDATA[
@@ -1054,7 +1054,26 @@ SORT								 UCA0620_TCHINESE1						  FALSE 	 0
 			</screen>
 		</section>
 	</section>
-
+	<section id="process">
+		<title>进程</title>
+		<programlisting>
+select * from v$process		
+		</programlisting>
+	</section>
+	<section id="user">
+		<title>查看用户</title>
+		<para>查看当前用户</para>
+		<programlisting>
+select user from dual;		
+		</programlisting>
+		<para>查看所有用户</para>
+		<programlisting>
+select * from all_users		
+		</programlisting>
+		<programlisting>
+select username from dba_users;		
+		</programlisting>
+	</section>
 	<section id="table">
 		<title>显示表</title>
 		<programlisting>

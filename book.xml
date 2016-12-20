@@ -42,6 +42,9 @@
 
 	<!ENTITY % search.doctype.entity.xml 	SYSTEM "Search/doctype.entity.xml">
 	%search.doctype.entity.xml;
+	
+	<!ENTITY % mongo.doctype.entity.xml 	SYSTEM "NoSQL/MongoDB/doctype.entity.xml">
+	%mongo.doctype.entity.xml;
 
 	<!ENTITY part.database 					SYSTEM "part.database.xml">
 	<!ENTITY chapter.greensql.xml			SYSTEM "chapter.greensql.xml">
@@ -64,11 +67,8 @@
 
 		<copyright>
 			<year>2009</year>
-			<year>2010</year>
-			<year>2011</year>
-			<year>2012</year>
-			<year>2013</year>
-			<year>2014</year>
+			<year>-</year>
+			<year>2016</year>
 			<holder>Netkiller(Neo Chan). All rights reserved.</holder>
 		</copyright>
 
