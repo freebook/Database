@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter id="ddl">
-	<title>ddl</title>
+<chapter id="index"><?dbhtml dir="ddl" ?>
+	<title>DDL</title>
 	<section id="type">
 		<title>字段类型</title>
 		<screen>
