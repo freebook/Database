@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter>
+<chapter id="ddl">
 	<title>ddl</title>
 	<section id="type">
 		<title>字段类型</title>
@@ -44,7 +44,46 @@ select COLUMN1 from test_date_table;
 			</screen>
 		</section>		
 	</section>
-	<section id="ddl">
+	<section id="table">
+		<title>索引</title>
+		
+		<para>修改表字段长度</para>
+		<screen>
+ALTER TABLE 
+   customer 
+MODIFY 
+   ( lastloginip varchar2(60) )
+;
+		</screen>
+		<para></para>
+		<screen>
+
+		</screen>
+		<para></para>
+		<screen>
+
+		</screen>
+
+		<para></para>
+		<screen>
+
+		</screen>
+		<para></para>
+		<screen>
+
+		</screen>
+		<example>
+			<title></title>
+			<screen>
+			<![CDATA[
+		
+			]]>
+			</screen>
+		</example>
+
+	</section>
+	
+	<section id="index">
 		<title>表</title>
 		<para>Oracle 主键与其他数据库不同，例如MySQL中PK带有唯一索引功能，而Oracle需要自己创建唯一索引，否则PK数据是可能重复</para>
 		<section id="primary">
@@ -84,44 +123,6 @@ CREATE TABLE sizes (
 			]]>
 			</screen>
 		</section>
-<!--
-	<section id="index">
-		<title>索引</title>
-		
-		<para></para>
-		<screen>
-
-		</screen>
-		<para></para>
-		<screen>
-
-		</screen>
-		<para></para>
-		<screen>
-
-		</screen>
-
-		<para></para>
-		<screen>
-
-		</screen>
-		<para></para>
-		<screen>
-
-		</screen>
-		<example>
-			<title></title>
-			<screen>
-			<![CDATA[
-		
-			]]>
-			</screen>
-		</example>
-
-	</section>
-	
-
--->	
 	</section>
 	<section id="sequence">
 		<title>SEQUENCE 序列</title>
