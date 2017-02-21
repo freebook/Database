@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="mapreduce">
+	<title>Map-Reduce</title>
+	<section>
+		<title>使用 Map-Reduce 统计Web 服务器 access.log 日志文件</title>
+		<para>首先将web服务器access.log导入到mongodb,参考  http://netkiller.github.io/article/log.html 格式如下：</para>
+		<screen>
+{
+	"_id" : ObjectId("51553efcd8616be7e5395c0d"),
+	"remote_addr" : "192.168.2.76",
+	"remote_user" : "-",
+	"time_local" : "29/Mar/2013:09:20:31 +0800",
+	"request" : "GET /tw/ad.jpg HTTP/1.1",
+	"status" : "200",
+	"body_bytes_sent" : "5557",
+	"http_referer" : "http://www.example.com/tw/",
+	"http_user_agent" : "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.57 Safari/537.17",
+	"http_x_forwarded_for" : "-"
+}
+		</screen>
+		<para>创建map方法 </para>
+		<screen>
+var mapFunction1 = function() {
+    emit(this.remote_addr, {count:1});
+};
+		</screen>
+		<para>创建reduce方法</para>
+		<screen>
+		<![CDATA[
+var reduceFunction1 = function(key, values) {
+	var total = 0;
+	values.forEach(function (value) {total += value.count;});
+    return {ipaddr: key, count:total};
+};
+		]]>
+		</screen>
+		<para>分析数据</para>
+		<screen>
+db.access.mapReduce(mapFunction1, reduceFunction1, {out : "resultCollection"});
+		</screen>
+		<para>输出结果</para>
+		<screen>
+db.resultCollection.find();
+		</screen>
+		<para>Demo 数据库</para>
+		<screen>
+		<![CDATA[
+> db.resultCollection.find();
+{ "_id" : "192.168.2.109", "value" : { "ipaddr" : "192.168.2.109", "count" : 554 } }
+{ "_id" : "192.168.2.38", "value" : { "ipaddr" : "192.168.2.38", "count" : 26 } }
+{ "_id" : "192.168.2.39", "value" : { "ipaddr" : "192.168.2.39", "count" : 72 } }
+{ "_id" : "192.168.2.40", "value" : { "ipaddr" : "192.168.2.40", "count" : 3564 } }
+{ "_id" : "192.168.2.49", "value" : { "ipaddr" : "192.168.2.49", "count" : 955 } }
+{ "_id" : "192.168.2.5", "value" : { "ipaddr" : "192.168.2.5", "count" : 2 } }
+{ "_id" : "192.168.2.76", "value" : { "ipaddr" : "192.168.2.76", "count" : 60537 } }
+{ "_id" : "192.168.3.12", "value" : { "ipaddr" : "192.168.3.12", "count" : 9577 } }
+{ "_id" : "192.168.3.14", "value" : { "ipaddr" : "192.168.3.14", "count" : 343 } }
+{ "_id" : "192.168.3.18", "value" : { "ipaddr" : "192.168.3.18", "count" : 1006 } }
+{ "_id" : "192.168.3.26", "value" : { "ipaddr" : "192.168.3.26", "count" : 2714 } }
+{ "_id" : "192.168.6.19", "value" : { "ipaddr" : "192.168.6.19", "count" : 668 } }
+{ "_id" : "192.168.6.2", "value" : { "ipaddr" : "192.168.6.2", "count" : 123760 } }
+{ "_id" : "192.168.6.30", "value" : { "ipaddr" : "192.168.6.30", "count" : 1196 } }
+{ "_id" : "192.168.6.35", "value" : { "ipaddr" : "192.168.6.35", "count" : 1050 } }
+>
+		]]>
+		</screen>
+	</section>
+</chapter>

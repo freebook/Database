@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<!ENTITY chapter.postgres.xml			SYSTEM "chapter.postgres.xml">
+	<!ENTITY chapter.install.xml			SYSTEM "chapter.install.xml">
+	<!ENTITY chapter.manager.xml			SYSTEM "chapter.manager.xml">
+	<!ENTITY chapter.gui.xml		 		SYSTEM "chapter.gui.xml">
+	<!ENTITY chapter.sql.xml		 		SYSTEM "chapter.sql.xml">
+	<!ENTITY chapter.sql.function.xml 		SYSTEM "chapter.sql.function.xml">
+	<!ENTITY chapter.ddl.xml		 		SYSTEM "chapter.ddl.xml">
+	<!ENTITY chapter.dml.xml		 		SYSTEM "chapter.dml.xml">
+	<!ENTITY chapter.pgbouncer.xml			SYSTEM "chapter.pgbouncer.xml">
+	<!ENTITY chapter.faq.xml		 		SYSTEM "chapter.faq.xml">
+	<!ENTITY chapter.connector.xml	 		SYSTEM "chapter.connector.xml">
+	<!ENTITY chapter.replication.xml 		SYSTEM "chapter.replication.xml">

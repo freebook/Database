@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="faq">
+	<title>FAQ</title>
+	<qandaset>
+		<qandaentry>
+			<question>
+				<para>tcpip_socket?</para>
+			</question>
+			<answer>
+				<para>8.1.5之后版本不在使用tcpip_socket,改用listen_addresses</para>
+			</answer>
+		</qandaentry>
+		<!-- <qandaentry> <question> <para>What are little girls made of?</para>
+			</question> <answer> <para>Sugar and spice and everything nice.</para> </answer>
+			</qandaentry> -->
+	</qandaset>
+
+</chapter>

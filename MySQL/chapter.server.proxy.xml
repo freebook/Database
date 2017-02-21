@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="mysql-proxy">
+	<title>MySQL Proxy</title>
+	<section>
+		<title>Ubuntu</title>
+		<para>安装环境 Ubuntu 13.04</para>
+		<screen>
+$ sudo apt-get install mysql-proxy
+		</screen>
+		<para>ENABLED改为true</para>
+		<screen>
+$ sudo vim /etc/default/mysql-proxy
+ENABLED="true"
+OPTIONS="--defaults-file=/etc/mysql/mysql-proxy.cnf"
+		</screen>
+		<para>配置 /etc/mysql/mysql-proxy.cnf</para>
+		<screen>
+$ sudo vim /etc/mysql/mysql-proxy.cnf
+
+[mysql-proxy]
+daemon = true
+user = mysql
+proxy-skip-profiling = true
+keepalive = true
+max-open-files = 2048
+event-threads = 50
+pid-file = /var/run/mysql-proxy.pid
+log-file = /var/log/mysql-proxy.log
+log-level = debug
+admin-address=:4401
+admin-username=admin
+admin-password=passw0rd
+admin-lua-script=/usr/local/lib/mysql-proxy/lua/admin.lua
+proxy-address = 0.0.0.0:3307
+proxy-backend-addresses = 192.168.2.1:3306
+proxy-read-only-backend-addresses=192.168.6.2:3306, 192.168.6.1:3306
+proxy-lua-script=/usr/lib/mysql-proxy/lua/proxy/balance.lua
+		</screen>
+		<para>修改权限，这个步骤不能省略，否则无法启动。</para>
+		<screen>
+$ sudo chmod 0660 /etc/mysql/mysql-proxy.cnf
+		</screen>
+		<para>启动mysql-proxy</para>
+		<screen>
+$ sudo /etc/init.d/mysql-proxy start
+ * Starting MySQL Proxy daemon...                    [ OK ]
+		</screen>
+		<para>测试3307端口</para>
+		<screen>
+$ mysql -hlocalhost -P3307 -uroot -p
+		</screen>
+		<para>mysql-proxy 软件包所含文件如下：</para>
+		<screen>
+$ dpkg -L  mysql-proxy
+/.
+/etc
+/etc/default
+/etc/default/mysql-proxy
+/etc/init.d
+/etc/init.d/mysql-proxy
+/usr
+/usr/share
+/usr/share/mysql-proxy
+/usr/share/mysql-proxy/active-queries.lua
+/usr/share/mysql-proxy/active-transactions.lua
+/usr/share/mysql-proxy/admin-sql.lua
+/usr/share/mysql-proxy/admin.lua
+/usr/share/mysql-proxy/analyze-query.lua
+/usr/share/mysql-proxy/auditing.lua
+/usr/share/mysql-proxy/commit-obfuscator.lua
+/usr/share/mysql-proxy/histogram.lua
+/usr/share/mysql-proxy/load-multi.lua
+/usr/share/mysql-proxy/ro-balance.lua
+/usr/share/mysql-proxy/ro-pooling.lua
+/usr/share/mysql-proxy/rw-splitting.lua
+/usr/share/mysql-proxy/xtab.lua
+/usr/share/doc
+/usr/share/doc/mysql-proxy
+/usr/share/doc/mysql-proxy/README.TESTS.gz
+/usr/share/doc/mysql-proxy/README
+/usr/share/doc/mysql-proxy/copyright
+/usr/share/doc/mysql-proxy/changelog.Debian.gz
+/usr/lib
+/usr/lib/libmysql-chassis-glibext.so.0.0.0
+/usr/lib/libmysql-chassis-timing.so.0.0.0
+/usr/lib/libmysql-chassis.so.0.0.0
+/usr/lib/libmysql-proxy.so.0.0.0
+/usr/lib/mysql-proxy
+/usr/lib/mysql-proxy/lua
+/usr/lib/mysql-proxy/lua/proxy
+/usr/lib/mysql-proxy/lua/proxy/auto-config.lua
+/usr/lib/mysql-proxy/lua/proxy/balance.lua
+/usr/lib/mysql-proxy/lua/proxy/commands.lua
+/usr/lib/mysql-proxy/lua/proxy/parser.lua
+/usr/lib/mysql-proxy/lua/proxy/tokenizer.lua
+/usr/lib/mysql-proxy/lua/proxy/test.lua
+/usr/lib/mysql-proxy/lua/admin.lua
+/usr/lib/mysql-proxy/lua/lfs.so
+/usr/lib/mysql-proxy/lua/glib2.so
+/usr/lib/mysql-proxy/lua/chassis.so
+/usr/lib/mysql-proxy/lua/mysql.so
+/usr/lib/mysql-proxy/lua/lpeg.so
+/usr/lib/mysql-proxy/lua/posix.so
+/usr/lib/mysql-proxy/plugins
+/usr/lib/mysql-proxy/plugins/libadmin.so
+/usr/lib/mysql-proxy/plugins/libproxy.so
+/usr/lib/mysql-proxy/plugins/libreplicant.so
+/usr/lib/mysql-proxy/plugins/libdebug.so
+/usr/lib/pkgconfig
+/usr/lib/pkgconfig/mysql-proxy.pc
+/usr/lib/pkgconfig/mysql-chassis.pc
+/usr/bin
+/usr/bin/mysql-binlog-dump
+/usr/bin/mysql-myisam-dump
+/usr/bin/mysql-proxy
+/usr/include
+/usr/include/network-mysqld.h
+/usr/include/network-mysqld-lua.h
+/usr/include/network-mysqld-proto.h
+/usr/include/network-mysqld-binlog.h
+/usr/include/network-mysqld-packet.h
+/usr/include/network-mysqld-masterinfo.h
+/usr/include/network-conn-pool.h
+/usr/include/network-conn-pool-lua.h
+/usr/include/network-queue.h
+/usr/include/network-socket.h
+/usr/include/network-socket-lua.h
+/usr/include/network-address.h
+/usr/include/network-address-lua.h
+/usr/include/sys-pedantic.h
+/usr/include/chassis-plugin.h
+/usr/include/chassis-log.h
+/usr/include/chassis-keyfile.h
+/usr/include/chassis-mainloop.h
+/usr/include/chassis-path.h
+/usr/include/chassis-filemode.h
+/usr/include/chassis-limits.h
+/usr/include/chassis-event-thread.h
+/usr/include/chassis-gtimeval.h
+/usr/include/glib-ext.h
+/usr/include/glib-ext-ref.h
+/usr/include/string-len.h
+/usr/include/lua-load-factory.h
+/usr/include/lua-scope.h
+/usr/include/lua-env.h
+/usr/include/network-injection.h
+/usr/include/network-injection-lua.h
+/usr/include/chassis-shutdown-hooks.h
+/usr/include/chassis-exports.h
+/usr/include/network-exports.h
+/usr/include/network-backend.h
+/usr/include/network-backend-lua.h
+/usr/include/disable-dtrace.h
+/usr/include/lua-registry-keys.h
+/usr/include/chassis-stats.h
+/usr/include/chassis-timings.h
+/usr/include/chassis-frontend.h
+/usr/include/chassis-options.h
+/usr/include/chassis-win32-service.h
+/usr/include/chassis-unix-daemon.h
+/usr/include/my_rdtsc.h
+/usr/lib/libmysql-chassis-glibext.so.0
+/usr/lib/libmysql-chassis-glibext.so
+/usr/lib/libmysql-proxy.so
+/usr/lib/libmysql-chassis-timing.so.0
+/usr/lib/libmysql-chassis-timing.so
+/usr/lib/libmysql-proxy.so.0
+/usr/lib/libmysql-chassis.so.0
+/usr/lib/libmysql-chassis.so
+		</screen>
+	</section>
+	<section>
+		<title>CentOS</title>
+		<para></para>
+		<screen>
+# yum install mysql-proxy
+		</screen>
+
+		<screen>
+# cat /etc/sysconfig/mysql-proxy
+# Options for mysql-proxy
+ADMIN_USER="admin"
+ADMIN_PASSWORD=""
+ADMIN_LUA_SCRIPT="/usr/lib64/mysql-proxy/lua/admin.lua"
+PROXY_USER="mysql-proxy"
+PROXY_OPTIONS="--daemon --log-level=info --log-use-syslog"
+		</screen>
+		<para>修改PROXY_OPTIONS选项</para>
+		<screen>
+#PROXY_OPTIONS="--daemon --log-level=info --log-use-syslog"
+PROXY_OPTIONS="--defaults-file=/etc/mysql/mysql-proxy.cnf"
+		</screen>
+		<para></para>
+		<screen>
+# mkdir /etc/mysql
+# vim /etc/mysql/mysql-proxy.cnf
+
+[mysql-proxy]
+daemon = true
+user = mysql-proxy
+proxy-skip-profiling = true
+keepalive = true
+;max-open-files = 2048
+event-threads = 512
+pid-file = /var/run/mysql-proxy.pid
+log-file = /var/log/mysql-proxy.log
+log-level = debug
+admin-address=:4401
+admin-username=admin
+admin-password=passw0rd
+admin-lua-script=/usr/lib64/mysql-proxy/lua/admin.lua
+proxy-address = 0.0.0.0:3307
+proxy-backend-addresses = 192.168.2.1:3306
+proxy-read-only-backend-addresses=192.168.6.2:3306, 192.168.6.1:3306
+proxy-lua-script=/usr/lib64/mysql-proxy/lua/proxy/balance.lua
+		</screen>
+		<para>修复启动脚本BUG</para>
+		<screen>
+# vim /etc/init.d/mysql-proxy
+
+#daemon $prog $PROXY_OPTIONS --pid-file=$PROXY_PID --user=$PROXY_USER --admin-username="$ADMIN_USER" --admin-lua-script="$ADMIN_LUA_SCRIPT" --admin-password="$ADMIN_PASSWORD" 注视这行，改为下面的一行代码
+daemon $prog $PROXY_OPTIONS --pid-file=$PROXY_PID
+		</screen>
+
+		<para>启动mysql-proxy</para>
+		<screen>
+# chkconfig mysql-proxy on
+# service mysql-proxy start
+Starting mysql-proxy:                                      [  OK  ]
+		</screen>
+		<section>
+			<title>FAQ</title>
+			<para>(critical) (libevent) evsignal_init: socketpair: Too many open files</para>
+			<screen>
+;max-open-files = 2048
+			</screen>
+			<para>注释max-open-files = 2048，使用ulimit -SHn 2048设置</para>
+		</section>
+	</section>
+</section>

@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: chapter.server.install.xml 438 2012-07-20 11:20:16Z netkiller $ -->
+<section id="mysql.install">
+	<title>MySQL Installation</title>
+	<para>http://downloads.mysql.com/archives.php</para>
+	<section id="mysql.ubuntu">
+		<title>Installation by apt-get under debian/ubuntu</title>
+		<para>安装环境 ubuntu 8.10</para>
+		<screen>
+sudo apt-get install mysql-server
+		</screen>
+		<para>New password for the MySQL "root" user</para>
+		<screen>
+		<![CDATA[
+         ┌──────────────────────┤ Configuring mysql-server-5.0 ├─────────────────────┐
+         │ While not mandatory, it is highly recommended that you set a password for the MySQL administrative "root" user.  │
+         │                                                                                                                  │
+         │ If that field is left blank, the password will not be changed.                                                   │
+         │                                                                                                                  │
+         │ New password for the MySQL "root" user:                                                                          │
+         │                                                                                                                  │
+         │ ****____________________________________________________________________________________________________________ │
+         │                                                                                                                  │
+         │                                                      <Ok>                                                        │
+         │                                                                                                                  │
+         └─────────────────────────────────────────────────────────────┘
+		]]>
+		</screen>
+		<para>Repeat password for the MySQL "root" user</para>
+		<screen>
+		<![CDATA[
+         ┌───┤ Configuring mysql-server-5.0 ├────┐
+         │                                             │
+         │                                             │
+         │ Repeat password for the MySQL "root" user:  │
+         │                                             │
+         │ ****_______________________________________ │
+         │                                             │
+         │                   <Ok>                      │
+         │                                             │
+         └─────────────────────────┘
+         ]]>
+		</screen>
+		<para>create database</para>
+		<screen>
+		<![CDATA[
+create database example;
+
+mysql> SHOW GRANTS;
++----------------------------------------------------------------------------------------------------------------------------------------+
+| Grants for root@localhost                                                                                                              |
++----------------------------------------------------------------------------------------------------------------------------------------+
+| GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' IDENTIFIED BY PASSWORD '*C6325DAF39AE6CC34E960D3C65F1398FE467E1D0' WITH GRANT OPTION |
++----------------------------------------------------------------------------------------------------------------------------------------+
+1 row in set (0.00 sec)
+
+GRANT ALL PRIVILEGES ON example.* TO 'dbuser'@'localhost' IDENTIFIED BY '******' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+
+./mysql -udbuser -p
+Enter password:
+
+./mysql -udbuser -p example < /tmp/example_china_copy.sql
+
+./mysql -uroot
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 6
+Server version: 5.0.45 Source distribution
+
+Type 'help;' or '\h' for help. Type '\c' to clear the buffer.
+
+mysql> use example;
+Database changed
+mysql> show tables;
+		]]>
+		</screen>
+		<para>配置文件样本</para>
+		<screen>
+debian:~# ls /usr/share/doc/mysql-server-5.0/examples/
+my-huge.cnf.gz  my-innodb-heavy-4G.cnf.gz  my-large.cnf.gz  my-medium.cnf.gz  my-small.cnf  ndb_mgmd.cnf
+		</screen>
+	</section>
+	<section id="mysql.source">
+		<title>Installation by source code</title>
+		<screen>
+		<![CDATA[
+./configure \
+--prefix=/usr/local/$MYSQL_DIR \
+--enable-assembler \
+--enable-local-infile \
+--with-charset=utf8 \
+--with-collation=utf8_general_ci \
+--with-extra-charsets=none \
+--with-openssl \
+--with-pthread \
+--with-unix-socket-path=/var/lib/mysql/mysql.sock \
+--with-mysqld-user=mysql \
+--with-mysqld-ldflags \
+--with-client-ldflags \
+--with-comment \
+--with-big-tables \
+--without-ndb-debug \
+--without-docs \
+--without-debug \
+--without-bench
+
+make && make install
+		]]>
+		</screen>
+		<para>/usr/local/$MYSQL_DIR/bin/mysql_install_db</para>
+		<para>other option</para>
+		<screen>
+--without-isam
+--without-innodb
+--without-ndbcluster
+--without-blackhole
+--without-ibmdb2i
+--without-federated
+--without-example
+--without-comment
+--localstatedir=/usr/local/mysql/data
+		</screen>
+	</section>
+	<section id="mysql.binary">
+		<title>MySQL binary distribution</title>
+		<screen>
+		<![CDATA[
+shell> groupadd mysql
+shell> useradd -r -g mysql mysql
+shell> cd /usr/local
+shell> tar zxvf /path/to/mysql-VERSION-OS.tar.gz
+shell> ln -s full-path-to-mysql-VERSION-OS mysql
+shell> cd mysql
+shell> chown -R mysql .
+shell> chgrp -R mysql .
+shell> scripts/mysql_install_db --user=mysql
+shell> chown -R root .
+shell> chown -R mysql data
+# Next command is optional
+shell> cp support-files/my-medium.cnf /etc/my.cnf
+shell> bin/mysqld_safe --user=mysql &
+# Next command is optional
+shell> cp support-files/mysql.server /etc/init.d/mysql.server
+		]]>
+		</screen>
+		<para>install core database</para>
+		<screen>
+		<![CDATA[
+[root@test mysql]# ./scripts/mysql_install_db
+Installing MySQL system tables...
+100428 23:16:20 [Warning] '--skip-locking' is deprecated and will be removed in a future release. Please use '--skip-external-locking' instead.
+OK
+Filling help tables...
+100428 23:16:20 [Warning] '--skip-locking' is deprecated and will be removed in a future release. Please use '--skip-external-locking' instead.
+OK
+
+To start mysqld at boot time you have to copy
+support-files/mysql.server to the right place for your system
+
+PLEASE REMEMBER TO SET A PASSWORD FOR THE MySQL root USER !
+To do so, start the server, then issue the following commands:
+
+./bin/mysqladmin -u root password 'new-password'
+./bin/mysqladmin -u root -h db.example.com password 'new-password'
+
+Alternatively you can run:
+./bin/mysql_secure_installation
+
+which will also give you the option of removing the test
+databases and anonymous user created by default.  This is
+strongly recommended for production servers.
+
+See the manual for more instructions.
+
+You can start the MySQL daemon with:
+cd . ; ./bin/mysqld_safe &
+
+You can test the MySQL daemon with mysql-test-run.pl
+cd ./mysql-test ; perl mysql-test-run.pl
+
+Please report any problems with the ./bin/mysqlbug script!
+		]]>
+		</screen>
+		<para>set root's password</para>
+		<screen>
+[root@test mysql]# cp support-files/mysql.server /etc/init.d/mysqld
+[root@test mysql]# /etc/init.d/mysqld start
+Starting MySQL.                                            [  OK  ]
+
+[root@test mysql]# ./bin/mysqladmin -u root password 'chen'
+[root@test mysql]# ./bin/mysqladmin -u root -h db.example.com password 'chen'
+		</screen>
+		<para>test</para>
+		<screen>
+		<![CDATA[
+[root@test mysql]# ./bin/mysql -uroot -pchen
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 3
+Server version: 5.1.45 MySQL Community Server (GPL)
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql>
+		]]>
+		</screen>
+	</section>
+	<section id="mysql-5.5.21">
+		<title>mysql-5.5.21-debian6.0-i686.deb</title>
+		<screen>
+		<![CDATA[
+sudo apt-get install libaio1
+
+
+sudo groupadd mysql
+sudo useradd -r -g mysql mysql
+
+sudo dpkg -i mysql-5.5.21-debian6.0-i686.deb
+
+cd /opt/mysql/
+sudo chown -R mysql .
+sudo chgrp -R mysql .
+
+cd server-5.5/
+
+sudo support-files/binary-configure
+
+sudo chown -R mysql data
+
+# Next command is optional
+shell> cp support-files/my-medium.cnf /etc/my.cnf
+
+shell> bin/mysqld_safe --user=mysql &
+
+# Next command is optional
+sudo cp support-files/mysql.server /etc/init.d/mysql
+		]]>
+		</screen>
+	</section>
+	<section id="mysql.centos">
+		<title>CentOS 6.2 + MySQL 5.5.25 (RPM)</title>
+		<para>准备下面的软件包</para>
+		<screen>
+# ls -1
+MySQL-client-5.5.25-1.el6.x86_64.rpm
+MySQL-devel-5.5.25-1.el6.x86_64.rpm
+MySQL-server-5.5.25-1.el6.x86_64.rpm
+MySQL-shared-5.5.25-1.el6.x86_64.rpm
+MySQL-shared-compat-5.5.25-1.el6.x86_64.rpm
+		</screen>
+		<para>使用 yum 本地安装 rpm, yum 可以帮你解决依赖于冲突 </para>
+		<screen>
+# yum localinstall MySQL-*
+		</screen>
+		<screen>
+# /etc/init.d/mysql start
+Starting MySQL... SUCCESS!
+
+# /usr/bin/mysqladmin -u root password 'tUG26WSslP30bkbwtMhn'
+		</screen>
+	</section>
+	<section id="mysql-admin">
+		<title>mysql-admin</title>
+		<screen>
+$ sudo apt-get install mysql-admin
+		</screen>
+		<para>运行mysql-admin</para>
+		<screen>
+/usr/bin/mysql-admin
+		</screen>
+		<para>运行 mysql-query-browser </para>
+		<screen>
+mysql-query-browser --query="SELECT * FROM users"
+		</screen>
+	</section>
+	<section id="mysql.yum">
+		<title>Installing MySQL on Linux Using the MySQL Yum Repository</title>
+		<section>
+			<title>MySQL 5.6</title>
+			<para>http://dev.mysql.com/doc/mysql-repo-excerpt/5.6/en/linux-installation-yum-repo.html</para>
+			<screen>
+yum localinstall http://dev.mysql.com/get/mysql-community-release-el6-5.noarch.rpm
+			</screen>
+			<para>安装MySQL Server</para>
+			<screen>
+yum install mysql-server
+chkconfig mysqld on
+service mysqld start		
+			</screen>
+			<para>修改root密码</para>
+			<screen>
+mysqladmin -u root password 'new-password'		
+			</screen>
+			<para>安全设置向导</para>
+			<screen>
+/usr/bin/mysql_secure_installation		
+			</screen>
+		</section>
+		<section>
+			<title>MySQL 5.7</title>
+			<screen>
+			<![CDATA[
+yum localinstall -y http://dev.mysql.com/get/mysql57-community-release-el7-7.noarch.rpm
+yum install mysql-server -y
+systemctl enable mysqld
+systemctl start mysqld
+
+cp /etc/my.cnf{,.original}
+
+cat >> /etc/security/limits.d/20-nofile.conf <<EOF
+
+mysql soft nofile 40960
+mysql hard nofile 40960
+EOF
+
+cat >> /etc/my.cnf.d/default.cnf <<EOF
+[mysqld]
+skip-name-resolve
+max_connections=8192
+default-storage-engine=INNODB
+
+#wait_timeout=30
+#interactive_timeout=30
+
+character-set-server=utf8
+collation_server=utf8_general_ci
+init_connect='SET NAMES utf8'
+
+explicit_defaults_for_timestamp=true
+
+query_cache_type=1
+query_cache_size=512M
+
+[client]
+character_set_client=utf8
+
+EOF
+			]]>
+			</screen>
+			<para>MySQL 5.7 会随机分配一个密码给用户</para>
+			<screen>
+grep "A temporary password" /var/log/mysqld.log
+			</screen>
+			<para>登陆后修改密码</para>
+			<screen>
+ALTER USER root@localhost identified by 'MQiEge1ikst7S_6tlXzBOmt_4b';
+ALTER USER root@localhost PASSWORD EXPIRE NEVER;
+			</screen>
+		</section>
+	</section>
+
+	<section id="firewall">
+		<title>Firewall</title>
+		<para>iptables</para>
+		<screen>
+iptables -A INPUT -i eth0 -p tcp -s xxx.xxx.xxx.xxx --dport 3306 -j ACCEPT
+		</screen>
+	</section>
+	<section id="limit">
+		<title>Limit 状态</title>
+		<screen>
+$ sudo cat /proc/`pidof mysqld`/limits
+Limit                     Soft Limit           Hard Limit           Units     
+Max cpu time              unlimited            unlimited            seconds   
+Max file size             unlimited            unlimited            bytes     
+Max data size             unlimited            unlimited            bytes     
+Max stack size            10485760             unlimited            bytes     
+Max core file size        0                    unlimited            bytes     
+Max resident set          unlimited            unlimited            bytes     
+Max processes             62662                62662                processes 
+Max open files            20480                20480                files     
+Max locked memory         65536                65536                bytes     
+Max address space         unlimited            unlimited            bytes     
+Max file locks            unlimited            unlimited            locks     
+Max pending signals       62662                62662                signals   
+Max msgqueue size         819200               819200               bytes     
+Max nice priority         0                    0                    
+Max realtime priority     0                    0                    
+Max realtime timeout      unlimited            unlimited            us   		
+		</screen>
+	</section>
+	<section>
+		<title>使用 Btrfs 文件系统存储mysql数据</title>
+		<screen>
+		<![CDATA[
+#!/bin/sh
+systemctl stop mysqld
+
+btrfs subvolume create /srv/@mysql
+btrfs subvolume list /srv/
+
+UUID=$(blkid | grep btrfs | sed -e 's/.*UUID="\([^"]*\)".*/\1/')
+# UUID=786f570d-fe5c-4d5f-832a-c1b0963dd4e6 /srv btrfs defaults 1 1
+cat << EOF >> /etc/fstab
+UUID=${UUID} /var/lib/mysql  btrfs   noatime,nodiratime,subvol=@mysql 0 2
+EOF
+
+mkdir /tmp/mysql
+mv /var/lib/mysql/* /tmp/mysql/
+
+mount /var/lib/mysql/
+chown mysql:mysql /var/lib/mysql
+
+mv /tmp/mysql/* /var/lib/mysql/
+
+systemctl start mysqld
+		]]>
+		</screen>
+	</section>
+</section>
+
+	&chapter.mariadb.xml;
+	&chapter.percona.xml;

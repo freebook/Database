@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: chapter.optimization.xml 572 2013-04-24 05:37:11Z netkiller $ -->
+<chapter id="index"><?dbhtml dir="optimization"?>
+	<title>Optimization</title>
+	<section id="cache">
+		<title>Buffering and Caching</title>
+		<para>查看缓存是否开启</para>
+		<programlisting>
+		<![CDATA[
+MySQL> select @@query_cache_type;
+MySQL> show variables like 'query_cache_type';
+		]]>
+		</programlisting>
+		<para>开启与关闭缓存</para>
+		<programlisting>
+		<![CDATA[
+MySQL> set query_cache_type=on;
+MySQL> set query_cache_type=off;
+		]]>
+		</programlisting>
+		<para>查看缓存状态</para>
+		<programlisting>
+show variables like 'have_query_cache';
+		</programlisting>
+		<para>查询缓存的大小</para>
+		<programlisting>
+		<![CDATA[
+MySQL> select @@global.query_cache_size;
+MySQL> select @@query_cache_size;
+		]]>
+		</programlisting>
+		<para>查看最大缓存限制，如果集大于该数则不缓存。</para>
+		<programlisting>
+		<![CDATA[
+MySQL> select @@global.query_cache_limit;
+		]]>
+		</programlisting>
+		<para>清除缓存/重置缓存</para>
+		<programlisting>
+		<![CDATA[
+MySQL> flush tables;
+MySQL> flush query cache;
+MySQL> reset query cache;
+		]]>
+		</programlisting>
+		<para>查询缓存性能</para>
+		<programlisting>
+		<![CDATA[
+MySQL> show status like 'qcache%';
+
+MySQL> show status like 'qcache_q%';
++-------------------------+-------+
+| Variable_name | Value |
++-------------------------+-------+
+| Qcache_queries_in_cache | 1 |
++-------------------------+-------+
+1 row in set (0.00 sec)
+
+MySQL> show status like 'qcache_f%';
++--------------------+----------+
+| Variable_name | Value |
++--------------------+----------+
+| Qcache_free_blocks | 1 |
+| Qcache_free_memory | 16766728 |
++--------------------+----------+
+2 rows in set (0.00 sec)
+		]]>
+		</programlisting>
+		<section>
+			<title>Query Cache SELECT Options</title>
+			<programlisting>
+Two query cache-related options may be specified in SELECT statements:
+
+SQL_CACHE
+
+The query result is cached if it is cacheable and the value of the query_cache_type system variable is ON or DEMAND.
+
+SQL_NO_CACHE
+
+The query result is not cached.
+
+Examples:
+
+SELECT SQL_CACHE id, name FROM customer;
+SELECT SQL_NO_CACHE id, name FROM customer;
+
+
+SELECT /*! SQL_NO_CACHE */ stuff FROM table
+
+			</programlisting>
+			<example>
+				<title>SQL_CACHE 测试</title>
+				<para>下面的例子中你将看到缓存变化</para>
+				<programlisting>
+				<![CDATA[
+flush tables;
+show status like 'qcache_q%';
+select sql_cache * from members limit 5;
+show status like 'qcache_q%';
+select sql_cache * from members limit 10;
+show status like 'qcache_q%';
+				]]>
+				</programlisting>
+				<para>显示当前缓存中的信息数量：</para>
+				<programlisting>
+				<![CDATA[
+MySQL> show status like 'qcache_q%';
+				]]>
+				</programlisting>
+			</example>
+		</section>
+	</section>
+	<section id="optimization.where">
+		<title>where 优化 </title>
+		<para>where 条件的顺序影响查询速度</para>
+		<screen>
+EXPLAIN select *,from_unixtime(sendtime) from sms where id='461539' and content like '13%';
+/* 0 rows affected, 1 rows found. Duration for 1 query: 0.218 sec. */
+
+EXPLAIN select *,from_unixtime(sendtime) from sms where content like '13%' and id='461539';
+/* 0 rows affected, 1 rows found. Duration for 1 query: 0.717 sec. */
+		</screen>
+	</section>
+	<section id="show.profile">
+		<title>SHOW PROFILE Syntax SQL性能分析器</title>
+		<example>
+			<title>SHOW PROFILE Syntax</title>
+			<screen>
+set profiling = 1; select * from mytab; show profile for query 1;
+			</screen>
+		</example>
+		
+	</section>
+	<section>
+		<title>PROCEDURE ANALYSE()</title>
+		<para>数据列优化</para>
+		<screen>
+SELECT ... FROM ... WHERE ... PROCEDURE ANALYSE([max_elements,[max_memory]])		
+		</screen>
+	</section>
+</chapter>

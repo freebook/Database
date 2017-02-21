@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!ENTITY part.mysql.xml					SYSTEM "part.mysql.xml">
+<!ENTITY chapter.mysql.xml				SYSTEM "chapter.mysql.xml">
+<!ENTITY chapter.server.xml 			SYSTEM "chapter.server.xml">
+<!ENTITY chapter.server.install.xml 	SYSTEM "chapter.server.install.xml">
+<!ENTITY chapter.server.status.xml 		SYSTEM "chapter.server.status.xml">
+<!ENTITY chapter.server.replication.xml	SYSTEM "chapter.server.replication.xml">
+<!ENTITY chapter.server.cluster.xml		SYSTEM "chapter.server.cluster.xml">
+<!ENTITY chapter.server.proxy.xml		SYSTEM "chapter.server.proxy.xml">
+<!ENTITY chapter.server.router.xml		SYSTEM "chapter.server.router.xml">
+<!ENTITY chapter.client.xml 			SYSTEM "chapter.client.xml">
+<!ENTITY chapter.monitoring.xml			SYSTEM "chapter.monitoring.xml">
+<!ENTITY chapter.monitoring.analysis.xml 	SYSTEM "chapter.monitoring.analysis.xml">
+
+<!ENTITY chapter.ddl.xml				SYSTEM "chapter.ddl.xml">
+<!ENTITY chapter.ddl.partition.xml		SYSTEM "chapter.ddl.partition.xml">
+<!ENTITY chapter.ddl.engine.xml			SYSTEM "chapter.ddl.engine.xml">
+<!ENTITY chapter.sql.xml 				SYSTEM "chapter.sql.xml">
+<!ENTITY chapter.sql.function.xml 		SYSTEM "chapter.sql.function.xml">
+<!ENTITY chapter.dml.xml 				SYSTEM "chapter.dml.xml">
+<!ENTITY chapter.dcl.xml 				SYSTEM "chapter.dcl.xml">
+<!ENTITY chapter.dcl.lock.xml			SYSTEM "chapter.dcl.lock.xml">
+<!ENTITY chapter.dcl.transactional.xml	SYSTEM "chapter.dcl.transactional.xml">
+
+<!ENTITY chapter.manager.xml			SYSTEM "chapter.manager.xml">
+<!ENTITY chapter.backup.xml 			SYSTEM "chapter.backup.xml">
+<!ENTITY chapter.mysql.log.xml	 		SYSTEM "chapter.mysql.log.xml">
+<!ENTITY chapter.connectors.xml 		SYSTEM "chapter.connectors.xml">
+<!ENTITY chapter.faq.xml				SYSTEM "chapter.faq.xml">
+<!ENTITY chapter.mariadb.xml			SYSTEM "chapter.mariadb.xml">
+<!ENTITY chapter.handlersocket.xml		SYSTEM "chapter.handlersocket.xml">
+<!ENTITY chapter.maatkit.xml			SYSTEM "chapter.maatkit.xml">
+<!ENTITY chapter.percona.xml			SYSTEM "chapter.percona.xml">
+<!ENTITY chapter.optimization.xml		SYSTEM "chapter.optimization.xml">
+<!ENTITY chapter.miscellaneous.xml		SYSTEM "chapter.miscellaneous.xml">

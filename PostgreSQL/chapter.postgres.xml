@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	&chapter.install.xml;
+	&chapter.manager.xml;
+
+	&chapter.ddl.xml;
+	&chapter.dml.xml;
+	&chapter.sql.xml;
+	&chapter.gui.xml;
+	&chapter.pgbouncer.xml;
+	&chapter.connector.xml;
+	&chapter.replication.xml;
+	&chapter.faq.xml;

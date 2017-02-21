@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<part id="index"><?dbhtml dir="mongodb" ?>
+	<title>MongoDB</title>
+	<chapterinfo>
+		<keywordset>
+			<keyword>mongodb, mongo</keyword>
+		</keywordset>
+	</chapterinfo>
+	<para>http://www.mongodb.org/</para>
+	&chapter.setup.xml;
+	&chapter.config.xml;
+	&chapter.mongo.cli.xml;
+	&chapter.mongo.gui.xml;
+	&chapter.mapreduce.xml;
+	&chapter.old.xml;
+	
+</part>

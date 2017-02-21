@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="sql.function">
+	<title>Function</title>
+	<section id="generate_series">
+		<title>generate_series</title>
+		<para>生成序列数</para>
+		<screen>
+test=# select generate_series(1,10) as id;
+ id
+----
+  1
+  2
+  3
+  4
+  5
+  6
+  7
+  8
+  9
+ 10
+(10 rows)
+		</screen>
+	</section>
+	<section id="datetime">
+		<title>日期/时间</title>
+		<section>
+			<title>Date/Time Operators</title>
+			<para>日期时间的偏移计算</para>
+			<screen>
+select now() + interval '3 day';
+select now() - interval '3 day';
+
+select now() + interval '1 hour';
+select now() - interval '1 hour';
+
+select now() + interval '10 minutes';
+select now() - interval '10 minutes';
+
+select now() + interval '5 days 3 hours';
+select now() + interval '5 days' + interval '3 hours';
+			</screen>
+		</section>
+		<section>
+			<title>当前日期/时间</title>
+			<screen>
+3.1.1   当前日期
+
+current_date
+netkiller=> select current_date;
+    date
+------------
+ 2003-11-28
+(1 row)
+
+netkiller=>
+
+3.1.2   当前时间
+
+current_time
+netkiller=> select current_time;
+       timetz
+--------------------
+ 19:38:47.270235+08
+(1 row)
+
+netkiller=>
+
+3.1.3   当前日期时间
+
+current_timestamp
+netkiller=> select current_timestamp;
+          timestamptz
+-------------------------------
+ 2003-11-28 19:39:25.548505+08
+(1 row)
+
+netkiller=>
+3.1.4   除去时区
+
+1.         current_timestamp::timestamp (0)
+2.         current_timestamp::timestamp (0) without time zone;
+netkiller=> select current_timestamp::timestamp (0);
+      timestamp
+---------------------
+ 2003-11-28 19:44:33
+(1 row)
+
+netkiller=>
+netkiller=> select current_timestamp::timestamp (0) without time zone;
+      timestamp
+---------------------
+ 2003-11-28 19:40:10
+(1 row)
+			</screen>
+			<para>now() / clock_timestamp() 函数</para>
+			<screen>
+select now();			
+SELECT clock_timestamp();			
+			</screen>
+		</section>
+		<section>
+			<title>时间计算</title>
+			<screen>
+3.1.5   计算时间差
+
+netkiller=> select to_date('2003-12-2','YYYY-MM-DD')-to_date('2003-12-1','YYYY-MM-DD');
+?column?
+----------
+1
+(1 row)
+
+netkiller=>
+netkiller=> select to_date('2003-12-2','YYYY-MM-DD')-to_date('2003-10-2','YYYY-MM-DD');
+?column?
+----------
+61
+(1 row)
+3.1.6   计算时间和
+
+netkiller=> select to_date('2003-12-6','yyyy-mm-dd')+12 ;
+?column?
+------------
+2003-12-18
+(1 row)
+
+netkiller=> select to_date('2003-12-6','yyyy-mm-dd')+20 ;
+?column?
+------------
+2003-12-26
+(1 row)
+			</screen>
+		</section>
+		<section>
+			<title>to_char() / to_date()</title>
+			<para>to_char()</para>
+			<screen>
+select count(*) as c, to_char(ctime, 'yyyy-mm') as dt from practice group by dt order by dt;
+
+select count(*) as c, to_char(ctime, 'yyyy-mm-dd') as dt from practice group by dt order by dt;
+
+select count(*) as c, to_char(ctime, 'yyyy-mm-dd hh') as dt from practice group by dt order by dt;
+			</screen>
+		</section>
+		<section>
+			<title>EXTRACT, date_part</title>
+			<screen>
+select extract (year from now());
+select extract (month from now());
+select extract (day from now());
+select extract (day from timestamp '2013-06-03');
+select extract (hour from now());
+select extract (minute from now());
+select extract (second from now());
+select extract (week from now());
+
+SELECT extract(century FROM now());
+			</screen>
+			<screen>
+3.1.7   date_part
+
+netkiller=> select date_part('epoch', '2003-12-3 10:20:30' - timestamp '2003-12-1 02:00:00') ;
+ date_part
+-----------
+    202830
+(1 row)
+
+netkiller=> select date_part('day', '2003-12-3 10:20:30' - timestamp '2003-12-1 02:00:00') ;
+ date_part
+-----------
+         2
+(1 row)
+
+netkiller=> select date_part('hour', '2003-12-3 10:20:30' - timestamp '2003-12-1 02:00:00') ;
+date_part
+-----------
+         8
+(1 row)
+
+netkiller=>
+			</screen>
+		</section>
+		<section>
+			<title>date_trunc</title>
+			<para></para>
+			<screen>
+select count(*) as c, date_trunc('day', ctime) as dt from practice group by dt;
+			</screen>
+		</section>
+		<section>
+			<title>延迟执行</title>
+			<para>pg_sleep(seconds)</para>
+			<screen>
+SELECT pg_sleep(1.5);
+			</screen>
+		</section>
+		<section>
+			<title>时区</title>
+			<screen>
+SELECT now() AT TIME ZONE 'GMT';
+SELECT now() AT TIME ZONE 'GMT+8';			
+			</screen>
+		</section>
+	</section>
+	<section>
+		<title>uuid</title>
+		<programlisting>
+create extension "uuid-ossp";
+create table products (product_id  uuid primary key default uuid_generate_v4());
+		</programlisting>
+	</section>
+	<section id="tablefunc">
+		<title>tablefunc</title>
+		<subtitle>http://www.postgresql.org/docs/9.1/static/tablefunc.html</subtitle>
+		<para>确认扩展是否已经安装</para>
+		<screen>
+$ ls -1 /usr/pgsql-9.3/share/extension/tablefunc*
+/usr/pgsql-9.3/share/extension/tablefunc--1.0.sql
+/usr/pgsql-9.3/share/extension/tablefunc.control
+/usr/pgsql-9.3/share/extension/tablefunc--unpackaged--1.0.sql		
+		</screen>
+		<para>安装扩展</para>
+		<screen>
+$ psql test
+psql (9.3.1)
+Type "help" for help.
+
+test=# create extension tablefunc;
+CREATE EXTENSION
+test=# \q		
+		</screen>
+		<para>数据库结构</para>
+		<programlisting>
+-- Table: account
+
+-- DROP TABLE account;
+
+CREATE TABLE account
+(
+  id SERIAL NOT NULL,
+  name character varying(10) NOT NULL, -- 账号
+  balance money NOT NULL DEFAULT 0.00, -- 余额
+  datetime timestamp without time zone NOT NULL DEFAULT (now())::timestamp(0) without time zone,
+  CONSTRAINT account_pkey PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE account
+  OWNER TO dba;
+COMMENT ON COLUMN account.name IS '账号';
+COMMENT ON COLUMN account.balance IS '余额';
+
+
+-- Index: account_name_idx
+
+-- DROP INDEX account_name_idx;
+
+CREATE INDEX account_name_idx
+  ON account
+  USING btree
+  (name COLLATE pg_catalog."default");		
+		</programlisting>
+		<para>测试数据</para>
+		<programlisting>
+INSERT INTO account (id, name, balance, datetime) VALUES (1, 'Neo', '$0.00', '2013-10-09 10:51:10');
+INSERT INTO account (id, name, balance, datetime) VALUES (2, 'Neo', '$12.60', '2013-10-09 10:51:22');
+INSERT INTO account (id, name, balance, datetime) VALUES (3, 'Neo', '$200.00', '2013-10-09 10:11:52');
+INSERT INTO account (id, name, balance, datetime) VALUES (4, 'Neo', '-$6.80', '2013-10-09 10:51:42');
+INSERT INTO account (id, name, balance, datetime) VALUES (5, 'Neo', '$100.00', '2013-10-09 10:52:49');
+INSERT INTO account (id, name, balance, datetime) VALUES (6, 'Jerry', '$200.00', '2013-10-09 10:56:35');
+INSERT INTO account (id, name, balance, datetime) VALUES (7, 'Jerry', '$50.45', '2013-10-09 10:57:23');
+INSERT INTO account (id, name, balance, datetime) VALUES (8, 'Jerry', '$75.50', '2013-10-09 10:57:31');
+INSERT INTO account (id, name, balance, datetime) VALUES (9, 'Jerry', '-$55.30', '2013-10-09 10:59:28');
+INSERT INTO account (id, name, balance, datetime) VALUES (10, 'Jerry', '-$200.00', '2013-10-09 10:59:44');
+INSERT INTO account (id, name, balance, datetime) VALUES (11, 'Tom', '$5.00', '2013-10-15 13:26:19');
+INSERT INTO account (id, name, balance, datetime) VALUES (12, 'Neo', '$50.60', '2013-10-15 13:26:34');
+INSERT INTO account (id, name, balance, datetime) VALUES (13, 'Jerry', '$62.08', '2013-10-15 13:26:51');
+INSERT INTO account (id, name, balance, datetime) VALUES (14, 'Tom', '$70.00', '2013-10-15 13:27:01');
+INSERT INTO account (id, name, balance, datetime) VALUES (15, 'Neo', '-$20.56', '2013-10-15 13:27:19');
+INSERT INTO account (id, name, balance, datetime) VALUES (16, 'Tom', '$70.00', '2013-10-16 13:27:01');	
+INSERT INTO account (id, name, balance, datetime) VALUES (17, 'Jerry', '$70.00', '2013-10-16 13:27:01');
+INSERT INTO account (id, name, balance, datetime) VALUES (18, 'Jerry', '-$30.00', '2013-10-16 13:30:01');
+INSERT INTO account (id, name, balance, datetime) VALUES (19, 'Neo', '-$30.00', '2013-10-16 13:35:01');
+INSERT INTO account (id, name, balance, datetime) VALUES (20, 'Tom', '-$30.00', '2013-10-16 13:35:01');
+		</programlisting>
+		<para>查询语句</para>
+		<programlisting>
+SELECT * FROM crosstab('select datetime,name,balance from account order by 1,2','select name from account group by name order by 1')  AS account(datetime timestamp, Jerry character varying, Neo character varying, Tom character varying);		
+		</programlisting>
+		<para>终端输出</para>
+		<screen>
+      datetime       |  jerry   |   neo   |   tom
+---------------------+----------+---------+---------
+ 2013-10-09 10:11:52 |          | $200.00 |
+ 2013-10-09 10:51:10 |          | $0.00   |
+ 2013-10-09 10:51:22 |          | $12.60  |
+ 2013-10-09 10:51:42 |          | -$6.80  |
+ 2013-10-09 10:52:49 |          | $100.00 |
+ 2013-10-09 10:56:35 | $200.00  |         |
+ 2013-10-09 10:57:23 | $50.45   |         |
+ 2013-10-09 10:57:31 | $75.50   |         |
+ 2013-10-09 10:59:28 | -$55.30  |         |
+ 2013-10-09 10:59:44 | -$200.00 |         |
+ 2013-10-15 13:26:19 |          |         | $5.00
+ 2013-10-15 13:26:34 |          | $50.60  |
+ 2013-10-15 13:26:51 | $62.08   |         |
+ 2013-10-15 13:27:01 |          |         | $70.00
+ 2013-10-15 13:27:19 |          | -$20.56 |
+ 2013-10-16 13:27:01 | $70.00   |         | $70.00
+ 2013-10-16 13:30:01 | -$30.00  |         |
+ 2013-10-16 13:35:01 |          | -$30.00 | -$30.00
+(18 rows)
+		</screen>
+	</section>
+</section>

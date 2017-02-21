@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: chapter.backup.xml 544 2013-03-26 06:33:00Z netkiller $ -->
+<section id="backup">
+	<title>Backup and Recovery</title>
+
+<section id="import_export">
+	<title>Import / Export</title>
+	<section id="backup">
+		<title>Export(Backup)</title>
+		<screen>
+		<![CDATA[
+mysqldump -hlocalhost -proot -p**** mydb > mydb.sql
+		]]>
+		</screen>
+		<para>gzip</para>
+		<screen>
+		<![CDATA[
+mysqldump -hlocalhost -proot -p**** mydb | gzip > mydb.sql.gz
+		]]>
+		</screen>
+	</section>
+	<section id="recovery">
+		<title>Import(Recovery)</title>
+		<screen>
+		<![CDATA[
+mysql -hlocalhost -proot -p**** mydb < mydb.sql
+		]]>
+		</screen>
+		<para>gunzip</para>
+		<screen>
+		<![CDATA[
+gunzip mydb.sql.gz -c | mysql -hlocalhost -proot -p**** mydb
+		]]>
+		</screen>
+	</section>
+
+	<section>
+		<title>xml</title>
+		<para>export xml</para>
+		<screen>
+$ mysqldump -uusrname -ppasswd -X -t database table -r filename.xml
+		</screen>
+	</section>
+	<section>
+		<title>备份表数据</title>
+		<screen>
+SELECT * INTO OUTFILE 'file_name' FROM tbl_name
+LOAD DATA INFILE 'file_name' REPLACE INTO TABLE tbl_name
+		</screen>
+	</section>
+	<section>
+		<title>source</title>
+		<screen>
+		<![CDATA[
+mysql> use your_db
+mysql> SOURCE database.sql
+		]]>
+		</screen>
+	</section>
+	<section>
+		<title>使用 mysqlhotcopy 备份 MyISAM 引擎的数据库</title>
+		<command><![CDATA[ shell> mysqlhotcopy db_name /path/to/some/dir ]]></command>
+		<screen>
+mysql:~# mysqlhotcopy --user=neo --password=chen shop /tmp/backup
+Locked 100 tables in 0 seconds.
+Flushed tables (`shop`.`account_log`, `shop`.`ad`, `shop`.`ad_custom`, `shop`.`ad_position`, `shop`.`admin_action`,
+`shop`.`admin_log`, `shop`.`admin_message`, `shop`.`admin_user`, `shop`.`adsense`, `shop`.`affiliate_log`,
+...
+...
+...
+`shop`.`user_rank`, `shop`.`users`, `shop`.`virtual_card`, `shop`.`volume_price`, `shop`.`vote`, `shop`.`vote_log`,
+`shop`.`vote_option`, `shop`.`wholesale`) in 0 seconds.
+Copying 299 files...
+Copying indices for 0 files...
+Unlocked tables.
+mysqlhotcopy copied 100 tables (299 files) in 0 seconds (0 seconds overall).
+		</screen>
+	</section>
+	<section>
+		<title>AutoMySQLBackup</title>
+		<para>https://sourceforge.net/projects/automysqlbackup/</para>
+	</section>
+	<section id="xtrabackup">
+		<title>xtrabackup - Open source backup tool for InnoDB and XtraDB.</title>
+		<para>https://launchpad.net/percona-xtrabackup</para>
+		<section>
+			<title>Percona yum Repository</title>
+			<screen>
+$ rpm -Uhv http://www.percona.com/downloads/percona-release/percona-release-0.0-1.x86_64.rpm
+			</screen>
+			<screen>
+# yum search xtrabackup
+================================================================ N/S Matched: XtraBackup =================================================================
+holland-xtrabackup.noarch : Xtrabackup plugin for Holland
+percona-xtrabackup.x86_64 : XtraBackup online backup for MySQL / InnoDB
+percona-xtrabackup-debuginfo.x86_64 : Debug information for package percona-xtrabackup
+percona-xtrabackup-test.x86_64 : Test suite for Percona Xtrabackup
+			</screen>
+			<screen>
+# yum install percona-xtrabackup
+			</screen>
+		</section>
+		<section>
+			<title>Creating an Incremental Backup</title>
+			<screen>
+xtrabackup --backup --target-dir=/data/backups/base --datadir=/var/lib/mysql/
+			</screen>
+		</section>
+	</section>
+</section>
+<section id="backup.snapshot">
+	<title>Snapshot Backup</title>
+	<section>
+		<title>LVM Snapshot</title>
+		<screen>
+		<![CDATA[
+# mysql –uroot –pmysql
+mysql> flush tables with read lock;
+mysql>flush logs;
+mysql>system lvcreate -L1024M -s -n snap0 /dev/vg00/lvol00
+mysql>show master status；
+mysql>unlock tables；
+mysql>quit
+		]]>
+		</screen>
+	</section>
+	<section>
+		<title>Btrfs Snapshot</title>
+		<screen>
+# btrfs subvolume snapshot /data /data/backup_2013-03-20
+Create a snapshot of '/data' in '/data/backup_2013-03-20'
+
+btrfs subvolume list /data
+ID 315 gen 172 top level 5 path backup_2013-03-10
+ID 320 gen 178 top level 5 path backup_2013-03-20
+		</screen>
+	</section>
+</section>
+</section>

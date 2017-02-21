@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter>
+	<title>MongoDB 2.x 早期版本</title>
+	<section>
+		<title>用户管理</title>
+		<screen>
+		<![CDATA[
+> use admin
+switched to db admin
+> db.addUser('neo','chen')
+{
+        "user" : "neo",
+        "readOnly" : false,
+        "pwd" : "68ace374737253d87e0ec91d4fcb673d"
+}
+
+> db.system.users.find()
+{ "_id" : ObjectId("4c481404b9db6474d2fcb76f"), "user" : "neo", "readOnly" : false, "pwd" : "68ace374737253d87e0ec91d4fcb673d" }
+
+> db.auth('neo','chen')
+1		
+		]]>
+		</screen>
+	</section>
+</chapter>

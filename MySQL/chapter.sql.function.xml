@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: chapter.sql.function.xml 555 2013-04-07 09:54:05Z netkiller $ -->
+<chapter id="index"><?dbhtml dir="functions"?>
+	<title>Functions and Operators</title>
+	<section id="count">
+		<title>COUNT</title>
+		<para>count()</para>
+		<screen>
+SELECT (SELECT count(1) FROM ecs_category) as 'Export category count',
+	(SELECT count(1) FROM ecs_goods) as 'Goods count',
+	(SELECT count(1) FROM ecs_goods_attr) as 'Attr count';
+		</screen>
+	</section>
+	<section id="uuid">
+		<title>UUID()</title>
+		<programlisting>
+SELECT UUID(),LENGTH(UUID()),UUID_SHORT(), LENGTH(UUID_SHORT());
+		</programlisting>
+	</section>
+	<section id="string">
+		<title>String</title>
+		<section id="left">
+			<title>LEFT/RIGHT</title>
+			<para>LEFT(str,len)</para>
+			<screen>
+mysql> select left(concat('1','0000000'),5) as number;
++--------+
+| number |
++--------+
+| 10000  |
++--------+
+1 row in set (0.00 sec)
+			</screen>
+			<para>RIGHT(str,len)</para>
+			<screen>
+mysql> select right(concat('0000000','1'),5) as number;
++--------+
+| number |
++--------+
+| 00001  |
++--------+
+1 row in set (0.00 sec)
+			</screen>
+		</section>
+		<section id="rpad">
+			<title>RPAD/LPAD</title>
+			<para>补齐长度用'0'填充</para>
+			<command>RPAD(str,len,padstr)</command>
+			<screen>
+mysql> select rpad('10',5,'0') as txt;
++-------+
+| txt   |
++-------+
+| 10000 |
++-------+
+1 row in set (0.01 sec)
+			</screen>
+			<command>LPAD(str,len,padstr)</command>
+			<screen>
+mysql> select lpad('10',5,'0') as txt;
++-------+
+| txt   |
++-------+
+| 00010 |
++-------+
+1 row in set (0.00 sec)
+			</screen>
+		</section>
+		<section id="concat">
+			<title>CONCAT</title>
+			<para>CONCAT(str1,str2,...) </para>
+			<screen>
+mysql> select concat('Neo',' ','Chen') as Name;
++----------+
+| Name     |
++----------+
+| Neo Chen |
++----------+
+1 row in set (0.00 sec)
+			</screen>
+		</section>
+		<section id="group_concat">
+			<title>GROUP_CONCAT</title>
+			<para></para>
+			<screen>
+mysql> select GROUP_CONCAT(CONVERT( username , CHAR (16)) order by username desc) as username from test;
++-------------------------------------------+
+| username                                  |
++-------------------------------------------+
+| jam,jam2,john,john2,john3,neo,neo1,neo2   |
++-------------------------------------------+
+6 rows in set, 1 warning (0.01 sec)
+			</screen>
+		</section>
+		<section id="replace">
+			<title>replace</title>
+			<screen>
+select replace(goods_desc,':8000','') from ecs_goods;
+
+update ecs_goods set goods_desc=replace(goods_desc,':8000','');
+			</screen>
+		</section>
+		<section id="substring">
+			<title>SUBSTRING</title>
+			<screen>
+			<![CDATA[
+mysql> SELECT SUBSTRING('netkiller',4,4);   
++----------------------------+
+| SUBSTRING('netkiller',4,4) |
++----------------------------+
+| kill                       |
++----------------------------+
+1 row in set (0.00 sec)			
+			]]>
+			</screen>
+			<para>与left,right 相同的用法</para>
+			<screen>
+select right('M2014030615410572307:DEPOSIT', 7);
+SELECT SUBSTRING('M2014030615410572307:DEPOSIT', -7);			
+			</screen>
+		</section>
+		<section id="substring_index">
+			<title>SUBSTRING_INDEX</title>
+			<screen>
+SELECT SUBSTRING_INDEX('M2014030615410572307:DEPOSIT', ':', -1);
+SELECT SUBSTRING_INDEX('M2014030615410572307:DEPOSIT', ':', 1);			
+			</screen>
+		</section>
+		
+		<section id="aes_encrypt">
+			<title>AES_ENCRYPT / AES_DECRYPT</title>
+			<para>简单用法</para>
+			<screen>
+			<![CDATA[
+mysql> select AES_ENCRYPT('helloworld','key');
++---------------------------------+
+| AES_ENCRYPT('helloworld','key') |
++---------------------------------+
+|                                 |
++---------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select AES_DECRYPT(AES_ENCRYPT('helloworld','key'),'key');
++----------------------------------------------------+
+| AES_DECRYPT(AES_ENCRYPT('helloworld','key'),'key') |
++----------------------------------------------------+
+| helloworld                                         |
++----------------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql>
+			]]>
+			</screen>
+			<para>加密数据入库</para>
+			<screen>
+			<![CDATA[
+CREATE TABLE `encryption` (
+	`mobile` VARBINARY(16) NOT NULL,
+	`key` VARCHAR(32) NOT NULL
+)
+ENGINE=InnoDB;
+
+INSERT INTO encryption(`mobile`,`key`)VALUES( AES_ENCRYPT('13691851789',md5('13691851789')), md5('13691851789')) 
+select AES_DECRYPT(mobile,`key`), length(mobile) from encryption;
+			]]>
+			</screen>
+		</section>		
+		
+	</section>
+
+	<section id="datetime">
+		<title>Date and Time</title>
+		<screen>
+SELECT NOW(),CURRENT_TIMESTAMP(),SYSDATE();		
+		</screen>
+		<section>
+			<title>year/month/day hour:minite:second</title>
+			<screen>
+			<![CDATA[
+mysql> select year('2012-03-20');
++--------------------+
+| year('2012-03-20') |
++--------------------+
+|               2012 |
++--------------------+
+1 row in set (0.00 sec)
+
+mysql> select month('2012-03-20');
++---------------------+
+| month('2012-03-20') |
++---------------------+
+|                   3 |
++---------------------+
+1 row in set (0.00 sec)
+
+mysql> select day('2012-03-20');
++-------------------+
+| day('2012-03-20') |
++-------------------+
+|                20 |
++-------------------+
+1 row in set (0.00 sec)
+
+mysql> select hour('12:30:55');
++------------------+
+| hour('12:30:55') |
++------------------+
+|               12 |
++------------------+
+1 row in set (0.00 sec)
+
+mysql> select minute('12:30:55');
++--------------------+
+| minute('12:30:55') |
++--------------------+
+|                 30 |
++--------------------+
+1 row in set (0.00 sec)
+
+mysql> select second('12:30:55');
++--------------------+
+| second('12:30:55') |
++--------------------+
+|                 55 |
++--------------------+
+1 row in set (0.00 sec)
+
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>Unix time</title>
+			<screen>
+			<![CDATA[
+mysql> SELECT UNIX_TIMESTAMP('2005-03-27 02:00:00');
++---------------------------------------+
+| UNIX_TIMESTAMP('2005-03-27 02:00:00') |
++---------------------------------------+
+|                            1111885200 |
++---------------------------------------+
+mysql> SELECT FROM_UNIXTIME(1111885200);
++---------------------------+
+| FROM_UNIXTIME(1111885200) |
++---------------------------+
+| 2005-03-27 03:00:00       |
++---------------------------+
+			]]>
+			</screen>
+			<programlisting>
+			<![CDATA[
+SELECT UNIX_TIMESTAMP('2012-01-01 00:00:00');
+SELECT UNIX_TIMESTAMP('2012-07-30 00:00:00');
+SELECT UNIX_TIMESTAMP();
+SELECT UNIX_TIMESTAMP('2009-08-06') ;
+SELECT UNIX_TIMESTAMP( curdate( ) );
+
+select FROM_UNIXTIME(UNIX_TIMESTAMP('2012-07-30 00:00:00'), '%Y-%m-%d');
+SELECT FROM_UNIXTIME( 1249488000, '%Y年%m月%d日' );
+
+
+select FROM_UNIXTIME(createtime, '%m') as month, count(1) as count from members where createtime BETWEEN UNIX_TIMESTAMP('2012-01-01 00:00:00') and UNIX_TIMESTAMP('2012-12-31 00:00:00') group by FROM_UNIXTIME(createtime, '%m');
+select FROM_UNIXTIME(createtime, '%m') as month, count(1) as count from members where createtime BETWEEN UNIX_TIMESTAMP('2011-01-01 00:00:00') and UNIX_TIMESTAMP('2011-12-31 00:00:00') group by FROM_UNIXTIME(createtime, '%m');
+
+select FROM_UNIXTIME(createtime, '%m-%d') as month, count(1) as count from members where createtime BETWEEN UNIX_TIMESTAMP('2011-01-01 00:00:00') and UNIX_TIMESTAMP('2011-12-31 00:00:00') group by FROM_UNIXTIME(createtime, '%m-%d');
+select FROM_UNIXTIME(createtime, '%m-%d') as month, count(1) as count from members where createtime BETWEEN UNIX_TIMESTAMP('2012-01-01 00:00:00') and UNIX_TIMESTAMP('2012-12-31 00:00:00') group by FROM_UNIXTIME(createtime, '%m-%d');
+			]]>
+			</programlisting>
+		</section>
+		<section>
+			<title>DATE_FORMAT</title>
+			<para>DATE_FORMAT() 函数用于以不同的格式显示日期/时间数据。</para>
+			<screen>
+语法
+DATE_FORMAT(date,format)
+date 参数是合法的日期。format 规定日期/时间的输出格式。
+
+可以使用的格式有：
+格式	描述
+%a	缩写星期名
+%b	缩写月名
+%c	月，数值
+%D	带有英文前缀的月中的天
+%d	月的天，数值(00-31)
+%e	月的天，数值(0-31)
+%f	微秒
+%H	小时 (00-23)
+%h	小时 (01-12)
+%I	小时 (01-12)
+%i	分钟，数值(00-59)
+%j	年的天 (001-366)
+%k	小时 (0-23)
+%l	小时 (1-12)
+%M	月名
+%m	月，数值(00-12)
+%p	AM 或 PM
+%r	时间，12-小时（hh:mm:ss AM 或 PM）
+%S	秒(00-59)
+%s	秒(00-59)
+%T	时间, 24-小时 (hh:mm:ss)
+%U	周 (00-53) 星期日是一周的第一天
+%u	周 (00-53) 星期一是一周的第一天
+%V	周 (01-53) 星期日是一周的第一天，与 %X 使用
+%v	周 (01-53) 星期一是一周的第一天，与 %x 使用
+%W	星期名
+%w	周的天 （0=星期日, 6=星期六）
+%X	年，其中的星期日是周的第一天，4 位，与 %V 使用
+%x	年，其中的星期一是周的第一天，4 位，与 %v 使用
+%Y	年，4 位
+%y	年，2 位
+			</screen>
+			<para>实例</para>
+			<screen>
+下面的脚本使用 DATE_FORMAT() 函数来显示不同的格式。我们使用 NOW() 来获得当前的日期/时间：
+DATE_FORMAT(NOW(),'%b %d %Y %h:%i %p')
+DATE_FORMAT(NOW(),'%m-%d-%Y')
+DATE_FORMAT(NOW(),'%d %b %y')
+DATE_FORMAT(NOW(),'%d %b %Y %T:%f')
+
+SELECT DATE_FORMAT(NOW(),'%Y-%m-%d');
+
+select DATE_FORMAT(asctime,'%Y-%m-%d') as Date, count(1) as Count from logging where tag='www' and facility='login' group by DATE_FORMAT(asctime,'%Y-%m-%d') order by asctime desc;
+			</screen>
+		</section>
+		<section>
+			<title>DATE_SUB/DATE_ADD</title>
+			<para>当前时间向后推10天</para>
+			<programlisting>
+			<![CDATA[
+mysql> select DATE_SUB(now(), INTERVAL 240 HOUR);
++------------------------------------+
+| DATE_SUB(now(), INTERVAL 240 HOUR) |
++------------------------------------+
+| 2012-03-09 10:26:03                |
++------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select DATE_SUB(now(), INTERVAL 24 HOUR);
++-----------------------------------+
+| DATE_SUB(now(), INTERVAL 24 HOUR) |
++-----------------------------------+
+| 2012-03-18 10:28:43               |
++-----------------------------------+
+1 row in set (0.00 sec)
+			]]>
+			</programlisting>
+			<programlisting>
+			<![CDATA[
+DELETE from Message where created < DATE_sub(now(), INTERVAL 240 HOUR);
+
+select * from PRICES_HISTORY where DATE_FORMAT(TIME ,GET_FORMAT(DATE,'ISO')) = (
+select if ( WEEKDAY(CURRENT_DATE())=6 , DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY) , CURRENT_DATE())
+)
+			]]>
+			</programlisting>
+			<section>
+				<title>DATE_ADD</title>
+				<programlisting>
+SELECT DATE_ADD('1998-01-02', INTERVAL 31 DAY);
+				</programlisting>
+			</section>
+		</section>
+
+		<section>
+			<title>datediff / timediff</title>
+			<para>计算时间差，两个时间相减结果</para>
+			<screen>
+			<![CDATA[
+mysql> select timediff('22:20:00','17:30:00');
++---------------------------------+
+| timediff('22:20:00','17:30:00') |
++---------------------------------+
+| 04:50:00                        |
++---------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select datediff('2008-08-08 12:00:00', '2008-08-01 00:00:00');
++--------------------------------------------------------+
+| datediff('2008-08-08 12:00:00', '2008-08-01 00:00:00') |
++--------------------------------------------------------+
+|                                                      7 |
++--------------------------------------------------------+
+1 row in set (0.00 sec)
+			]]>
+			</screen>
+		</section>
+	</section>
+	<section id="numeric">
+		<title>数值函数</title>
+		<section>
+			<title>cast 类型转换</title>
+			<programlisting>
+			<![CDATA[
+mysql> SELECT cast(SUBSTRING('123456789',1,4) as UNSIGNED) * 100;   
++----------------------------------------------------+
+| cast(SUBSTRING('123456789',1,4) as UNSIGNED) * 100 |
++----------------------------------------------------+
+|                                             123400 |
++----------------------------------------------------+
+1 row in set (0.00 sec)		
+			]]>
+			</programlisting>
+		</section>
+	
+		<section id="truncate">
+			<title>truncate 保留小数位数</title>
+			<programlisting>
+			<![CDATA[
+select profit, deficit, concat(truncate((profit / deficit)*100,2),'%') as percentage from ((select count(*) as profit from angelfund where profit > 0) as profit, (select count(*) as deficit from angelfund where profit < 0) as deficit);		
+			]]>		
+			</programlisting>
+		
+		</section>
+		<section>
+			<title>MOD 求余</title>
+			<screen>
+			<![CDATA[
+mysql> select 9 mod 5;
++---------+
+| 9 mod 5 |
++---------+
+|       4 |
++---------+
+1 row in set (0.00 sec)
+
+mysql> select mod(5,2);
++----------+
+| mod(5,2) |
++----------+
+|        1 |
++----------+
+1 row in set (0.00 sec)
+
+mysql> select mod(5,2);			
+			]]>
+			</screen>
+		</section>
+	</section>
+	<section id="flow">
+		<title>Control Flow Functions</title>
+		<para>CASE</para>
+		<programlisting>
+		<![CDATA[
+mysql> SELECT CASE 1 WHEN 1 THEN 'one'
+    ->     WHEN 2 THEN 'two' ELSE 'more' END;
+        -> 'one'
+mysql> SELECT CASE WHEN 1>0 THEN 'true' ELSE 'false' END;
+        -> 'true'
+mysql> SELECT CASE BINARY 'B'
+    ->     WHEN 'a' THEN 1 WHEN 'b' THEN 2 END;
+        -> NULL		
+		]]>
+		</programlisting>
+		<para>IFNULL</para>
+		<programlisting>
+		<![CDATA[
+mysql> SELECT IFNULL("TEST", 'OK');
++----------------------+
+| IFNULL("TEST", 'OK') |
++----------------------+
+| TEST                 |
++----------------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT IFNULL(NULL, 'OK');
++--------------------+
+| IFNULL(NULL, 'OK') |
++--------------------+
+| OK                 |
++--------------------+
+1 row in set (0.00 sec)		
+		]]>
+		</programlisting>
+		<para>NULLIF()</para>
+		<programlisting>
+
+		</programlisting>
+		<para>IF</para>
+		<programlisting>
+		<![CDATA[
+mysql> SELECT IFNULL("TEST", 'OK');
++----------------------+
+| IFNULL("TEST", 'OK') |
++----------------------+
+| TEST                 |
++----------------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT IFNULL(NULL, 'OK');
++--------------------+
+| IFNULL(NULL, 'OK') |
++--------------------+
+| OK                 |
++--------------------+
+1 row in set (0.00 sec)		
+		]]>
+		</programlisting>		
+		
+	</section>
+</chapter>

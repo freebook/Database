@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="replication">
+	<title>Replication</title>
+
+<section id="bucardo">
+	<title>Bucardo</title>
+	<subtitle>Asynchronous PostgreSQL Replication System</subtitle>
+</section>
+
+</chapter>

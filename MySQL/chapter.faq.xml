@@ -1,0 +1,364 @@
+<chapter id="index"><?dbhtml dir="faq"?>
+	<title>FAQ</title>
+	<section id="reset.password">
+		<title>Reset root password 重置MySQL root密码</title>
+		<para>忘记root密码是使用 --skip-grant-tables 启动项</para>
+		<para>CentOS 6.x</para>
+		<screen>
+		<![CDATA[
+# vim /etc/init.d/mysqld
+
+ $exec --skip-grant-tables  --datadir="$datadir" --socket="$socketfile" \
+    --pid-file="$mypidfile" \
+    --basedir=/usr --user=mysql >/dev/null 2>&1 &
+		]]>
+		</screen>
+		<screen>
+		<![CDATA[
+# /etc/init.d/mysqld restart
+Stopping mysqld:                                           [  OK  ]
+Starting mysqld:                                           [  OK  ]
+
+# mysqladmin -u root flush-privileges password "newpassword"
+		]]>
+		</screen>
+		<para>CentOS 7.x</para>
+		<para>添加 skip-grant-tables=1 选项，然后重启mysql</para>
+		<screen>
+# cat /etc/my.cnf
+# For advice on how to change settings please see
+# http://dev.mysql.com/doc/refman/5.6/en/server-configuration-defaults.html
+
+[mysqld]
+#
+# Remove leading # and set to the amount of RAM for the most important data
+# cache in MySQL. Start at 70% of total RAM for dedicated server, else 10%.
+# innodb_buffer_pool_size = 128M
+#
+# Remove leading # to turn on a very important data integrity option: logging
+# changes to the binary log between backups.
+# log_bin
+#
+# Remove leading # to set options mainly useful for reporting servers.
+# The server defaults are faster for transactions and fast SELECTs.
+# Adjust sizes as needed, experiment to find the optimal values.
+# join_buffer_size = 128M
+# sort_buffer_size = 2M
+# read_rnd_buffer_size = 2M
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+skip-grant-tables=1
+# Disabling symbolic-links is recommended to prevent assorted security risks
+symbolic-links=0
+
+# Recommended in standard MySQL setup
+sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES 
+
+[mysqld_safe]
+log-error=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid
+		</screen>
+		
+		<screen>
+		<![CDATA[
+# systemctl restart mysqld
+		]]>
+		</screen>
+		<screen>
+		<![CDATA[
+update mysql.user set authentication_string=password('netkiller') where user='root' and Host = 'localhost';
+flush privileges;
+quit;
+		]]>
+		</screen>
+		<screen>
+		<![CDATA[
+# mysql
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 2
+Server version: 5.7.14 MySQL Community Server (GPL)
+
+Copyright (c) 2000, 2016, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> update mysql.user set authentication_string=password('netkiller') where user='root' and Host = 'localhost';
+Query OK, 1 row affected, 1 warning (0.03 sec)
+Rows matched: 1  Changed: 1  Warnings: 1
+
+mysql> flush privileges;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> quit;
+Bye
+		]]>
+		</screen>	
+		<para>删除 skip-grant-tables=1 重启MySQL</para>	
+	</section>
+
+	<section id="sql.sed">
+		<title>数据库内容替换</title>
+		<screen>
+		<![CDATA[
+#!/bin/bash
+HOST='localhost'
+USER='neo'
+PASS='chen'
+
+SDB='neo'
+TDB='netkiller'
+MYSQLDUMP="mysqldump"
+MYSQLDUMPOPTS="-h${HOST} -u${USER} -p${PASS}"
+
+MYSQL="mysql"
+MYSQLOPTS="-h${HOST} -u${USER} -p${PASS}"
+#SED="sed -e 's/netkiller\.8800\.org/netkiller\.sf\.net/g' -e 's/陈景峰/景峰/g' -e 's/Neo/Netkiller/g'"
+
+$MYSQL $MYSQLOPTS <<SQL
+DROP DATABASE $TDB;
+CREATE DATABASE $TDB DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+SQL
+
+
+$MYSQLDUMP $MYSQLDUMPOPTS ${SDB} | sed -e 's/netkiller\.8800\.org/netkiller\.sf\.net/g' -e 's/陈景峰/景峰/g' -e 's/Neo/Netkiller/g' | $MYSQL $MYSQLOPTS ${TDB}
+#echo "$MYSQLDUMP $MYSQLDUMPOPTS ${SDB} | $SED | $MYSQL $MYSQLOPTS ${TDB}"
+		]]>
+		</screen>
+	</section>
+	<section id="perror">
+		<title>查看错误代码</title>
+		<screen>
+		<![CDATA[
+mysql> \! perror 6
+OS error code   6:  No such device or address
+		]]>
+		</screen>
+		<section id="error.code">
+			<title>ERROR 1153 (08S01) at line 3168: Got a packet bigger than 'max_allowed_packet' bytes</title>
+			<screen>
+max_allowed_packet=500M
+			</screen>
+		</section>
+		<section>
+			<title>ERROR 1129 (00000): Host 'XXXXXX' is blocked because of many connection errors; unblock with 'mysqladmin flush-hosts'</title>
+			<para>连接在中途被中断了的连接请求。在 max_connect_errors次失败请求后，mysql阻止该主机进一步的连接，直到管理员执行命令 mysqladmin flush-hosts。</para>
+			<screen>
+			<![CDATA[
+mysql> flush hosts;
+			]]>
+			</screen>
+			<screen>
+set global max_connect_errors=1000;
+			</screen>
+			<screen>
+max_connect_errors=10000
+			</screen>
+		</section>
+	</section>
+	<section id="tmptable">
+		<title>临时表是否需要建索引</title>
+		<para>答案：要</para>
+	</section>
+	<section id="sqlkill">
+		<title>Kill 脚本</title>
+		<para>查询出锁定的表</para>
+		<para>SELECT concat('KILL ',id,';') FROM information_schema.processlist WHERE user='root';</para>
+		<para>SELECT concat('KILL ',id,';') FROM information_schema.processlist WHERE command='Locked' and user='root';</para>
+		<para>SELECT concat('KILL ',id,';') FROM information_schema.processlist WHERE command='Locked' and user='root' and db='test';
+		</para>
+		<para>拼装kill命令后输入到kill.sql, source 将从kill.sql读取sql命令并执行。</para>
+		<screen>
+SELECT concat('KILL ',id,';') FROM information_schema.processlist WHERE user='root' INTO OUTFILE '/tmp/kill.sql';
+
+source /tmp/kill.sql;
+		</screen>
+		<screen>
+mysqladmin -uroot -p processlist | grep Sleep |awk '{if (length($2) > 1) print "Kill "$2}'|xargs mysqladmin -uroot kill
+		</screen>
+	</section>
+	<section id="error.1503">
+		<title>ERROR 1503 (HY000): A PRIMARY KEY must include all columns in the table's partitioning function</title>
+		<ulink url="http://dev.mysql.com/doc/refman/5.1/en/partitioning-limitations-partitioning-keys-unique-keys.html" />
+	</section>
+	<section id="error.1820">
+		<title>ERROR 1820 (HY000): You must reset your password using ALTER USER statement before executing this statement.</title>
+		<para>这个错误来自 MySQL 5.7，首次登陆MySQL 5.7 必须修改密码</para>
+		<screen>
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'your_password';		
+		</screen>
+	</section>
+	<section id="error.1819">
+		<title>ERROR 1819 (HY000): Your password does not satisfy the current policy requirements</title>
+		<para>MySQL 5.7 密码强度，必须含有0-9，a-z,A-Z以及“-”或“_”</para>
+		<para>https://dev.mysql.com/doc/refman/5.7/en/validate-password-options-variables.html</para>
+		<para>禁用密码安全策略</para>
+		<screen>
+#  cat /etc/my.cnf | grep validate-password
+validate-password=OFF
+		</screen>
+	</section>
+	<section id="auto_increment">
+		<title>重新整理AUTO_INCREMENT字段</title>
+		<para>AUTO_INCREMENT 并非按照我们意愿，顺序排列，经常会跳过一些数字，例如当插入失败的时候，再次插入会使用新的值。有时会造成浪费，我们可以使用下面SQL重新编排AUTO_INCREMENT序列。</para>
+		<screen>
+SET @newid=0;
+UPDATE mytable SET id = (SELECT @newid:=@newid+ 1);
+		</screen>
+		<para>使用max()查看最大值，然后使用 alter修改起始位置。</para>
+		<screen>
+select max(id) from mytable;
+ALTER TABLE mytable AUTO_INCREMENT = 1000;		
+		</screen>
+		<para>注意外键，需要 ON UPDATE CASCADE 支持，否则无法更新。CONSTRAINT `FK_group_has_contact_contact` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,</para>
+		<screen>
+CREATE TABLE `contact` (
+	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '唯一ID',
+	`name` VARCHAR(50) NOT NULL COMMENT '姓名',
+	`mobile` VARBINARY(32) NULL DEFAULT NULL COMMENT '手机号码',
+	`email` VARBINARY(50) NULL DEFAULT NULL COMMENT '电子邮件',
+	`mobile_digest` VARCHAR(32) NULL DEFAULT NULL COMMENT '摘要',
+	`email_digest` VARCHAR(32) NULL DEFAULT NULL COMMENT '邮件摘要',
+	`birthday` DATE NULL DEFAULT NULL COMMENT '生日',
+	`description` VARCHAR(255) NULL DEFAULT NULL COMMENT '备注描述',
+	`status` ENUM('Subscription','Unsubscribe') NOT NULL DEFAULT 'Subscription' COMMENT '订阅状态',
+	`ctime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+	`mtime` TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+	PRIMARY KEY (`id`),
+	UNIQUE INDEX `digest` (`mobile_digest`, `email_digest`)
+)
+COMMENT='会员手机短信与电子邮件映射表'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=43642;
+
+CREATE TABLE `group` (
+	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`name` VARCHAR(50) NOT NULL,
+	`description` VARCHAR(512) NOT NULL,
+	`ctime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`id`),
+	UNIQUE INDEX `name` (`name`)
+)
+COMMENT='短信分组'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=8;
+
+CREATE TABLE `group_has_contact` (
+	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`group_id` INT(10) UNSIGNED NOT NULL,
+	`contact_id` INT(10) UNSIGNED NOT NULL,
+	`ctime` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`id`),
+	UNIQUE INDEX `group_contact` (`group_id`, `contact_id`),
+	INDEX `FK_group_has_contact_contact` (`contact_id`),
+	CONSTRAINT `FK_group_has_contact_contact` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+	CONSTRAINT `FK_group_has_contact_group` FOREIGN KEY (`group_id`) REFERENCES `group` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
+)
+COMMENT='N:M'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=55764;
+		</screen>
+	</section>
+	<section id="latin1toutf8">
+		<title>转换 latin1 到 UTF-8</title>
+		<screen>
+UPDATE category SET 
+    name=convert(cast(convert(name using  latin1) as binary) using utf8),
+    description=convert(cast(convert(description using  latin1) as binary) using utf8)
+		</screen>
+	</section>
+	<section id="error.1055">
+		<title>this is incompatible with sql_mode=only_full_group_by</title>
+		<para>ERROR 1055 (42000): Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'mydb.contact.id' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by</para>
+		<screen>
+		<![CDATA[
+mysql> select @@version;
++-----------+
+| @@version |
++-----------+
+| 5.7.10    |
++-----------+
+1 row in set (0.00 sec)
+
+mysql> select @@GLOBAL.sql_mode;
++-------------------------------------------------------------------------------------------------------------------------------------------+
+| @@GLOBAL.sql_mode                                                                                                                         |
++-------------------------------------------------------------------------------------------------------------------------------------------+
+| ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION |
++-------------------------------------------------------------------------------------------------------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> SET sql_mode = '';
+Query OK, 0 rows affected, 1 warning (0.00 sec)
+
+mysql> select id,name from contact group by name limit 10;
++-------+-------------+
+| id    | name        |
++-------+-------------+
+| 84046 |   张伟      |
+| 80259 |   张磊      |
+|   784 |   王岩      |
+| 87685 |  杨钞       |
++-------+-------------+
+10 rows in set (0.07 sec)
+		
+		]]>
+		</screen>
+		<para>不建议设置 SET sql_mode = ''，正确方式如下：</para>
+		<screen>
+		<![CDATA[
+mysql> set global sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+mysql> set session sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';		
+		]]>
+		</screen>
+		<para>或者采用</para>
+		<screen>
+		<![CDATA[		
+Adding only one mode to sql_mode without removing existing ones:
+
+SET sql_mode=(SELECT CONCAT(@@sql_mode,',<mode_to_add>'));
+Removing only a specific mode from sql_mode without removing others:
+
+SET sql_mode=(SELECT REPLACE(@@sql_mode,'<mode_to_remove>',''));
+In your case, if you want to remove only ONLY_FULL_GROUP_BY mode, then use below command:
+
+SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));		
+		]]>
+		</screen>
+	</section>
+	<section>
+		<title>[Warning] Changed limits: max_open_files: 5000 (requested 20480)</title>
+		<screen>
+[root@netkiller ~]# cat /proc/`pidof mysqld`/limits
+Limit                     Soft Limit           Hard Limit           Units     
+Max cpu time              unlimited            unlimited            seconds   
+Max file size             unlimited            unlimited            bytes     
+Max data size             unlimited            unlimited            bytes     
+Max stack size            8388608              unlimited            bytes     
+Max core file size        0                    unlimited            bytes     
+Max resident set          unlimited            unlimited            bytes     
+Max processes             63494                63494                processes 
+Max open files            5000                 5000                 files     
+Max locked memory         65536                65536                bytes     
+Max address space         unlimited            unlimited            bytes     
+Max file locks            unlimited            unlimited            locks     
+Max pending signals       63494                63494                signals   
+Max msgqueue size         819200               819200               bytes     
+Max nice priority         0                    0                    
+Max realtime priority     0                    0                    
+Max realtime timeout      unlimited            unlimited            us        
+		
+		</screen>
+		<screen>
+[root@netkiller ~]# egrep '^(Limit|Max open files)' /proc/`pidof mysqld`/limits
+Limit                     Soft Limit           Hard Limit           Units     
+Max open files            5000                 5000                 files  
+		</screen>
+	</section>
+</chapter>

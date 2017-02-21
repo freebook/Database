@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="percona">
+	<title>Percona</title>
+	<info>
+		<keywordset>
+			<keyword>mk-archiver</keyword>
+			<keyword>mk-checksum-filter</keyword>
+			<keyword>mk-config-diff</keyword>
+		</keywordset>
+	</info>
+	<para>http://www.percona.com/</para>
+	<section>
+		<title>Percona yum Repository</title>
+		<screen>
+# yum install http://www.percona.com/redir/downloads/percona-release/redhat/latest/percona-release-0.1-3.noarch.rpm
+		</screen>
+		<para>查看所有percona软件包</para>
+		<screen>
+yum search percona
+		</screen>
+	</section>	
+	<section id="xtrabackup">
+		<title>Percona XtraBackup</title>
+		<section>
+			<title>安装 XtraBackup</title>
+			<para>通过YUM安装 percona-xtrabackup</para>
+			<screen>
+# yum install percona-xtrabackup
+			</screen>
+			<para>通过RPM安装 CentOS 6</para>
+			<para>http://www.percona.com/downloads/XtraBackup/LATEST/binary/redhat/6/x86_64/</para>
+			<screen>
+# yum install -y http://www.percona.com/redir/downloads/XtraBackup/LATEST/binary/redhat/6/x86_64/percona-xtrabackup-2.2.6-5042.el6.x86_64.rpm
+			</screen>
+			<para>通过RPM安装 CentOS 7</para>
+			<para>http://www.percona.com/downloads/XtraBackup/LATEST/binary/redhat/7/x86_64/</para>
+			<screen>
+# yum install -y http://www.percona.com/redir/downloads/XtraBackup/LATEST/binary/redhat/7/x86_64/percona-xtrabackup-2.2.6-5042.el7.x86_64.rpm
+			</screen>
+			<para>卸载</para>
+			<screen>
+# yum remove percona-xtrabackup
+			</screen>
+			<para>查看文件列表</para>
+			<screen>
+# rpm -ql percona-xtrabackup
+/usr/bin/innobackupex
+/usr/bin/xbcrypt
+/usr/bin/xbstream
+/usr/bin/xtrabackup
+/usr/share/doc/percona-xtrabackup-2.2.6
+/usr/share/doc/percona-xtrabackup-2.2.6/COPYING
+			</screen>
+		</section>
+		<section>
+			<title>innobackupex</title>
+			<para>首先创建备份用户</para>
+			<screen>
+			<![CDATA[
+mysql> CREATE USER 'backup'@'localhost' IDENTIFIED BY 's3cret';
+mysql> GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT ON *.* TO 'backup'@'localhost';
+mysql> FLUSH PRIVILEGES;
+			]]>
+			</screen>
+			<section>
+				<title>备份数据库</title>
+				<para>备份所有数据库</para>
+				<screen>
+# mkdir -p /backup
+# innobackupex --user=backup --password=chen /backup/full
+				</screen>
+				<para>备份指定数据库</para>
+				<screen>
+# innobackupex --user=backup --password=chen --database=test /backup
+				</screen>
+				<para>--defaults-file=/etc/my.cnf 参数</para>
+				<screen>
+# innobackupex --defaults-file=/etc/my.cnf --user=backup --password=chen --database=test /backup
+				</screen>
+				<para>备份后打包</para>
+				<screen>
+# innobackupex --user=backup --password=chen --database=test --stream=tar /backup/  > test.tar
+				</screen>
+				<para>打包并压缩</para>
+				<screen>
+# innobackupex --user=backup --password=chen --database=test --stream=tar /backup/ | gzip > test.tar.gz
+				</screen>
+				<para>备份到远程服务器</para>
+				<screen>
+# innobackupex --user=backup --password=chen --defaults-file=/etc/my.cnf --database=test --stream=tar /backup | gzip | ssh neo@192.168.2.1 cat ">"   /backup/backup-2014-11-12.tar.gz
+				</screen>
+				<para>增量备份</para>
+				<screen>
+# innobackupex --user=backup --password=chen --database=test /backup/incremental
+# ls /backup/incremental
+2014-11-12_13-45-26
+# innobackupex --user=backup --password=chen --database=test --incremental --incremental-basedir=/backup/incremental/2014-11-12_13-45-26/ /backup/incremental
+				</screen>
+			</section>
+			<section>
+				<title>恢复数据库</title>
+				<para>恢复数据首先停止MySQL服务</para>
+				<screen>
+# service mysql stop
+				</screen>
+				<para>恢复文件</para>
+				<screen>
+# innobackupex --copy-back /path/to/BACKUP-DIR
+# innobackupex --user=backup --password=chen --apply-log /backup/full/2014-11-12_13-45-26/
+				</screen>
+				<para>数据恢复完成后修改权限</para>
+				<screen>
+$ chown -R mysql:mysql /var/lib/mysql
+				</screen>
+				<para>增量备份恢复方法</para>
+				<screen>
+innobackupex --apply-log --redo-only BASE-DIR
+innobackupex --apply-log --redo-only BASE-DIR --incremental-dir=INCREMENTAL-DIR-1
+innobackupex --apply-log BASE-DIR --incremental-dir=INCREMENTAL-DIR-2
+innobackupex --apply-log BASE-DIR
+innobackupex --copy-back BASE-DIR
+				</screen>
+			</section>
+		</section>	
+<!-- 	
+		<section>
+			<title>xbcrypt</title>
+			<screen></screen>
+		</section> 
+-->
+		<section>
+			<title>xbstream</title>
+			<screen>
+			<![CDATA[
+$ innobackupex --stream=tar /tmp
+$ innobackupex --stream=xbstream /root/backup/ > /root/backup/backup.xbstream
+$ innobackupex --stream=xbstream --compress /root/backup/ > /root/backup/backup.xbstream
+
+$ xbstream -x <  backup.xbstream -C /root/backup/
+$ innobackupex --compress --stream=xbstream /root/backup/ | ssh user@otherhost "xbstream -x -C /root/backup/"
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>xtrabackup</title>
+			<screen>
+# xtrabackup --user=backup --password=chen --backup --target-dir=/backup/backup
+			</screen>
+		</section>
+	</section>
+	<section id="toolkit">
+		<title>Percona Toolkit - MySQL Management Software</title>
+		<para>YUM安装</para>
+		<screen>
+# yum install -y percona-toolkit
+		</screen>
+		<para>RPM安装</para>
+		<screen>
+# yum install -y http://www.percona.com/redir/downloads/percona-toolkit/LATEST/RPM/percona-toolkit-2.2.11-1.noarch.rpm
+		</screen>
+		<para>percona-toolkit 所含的文件</para>
+		<screen>
+# rpm -ql percona-toolkit
+/usr/bin/pt-align
+/usr/bin/pt-archiver
+/usr/bin/pt-config-diff
+/usr/bin/pt-deadlock-logger
+/usr/bin/pt-diskstats
+/usr/bin/pt-duplicate-key-checker
+/usr/bin/pt-fifo-split
+/usr/bin/pt-find
+/usr/bin/pt-fingerprint
+/usr/bin/pt-fk-error-logger
+/usr/bin/pt-heartbeat
+/usr/bin/pt-index-usage
+/usr/bin/pt-ioprofile
+/usr/bin/pt-kill
+/usr/bin/pt-mext
+/usr/bin/pt-mysql-summary
+/usr/bin/pt-online-schema-change
+/usr/bin/pt-pmp
+/usr/bin/pt-query-digest
+/usr/bin/pt-show-grants
+/usr/bin/pt-sift
+/usr/bin/pt-slave-delay
+/usr/bin/pt-slave-find
+/usr/bin/pt-slave-restart
+/usr/bin/pt-stalk
+/usr/bin/pt-summary
+/usr/bin/pt-table-checksum
+/usr/bin/pt-table-sync
+/usr/bin/pt-table-usage
+/usr/bin/pt-upgrade
+/usr/bin/pt-variable-advisor
+/usr/bin/pt-visual-explain
+/usr/share/doc/percona-toolkit-2.2.11
+/usr/share/doc/percona-toolkit-2.2.11/COPYING
+/usr/share/doc/percona-toolkit-2.2.11/Changelog
+/usr/share/doc/percona-toolkit-2.2.11/INSTALL
+/usr/share/doc/percona-toolkit-2.2.11/README
+/usr/share/man/man1/percona-toolkit.1p.gz
+/usr/share/man/man1/pt-align.1p.gz
+/usr/share/man/man1/pt-archiver.1p.gz
+/usr/share/man/man1/pt-config-diff.1p.gz
+/usr/share/man/man1/pt-deadlock-logger.1p.gz
+/usr/share/man/man1/pt-diskstats.1p.gz
+/usr/share/man/man1/pt-duplicate-key-checker.1p.gz
+/usr/share/man/man1/pt-fifo-split.1p.gz
+/usr/share/man/man1/pt-find.1p.gz
+/usr/share/man/man1/pt-fingerprint.1p.gz
+/usr/share/man/man1/pt-fk-error-logger.1p.gz
+/usr/share/man/man1/pt-heartbeat.1p.gz
+/usr/share/man/man1/pt-index-usage.1p.gz
+/usr/share/man/man1/pt-ioprofile.1p.gz
+/usr/share/man/man1/pt-kill.1p.gz
+/usr/share/man/man1/pt-mext.1p.gz
+/usr/share/man/man1/pt-mysql-summary.1p.gz
+/usr/share/man/man1/pt-online-schema-change.1p.gz
+/usr/share/man/man1/pt-pmp.1p.gz
+/usr/share/man/man1/pt-query-digest.1p.gz
+/usr/share/man/man1/pt-show-grants.1p.gz
+/usr/share/man/man1/pt-sift.1p.gz
+/usr/share/man/man1/pt-slave-delay.1p.gz
+/usr/share/man/man1/pt-slave-find.1p.gz
+/usr/share/man/man1/pt-slave-restart.1p.gz
+/usr/share/man/man1/pt-stalk.1p.gz
+/usr/share/man/man1/pt-summary.1p.gz
+/usr/share/man/man1/pt-table-checksum.1p.gz
+/usr/share/man/man1/pt-table-sync.1p.gz
+/usr/share/man/man1/pt-table-usage.1p.gz
+/usr/share/man/man1/pt-upgrade.1p.gz
+/usr/share/man/man1/pt-variable-advisor.1p.gz
+/usr/share/man/man1/pt-visual-explain.1p.gz		
+		</screen>
+	</section>
+</section>

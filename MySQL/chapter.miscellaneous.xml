@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="index"><?dbhtml dir="miscellaneous"?>
+	<title>Miscellaneous</title>
+<section id="mmm">
+	<title>Multi-Master Replication Manager for MySQL</title>
+	<para></para>
+</section>
+<section id="mha">
+	<title>MHA</title>
+	<para><ulink url="https://code.google.com/p/mysql-master-ha/" /></para>
+</section>
+	&chapter.handlersocket.xml;
+	&chapter.maatkit.xml;
+	<section id="Mroonga">
+		<title>Mroonga</title>
+		<subtitle>Mroonga 是一个 MySQL 存储引擎，基于 Groonga，提供完整的全文搜索引擎。Groonga 是一款可嵌入式的全文搜寻引擎,具有储存功能和全文搜寻的检索功能。</subtitle>
+		<para>http://mroonga.org/</para>
+		<para>http://groonga.org/</para>
+	</section>
+	<section id="amoeba">
+		<title>Amoeba</title>
+		<para>http://sourceforge.net/projects/amoeba/</para>
+		<para>Amoeba(变形虫)项目,该开源框架于2008年 开始发布一款 Amoeba for Mysql软件。这个软件致力于MySQL的分布式数据库前端代理层，它主要在应用层访问MySQL的 时候充当SQL路由功能，专注于分布式数据库代理层（Database Proxy）开发。座落与 Client、DB Server(s)之间,对客户端透明。具有负载均衡、高可用性、SQL 过滤、读写分离、可路由相关的到目标数据库、可并发请求多台数据库合并结果。 通过Amoeba你能够完成多数据源的高可用、负载均衡、数据切片的功能，目前Amoeba已在很多 企业的生产线上面使用。</para>
+	</section>
+</chapter>

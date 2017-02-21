@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="leofs">
+	<title>LeoFS</title>
+	<para>LeoFS is an Unstructured Object Storage for the Web and a highly available, distributed, eventually consistent storage system.</para>
+</chapter>

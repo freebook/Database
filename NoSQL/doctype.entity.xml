@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!ENTITY part.nosql.xml					SYSTEM "part.nosql.xml">
+<!ENTITY chapter.nosql.xml				SYSTEM "chapter.nosql.xml">
+<!ENTITY chapter.cassandra.xml			SYSTEM "chapter.cassandra.xml">
+<!ENTITY chapter.couchbase.xml			SYSTEM "chapter.couchbase.xml">
+<!ENTITY chapter.redis.xml				SYSTEM "chapter.redis.xml">
+<!ENTITY chapter.hypertable.xml			SYSTEM "chapter.hypertable.xml">
+<!ENTITY chapter.memcached.xml			SYSTEM "chapter.memcached.xml">
+<!ENTITY chapter.leofs.xml				SYSTEM "chapter.leofs.xml">

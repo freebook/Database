@@ -1,0 +1,723 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: chapter.mysql.utility.xml 530 2013-03-10 07:21:55Z netkiller $ -->
+<chapter id="index"><?dbhtml dir="client"?>
+	<title>Client and Utility Programs</title>
+	<info>
+		<keywordset>
+		    <keyword>mysql</keyword>
+		    <keyword>mysqldump</keyword>
+		    <keyword>mysqladmin</keyword>
+		    <keyword>mysqlcheck</keyword>
+		    <keyword>mysqldumpslow</keyword>
+		    <keyword></keyword>
+		    <keyword></keyword>
+		    <keyword></keyword>
+		    <keyword></keyword>
+		</keywordset>
+	</info>
+	<section id="mysql">
+		<title>mysql - the MySQL command-line tool</title>
+		<section>
+			<title>~/.my.cnf</title>
+			<screen>
+# mysql_secure_installation config file
+[mysql]
+
+[mysqld]
+
+[client]
+user=root
+password='chen'
+
+[mysqldump]
+quick
+
+[mysqladmin]
+
+[mysqlhotcopy]
+			</screen>
+		</section>
+		<section id="mysql.tee">
+			<title>屏幕输出到文件</title>
+			<screen>
+			<![CDATA[
+mysql>tee /home/neo/screen.txt
+mysql>select * from member;
+mysql>exit
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>终端编码</title>
+			<screen>
+mysql> show variables like 'char%';
++--------------------------+----------------------------+
+| Variable_name            | Value                      |
++--------------------------+----------------------------+
+| character_set_client     | utf8                       |
+| character_set_connection | utf8                       |
+| character_set_database   | utf8                       |
+| character_set_filesystem | binary                     |
+| character_set_results    | utf8                       |
+| character_set_server     | utf8                       |
+| character_set_system     | utf8                       |
+| character_sets_dir       | /usr/share/mysql/charsets/ |
++--------------------------+----------------------------+
+8 rows in set (0.00 sec)
+			</screen>
+			<para>设置终端编码 set names utf8;</para>
+			<screen>
+mysql> select * from category;
++----+------+-------------+--------+-----------+-----------+
+| id | name | description | status | parent_id | path      |
++----+------+-------------+--------+-----------+-----------+
+|  1 | ??   | ???????     | Y      |      NULL | 1/        |
+|  4 | ???  | ???         | Y      |         1 | 1/4       |
+|  5 | ???  | NULL        | Y      |         4 | 1/4/5     |
+|  6 | ???  | NULL        | Y      |         5 | 1/4/5/6   |
+|  7 | ???  | NULL        | Y      |         6 | 1/4/5/6/7 |
++----+------+-------------+--------+-----------+-----------+
+5 rows in set (0.00 sec)
+
+mysql> set names utf8;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from category;
++----+-----------+-----------------------+--------+-----------+-----------+
+| id | name      | description           | status | parent_id | path      |
++----+-----------+-----------------------+--------+-----------+-----------+
+|  1 | 中国    | 中华人民共和家                                    | Y      |      NULL | 1/        |
+|  4 | 广东省 | 广东省                                                      | Y      |         1 | 1/4       |
+|  5 | 深圳市 | NULL                      | Y      |         4 | 1/4/5     |
+|  6 | 宝安区 | NULL                      | Y      |         5 | 1/4/5/6   |
+|  7 | 龙华镇 | NULL                      | Y      |         6 | 1/4/5/6/7 |
++----+-----------+-----------------------+--------+-----------+-----------+
+5 rows in set (0.00 sec)
+
+			</screen>
+		</section>
+		<section>
+			<title>Unix Socket</title>
+			<screen>
+mysql -uroot -p -S /tmp/mysql.sock
+			</screen>
+		</section>
+		<section>
+			<title>重定向巧用</title>
+			<screen>
+			<![CDATA[
+echo "show databases;" | mysql -uroot -pneo
+
+cat |mysql -uroot -pneo << EOF
+show databases;
+EOF
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>--sigint-ignore 忽略 Ctrl + C</title>
+			<para>使用该选项方式用户中途通过 Ctrl + C 推出,只能通过 quit 退出</para>
+			<screen>
+$ mysql --sigint-ignore
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 71
+Server version: 5.5.32-0ubuntu0.13.04.1 (Ubuntu)
+
+Copyright (c) 2000, 2013, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> quit
+Bye
+			</screen>
+		</section>
+	</section>
+	<section id="mysqldump">
+		<title>mysqldump - a database backup program</title>
+		<screen>
+		<![CDATA[
+mysqldump -uroot -p dbname | gzip > dbname.backup
+		]]>
+		</screen>
+		<section>
+			<title>备份数据库，无结构，只有数据</title>
+			<para>-t, --no-create-info Don't write table creation info.			</para>
+			<screen>
+mysqldump -uroot -p -t -d database
+			</screen>
+		</section>
+		<section>
+			<title>备份数据库结构（不备份数据）</title>
+			<screen>
+mysqldump -uroot -p -d database
+mysqldump -uroot -p -d database table
+			</screen>
+		</section>
+		<section>
+			<title>使用完整的insert插入数据</title>
+			<para>-c, --complete-insert Use complete insert statements.</para>
+			<screen>
+$ mysqldump -hlocalhost -uroot -t neo test
+
+INSERT INTO `test` VALUES (98,'neo','chen'),(112,'jam','zheng'),(113,'john','meng');
+
+$ mysqldump -hlocalhost -uroot -c -t neo test
+INSERT INTO `test` (`userid`, `username`, `password`) VALUES (98,'neo','chen'),(112,'jam','zheng'),(113,'john','meng');
+			</screen>
+		</section>
+		<section>
+			<title>--extended-insert / --skip-extended-insert</title>
+			<para>--extended-insert 默认开启</para>
+			<screen>
+INSERT INTO `test` VALUES (98,'neo','chen'),(112,'jam','zheng'),(113,'john','meng');
+			</screen>
+			<para>每条记录使用一次insert</para>
+			<screen>
+$ mysqldump -hlocalhost -uroot --skip-extended-insert -t neo test |more
+INSERT INTO `test` VALUES (98,'neo','chen');
+INSERT INTO `test` VALUES (111,'neo','chen');
+INSERT INTO `test` VALUES (112,'jam','zheng');
+INSERT INTO `test` VALUES (113,'john','meng');
+			</screen>
+		</section>
+		<section>
+			<title>--skip-lock-tables</title>
+			<para>mysqldump 时禁止锁表</para>
+			<para>使用 --skip-lock-tables 参数，不会影响正在备份的表SELECT操作。</para>
+		</section>
+		<section>
+			<title>--skip-add-locks</title>
+			<para>该参数mysqldump输出中包含下面 </para>
+			<para>默认情况</para>
+			<screen>
+LOCK TABLES `tbl_name` WRITE;
+			</screen>
+			<para>如果使用这个参数就不会输出 LOCK TABLE</para>
+		</section>
+		<section>
+			<title>--where</title>
+			<screen>
+mysqldump -hlocalhost -umysql -ppasswd database table --where="id>128"
+			</screen>
+		</section>
+		<section>
+			<title>注释信息--comments /--skip-comments</title>
+			<para>--comments附加注释信息，默认为打开。可以用--skip-comments取消</para>
+			<screen>
+--
+-- Table structure for table `demo`
+--
+
+DROP TABLE IF EXISTS `demo`;	
+
+...
+...
+
+-- Dump completed on 2014-02-13 13:31:05		
+			</screen>
+			<para>使用 --skip-comments后</para>
+			<screen>
+DROP TABLE IF EXISTS `demo`;	
+...
+...			
+			</screen>
+		</section>
+	</section>
+	<section id="mysqladmin">
+		<title>mysqladmin - client for administering a MySQL server</title>
+		<section>
+			<title>reload</title>
+			<screen>
+mysqladmin --user=root --password reload
+			</screen>
+		</section>
+		<section>
+			<title>更改密码</title>
+			<screen>
+sudo mysqladmin -u root -p password '你的新密码'
+			</screen>
+		</section>
+		<section>
+			<title>status</title>
+			<para>每个10秒输出一次mysql的状态信息</para>
+			<screen>
+mysqladmin -i 10 extended status
+			</screen>
+			<screen>
+mysqladmin -h 172.16.0.1 -u monitor -ppasswd status
+Uptime: 195824  Threads: 21  Questions: 57744081  Slow queries: 516230  Opens: 13202607  Flush tables: 1  Open tables: 160  Queries per second avg: 294.877
+			</screen>
+			<screen>
+ mysqladmin -h 172.16.0.1 -u monitor -ppasswd  extended-status
++-----------------------------------+-------------+
+| Variable_name                     | Value       |
++-----------------------------------+-------------+
+| Aborted_clients                   | 60336       |
+| Aborted_connects                  | 4599        |
+| Binlog_cache_disk_use             | 36          |
+| Binlog_cache_use                  | 100721      |
+| Bytes_received                    | 17510873261 |
+| Bytes_sent                        | 92890743568 |
+| Com_admin_commands                | 10026660    |
+| Com_assign_to_keycache            | 0           |
+| Com_alter_db                      | 0           |
+| Com_alter_db_upgrade              | 0           |
+| Com_alter_event                   | 0           |
+| Com_alter_function                | 0           |
+| Com_alter_procedure               | 0           |
+| Com_alter_server                  | 0           |
+| Com_alter_table                   | 418         |
+| Com_alter_tablespace              | 0           |
+| Com_analyze                       | 0           |
+| Com_backup_table                  | 0           |
+| Com_begin                         | 0           |
+| Com_binlog                        | 0           |
+| Com_call_procedure                | 0           |
+| Com_change_db                     | 4440400     |
+| Com_change_master                 | 1           |
+| Com_check                         | 0           |
+| Com_checksum                      | 0           |
+| Com_commit                        | 30089       |
+| Com_create_db                     | 1           |
+| Com_create_event                  | 0           |
+| Com_create_function               | 0           |
+| Com_create_index                  | 1           |
+| Com_create_procedure              | 0           |
+| Com_create_server                 | 0           |
+| Com_create_table                  | 211         |
+| Com_create_trigger                | 4           |
+| Com_create_udf                    | 0           |
+| Com_create_user                   | 0           |
+| Com_create_view                   | 2           |
+| Com_dealloc_sql                   | 0           |
+| Com_delete                        | 36664       |
+| Com_delete_multi                  | 0           |
+| Com_do                            | 0           |
+| Com_drop_db                       | 0           |
+| Com_drop_event                    | 0           |
+| Com_drop_function                 | 0           |
+| Com_drop_index                    | 0           |
+| Com_drop_procedure                | 0           |
+| Com_drop_server                   | 0           |
+| Com_drop_table                    | 213         |
+| Com_drop_trigger                  | 0           |
+| Com_drop_user                     | 0           |
+| Com_drop_view                     | 4           |
+| Com_empty_query                   | 0           |
+| Com_execute_sql                   | 0           |
+| Com_flush                         | 9           |
+| Com_grant                         | 6           |
+| Com_ha_close                      | 0           |
+| Com_ha_open                       | 0           |
+| Com_ha_read                       | 0           |
+| Com_help                          | 0           |
+| Com_insert                        | 472260      |
+| Com_insert_select                 | 0           |
+| Com_install_plugin                | 0           |
+| Com_kill                          | 12          |
+| Com_load                          | 0           |
+| Com_load_master_data              | 0           |
+| Com_load_master_table             | 0           |
+| Com_lock_tables                   | 209         |
+| Com_optimize                      | 0           |
+| Com_preload_keys                  | 0           |
+| Com_prepare_sql                   | 0           |
+| Com_purge                         | 0           |
+| Com_purge_before_date             | 0           |
+| Com_release_savepoint             | 0           |
+| Com_rename_table                  | 0           |
+| Com_rename_user                   | 0           |
+| Com_repair                        | 0           |
+| Com_replace                       | 4612        |
+| Com_replace_select                | 0           |
+| Com_reset                         | 0           |
+| Com_restore_table                 | 0           |
+| Com_revoke                        | 0           |
+| Com_revoke_all                    | 0           |
+| Com_rollback                      | 0           |
+| Com_rollback_to_savepoint         | 0           |
+| Com_savepoint                     | 0           |
+| Com_select                        | 20310686    |
+| Com_set_option                    | 9089818     |
+| Com_show_authors                  | 0           |
+| Com_show_binlog_events            | 0           |
+| Com_show_binlogs                  | 0           |
+| Com_show_charsets                 | 24          |
+| Com_show_collations               | 18214       |
+| Com_show_column_types             | 0           |
+| Com_show_contributors             | 0           |
+| Com_show_create_db                | 0           |
+| Com_show_create_event             | 0           |
+| Com_show_create_func              | 0           |
+| Com_show_create_proc              | 0           |
+| Com_show_create_table             | 0           |
+| Com_show_create_trigger           | 0           |
+| Com_show_databases                | 24          |
+| Com_show_engine_logs              | 0           |
+| Com_show_engine_mutex             | 0           |
+| Com_show_engine_status            | 0           |
+| Com_show_events                   | 0           |
+| Com_show_errors                   | 0           |
+| Com_show_fields                   | 147160      |
+| Com_show_function_status          | 3           |
+| Com_show_grants                   | 0           |
+| Com_show_keys                     | 2           |
+| Com_show_master_status            | 1           |
+| Com_show_new_master               | 0           |
+| Com_show_open_tables              | 0           |
+| Com_show_plugins                  | 0           |
+| Com_show_privileges               | 0           |
+| Com_show_procedure_status         | 3           |
+| Com_show_processlist              | 12483       |
+| Com_show_profile                  | 0           |
+| Com_show_profiles                 | 0           |
+| Com_show_slave_hosts              | 0           |
+| Com_show_slave_status             | 0           |
+| Com_show_status                   | 1158        |
+| Com_show_storage_engines          | 0           |
+| Com_show_table_status             | 2           |
+| Com_show_tables                   | 29915       |
+| Com_show_triggers                 | 0           |
+| Com_show_variables                | 26295       |
+| Com_show_warnings                 | 0           |
+| Com_slave_start                   | 0           |
+| Com_slave_stop                    | 0           |
+| Com_stmt_close                    | 0           |
+| Com_stmt_execute                  | 0           |
+| Com_stmt_fetch                    | 0           |
+| Com_stmt_prepare                  | 0           |
+| Com_stmt_reprepare                | 0           |
+| Com_stmt_reset                    | 0           |
+| Com_stmt_send_long_data           | 0           |
+| Com_truncate                      | 0           |
+| Com_uninstall_plugin              | 0           |
+| Com_unlock_tables                 | 209         |
+| Com_update                        | 501411      |
+| Com_update_multi                  | 23112       |
+| Com_xa_commit                     | 0           |
+| Com_xa_end                        | 0           |
+| Com_xa_prepare                    | 0           |
+| Com_xa_recover                    | 0           |
+| Com_xa_rollback                   | 0           |
+| Com_xa_start                      | 0           |
+| Compression                       | OFF         |
+| Connections                       | 4555052     |
+| Created_tmp_disk_tables           | 421231      |
+| Created_tmp_files                 | 1172        |
+| Created_tmp_tables                | 2769149     |
+| Delayed_errors                    | 0           |
+| Delayed_insert_threads            | 0           |
+| Delayed_writes                    | 0           |
+| Flush_commands                    | 1           |
+| Handler_commit                    | 100721      |
+| Handler_delete                    | 133583      |
+| Handler_discover                  | 0           |
+| Handler_prepare                   | 0           |
+| Handler_read_first                | 404032      |
+| Handler_read_key                  | 18292439681 |
+| Handler_read_next                 | 33393351305 |
+| Handler_read_prev                 | 77792315    |
+| Handler_read_rnd                  | 2969739139  |
+| Handler_read_rnd_next             | 41965058450 |
+| Handler_rollback                  | 0           |
+| Handler_savepoint                 | 0           |
+| Handler_savepoint_rollback        | 0           |
+| Handler_update                    | 4595750766  |
+| Handler_write                     | 6069006380  |
+| Innodb_buffer_pool_pages_data     | 19          |
+| Innodb_buffer_pool_pages_dirty    | 0           |
+| Innodb_buffer_pool_pages_flushed  | 0           |
+| Innodb_buffer_pool_pages_free     | 493         |
+| Innodb_buffer_pool_pages_misc     | 0           |
+| Innodb_buffer_pool_pages_total    | 512         |
+| Innodb_buffer_pool_read_ahead_rnd | 1           |
+| Innodb_buffer_pool_read_ahead_seq | 0           |
+| Innodb_buffer_pool_read_requests  | 77          |
+| Innodb_buffer_pool_reads          | 12          |
+| Innodb_buffer_pool_wait_free      | 0           |
+| Innodb_buffer_pool_write_requests | 0           |
+| Innodb_data_fsyncs                | 3           |
+| Innodb_data_pending_fsyncs        | 0           |
+| Innodb_data_pending_reads         | 0           |
+| Innodb_data_pending_writes        | 0           |
+| Innodb_data_read                  | 2494464     |
+| Innodb_data_reads                 | 25          |
+| Innodb_data_writes                | 3           |
+| Innodb_data_written               | 1536        |
+| Innodb_dblwr_pages_written        | 0           |
+| Innodb_dblwr_writes               | 0           |
+| Innodb_log_waits                  | 0           |
+| Innodb_log_write_requests         | 0           |
+| Innodb_log_writes                 | 1           |
+| Innodb_os_log_fsyncs              | 3           |
+| Innodb_os_log_pending_fsyncs      | 0           |
+| Innodb_os_log_pending_writes      | 0           |
+| Innodb_os_log_written             | 512         |
+| Innodb_page_size                  | 16384       |
+| Innodb_pages_created              | 0           |
+| Innodb_pages_read                 | 19          |
+| Innodb_pages_written              | 0           |
+| Innodb_row_lock_current_waits     | 0           |
+| Innodb_row_lock_time              | 0           |
+| Innodb_row_lock_time_avg          | 0           |
+| Innodb_row_lock_time_max          | 0           |
+| Innodb_row_lock_waits             | 0           |
+| Innodb_rows_deleted               | 0           |
+| Innodb_rows_inserted              | 0           |
+| Innodb_rows_read                  | 0           |
+| Innodb_rows_updated               | 0           |
+| Key_blocks_not_flushed            | 0           |
+| Key_blocks_unused                 | 6917        |
+| Key_blocks_used                   | 53585       |
+| Key_read_requests                 | 35870213140 |
+| Key_reads                         | 13788784    |
+| Key_write_requests                | 35265303    |
+| Key_writes                        | 2467239     |
+| Last_query_cost                   | 0.000000    |
+| Max_used_connections              | 3001        |
+| Not_flushed_delayed_rows          | 0           |
+| Open_files                        | 238         |
+| Open_streams                      | 0           |
+| Open_table_definitions            | 228         |
+| Open_tables                       | 160         |
+| Opened_files                      | 20864567    |
+| Opened_table_definitions          | 653         |
+| Opened_tables                     | 13202613    |
+| Prepared_stmt_count               | 0           |
+| Qcache_free_blocks                | 10480       |
+| Qcache_free_memory                | 38697120    |
+| Qcache_hits                       | 17943956    |
+| Qcache_inserts                    | 8251298     |
+| Qcache_lowmem_prunes              | 560647      |
+| Qcache_not_cached                 | 11879434    |
+| Qcache_queries_in_cache           | 54611       |
+| Qcache_total_blocks               | 125193      |
+| Queries                           | 57755205    |
+| Questions                         | 57582352    |
+| Rpl_status                        | NULL        |
+| Select_full_join                  | 602236      |
+| Select_full_range_join            | 6851        |
+| Select_range                      | 1633467     |
+| Select_range_check                | 0           |
+| Select_scan                       | 10981650    |
+| Slave_open_temp_tables            | 0           |
+| Slave_retried_transactions        | 0           |
+| Slave_running                     | OFF         |
+| Slow_launch_threads               | 206         |
+| Slow_queries                      | 516237      |
+| Sort_merge_passes                 | 548         |
+| Sort_range                        | 293328      |
+| Sort_rows                         | 2831414035  |
+| Sort_scan                         | 2726547     |
+| Ssl_accept_renegotiates           | 0           |
+| Ssl_accepts                       | 0           |
+| Ssl_callback_cache_hits           | 0           |
+| Ssl_cipher                        |             |
+| Ssl_cipher_list                   |             |
+| Ssl_client_connects               | 0           |
+| Ssl_connect_renegotiates          | 0           |
+| Ssl_ctx_verify_depth              | 0           |
+| Ssl_ctx_verify_mode               | 0           |
+| Ssl_default_timeout               | 0           |
+| Ssl_finished_accepts              | 0           |
+| Ssl_finished_connects             | 0           |
+| Ssl_session_cache_hits            | 0           |
+| Ssl_session_cache_misses          | 0           |
+| Ssl_session_cache_mode            | NONE        |
+| Ssl_session_cache_overflows       | 0           |
+| Ssl_session_cache_size            | 0           |
+| Ssl_session_cache_timeouts        | 0           |
+| Ssl_sessions_reused               | 0           |
+| Ssl_used_session_cache_entries    | 0           |
+| Ssl_verify_depth                  | 0           |
+| Ssl_verify_mode                   | 0           |
+| Ssl_version                       |             |
+| Table_locks_immediate             | 46406490    |
+| Table_locks_waited                | 1428430     |
+| Tc_log_max_pages_used             | 0           |
+| Tc_log_page_size                  | 0           |
+| Tc_log_page_waits                 | 0           |
+| Threads_cached                    | 33          |
+| Threads_connected                 | 33          |
+| Threads_created                   | 77809       |
+| Threads_running                   | 7           |
+| Uptime                            | 195854      |
+| Uptime_since_flush_status         | 195854      |
++-----------------------------------+-------------+
+
+		</screen>
+		</section>
+		<section>
+			<title>process list</title>
+			<screen>
+[root@development ~]# mysqladmin -u root -p -h 127.0.0.1 processlist
+Enter password:
++-------+--------+----------------------+--------+---------+------+-------+------------------+
+| Id    | User   | Host                 | db     | Command | Time | State | Info             |
++-------+--------+----------------------+--------+---------+------+-------+------------------+
+| 23648 | dbuser | 192.168.3.237:1220   | testdb | Sleep   | 2733 |       |                  |
+| 23878 | dbuser | www.testdb.com:53639 | testdb | Sleep   | 7    |       |                  |
+| 23881 | root   | localhost:57243      |        | Query   | 0    |       | show processlist |
++-------+--------+----------------------+--------+---------+------+-------+------------------+
+			</screen>
+			<screen>
+mysql -u root -pneo -S /tmp/mysql.sock -e "show full processlist;"|grep -v Sleep
+			</screen>
+		</section>
+	</section>
+	<section id="myisamchk">
+		<title>myisamchk — MyISAM Table-Maintenance Utility</title>
+		<para>先停止mysqld，在--datadir目录运行</para>
+		<screen>
+		<![CDATA[
+myisamchk */*.MYI >/dev/null ＃检查哪些表需要修复
+		]]>
+		</screen>
+		<para>修复用以下命令一个个修复：</para>
+		<screen>
+myisamchk -r table.MYI
+		</screen>
+		<para>更省事的做法：</para>
+		<screen>
+myisamchk -r /var/lib/mysql/*.MYI
+		</screen>
+		<para>myisamchk可用crontab定時最佳化table</para>
+		<screen>
+0 * * 0 /usr/bin/myisamchk -s /var/lib/mysql/*/*.MYI
+		</screen>
+	</section>
+	<section id="mysqlcheck">
+		<title>mysqlcheck — A Table Maintenance and Repair Program</title>
+		<para>即可最佳化所有db </para>
+		<screen>
+mysqlcheck -a -c -o -r --all-databases　-uroot -p
+-a = Analyse given tables.
+-c = Check table for errors
+-o = Optimise table
+-r = Can fix almost anything except unique keys that aren't unique
+		</screen>
+		<screen>
+mysqlcheck -A -o -r -p
+		</screen>
+	</section>
+
+	<section id="mysqlslap">
+		<title>mysqlslap - load emulation client</title>
+		<screen>
+–auto-generate-sql, -a
+自动生成测试表和数据
+
+–auto-generate-sql-load-type=type
+测试语句的类型。取值包括：read，key，write，update和mixed(默认)。
+
+–number-char-cols=N, -x N
+自动生成的测试表中包含多少个字符类型的列，默认1
+
+–number-int-cols=N, -y N
+自动生成的测试表中包含多少个数字类型的列，默认1
+
+–number-of-queries=N
+总的测试查询次数(并发客户数×每客户查询次数)
+
+–query=name,-q
+使用自定义脚本执行测试，例如可以调用自定义的一个存储过程或者sql语句来执行测试。
+
+–create-schema
+测试的schema，MySQL中schema也就是database
+
+–commint=N
+多少条DML后提交一次
+
+–compress, -C
+如果服务器和客户端支持都压缩，则压缩信息传递
+
+–concurrency=N, -c N
+并发量，也就是模拟多少个客户端同时执行select。可指定多个值，以逗号或者–delimiter参数指定的值做为分隔符
+
+–engine=engine_name, -e engine_name
+创建测试表所使用的存储引擎，可指定多个
+
+–iterations=N, -i N
+测试执行的迭代次数
+
+–detach=N
+执行N条语句后断开重连
+
+–debug-info, -T
+打印内存和CPU的信息
+
+–only-print
+只打印测试语句而不实际执行
+		</screen>
+		<screen>
+mysqlslap -u root -p -h localhost -c 10,50,100,200 -i 1 \
+--engine=myisam --auto-generate-sql-load-type=mixed --number-of-queries=50000 \
+--number-char-cols=5 --number-int-cols=5 --auto-generate-sql
+		</screen>
+		<screen>
+mysqlslap --defaults-file=/etc/my.cnf --concurrency=50,100,200 --iterations=1 \
+--number-int-cols=4 --number-char-cols=4 --auto-generate-sql --auto-generate-sql-add-autoincrement \
+--auto-generate-sql-load-type=mixed --engine=myisam,innodb --number-of-queries=200 --debug-info \
+-uroot -p -S/tmp/mysql.sock
+		</screen>
+	</section>
+	<section id="mysqldumpslow">
+		<title>mysqldumpslow - Parse and summarize the MySQL slow query log.</title>
+		<para>开启记录日志，修改my.cnf加入下面几行</para>
+		<para>--log-slow-queries[=file_name]</para>
+		<programlisting>
+		<![CDATA[
+long_query_time = 10
+log-slow-queries =
+		]]>
+		</programlisting>
+		<para>long_query_time 是指执行超过10秒的sql会被记录下来。</para>
+		<para>log-slow-queries设置把日志文件的位置，如果没有给出文件名值， 默认未主机名，后缀为-slow.log。如果给出了文件名，但不是绝对路径名，文件则写入数据目录。</para>
+		<para>cat /etc/mysql/my.cnf</para>
+		<screen>
+[mysqld]
+set-variable=long_query_time=1
+log-slow-queries=/var/log/mysql/log-slow-queries.log
+
+
+You must create the file manually and change owners this way:
+
+touch /var/log/mysql/log-slow-queries.log
+chown mysql.mysql -R /var/log/mysql/log-slow-queries.log
+		</screen>
+		<screen>
+$ mysqldumpslow /var/log/mysql/log-slow-queries.log
+		</screen>
+		<orderedlist>
+			<title>mysqldumpslow 参数</title>
+			<listitem>
+				<para>-s，是order的顺序，说明写的不够详细，俺用下来，包括看了代码，主要有c,t,l,r和ac,at,al,ar，t=time, l=lock time, r=rows分别是按照query次数，时间，lock的时间和返回的记录数来排序，前面加了a的时倒叙</para>
+			</listitem>
+			<listitem>
+				<para>-t，是top n的意思，即为返回前面多少条的数据</para>
+			</listitem>
+			<listitem>
+				<para>-g，后边可以写一个正则匹配模式，大小写不敏感的</para>
+			</listitem>
+			<listitem>
+				<para>-g，后边可以写一个正则匹配模式，大小写不敏感的</para>
+			</listitem>
+		</orderedlist>
+		<programlisting>
+		<![CDATA[
+mysqldumpslow -s c -t 20 ubuntu-slow.log
+		]]>
+		</programlisting>
+		<para> </para>
+		<programlisting>
+		<![CDATA[
+mysqldumpslow -s r -t 20 ubuntu-slow.log
+		]]>
+		</programlisting>
+	</section>
+	&chapter.mysql.log.xml;
+</chapter>

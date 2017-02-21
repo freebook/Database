@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="cli">
+	<title>命令工具</title>
+	&chapter.mongo.shell.xml;
+	<section id="mongodump">
+		<title>mongodump - Backup</title>
+		<screen>
+# mongodump -uneo -p -d test -o /tmp/
+connected to: 127.0.0.1
+Enter password:
+Tue Sep  8 10:12:33.011 DATABASE: test	 to 	/tmp/test
+Tue Sep  8 10:12:33.012 	test.system.indexes to /tmp/test/system.indexes.bson
+Tue Sep  8 10:12:33.043 		 12 objects
+Tue Sep  8 10:12:33.043 	test.bios to /tmp/test/bios.bson
+Tue Sep  8 10:12:33.043 		 1 objects
+Tue Sep  8 10:12:33.043 	Metadata for test.bios to /tmp/test/bios.metadata.json
+Tue Sep  8 10:12:33.043 	test.system.users to /tmp/test/system.users.bson
+Tue Sep  8 10:12:33.044 		 2 objects
+Tue Sep  8 10:12:33.044 	Metadata for test.system.users to /tmp/test/system.users.metadata.json
+Tue Sep  8 10:12:33.044 	test.fs.chunks to /tmp/test/fs.chunks.bson
+Tue Sep  8 10:12:33.045 		 2 objects
+Tue Sep  8 10:12:33.045 	Metadata for test.fs.chunks to /tmp/test/fs.chunks.metadata.json
+Tue Sep  8 10:12:33.045 	test.fs.files to /tmp/test/fs.files.bson
+Tue Sep  8 10:12:33.046 		 2 objects
+Tue Sep  8 10:12:33.046 	Metadata for test.fs.files to /tmp/test/fs.files.metadata.json
+Tue Sep  8 10:12:33.046 	test.images.chunks to /tmp/test/images.chunks.bson
+Tue Sep  8 10:12:33.167 		 12 objects
+Tue Sep  8 10:12:33.167 	Metadata for test.images.chunks to /tmp/test/images.chunks.metadata.json
+Tue Sep  8 10:12:33.167 	test.images.files to /tmp/test/images.files.bson
+Tue Sep  8 10:12:33.168 		 3 objects
+Tue Sep  8 10:12:33.168 	Metadata for test.images.files to /tmp/test/images.files.metadata.json
+Tue Sep  8 10:12:33.168 	test.img.chunks to /tmp/test/img.chunks.bson
+Tue Sep  8 10:12:33.175 		 4 objects
+Tue Sep  8 10:12:33.175 	Metadata for test.img.chunks to /tmp/test/img.chunks.metadata.json
+Tue Sep  8 10:12:33.175 	test.img.files to /tmp/test/img.files.bson
+Tue Sep  8 10:12:33.176 		 1 objects
+Tue Sep  8 10:12:33.176 	Metadata for test.img.files to /tmp/test/img.files.metadata.json
+		</screen>
+	</section>
+	<section id="mongorestore">
+		<title>mongorestore</title>
+		<para>直接从dump回复备份</para>
+		<screen>
+[root@netkiller www]# ls
+backup  dump
+
+[root@netkiller www]# mongorestore dump/		
+		</screen>
+		<screen>
+# mongorestore -h 127.0.0.1 -u neo -p chen /tmp/test/
+connected to: 127.0.0.1
+Tue Sep  8 10:18:31.360 /tmp/test/system.users.bson
+Tue Sep  8 10:18:31.360 	going into namespace [test.system.users]
+Tue Sep  8 10:18:31.361 warning: Restoring to test.system.users without dropping. Restored data will be inserted without raising errors; check your server log
+2 objects found
+Tue Sep  8 10:18:31.361 	Creating index: { key: { _id: 1 }, ns: "test.system.users", name: "_id_" }
+Tue Sep  8 10:18:31.406 	Creating index: { key: { user: 1, userSource: 1 }, unique: true, ns: "test.system.users", name: "user_1_userSource_1" }
+Tue Sep  8 10:18:31.406 /tmp/test/img.chunks.bson
+Tue Sep  8 10:18:31.406 	going into namespace [test.img.chunks]
+Tue Sep  8 10:18:31.407 warning: Restoring to test.img.chunks without dropping. Restored data will be inserted without raising errors; check your server log
+4 objects found
+Tue Sep  8 10:18:31.409 	Creating index: { name: "_id_", key: { _id: 1 }, ns: "test.img.chunks" }
+Tue Sep  8 10:18:31.409 	Creating index: { name: "files_id_1_n_1", key: { files_id: 1, n: 1 }, unique: true, ns: "test.img.chunks" }
+Tue Sep  8 10:18:31.409 /tmp/test/fs.files.bson
+Tue Sep  8 10:18:31.409 	going into namespace [test.fs.files]
+Tue Sep  8 10:18:31.410 warning: Restoring to test.fs.files without dropping. Restored data will be inserted without raising errors; check your server log
+2 objects found
+Tue Sep  8 10:18:31.410 	Creating index: { name: "_id_", key: { _id: 1 }, ns: "test.fs.files" }
+Tue Sep  8 10:18:31.410 /tmp/test/images.chunks.bson
+Tue Sep  8 10:18:31.410 	going into namespace [test.images.chunks]
+Tue Sep  8 10:18:31.411 warning: Restoring to test.images.chunks without dropping. Restored data will be inserted without raising errors; check your server log
+12 objects found
+Tue Sep  8 10:18:31.414 	Creating index: { name: "_id_", key: { _id: 1 }, ns: "test.images.chunks" }
+Tue Sep  8 10:18:31.414 	Creating index: { name: "files_id_1_n_1", key: { files_id: 1, n: 1 }, unique: true, ns: "test.images.chunks" }
+Tue Sep  8 10:18:31.414 /tmp/test/images.files.bson
+Tue Sep  8 10:18:31.414 	going into namespace [test.images.files]
+Tue Sep  8 10:18:31.414 warning: Restoring to test.images.files without dropping. Restored data will be inserted without raising errors; check your server log
+3 objects found
+Tue Sep  8 10:18:31.415 	Creating index: { name: "_id_", key: { _id: 1 }, ns: "test.images.files" }
+Tue Sep  8 10:18:31.415 /tmp/test/fs.chunks.bson
+Tue Sep  8 10:18:31.415 	going into namespace [test.fs.chunks]
+Tue Sep  8 10:18:31.415 warning: Restoring to test.fs.chunks without dropping. Restored data will be inserted without raising errors; check your server log
+2 objects found
+Tue Sep  8 10:18:31.416 	Creating index: { name: "_id_", key: { _id: 1 }, ns: "test.fs.chunks" }
+Tue Sep  8 10:18:31.416 	Creating index: { name: "files_id_1_n_1", key: { files_id: 1, n: 1 }, unique: true, ns: "test.fs.chunks" }
+Tue Sep  8 10:18:31.416 /tmp/test/img.files.bson
+Tue Sep  8 10:18:31.416 	going into namespace [test.img.files]
+Tue Sep  8 10:18:31.417 warning: Restoring to test.img.files without dropping. Restored data will be inserted without raising errors; check your server log
+1 objects found
+Tue Sep  8 10:18:31.417 	Creating index: { name: "_id_", key: { _id: 1 }, ns: "test.img.files" }
+Tue Sep  8 10:18:31.417 /tmp/test/bios.bson
+Tue Sep  8 10:18:31.417 	going into namespace [test.bios]
+Tue Sep  8 10:18:31.417 warning: Restoring to test.bios without dropping. Restored data will be inserted without raising errors; check your server log
+1 objects found
+Tue Sep  8 10:18:31.417 	Creating index: { key: { _id: 1 }, ns: "test.bios", name: "_id_" }
+		</screen>
+		<para>恢复到指定数据库</para>
+		<screen>
+# mongorestore -h 127.0.0.1 -d test123 /tmp/test
+		</screen>
+	</section>
+
+	<section id="mongostat">
+		<title>mongostat</title>
+		<screen>
+# mongostat
+connected to: 127.0.0.1
+insert  query update delete getmore command flushes mapped  vsize    res faults   locked db idx miss %     qr|qw   ar|aw  netIn netOut  conn       time
+    *0     *0     *0     *0       0     1|0       0   848m  1.92g   162m      0 wechat:0.0%          0       0|0     0|0    62b     4k     1   10:38:53
+    *0     *0     *0     *0       0     1|0       0   848m  1.92g   162m      0 wechat:0.0%          0       0|0     0|0    62b     4k     1   10:38:54
+    *0     *0     *0     *0       0     1|0       0   848m  1.92g   162m      0 wechat:0.0%          0       0|0     0|0    62b     4k     1   10:38:55
+    *0     *0     *0     *0       0     1|0       0   848m  1.92g   162m      0 wechat:0.0%          0       0|0     0|0    62b     4k     1   10:38:56
+    *0     *0     *0     *0       0     1|0       0   848m  1.92g   162m      0 wechat:0.0%          0       0|0     0|0    62b     4k     1   10:38:57
+		</screen>
+	</section>
+
+	<section id="mongotop">
+		<title>mongotop</title>
+		<screen>
+# mongotop
+connected to: 127.0.0.1
+
+                            ns       total        read       write		2015-09-08T02:23:46
+         passport.system.users         0ms         0ms         0ms
+    passport.system.namespaces         0ms         0ms         0ms
+       passport.system.indexes         0ms         0ms         0ms
+           member.system.users         0ms         0ms         0ms
+      member.system.namespaces         0ms         0ms         0ms
+         member.system.indexes         0ms         0ms         0ms
+		</screen>
+	</section>
+	<section id="mongofiles">
+		<title>mongofiles - Browse and modify a GridFS filesystem.</title>
+		<section>
+			<title>list 浏览文件</title>
+			<screen>
+# mongofiles list
+connected to: 127.0.0.1
+/etc/passwd	2176
+/tmp/test1.php	192
+			</screen>
+			<screen>
+
+			</screen>
+		</section>
+		<section>
+			<title>put 上传文件</title>
+			<screen>
+# mongofiles put /bin/ls
+connected to: 127.0.0.1
+added file: { _id: ObjectId('55ee4c68bd053b7418404c53'), filename: "/bin/ls", chunkSize: 261120, uploadDate: new Date(1441680488106), md5: "ca226dd605e91b72e0d2060a6357c28f", length: 109208 }
+done!
+
+# mongofiles list
+connected to: 127.0.0.1
+/etc/passwd	2176
+/tmp/test1.php	192
+/bin/ls	109208
+			</screen>
+			<para>上传指定数据库</para>
+			<screen>
+# mongofiles put -d images -c img /etc/fstab
+connected to: 127.0.0.1
+added file: { _id: ObjectId('55ee4d5416377f58d0a9e714'), filename: "/etc/fstab", chunkSize: 261120, uploadDate: new Date(1441680724579), md5: "381185dc0c4807b88406b452b4acc2e8", length: 1067 }
+done!
+
+# mongofiles list -d images -c img
+connected to: 127.0.0.1
+/etc/fstab	1067
+			</screen>
+			<tip>
+				<title>collection 参数有 bug 需要注意。</title>
+
+				<para>-c img 似乎无效，可能是mongofiles的bug. 使用PHP测试上传是可以指定 collection，并且没有任何问题。</para>
+				<screen>
+				<![CDATA[
+# mongofiles put -d images --collection abc /etc/nfsmount.conf
+connected to: 127.0.0.1
+added file: { _id: ObjectId('55ee4f5ef4b26bc3189dc8a5'), filename: "/etc/nfsmount.conf", chunkSize: 261120, uploadDate: new Date(1441681246083), md5: "ce3b9fee8612087cbb69d46db34ce8ec", length: 3605 }
+done!
+
+# mongofiles -d images --collection abc list
+connected to: 127.0.0.1
+/etc/fstab	1067
+/etc/passwd	2555
+/etc/goaccess.conf	6956
+/etc/krb5.conf	449
+/etc/nfsmount.conf	3605
+
+# mongo images
+> show collections;
+abc.fs.chunks
+abc.fs.files
+fs.chunks
+fs.files
+system.indexes
+>
+
+> db.abc.fs.files.find();
+>
+				]]>
+				</screen>
+				<para>使用 --collection 参数可以看到abc已经创建，但我们去db.abc.fs.files.find();发现里面没有任何数据，文件仍然被上传到 abc.fs.files </para>
+			</tip>
+		</section>
+		<section>
+			<title>get 下载</title>
+			<para>如果 /tmp/test123 存在则会覆盖</para>
+			<screen>
+# mongofiles get /tmp/test123
+connected to: 127.0.0.1
+done write to: /tmp/test123
+			</screen>
+			<para>-l 指定路径，相当于另存。</para>
+			<screen>
+# mongofiles get /tmp/test123 -l /tmp/aabbcc
+connected to: 127.0.0.1
+done write to: /tmp/aabbcc
+			</screen>
+		</section>
+		<section>
+			<title>delete 删除</title>
+			<screen>
+# mongofiles list 
+connected to: 127.0.0.1
+/etc/passwd	2176
+/tmp/test1.php	192
+/bin/ls	109208
+/tmp/test123	6
+
+# mongofiles delete /tmp/test123
+connected to: 127.0.0.1
+done!
+
+# mongofiles list 
+connected to: 127.0.0.1
+/etc/passwd	2176
+/tmp/test1.php	192
+/bin/ls	109208
+			</screen>
+		</section>
+	</section>
+</chapter>

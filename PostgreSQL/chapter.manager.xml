@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="pgsql.administration">
+	<title>Administration</title>
+	<section id="user">
+		<title>User 用户管理</title>
+		<section>
+			<title>新建用户</title>
+			<para>createuser 命令</para>
+			<screen>
+$ createuser -P wechat
+Enter password for new role: 
+Enter it again: 
+			</screen>
+			<para>新建用户 SQL</para>
+			<screen>
+CREATE ROLE woodart LOGIN PASSWORD 'chen'
+  NOINHERIT
+   VALID UNTIL 'infinity';
+			</screen>
+		</section>
+		<section>
+			<title>SUPERUSER</title>
+			<screen>
+CREATE ROLE dba LOGIN
+  PASSWORD 'your password'
+  SUPERUSER INHERIT CREATEDB CREATEROLE REPLICATION;
+			</screen>
+		</section>
+		<section>
+			<title>删除用户</title>
+			<para>本地操作</para>
+			<screen>
+$ dropuser dba			
+			</screen>
+			<para>远程操作</para>
+			<screen>
+dropuser -h192.168.1.1 -p 5432 -i -e testuser
+User "testuser" and any owned databases will be permanently deleted.
+Are you sure? (y/n) y
+			</screen>
+		</section>
+		<section>
+			<title>链接数限制</title>
+			<programlisting>
+CREATE ROLE sender LOGIN ENCRYPTED PASSWORD 'md51fd19061f37b296d27bf52b4c32c12ad'
+   VALID UNTIL 'infinity' CONNECTION LIMIT 2048;
+			</programlisting>
+		</section>
+		<section>
+			<title>复制用户</title>
+			<programlisting>
+CREATE ROLE sender LOGIN ENCRYPTED PASSWORD 'md51fd19061f37b296d27bf52b4c32c12ad' REPLICATION
+   VALID UNTIL 'infinity' CONNECTION LIMIT 2048;
+			</programlisting>
+		</section>
+		<section>
+			<title>修改用户密码</title>
+			<programlisting>
+alter user wechat with password 'new password'
+alter user postgres with password 'new password'
+			</programlisting>
+			<para>使用psql运行上面语句</para>
+			<programlisting>
+psql -d template1 -U postgres -c "alter role postgres password ‘123456’;"			
+			</programlisting>
+		</section>
+	</section>
+	<section id="database">
+		<title>Database</title>
+		<screen>
+$ sudo -u postgres createuser -W dbuser
+Shall the new role be a superuser? (y/n) n
+Shall the new role be allowed to create databases? (y/n) y
+Shall the new role be allowed to create more new roles? (y/n) n
+Password:
+
+$ sudo -u postgres createdb testdb -O dbuser
+		</screen>
+		<para>新建数据库</para>
+		<screen>
+CREATE DATABASE woodart
+  WITH ENCODING='UTF8'
+       OWNER=woodart;
+		</screen>
+		<screen>
+CREATE DATABASE mydb ENCODING 'UTF8' TEMPLATE template0 OWNER dbuser TABLESPACE myspace;
+		</screen>
+		<section>
+			<title>删除数据库</title>
+			<screen>
+dropdb mydb
+			</screen>
+			<para></para>
+			<screen>
+DROP DATABASE mydb
+			</screen>
+		</section>
+	</section>
+	<section id="table">
+		<title>Table</title>
+
+	</section>
+	<section id="pg_dump">
+		<title>Backup / Restore</title>
+		<section>
+			<title>Backup</title>
+			<para>本地备份</para>
+			<screen>
+pg_dump --compress=9 --file=/backup/mydb.sql.gz mydb
+			</screen>
+			<para>Backup</para>
+			<screen>
+pg_dump -i -h localhost -p 5432 -U user -Fc -c -f "your_db.backup" your_db
+			</screen>
+		</section>
+		<section>
+			<title>Restore</title>
+			<para>Restore</para>
+			<screen>
+pg_restore -i -h localhost -p 5432 -U user -d your_db -v -c -Fc "your_db.backup"
+			</screen>
+		</section>
+		<section>
+			<title>import</title>
+			<para>导入</para>
+			<command>\i file.backup</command>
+			<screen>
+			<![CDATA[
+postgres=# \i /home/neo/woodart.backup
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>PostgreSQL for windows</title>
+			<para>local -> remote</para>
+			<screen>
+set PG_HOME="C:\Program Files\PostgreSQL\8.1\bin"
+%PG_HOME%\pg_dump.exe -i -h localhost -p 5432 -U woodart -Fc -c -f "woodart.backup" woodart
+%PG_HOME%\pg_restore.exe -i -h woodart.8800.org -p 5432 -U woodart -d woodart -v -c -Fc "woodart.backup"
+			</screen>
+		</section>
+		<section>
+			<title>大型数据库备份</title>
+			<para>split 命令可以将大型文件切成小块以适应文件系统限制的单个文件大小。</para>
+			<para>分割,每650M为一个文件，试用于光盘备份</para>
+			<screen>
+			<![CDATA[
+$ pg_dump dbname | split -b 650m - filename
+			]]>
+			</screen>
+			<para>合并，并且恢复到数据库中。</para>
+			<screen>
+			<![CDATA[
+$ createdb dbname
+$ cat filename* | psql dbname
+			]]>
+			</screen>
+		</section>
+	</section>
+</chapter>
+<chapter id="pg_table">
+	<title>PostgreSQL 系统表</title>
+	<section id="pg_available_extensions">
+		<title>pg_available_extensions</title>
+		<screen>
+SELECT * FROM pg_available_extensions;
+		</screen>
+		<screen>
+postgres=# SELECT * FROM pg_available_extensions;
+  name   | default_version | installed_version |           comment
+---------+-----------------+-------------------+------------------------------
+ plpgsql | 1.0             | 1.0               | PL/pgSQL procedural language
+(1 row)
+		</screen>
+	</section>
+	<section id="pg_shadow">
+		<title>pg_shadow</title>
+		<screen>
+postgres=# SELECT * FROM pg_shadow;
+ usename  | usesysid | usecreatedb | usesuper | usecatupd | userepl |               passwd                | valuntil | useconfig
+----------+----------+-------------+----------+-----------+---------+-------------------------------------+----------+-----------
+ postgres |       10 | t           | t        | t         | t       |                                     |          |
+ wechat   |    16385 | f           | f        | f         | f       | md55bf335eef50073dbc3a4a2103e7b3757 |          |
+ test     |    16387 | f           | f        | f         | f       | md505a671c66aefea124cc08b76ea6d30bb |          |
+ dba      |    16384 | t           | t        | t         | f       | md5a1453e5a69943d1674eb2f7100efa04c |          |
+(4 rows)
+		</screen>
+	</section>
+</chapter>

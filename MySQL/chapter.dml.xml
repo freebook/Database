@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: chapter.dml.xml 627 2013-07-02 07:55:48Z netkiller $ -->
+<chapter id="index"><?dbhtml dir="dml"?>
+	<title>DML (Data Manipulation Language)</title>
+	<screen>
+SELECT - retrieve data from the a database
+INSERT - insert data into a table
+UPDATE - updates existing data within a table
+DELETE - deletes all records from a table, the space for the records remain
+CALL - call a PL/SQL or Java subprogram
+EXPLAIN PLAN - explain access path to data
+LOCK TABLE - control concurrency
+	</screen>
+	<section id="insert">
+		<title>INSERT</title>
+		<section>
+			<title>INSERT INTO ... SELECT</title>
+			<screen>
+SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='';
+DELIMITER //
+CREATE TRIGGER `members_mobile_insert` BEFORE INSERT ON `members_mobile` FOR EACH ROW BEGIN
+	insert into members_location(id,province,city) select NEW.id,mobile_location.province,mobile_location.city from  mobile_location where mobile_location.id = md5(LEFT(NEW.number, 7));
+END//
+DELIMITER ;
+SET SQL_MODE=@OLDTMP_SQL_MODE;
+			</screen>
+		</section>
+		<section>
+			<title>INSERT IGNORE</title>
+			<para>INSERT IGNORE 与INSERT INTO的区别就是INSERT IGNORE会忽略数据库中已经存在 的数据，如果数据库没有数据，就插入新的数据，如果有数据的话就跳过这条数据。 </para>
+			<screen>
+insert ignore into table(name)  select  name from table2
+			</screen>
+		</section>
+		<section>
+			<title>INSERT...ON DUPLICATE KEY UPDATE</title>
+			<screen>
+			<![CDATA[
+create table foo (id serial primary key, u int, unique key (u));
+
+insert into foo (u) values (10);
+insert into foo (u) values (10) on duplicate key update u = 20;
+
+mysql> select * from foo;
++----+------+
+| id | u    |
++----+------+
+|  1 |   20 |
++----+------+
+			]]>
+			</screen>
+		</section>
+	</section>
+	<section id="replace">
+		<title>REPLACE</title>
+		<para>replace into</para>
+		<screen>
+replace into (id) value('1')
+		</screen>
+	</section>
+	<section id="delete">
+		<title>DELETE</title>
+		<section>
+			<title>删除重复数据</title>
+			<screen>
+delete from member group by username having count(username) > 1
+			</screen>
+		</section>
+		
+	</section>
+</chapter>

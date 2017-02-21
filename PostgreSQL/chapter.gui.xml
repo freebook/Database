@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="gui">
+	<title>PostgreSQL GUI</title>
+	<section>
+		<title>pgAdmin III</title>
+		<para><ulink url="http://www.pgadmin.org/" /></para>
+	</section>
+	<section id="phppgadmin">
+		<title>phpPgAdmin</title>
+		<para>homepage: http://phppgadmin.sourceforge.net/</para>
+		<screen>
+$ wget http://nchc.dl.sourceforge.net/sourceforge/phppgadmin/phpPgAdmin-4.2.2.tar.bz2
+$ tar jxvf phpPgAdmin-4.2.2.tar.bz2
+$ ln -s phpPgAdmin-4.2.2 phpPgAdmin
+		</screen>
+	</section>
+	<section id="monitoring">
+		<title>Monitoring</title>
+		<section id="pgbadger">
+			<title>PgBadger</title>
+			<ulink url="http://projects.dalibo.org/pgbadger/example.html" />
+			<screen>
+			</screen>
+		</section>
+	</section>
+
+	<section id="pgModeler">
+		<title>pgModeler - PostgreSQL Database Modeler</title>
+		<para><ulink url="http://pgmodeler.com.br/" /></para>
+	</section>
+</chapter>
+<chapter id="barman">
+	<title>Barman Backup &amp; recovery for PostgreSQL</title>
+	<para>http://www.pgbarman.org/</para>
+</chapter>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="monitoring">
+	<title>Monitoring</title>
+	<para><ulink url="http://netkiller.sourceforge.net/monitoring/index.html">http://netkiller.sourceforge.net/monitoring/index.html</ulink></para>
+
+	&chapter.monitoring.analysis.xml;
+
+	<section id="monitoring.munin">
+		<title>Munin</title>
+	</section>
+	<section id="monitoring.cacti">
+		<title>Cacti</title>
+		<para></para>
+	</section>
+	<section id="mysql.snmp">
+		<title>Monitoring MySQL with SNMP</title>
+		<para>mysql-snmp - monitoring MySQL with SNMP</para>
+		<screen>
+		</screen>
+	</section>
+</section>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="pgbouncer">
+	<title>pgbouncer - lightweight connection pooler for PostgreSQL</title>
+	<para>http://pgfoundry.org/projects/pgbouncer/</para>
+	<section id="pgbouncer.install">
+		<title>安装 pgbouncer</title>
+		<section>
+			<title>Ubuntu</title>
+			<para>Ubuntu 13.04</para>
+			<screen>
+$ apt-cache search pgbouncer
+pgbouncer - lightweight connection pooler for PostgreSQL
+
+$ sudo apt-get install pgbouncer
+			</screen>
+			<screen>
+$ dpkg -L pgbouncer
+/.
+/usr
+/usr/share
+/usr/share/man
+/usr/share/man/man5
+/usr/share/man/man5/pgbouncer.5.gz
+/usr/share/man/man1
+/usr/share/man/man1/pgbouncer.1.gz
+/usr/share/doc
+/usr/share/doc/pgbouncer
+/usr/share/doc/pgbouncer/config.html
+/usr/share/doc/pgbouncer/README
+/usr/share/doc/pgbouncer/README.Debian
+/usr/share/doc/pgbouncer/README.html
+/usr/share/doc/pgbouncer/faq.html
+/usr/share/doc/pgbouncer/copyright
+/usr/share/doc/pgbouncer/todo.html
+/usr/share/doc/pgbouncer/examples
+/usr/share/doc/pgbouncer/examples/pgbouncer.ini.gz
+/usr/share/doc/pgbouncer/examples/userlist.txt
+/usr/share/doc/pgbouncer/NEWS.gz
+/usr/share/doc/pgbouncer/AUTHORS
+/usr/share/doc/pgbouncer/usage.html
+/usr/share/doc/pgbouncer/changelog.Debian.gz
+/usr/sbin
+/usr/sbin/pgbouncer
+/etc
+/etc/init.d
+/etc/init.d/pgbouncer
+/etc/pgbouncer
+/etc/pgbouncer/userlist.txt
+/etc/pgbouncer/pgbouncer.ini
+/etc/default
+/etc/default/pgbouncer
+			</screen>
+		</section>
+		<section>
+			<title>CentOS</title>
+			<screen>
+# yum install pgbouncer
+			</screen>
+			<screen>
+# rpm -ql pgbouncer.x86_64 0:1.5.4-1.rhel6
+/etc/pgbouncer/mkauth.py
+/etc/pgbouncer/mkauth.pyc
+/etc/pgbouncer/mkauth.pyo
+/etc/pgbouncer/pgbouncer.ini
+/etc/rc.d/init.d/pgbouncer
+/etc/sysconfig/pgbouncer
+/usr/bin/pgbouncer
+/usr/share/doc/pgbouncer-1.5.4
+/usr/share/doc/pgbouncer-1.5.4/AUTHORS
+/usr/share/doc/pgbouncer-1.5.4/NEWS
+/usr/share/doc/pgbouncer-1.5.4/README
+/usr/share/man/man1/pgbouncer.1.gz
+/usr/share/man/man5/pgbouncer.5.gz
+			</screen>
+		</section>
+	</section>
+	<section id="pgbouncer.config">
+		<title>配置 pgbouncer</title>
+		<para>databases 配置</para>
+		<screen>
+[databases]
+main = host=localhost port=5432 dbname=mydb user=myuser password=mypass connect_query='SELECT 1'
+		</screen>
+		<para>pgbouncer</para>
+		<screen>
+[pgbouncer]
+logfile = /var/log/pgbouncer.log
+pidfile = /var/run/pgbouncer/pgbouncer.pid
+listen_addr = 127.0.0.1
+listen_port = 6432
+auth_type = trust
+auth_file = /etc/pgbouncer/userlist.txt
+admin_users = postgres
+stats_users = stats, postgres
+pool_mode = session
+server_reset_query = DISCARD ALL
+max_client_conn = 100
+default_pool_size = 20
+		</screen>
+		<example>
+			<title>/etc/pgbouncer/pgbouncer.ini</title>
+			<screen>
+# grep -v '^;' /etc/pgbouncer/pgbouncer.ini | grep -v '^$'
+			</screen>
+			<screen>
+[databases]
+main = host=localhost port=5432 dbname=test user=test password=test connect_query='SELECT 1'
+[pgbouncer]
+logfile = /var/log/pgbouncer.log
+pidfile = /var/run/pgbouncer/pgbouncer.pid
+listen_addr = 127.0.0.1
+listen_port = 1521
+auth_type = trust
+auth_file = /etc/pgbouncer/userlist.txt
+admin_users = postgres
+stats_users = stats, postgres
+pool_mode = session
+server_reset_query = DISCARD ALL
+max_client_conn = 100
+default_pool_size = 20
+			</screen>
+		</example>
+	</section>
+</chapter>
+<chapter id="wrappers">
+	<title>Foreign data wrappers</title>
+	<para>http://wiki.postgresql.org/wiki/Foreign_data_wrappers</para>
+</chapter>
+<chapter id="barman">
+	<title>Barman for PostgreSQL</title>
+	<para>http://www.pgbarman.org/</para>
+</chapter>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: chapter.dcl.xml 371 2012-03-15 10:12:34Z netkiller $ -->
+<chapter id="index"><?dbhtml dir="dcl"?>
+	<title>DCL (Data Control Language)</title>
+	<screen>
+COMMIT - save work done
+SAVEPOINT - identify a point in a transaction to which you can later roll back
+ROLLBACK - restore database to original since the last COMMIT
+SET TRANSACTION - Change transaction options like what rollback segment to use
+	</screen>
+	&chapter.dcl.lock.xml;
+	&chapter.dcl.transactional.xml;
+</chapter>

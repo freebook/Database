@@ -1,0 +1,682 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: chapter.ddl.xml 642 2013-07-19 01:28:13Z netkiller $ -->
+<chapter id="index"><?dbhtml dir="ddl"?>
+	<title>DDL - Data Definition Language</title>
+	<section id="database">
+		<title>数据库管理(Database)</title>
+		<section>
+			<title>create</title>
+			<para>Creating a UTF-8 database</para>
+			<screen>
+CREATE DATABASE db_name DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+			</screen>
+			<para>Create a UTF-8 database with binary UTF-8 collation.</para>
+			<programlisting>
+CREATE DATABASE dbname CHARACTER SET utf8 COLLATE utf8_bin;
+			</programlisting>
+		</section>
+		<section>
+			<title>drop</title>
+			<screen>
+DROP DATABASE db_name;
+			</screen>
+		</section>
+		<section>
+			<title>Alter</title>
+			<programlisting>
+ALTER DATABASE dbname DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+			</programlisting>
+		</section>
+		<section>
+			<title>Rename</title>
+			<screen>
+RENAME {DATABASE | SCHEMA} db_name TO new_db_name;
+			</screen>
+			<para>before 5.0 version</para>
+			<screen>
+[neo@development ~]$ mysqldump -uroot -pchen db_old | mysql -uroot -pchen db_new
+			</screen>
+		</section>
+		<section>
+			<title>CHARACTER</title>
+			<screen>
+			<![CDATA[
+ALTER DATABASE <database_name> CHARACTER SET utf8;
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>show create database</title>
+			<screen>
+			<![CDATA[
+mysql> show create database dbname;
++----------+-------------------------------------------------------------------+
+| Database | Create Database                                                   |
++----------+-------------------------------------------------------------------+
+| dbname   | CREATE DATABASE `dbname` /*!40100 DEFAULT CHARACTER SET utf8 */   |
++----------+-------------------------------------------------------------------+
+1 row in set (0.00 sec)
+			]]>
+			</screen>
+		</section>
+
+	</section>
+	<section id="table">
+		<title>表管理(Table)</title>
+		<section>
+			<title>数据类型</title>
+			<section>
+				<title>SET 集合类型</title>
+				<para>SET 集合类型，此类型适合用于多项选择场景，例如保存表单中的checkbox。</para>
+				<screen>
+CREATE TABLE `QA` (
+	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`question` VARCHAR(255) NOT NULL COMMENT '问题描述',
+	`answer` SET('A','B','C','D') NOT NULL COMMENT '问题答案',
+	PRIMARY KEY (`id`)
+)
+COMMENT='Multiple Choice'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB;
+				</screen>
+				<para>插入数据</para>
+				<screen>
+INSERT INTO `QA` (`id`, `question`, `answer`) VALUES
+	(1, 'Netkiller 系列手札始于那一年？ A.2000年，B.2008年，C.2010年，D.2016年', 'A'),
+	(2, 'Netkiller 系列手札有哪些? A.《Netkiller Scals 手札》, B.《Netkiller Java 手札》, C.《Netkiller Linux 手札》, D.《Netkiller EMC 手札》', 'B,C'),
+	(3, 'XXXXXXXXX', 'C,D'),
+	(4, 'XXXXXXXXX', 'A,B,C'),
+	...
+	...
+	(1000, 'XXXXXXXXXX', 'B,C,D'),
+	...
+	...
+	(5000, 'XXXXXXXXXX', 'A,B,C,D');
+				</screen>
+				<para>查询 SET 结果集，MySQL为SET配备了FIND_IN_SET函数</para>
+				<programlisting>
+				<![CDATA[
+select * from QA where FIND_IN_SET('B',`answer`);
+				]]>
+				</programlisting>
+				<para>下面两种方法也能实现，但不推荐使用。</para>
+				<programlisting>
+				<![CDATA[
+select question, answer from QA where locate('B',answer)>0;
+select question, answer from QA where POSITION('B' in answer)>0;				
+				]]>
+				</programlisting>
+				<para>查询多个答案</para>
+				<programlisting>
+				<![CDATA[
+select question, answer from QA where answer = 'B,C';				
+				]]>
+				</programlisting>
+			</section>
+		</section>
+		<section>
+			<title>create table ... select</title>
+			<para>创建空表</para>
+			<programlisting>
+			<![CDATA[
+create table admin_user_history select * from admin_user where 1 <> 1;
+			]]>
+			</programlisting>
+			<para>创建有数据的表</para>
+			<programlisting>
+			<![CDATA[
+create table admin_user_history select * from admin_user;
+			]]>
+			</programlisting>
+		</section>
+		<section>
+			<title>modifiy table</title>
+			<para>modifiy table</para>
+			<screen>
+ALTER TABLE ecs_users add user_picture varchar(255);
+			</screen>
+		</section>
+		<section>
+			<title>TEMPORARY Table</title>
+			<para>临时表将在你连接期间存在。一旦断开时将自动删除表并释放所用的空间。你在连接期间删除该表也同样释放空间。</para>
+			<screen>
+CREATE TEMPORARY TABLE tmp_table (
+	key VARCHAR(10) NOT NULL,
+	value INTEGER NOT NULL
+)
+			</screen>
+			<para>声明临时表是一个HEAP表，允许你指定在内存中创建它</para>
+			<screen>
+CREATE TEMPORARY TABLE tmp_mem_table (
+	key VARCHAR(10) NOT NULL,
+	value INTEGER NOT NULL
+) TYPE = HEAP
+			</screen>
+		</section>
+		<section>
+			<title>Collate</title>
+			<programlisting>
+ALTER TABLE `tmp_cats`  COLLATE='utf8_general_ci',  CONVERT TO CHARSET utf8;
+			</programlisting>
+		</section>
+		<section>
+			<title>CHARACTER</title>
+			<screen>
+			<![CDATA[
+ALTER TABLE <table_name> CONVERT TO CHARACTER SET utf8;
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>DEFAULT</title>
+			<para>更新时间</para>
+			<para>`mtime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更改时间',</para>
+			<screen>
+			<![CDATA[
+CREATE TABLE `bank_account` (
+	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增唯一ID',
+	`bank_name` VARCHAR(255) NOT NULL DEFAULT '0' COMMENT '银行名字(Bank Name)',
+	`name` VARCHAR(50) NOT NULL DEFAULT '0' COMMENT '帐号名称(Name on account)',
+	`account_number` VARCHAR(50) NOT NULL DEFAULT '0' COMMENT '银行帐号(Account Number)',
+	`branch_location` VARCHAR(255) NOT NULL DEFAULT '0' COMMENT '支行位置(Branch Location)',
+	`description` VARCHAR(255) NOT NULL DEFAULT '0' COMMENT '银行描述',
+	`status` ENUM('Y','N') NOT NULL DEFAULT 'N' COMMENT '银行帐号状态',
+	`ctime` DATETIME NOT NULL COMMENT '创建时间',
+	`mtime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更改时间',
+	PRIMARY KEY (`id`)
+)
+COMMENT='银行帐号'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=2;
+			]]>
+			</screen>
+			<section>
+				<title>AUTO_INCREMENT</title>
+				<para>定义 AUTO_INCREMENT 起始值</para>
+				<programlisting>
+CREATE TABLE `bank_account` (
+	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增唯一ID',
+	`name` VARCHAR(50) NOT NULL DEFAULT '0' COMMENT '帐号名称(Name on account)',
+	PRIMARY KEY (`id`)
+)
+COMMENT='银行帐号'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=2;				
+				</programlisting>
+				<para>设置 AUTO_INCREMENT</para>
+				<programlisting>
+ALTER TABLE `accounts`
+	AUTO_INCREMENT=792257;				
+				</programlisting>
+			</section>
+			<section>
+				<title>表存储位置(DATA DIRECTORY)</title>
+				<programlisting>
+				<![CDATA[
+CREATE TABLE IF NOT EXISTS `tab_name` (
+  `id` int(11) DEFAULT NULL,
+  `purchased` date DEFAULT NULL,
+  KEY `Index 1` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+/*!50100 PARTITION BY LIST (YEAR(purchased))
+(PARTITION p0 VALUES IN (1990) DATA DIRECTORY = '/www/data' ENGINE = InnoDB) */;				
+				]]>
+				</programlisting>
+			</section>
+		</section>
+		<section id="key">
+			<title>KEY</title>
+			<section>
+				<title>PRIMARY KEY</title>
+				<para>一般主键定义</para>
+				<screen>
+PRIMARY KEY (`id`),
+				</screen>
+				<para>复合主键</para>
+				<screen>
+PRIMARY KEY (`id`, `user_id`),
+				</screen>
+			</section>
+
+		</section>
+		<section>
+			<title>COMMENT</title>
+			<screen>
+ALTER TABLE `neo`.`stuff` COMMENT = '用户表' ;
+ALTER TABLE `neo`.`stuff` CHANGE COLUMN `name` `name` VARCHAR(50) NULL DEFAULT NULL COMMENT '姓名'  ;
+ALTER TABLE `neo`.`stuff` CHANGE COLUMN `password` `password` VARCHAR(50) NULL DEFAULT NULL COMMENT '用户密码' ;
+
+
+CREATE TABLE `stuff` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) DEFAULT NULL COMMENT ''姓名'',
+  `password` varchar(50) DEFAULT NULL COMMENT ''用户密码'',
+  `created` date NOT NULL DEFAULT ''0000-00-00'',
+  PRIMARY KEY (`id`,`created`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1 COMMENT=''用户表''
+/*!50100 PARTITION BY HASH (year(created))
+PARTITIONS 10 */
+			</screen>
+		</section>
+		&chapter.ddl.engine.xml;
+	</section>
+	&chapter.ddl.partition.xml;
+	<section id="index">
+		<title>Index</title>
+		<section>
+			<title>SHOW INDEX</title>
+			<programlisting>
+			<![CDATA[
+SHOW INDEX FROM tbl_name
+			]]>
+			</programlisting>
+			<para>垂直显示</para>
+			<programlisting>
+			<![CDATA[
+SHOW INDEX FROM tbl_name\G
+			]]>
+			</programlisting>
+		</section>
+		<section>
+			<title>CREATE INDEX</title>
+			<programlisting>
+CREATE INDEX index_name
+ON table_name (column_name)
+			</programlisting>
+			<para>CREATE UNIQUE INDEX</para>
+			<programlisting>
+CREATE UNIQUE INDEX index_name
+ON table_name (column_name)
+			</programlisting>
+		</section>
+		<section>
+			<title>DROP INDEX</title>
+			<programlisting>
+			<![CDATA[
+DROP INDEX index_name ON tbl_name
+			]]>
+			</programlisting>
+		</section>
+		<section>
+			<title>rebuild</title>
+			<programlisting>
+			<![CDATA[
+SHOW INDEX FROM tbl_name
+alter index IND_PK rebuild;
+			]]>
+			</programlisting>
+		</section>
+	</section>
+	<section id="key">
+		<title>外键(Foreign Key)</title>
+		<orderedlist>
+			<title>ON DELETE, ON UPDATE 事件触发限制，可选参数： RESTRICT | CASCADE | SET NULL | NO ACTION</title>
+			<listitem><para>RESTRICT（限制外表中的外键改动）</para></listitem>
+			<listitem><para>CASCADE（跟随外键改动）</para></listitem>
+			<listitem><para>SET NULL（设空值）</para></listitem>
+			<listitem><para>SET DEFAULT（设默认值）</para></listitem>
+			<listitem><para>NO ACTION（无动作，默认的）</para></listitem>
+		</orderedlist>
+		<section>
+			<title>FOREIGN KEY (RESTRICT)</title>
+			<screen>
+CREATE TABLE `bank_account_group_has_bank_account` (
+	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`bank_account_group_id` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	`bank_account_id` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	PRIMARY KEY (`id`),
+	INDEX `FK_bank_account_group_has_bank_account_bank_account` (`bank_account_id`),
+	INDEX `FK_bank_account_group_has_bank_account_bank_account_group` (`bank_account_group_id`),
+	CONSTRAINT `FK_bank_account_group_has_bank_account_bank_account` FOREIGN KEY (`bank_account_id`) REFERENCES `bank_account` (`id`),
+	CONSTRAINT `FK_bank_account_group_has_bank_account_bank_account_group` FOREIGN KEY (`bank_account_group_id`) REFERENCES `bank_account_group` (`id`)
+)
+COMMENT='bank_account_group 与 bank_account 的 N:M 关系'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=35;
+			</screen>
+		</section>
+	</section>
+	<section id="view">
+		<title>视图(View)</title>
+		<screen>
+CREATE VIEW view_name AS
+SELECT column_name(s)
+FROM table_name
+WHERE condition
+		</screen>
+		<para>update view</para>
+		<programlisting>
+SQL CREATE OR REPLACE VIEW Syntax
+CREATE OR REPLACE VIEW view_name AS
+SELECT column_name(s)
+FROM table_name
+WHERE condition
+		</programlisting>
+	</section>
+	<section id="procedure">
+		<title>存储过程(PROCEDURE)</title>
+		<section>
+			<title>存储程序</title>
+			<para>存储过程没有返回数据，需使用call proc()调用</para>
+			<programlisting>
+CREATE DEFINER=`neo`@`%` PROCEDURE `angelfund`(IN `puid` VARCHAR(50), IN `ptime` DATETIME)
+	LANGUAGE SQL
+	NOT DETERMINISTIC
+	CONTAINS SQL
+	SQL SECURITY DEFINER
+	COMMENT ''
+BEGIN
+
+	DECLARE fusername VARCHAR(16) DEFAULT NULL;
+	DECLARE fname VARCHAR(16) DEFAULT NULL;
+	DECLARE fmembers_date VARCHAR(20) DEFAULT NULL;
+
+	SELECT username,name,FROM_UNIXTIME(createtime) INTO fusername,fname,fmembers_date FROM members WHERE username = puid;
+
+	IF fusername IS NOT NULL THEN
+		INSERT IGNORE INTO angelfund(username,name,members_date,accounts_date,endtime,`status`,op,operator,`description`) value(fusername,fname,fmembers_date,ptime,DATE_ADD(ptime, INTERVAL +1 MONTH),'N','N','computer','');
+	END IF;
+
+END			
+			</programlisting>
+			<para>调用过程</para>
+			<screen>
+call angelfund('100','2013-10-10 10:10:10');			
+			</screen>
+		</section>
+		<section>
+			<title>函数</title>
+			<para>函数会返回数据，调用函数使用 select fun(),不能使用call调用，否则提示</para>
+			<screen>
+			<![CDATA[
+mysql> call myfun();
+ERROR 1305 (42000): PROCEDURE test.myfun does not exist			
+			]]>
+			</screen>
+			<para>下面做一个实验</para>
+			<programlisting>
+CREATE TABLE `t` (
+	`id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`n` INT(11) UNSIGNED NULL DEFAULT '0',
+	PRIMARY KEY (`id`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=5;
+
+CREATE DEFINER=`neo`@`%` FUNCTION `myfun`()
+	RETURNS int(11)
+	LANGUAGE SQL
+	NOT DETERMINISTIC
+	READS SQL DATA
+	SQL SECURITY DEFINER
+	COMMENT ''
+BEGIN
+	INSERT INTO t (n) VALUES(rand()*100);
+	RETURN LAST_INSERT_ID();
+END			
+			</programlisting>
+			<screen>
+			<![CDATA[
+mysql> select myfun();
++---------+
+| myfun() |
++---------+
+|       9 |
++---------+
+1 row in set, 2 warnings (0.07 sec)
+			]]>
+			</screen>
+		</section>
+	</section>
+	<section id="trigger">
+		<title>触发器(Trigger)</title>
+		<section>
+			<title>create trigger</title>
+
+			<para>history</para>
+			<programlisting role="sql">
+			<![CDATA[
+CREATE TABLE user_history SELECT * FROM user WHERE 1 <> 1
+
+DELIMITER //
+CREATE TRIGGER user_history BEFORE update ON user FOR EACH ROW
+BEGIN
+insert into user_history SELECT * FROM user WHERE id = OLD.id;
+END; //
+DELIMITER ;
+			]]>
+			</programlisting>
+		</section>
+		<section>
+			<title>drop trigger</title>
+			<programlisting>
+DROP TRIGGER admin_user_history;
+
+DELIMITER //
+CREATE TRIGGER admin_user_history BEFORE update ON admin_user FOR EACH ROW
+BEGIN
+insert into admin_user_history SELECT * FROM admin_user WHERE user_id = OLD.user_id;
+END; //
+DELIMITER;
+			</programlisting>
+		</section>
+		<section>
+			<title>show triggers</title>
+			<programlisting>
+show triggers;
+			</programlisting>
+		</section>
+		<section>
+			<title>EXAMPLE</title>
+			<section>
+				<title>BEFORE/AFTER</title>
+				<example>
+					<title>BEFORE/AFTER</title>
+					<programlisting>
+DROP TRIGGER MY_TEST_MONITOR;
+DELIMITER //
+CREATE TRIGGER MY_TEST_MONITOR BEFORE insert ON MY_TEST FOR EACH ROW
+BEGIN
+	INSERT INTO MY_TEST_MONITOR SELECT * FROM MY_TEST WHERE TICKET = NEW.TICKET;
+END; //
+DELIMITER;
+					</programlisting>
+					<programlisting>
+DROP TRIGGER MY_TEST_MONITOR;
+DELIMITER //
+CREATE TRIGGER MY_TEST_MONITOR AFTER insert ON MY_TEST FOR EACH ROW
+BEGIN
+	INSERT INTO MY_TEST_MONITOR SELECT * FROM MY_TEST WHERE TICKET = NEW.TICKET;
+END; //
+DELIMITER;
+					</programlisting>
+					<para>通过触发器保护数据，防止重复插入数据</para>
+					<programlisting>
+CREATE DEFINER=`neo`@`%` TRIGGER `members_before_insert` BEFORE INSERT ON `members` FOR EACH ROW BEGIN
+	IF new.username IS NOT NULL THEN
+		IF exists(select m.username from members m where m.username = new.username) THEN
+	   	set new.username = '';
+		END IF;
+	END IF;
+END					
+					</programlisting>
+				</example>
+
+			</section>
+
+			<section>
+				<title>UUID</title>
+				<example>
+					<title>uuid()</title>
+					<programlisting>
+delimiter $$
+
+CREATE TABLE `member` (
+  `uuid` char(36) NOT NULL,
+  `username` varchar(20) DEFAULT NULL,
+  `password` varchar(32) DEFAULT NULL,
+  PRIMARY KEY (`uuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8$$
+
+CREATE
+DEFINER=`root`@`%`
+TRIGGER `test`.`member_before_insert`
+BEFORE INSERT ON `test`.`member`
+FOR EACH ROW
+SET new.uuid = uuid()
+$$
+					</programlisting>
+				</example>
+			</section>
+			<section>
+				<title>CALL PROCEDURE</title>
+				<programlisting>
+				<![CDATA[
+CREATE DEFINER=`neo`@`%` TRIGGER `accounts_angelfund` AFTER INSERT ON `accounts` FOR EACH ROW BEGIN
+	
+   IF new.paymode = 'angelfund' THEN
+		call angelfund(new.name,new.ctime);		
+   END IF;
+
+END
+
+
+
+
+CREATE DEFINER=`neo`@`%` PROCEDURE `angelfund`(IN `puid` VARCHAR(50), IN `ptime` DATETIME)
+	LANGUAGE SQL
+	NOT DETERMINISTIC
+	CONTAINS SQL
+	SQL SECURITY DEFINER
+	COMMENT ''
+BEGIN
+
+	DECLARE fusername VARCHAR(16) DEFAULT NULL;
+	DECLARE fchinese_name VARCHAR(16) DEFAULT NULL;
+	DECLARE fmembers_date VARCHAR(20) DEFAULT NULL;
+
+	SELECT username,chinese_name,FROM_UNIXTIME(createtime) INTO fusername,fchinese_name,fmembers_date FROM members WHERE username = puid;
+
+	IF fusername IS NOT NULL THEN
+		INSERT IGNORE INTO angelfund(username,chinese_name,members_date,accounts_date,endtime,`status`,op,operator,`description`) value(fusername,fchinese_name,fmembers_date,ptime,DATE_ADD(ptime, INTERVAL +1 MONTH),'N','N','computer','');
+   END IF;
+
+END				
+				]]>
+				</programlisting>
+			</section>
+		</section>
+	</section>
+	<section id="event">
+		<title>事件调度器(EVENT)</title>
+		<section>
+			<title>启用 EVENT</title>
+			<programlisting>
+set GLOBAL event_scheduler=ON;
+			</programlisting>
+			<para>my.cnf 配置</para>
+			<screen>
+event_scheduler=on
+			</screen>
+			<para>查看状态</para>
+			<screen>
+			<![CDATA[
+mysql> select @@GLOBAL.event_scheduler;
++--------------------------+
+| @@GLOBAL.event_scheduler |
++--------------------------+
+| ON                       |
++--------------------------+
+1 row in set (0.00 sec)
+
+mysql> SHOW VARIABLES LIKE 'event_scheduler';
++-----------------+-------+
+| Variable_name   | Value |
++-----------------+-------+
+| event_scheduler | ON    |
++-----------------+-------+
+1 row in set (0.01 sec)
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>创建 EVENT</title>
+			<programlisting>
+			<![CDATA[
+DROP EVENT IF EXISTS `captcha`;
+DELIMITER //
+CREATE DEFINER=`neo`@`%` EVENT `captcha` ON SCHEDULE EVERY 5 MINUTE STARTS '2013-07-08 16:27:03' ON COMPLETION PRESERVE ENABLE DO BEGIN
+	delete from captcha where ctime < DATE_ADD(now(), INTERVAL -5 MINUTE);
+END//
+DELIMITER ;
+			]]>
+			</programlisting>
+		</section>
+		<section>
+			<title>禁用/启用</title>
+			<programlisting>
+ALTER EVENT captcha DISABLE;
+			</programlisting>
+			<programlisting>
+ALTER EVENT captcha ENABLE;
+			</programlisting>
+		</section>
+		<section>
+			<title>show events</title>
+			<programlisting>
+			<![CDATA[
+mysql> show events;
++--------+-------------+---------+-----------+-----------+------------+----------------+----------------+---------------------+------+---------+------------+----------------------+----------------------+--------------------+
+| Db     | Name        | Definer | Time zone | Type      | Execute at | Interval value | Interval field | Starts              | Ends | Status  | Originator | character_set_client | collation_connection | Database Collation |
++--------+-------------+---------+-----------+-----------+------------+----------------+----------------+---------------------+------+---------+------------+----------------------+----------------------+--------------------+
+| hx9999 | captcha     | neo@%   | SYSTEM    | RECURRING | NULL       | 5              | MINUTE         | 2013-07-08 16:27:03 | NULL | ENABLED |          1 | utf8                 | utf8_general_ci      | utf8_general_ci    |
+| hx9999 | sms_ips_log | neo@%   | SYSTEM    | RECURRING | NULL       | '0 5'          | DAY_HOUR       | 2013-07-09 14:39:51 | NULL | ENABLED |          1 | utf8                 | utf8_general_ci      | utf8_general_ci    |
++--------+-------------+---------+-----------+-----------+------------+----------------+----------------+---------------------+------+---------+------------+----------------------+----------------------+--------------------+
+2 rows in set (0.00 sec)
+
+mysql> show events \G;
+*************************** 1. row ***************************
+                  Db: hx9999
+                Name: captcha
+             Definer: neo@%
+           Time zone: SYSTEM
+                Type: RECURRING
+          Execute at: NULL
+      Interval value: 5
+      Interval field: MINUTE
+              Starts: 2013-07-08 16:27:03
+                Ends: NULL
+              Status: ENABLED
+          Originator: 1
+character_set_client: utf8
+collation_connection: utf8_general_ci
+  Database Collation: utf8_general_ci
+*************************** 2. row ***************************
+                  Db: hx9999
+                Name: sms_ips_log
+             Definer: neo@%
+           Time zone: SYSTEM
+                Type: RECURRING
+          Execute at: NULL
+      Interval value: '0 5'
+      Interval field: DAY_HOUR
+              Starts: 2013-07-09 14:39:51
+                Ends: NULL
+              Status: ENABLED
+          Originator: 1
+character_set_client: utf8
+collation_connection: utf8_general_ci
+  Database Collation: utf8_general_ci
+2 rows in set (0.00 sec)
+
+ERROR:
+No query specified
+			]]>
+			</programlisting>
+		</section>
+	</section>
+</chapter>

@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: chapter.install.xml 603 2013-05-27 10:09:07Z netkiller $ -->
+<chapter id="install">
+	<title>PostgreSQL 安装</title>
+	<section id="pgsql.install">
+		<title>Ubuntu 12.04.1 LTS 安装</title>
+		<para>安装环境</para>
+		<para>PostgreSQL 9.1</para>
+		<command>$ sudo apt-get install postgresql</command>
+		<screen>
+$ sudo apt-get install postgresql
+		</screen>
+		<para>更改postgres管理员用户密码</para>
+		<screen>
+$ sudo passwd postgres
+Enter new UNIX password:
+Retype new UNIX password:
+passwd: password updated successfully
+		</screen>
+		<para>然后切换到postgres用户环境</para>
+		<screen>
+$ su - postgres
+Password:
+Added user postgres.
+		</screen>
+		<para>进入psql客户款, PostgreSQL的psql命令相当于sqlplus,mysql命令</para>
+		<screen>
+$ psql
+psql (9.1.6)
+Type "help" for help.
+
+postgres=#
+		</screen>
+		<para>退出\q</para>
+		<screen>
+postgres=# \q
+		</screen>
+	</section>
+	<section id="pgsql.yum">
+		<title>YUM 默认源安装</title>
+		<screen>
+# yum search postgresql | grep ^postgresql
+postgresql-odbc.x86_64 : PostgreSQL ODBC driver
+postgresql.i686 : PostgreSQL client programs
+postgresql.x86_64 : PostgreSQL client programs
+postgresql-contrib.x86_64 : Contributed modules distributed with PostgreSQL
+postgresql-devel.i686 : PostgreSQL development header files and libraries
+postgresql-devel.x86_64 : PostgreSQL development header files and libraries
+postgresql-docs.x86_64 : Extra documentation for PostgreSQL
+postgresql-ip4r.x86_64 : IPv4 and IPv4 range index types for PostgreSQL
+postgresql-jdbc.noarch : JDBC driver for PostgreSQL
+postgresql-libs.i686 : The shared libraries required for any PostgreSQL clients
+postgresql-libs.x86_64 : The shared libraries required for any PostgreSQL
+postgresql-pgpool-II.i686 : Pgpool is a connection pooling/replication server
+postgresql-pgpool-II.x86_64 : Pgpool is a connection pooling/replication server
+postgresql-pgpool-II-recovery.x86_64 : PGPool recovery add-on for PostgreSQL
+postgresql-plparrot.x86_64 : A PostgreSQL procedural language for the Parrot
+postgresql-plperl.x86_64 : The Perl procedural language for PostgreSQL
+postgresql-plpython.x86_64 : The Python procedural language for PostgreSQL
+postgresql-plruby.x86_64 : PostgreSQL Ruby Procedural Language
+postgresql-pltcl.x86_64 : The Tcl procedural language for PostgreSQL
+postgresql-server.x86_64 : The programs needed to create and run a PostgreSQL
+postgresql-test.x86_64 : The test suite distributed with PostgreSQL
+postgresql_autodoc.noarch : PostgreSQL AutoDoc Utility
+postgresql-pgpool-II-devel.i686 : The development files for pgpool-II
+postgresql-pgpool-II-devel.x86_64 : The development files for pgpool-II
+postgresql-plruby-doc.x86_64 : Documentation for plruby
+		</screen>
+		<para>默认YUM源上面只有 8.4.13</para>
+		<screen>
+# yum info postgresql-server
+Loaded plugins: fastestmirror, presto, refresh-packagekit
+Loading mirror speeds from cached hostfile
+ * base: centos.uhost.hk
+ * epel: mirror01.idc.hinet.net
+ * extras: centos.uhost.hk
+ * updates: centos.uhost.hk
+Installed Packages
+Name        : postgresql-server
+Arch        : x86_64
+Version     : 8.4.13
+Release     : 1.el6_3
+Size        : 14 M
+Repo        : installed
+From repo   : base
+Summary     : The programs needed to create and run a PostgreSQL server
+URL         : http://www.postgresql.org/
+License     : PostgreSQL
+Description : The postgresql-server package includes the programs needed to create
+            : and run a PostgreSQL server, which will in turn allow you to create
+            : and maintain PostgreSQL databases.  PostgreSQL is an advanced
+            : Object-Relational database management system (DBMS) that supports
+            : almost all SQL constructs (including transactions, subselects and
+            : user-defined types and functions). You should install
+            : postgresql-server if you want to create and maintain your own
+            : PostgreSQL databases and/or your own PostgreSQL server. You also need
+            : to install the postgresql package.
+		</screen>
+
+		<screen>
+# yum install postgresql-server
+
+# chkconfig postgresql on
+# service postgresql initdb
+# service postgresql start
+		</screen>
+	</section>
+	<section id="pgsql.yum.new">
+		<title>PostgreSQL YUM 源安装</title>
+		<para>CentOS 6.4  环境 YUM 地址 http://yum.postgresql.org/</para>
+		<section>
+			<title>9.2</title>
+			<screen>
+# yum install http://yum.postgresql.org/9.2/redhat/rhel-6-x86_64/pgdg-centos92-9.2-6.noarch.rpm
+# yum list postgres*
+
+# yum install postgresql92-server postgresql92
+
+chkconfig postgresql-9.2 on
+service postgresql-9.2 initdb
+service postgresql-9.2 start
+			</screen>
+			<para>配置文件的位置</para>
+			<screen>
+# ls /var/lib/pgsql/9.2/data/*.conf
+/var/lib/pgsql/9.2/data/pg_hba.conf  /var/lib/pgsql/9.2/data/pg_ident.conf  /var/lib/pgsql/9.2/data/postgresql.conf
+			</screen>
+		</section>
+		<section>
+			<title>9.3</title>
+			<screen>
+# yum install http://yum.postgresql.org/9.3/redhat/rhel-6-x86_64/pgdg-centos93-9.3-1.noarch.rpm
+# yum install postgresql93-server postgresql93
+			</screen>			
+			<screen>
+# chkconfig postgresql-9.3 on
+# service postgresql-9.3 initdb
+# service postgresql-9.3 start			
+			</screen>
+			
+			<para>9.2 升级到 9.3</para>
+			<para>备份数据库</para>
+			<screen>
+# su - postgres
+$ pg_dump -f wechat.sql wechat
+			</screen>
+			<para>升级数据库</para>
+			<para>关闭9.2，启动9。3</para>
+			<screen>
+# chkconfig postgresql-9.2 off
+# service postgresql-9.2 stop
+
+# service postgresql-9.3 start
+			</screen>
+			<para>回复数据库</para>
+			<screen>
+# su - postgres
+$ createuser -r -s -P dba
+$ createuser -P wechat
+$ createdb -E UTF8 -O wechat wechat
+$ cat wechat.sql | psql wechat
+			</screen>
+			<para>合并配置文件</para>
+			<screen>
+$ cp 9.3/data/postgresql.conf{,.original}
+$ cp 9.3/data/pg_hba.conf{,.original}
+$ vimdiff 9.2/data/postgresql.conf 9.3/data/postgresql.conf
+$ vimdiff 9.2/data/pg_hba.conf 9.3/data/pg_hba.conf
+			</screen>
+			<para>注意 vimdiff 命令是文件对比于合并工具，建议你选择你比较熟悉的工具。</para>
+			<screen>
+# service postgresql-9.3 restart
+			</screen>
+		</section>
+	</section>
+	<section id="pgsql.conf">
+		<title>PostgreSQL 配置</title>
+		<para>su 到 postgres 用户</para>
+		<screen>
+$ su - postgres
+Password:
+$ pwd
+/var/lib/postgresql
+$
+		</screen>
+		<para>备份配置文件，防止修改过程中损毁</para>
+		<screen>
+cp /etc/postgresql/9.1/main/postgresql.conf /etc/postgresql/9.1/main/postgresql.conf.original
+cp /etc/postgresql/9.1/main/pg_hba.conf /etc/postgresql/9.1/main/pg_hba.conf.original
+		</screen>
+		<section>
+			<title>postgresql.conf</title>
+			<para>启用tcp/ip连接，去掉下面注释,修改为你需要的IP地址，默认为localhost</para>
+			<screen>
+listen_addresses = 'localhost'
+			</screen>
+			<para>如果有多个网络适配器可以指定 'ip' 或 '*' 任何接口上的IP地址都可能listen.</para>
+			<screen>
+$ sudo vim /etc/postgresql/9.1/main/postgresql.conf
+
+listen_addresses = '*'
+			</screen>
+		</section>
+		<section>
+			<title>pg_hba.conf</title>
+			<para>pg_hba.conf配置文件的权限需要注意以下，-rw-r----- 1 postgres postgres  4649 Dec  5 18:00 pg_hba.conf</para>
+			<screen>
+$ ll /etc/postgresql/9.1/main/
+total 52
+drwxr-xr-x 2 postgres postgres  4096 Dec  6 09:40 ./
+drwxr-xr-x 3 postgres postgres  4096 Dec  5 18:00 ../
+-rw-r--r-- 1 postgres postgres   316 Dec  5 18:00 environment
+-rw-r--r-- 1 postgres postgres   143 Dec  5 18:00 pg_ctl.conf
+-rw-r----- 1 postgres postgres  4649 Dec  5 18:00 pg_hba.conf
+-rw-r----- 1 postgres postgres  1636 Dec  5 18:00 pg_ident.conf
+-rw-r--r-- 1 postgres postgres 19259 Dec  5 18:00 postgresql.conf
+-rw-r--r-- 1 postgres postgres   378 Dec  5 18:00 start.conf
+			</screen>
+			<para>pg_hba.conf配置文件负责访问权限控制</para>
+			<screen>
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+
+# "local" is for Unix domain socket connections only
+local   all             all                                     peer
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            md5
+# IPv6 local connections:
+host    all             all             ::1/128                 md5
+			</screen>
+			<glosslist>
+				<glossentry>
+					<glossterm>TYPE</glossterm>
+					<glossdef>
+						<para>
+							local 本地使用unix/socket 方式连接, host 使用tcp/ip socket 方式连接
+						</para>
+					</glossdef>
+				</glossentry>
+				<glossentry>
+					<glossterm>DATABASE</glossterm>
+					<glossdef>
+						<para>
+							数据库名.
+						</para>
+					</glossdef>
+				</glossentry>
+				<glossentry>
+					<glossterm>USER</glossterm>
+					<glossdef>
+						<para>
+							用户名.
+						</para>
+					</glossdef>
+				</glossentry>
+				<glossentry>
+					<glossterm>ADDRESS</glossterm>
+					<glossdef>
+						<para>
+							允许连接的IP地址，可以使用子网掩码.
+						</para>
+					</glossdef>
+				</glossentry>
+				<glossentry>
+					<glossterm>METHOD</glossterm>
+					<glossdef>
+						<para>
+							认真加密方式.
+						</para>
+					</glossdef>
+				</glossentry>
+			</glosslist>
+			<para>下面我们做一个简单测试，首先配置pg_hba。conf文件</para>
+			<screen>
+$ sudo vi /etc/postgresql/9.1/main/pg_hba.conf
+host    *			dba         0.0.0.0/0       md5
+host    test		test        0.0.0.0/0       md5
+			</screen>
+			<para>运行创建数据,用户 的SQL语句</para>
+			<screen>
+CREATE ROLE test LOGIN PASSWORD 'test' NOSUPERUSER NOINHERIT NOCREATEDB NOCREATEROLE;
+
+CREATE DATABASE test WITH OWNER = test ENCODING = 'UTF8' TABLESPACE = pg_default;
+			</screen>
+			<para>进入psql</para>
+			<screen>
+$ psql
+psql (9.1.6)
+Type "help" for help.
+
+postgres=# CREATE ROLE test LOGIN PASSWORD 'test' NOSUPERUSER NOINHERIT NOCREATEDB NOCREATEROLE;
+CREATE ROLE
+postgres=# CREATE DATABASE test WITH OWNER = test ENCODING = 'UTF8' TABLESPACE = pg_default;
+CREATE DATABASE
+postgres=# \q
+			</screen>
+			<para>使用psql登录</para>
+			<screen>
+			<![CDATA[
+$ psql -hlocalhost -Utest test
+Password for user test:
+psql (9.1.6)
+SSL connection (cipher: DHE-RSA-AES256-SHA, bits: 256)
+Type "help" for help.
+
+test=> \l
+                                  List of databases
+   Name    |  Owner   | Encoding |   Collate   |    Ctype    |   Access privileges
+-----------+----------+----------+-------------+-------------+-----------------------
+ postgres  | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+ template0 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+           |          |          |             |             | postgres=CTc/postgres
+ template1 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+           |          |          |             |             | postgres=CTc/postgres
+ test      | test     | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+(4 rows)
+
+test=>
+			]]>
+			</screen>
+
+
+		</section>
+	</section>
+	<section id="dbauser">
+		<title>创建dba用户</title>
+		<para>创建一个远程维护数据库dba用户，具有创建数据库与创建用户的权限</para>
+		<screen>
+CREATE USER dba PASSWORD 'dba' CREATEDB CREATEUSER;
+		</screen>
+		<para>进入psql</para>
+		<screen>
+$ psql
+psql (9.1.6)
+Type "help" for help.
+
+postgres=# CREATE USER dba PASSWORD 'dba' CREATEDB CREATEUSER;
+CREATE ROLE
+postgres=# \q
+		</screen>
+
+		<para>使用psql登录</para>
+		<screen>
+$ psql -hlocalhost -Udba postgres
+Password for user dba:
+psql (9.1.6)
+SSL connection (cipher: DHE-RSA-AES256-SHA, bits: 256)
+Type "help" for help.
+
+postgres=#
+		</screen>
+	</section>
+
+</chapter>

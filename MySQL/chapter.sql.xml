@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: chapter.sql.xml 514 2013-01-14 10:20:12Z netkiller $ -->
+<chapter id="index"><?dbhtml dir="sql"?>
+	<title>SQL Statement Syntax</title>
+	<subtitle>Structured Query Language</subtitle>
+	<section id="distinct">
+		<title>DISTINCT</title>
+		<para>SELECT DISTINCT user.name FROM user</para>
+		<screen>
+SELECT DISTINCT user.name FROM user
+		</screen>
+	</section>
+	<section id="groupby">
+		<title>group by</title>
+		<para>统计重复的手机号吗</para>
+		<screen>
+select * from (select count(mobile) as c, mobile from member where length(mobile) >= 11 group by mobile) as m where m.c > 1;
+		</screen>
+	</section>
+	<section id="having">
+		<title>HAVING</title>
+		<programlisting>
+select * from accounts where paymode='alipay' group by name having count(name) >1;
+		</programlisting>
+	</section>
+	<section id="regexp">
+		<title>REGEXP</title>
+		<subtitle>正则匹配</subtitle>
+		<para>判断非数字字符</para>
+		<programlisting>
+select '看89700' regexp '^[0-9]+$'
+select '89看700' regexp '^[0-9]+$'
+select '89700看' regexp '^[0-9]+$'
+		</programlisting>
+		<para>应用到实际工作中</para>
+		<programlisting>
+select count(*) from accounts a where a.name != '' and not a.name regexp '^[0-9]+$';
+select count(*) from accounts a,members m where  a.member = m.id  and a.name != '' and  not a.name regexp '^[0-9]+$' group by member;
+SELECT * FROM tablename WHERE SUBSTRING(fieldname, 1, 1) REGEXP '[[:digit:]]';
+		</programlisting>
+	</section>
+	<section id="in">
+		<title>IN / NOT IN</title>
+		<programlisting>
+select * from members where id in ('1','100','1000');
+select * from members where group_id in (select id from members_group);
+		</programlisting>
+	</section>
+	<section id="any">
+		<title>ALL / Any</title>
+		<para><![CDATA[NOT IN 与 <> ALL 两个语句是相同的：]]></para>
+		<programlisting>
+		<![CDATA[
+SELECT s1 FROM t1 WHERE s1 <> ALL (SELECT s1 FROM t2);
+SELECT s1 FROM t1 WHERE s1 NOT IN (SELECT s1 FROM t2);
+		]]>
+		</programlisting>
+		<para>IN 与 "＝ANY" 两个语句是一样的：</para>
+		<programlisting>
+SELECT s1 FROM t1 WHERE s1 = ANY (SELECT s1 FROM t2);
+SELECT s1 FROM t1 WHERE s1 IN    (SELECT s1 FROM t2);
+		</programlisting>
+		<example>
+			<title>SQL ANY example</title>
+			<programlisting>
+			<![CDATA[
+select * from members where id = any(select members_id from accounts where id < 100);
+			]]>
+			</programlisting>
+		</example>
+	</section>
+	<section id="exists">
+		<title>exists, not exists</title>
+		<programlisting>
+SELECT c.id, companyname
+FROM customers c
+WHERE EXISTS(
+    SELECT orderid FROM orders o WHERE o.customer_id = cu.id)
+		</programlisting>
+	</section>
+	<section id="union">
+		<title>UNION</title>
+		<para>union 分页问题</para>
+		<programlisting>
+(SELECT a FROM tbl_name_a WHERE a=10 AND B=1)
+UNION
+(SELECT a FROM tbl_name_b WHERE a=11 AND B=2)
+ORDER BY a LIMIT 10;
+		</programlisting>
+		<programlisting>
+select * from (
+	select a from tbl_name_a WHERE a=10 AND B=1
+	union all
+	select a from tbl_name_b WHERE a=10 AND B=1
+) tbl_name
+order by a limit 0,1;
+		</programlisting>
+		<section>
+			<title>UNION ALL</title>
+			<para>UNION ALL 不会合并重复的记录</para>
+			<programlisting>
+select a,b from tbl_name_a WHERE a=10 AND B=1
+union all
+select a,b from tbl_name_b WHERE a=10 AND B=1
+			</programlisting>
+		</section>
+	</section>
+	<section id="outfile">
+		<title>OUTFILE/LOAD DATA INFILE</title>
+		<para>查询结果输出到文件</para>
+		<screen>
+SELECT * FROM tablename INTO OUTFILE '/tmp/tablename.txt';
+		</screen>
+		<para>使用tee将屏幕输出到文件</para>
+		<screen>
+		<![CDATA[
+mysql>tee /home/neo/screen.txt
+mysql>select * from user;
+mysql>exit
+		]]>
+		</screen>
+		<screen>
+		<![CDATA[
+SELECT * INTO OUTFILE '/home/mark/Orders.txt'
+　　FIELDS
+　　TERMINATED BY = ','
+　　FROM Orders
+　　WHERE Order_Date >= '2000-01-01'
+		]]>
+		</screen>
+		<screen>
+		<![CDATA[
+LOAD DATA INFILE 'data.txt' INTO TABLE db2.my_table;
+		]]>
+		</screen>
+		<section id="outfile.csv">
+			<title>Export data to CSV from MySQL</title>
+			<screen>
+SELECT *
+INTO OUTFILE '/tmp/products.csv'
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+ESCAPED BY '\\'
+LINES TERMINATED BY '\n'
+FROM products
+			</screen>
+		</section>
+		<section>
+			<title>Import data from CSV file.</title>
+			<screen>
+LOAD DATA LOW_PRIORITY LOCAL INFILE 'C:\\hx.csv' IGNORE INTO TABLE `tmp`.`creditlog`
+CHARACTER SET gbk FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY '"' LINES TERMINATED BY '\r\n'
+(`ctime`, `login`, `mode`, `type`, `prevavailcredit`, `change`, `newavailcredit`, `comment`);
+			</screen>
+		</section>
+	</section>
+<section id="sql.mysql">
+	<title>MySQL 专有命令</title>
+	<section id="sql_no_cache">
+		<title>SQL_NO_CACHE</title>
+		<screen>
+SELECT /*!40001 SQL_NO_CACHE */ * FROM table
+		</screen>
+	</section>
+	<section id="signal">
+		<title>SIGNAL Syntax</title>
+		<programlisting>
+DROP TRIGGER `members_before_insert`;
+CREATE DEFINER=`neo`@`%` TRIGGER `members_before_insert` BEFORE INSERT ON `members` FOR EACH ROW BEGIN
+	IF new.username IS NOT NULL THEN
+		IF not exists(select username from members_available where username = new.username) THEN
+	   	/*set new.username = NULL;*/
+	   	SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'An error occurred', MYSQL_ERRNO = 1001;
+		END IF;
+	END IF;
+END;
+		</programlisting>
+		<screen>
+
+		</screen>
+	</section>
+</section>
+
+<section id="sql.92">
+		<title>SQL 92</title>
+
+			<para>insert + select</para>
+			<screen>
+insert into product_type_commission select id,5,1,1,0,0,0,0,0,0 from product_type where title='notebook' and is_physical=0;
+			</screen>
+
+			<para>update table1,table2</para>
+			<screen>
+begin;
+ALTER TABLE `customer` ADD COLUMN `cutoff_time` TIMESTAMP NOT NULL default '0000-00-00 00:00:00';
+update customer,agent set customer.cutoff_time = agent.cutoff_time where customer.id = agent.id;
+ALTER TABLE `agent` DROP COLUMN `cutoff_time`;
+commit;
+			</screen>
+
+			<para>update table1 set field1 = (select value from table2)</para>
+			<screen>
+UPDATE
+	transaction
+SET
+	transaction.total_sold_price = (
+		SELECT
+			SUM(transaction_item.price)
+	FROM
+			transaction_item
+		WHERE transaction_item.transaction_id = 100
+	)
+WHERE
+	transaction.id = 100
+			</screen>
+			<para>update table1, (select * from other) as table2 set table1.field1 = table2.field1</para>
+			<screen>
+UPDATE
+	transaction,(	SELECT
+						SUM(product_item.bought_price) AS total_bought_price, transaction_item.transaction_id
+					FROM
+						transaction_item
+			    	WHERE
+						transaction_item.transaction_id IN ( '123','456' )
+			     ) as total
+SET
+	transaction.total_bought_price = total.total_bought_price
+WHERE
+	transaction.id = total.transaction_id
+
+			</screen>
+
+		<para>join + subquery</para>
+		<screen>
+select u.*,t.category,t.items,t.[property] from tb_sysregchkusers as u left join (select a.items as category, b.* from (select id, items from tb_sysregchktask where categoryid=0) as a left join tb_sysregchktask as b on b.categoryid=a.id ) as t on u.taskID=t.id
+
+select * from tb_sysregchklog where CONVERT(datetime,CONVERT(varchar(10),checkTime,120)) between convert(datetime,'2007-12-12') and convert(datetime,'2007-12-12')
+		</screen>
+
+		<screen>
+select DISTINCT user_point_history.user_id,user.username,
+(select count(id) from transaction where id = user_point_history.transaction_id) as transactions,
+(SELECT SUM(u_p_h.points) FROM user_point_history as u_p_h WHERE u_p_h.type != 'RDMP' AND u_p_h.status IN('pr','ac') AND u_p_h.user_id = user_point_history.user_id) as total_points_earned,
+(SELECT SUM(u_p_h.points) FROM user_point_history as u_p_h WHERE u_p_h.type = 'RDMP' AND u_p_h.status IN('pr','ac') AND u_p_h.user_id = user_point_history.user_id) as total_points_redeemed
+from user_point_history,user where user_point_history.user_id = user.id;
+		</screen>
+
+		<para>(total_points_earned - total_points_redeemed) as current_balance_points </para>
+		<screen>
+select user_id, username, transactions, total_points_earned, total_points_redeemed, (total_points_earned - total_points_redeemed) as current_balance_points
+from (select DISTINCT user_point_history.user_id,user.username,
+(select count(id) from transaction where id = user_point_history.transaction_id) as transactions,
+(SELECT SUM(u_p_h.points) FROM user_point_history as u_p_h WHERE u_p_h.type != 'RDMP' AND u_p_h.status IN('pr','ac') AND u_p_h.user_id = user_point_history.user_id) as total_points_earned,
+(SELECT SUM(u_p_h.points) FROM user_point_history as u_p_h WHERE u_p_h.type = 'RDMP' AND u_p_h.status IN('pr','ac') AND u_p_h.user_id = user_point_history.user_id) as total_points_redeemed
+from user_point_history,user where user_point_history.user_id = user.id) as user_performance;
+		</screen>
+
+		<para>subquery作为一个字段使用 </para>
+		<screen>
+select product_type_attribute.*,(select 'selected' from product_type_attribute_set where product_type_attribute_set.product_type_attribute_id = product_type_attribute.id and product_type_attribute_set.product_type_id = 26) as selected
+from product_type_attribute;
+		</screen>
+	</section>
+</chapter>
+
+	&chapter.sql.function.xml;

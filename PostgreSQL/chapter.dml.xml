@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="dml">
+	<title>DML</title>
+	<section>
+		<title>INSERT</title>
+		<section>
+			<title>自动截取字符串</title>
+			<screen>
+CREATE TABLE test (c varchar(5));
+			</screen>
+			<para>现在开始插入数据库，每次增加一个长度</para>
+			<screen>
+			<![CDATA[
+test=> INSERT INTO test VALUES ('1');
+INSERT 0 1
+test=> INSERT INTO test VALUES ('12');
+INSERT 0 1
+test=> INSERT INTO test VALUES ('123');
+INSERT 0 1
+test=> INSERT INTO test VALUES ('1234');
+INSERT 0 1
+test=> INSERT INTO test VALUES ('12345');
+INSERT 0 1
+test=> INSERT INTO test VALUES ('123456');
+ERROR:  value too long for type character varying(5)
+test=> INSERT INTO test VALUES ('1234567');
+ERROR:  value too long for type character varying(5)
+test=>
+			]]>
+			</screen>
+			<para>超出长度会提示 ERROR:  value too long for type character varying(5)</para>
+			<para>通过 ::varchar(5) 截取5前五个字符，后面抛弃</para>
+			<screen>
+			<![CDATA[
+test=> INSERT INTO test VALUES ('123456'::varchar(5));
+INSERT 0 1
+test=> INSERT INTO test VALUES ('1234567'::varchar(5));
+INSERT 0 1
+test=> INSERT INTO test VALUES ('12345678'::varchar(5));
+INSERT 0 1
+			]]>
+			</screen>
+			<para>超过的部分被自动截取</para>
+			<screen>
+			<![CDATA[
+test=> select * from test;
+   c
+-------
+ 1
+ 12
+ 123
+ 1234
+ 12345
+ 12345
+ 12345
+ 12345
+(8 rows)
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>INSERT IGNORE INTO</title>
+			<para>PostgreSQL 没有 MySQL INSERT IGNORE INTO 用法，可以使用下面方法替代 </para>
+			<screen>
+insert into profile(wechat,username,name) select wechat,username,name from member where description like '%5%' and NOT EXISTS (select 1 from profile where profile.wechat = member.wechat);			
+			</screen>
+		</section>
+	</section>
+	<section id="copy">
+		<title>copy</title>
+		<section>
+			<title>wget</title>
+			<para>http://www.postgresonline.com/journal/archives/325-Using-wget-directly-from-PostgreSQL-using-COPY-FROM-PROGRAM.html</para>
+			<screen>
+			<![CDATA[
+CREATE TABLE worldbank_json(data json);
+COPY worldbank_json 
+  FROM PROGRAM 'C:/wget/wget.exe -q -O - "$@" "http://api.worldbank.org/countries?format=json&per_page=100&page=1"';
+COPY worldbank_json 
+  FROM PROGRAM 'C:/wget/wget.exe -q -O - "$@" "http://api.worldbank.org/countries?format=json&per_page=100&page=2"';
+COPY worldbank_json 
+ FROM PROGRAM 'C:/wget/wget.exe -q -O - "$@" "http://api.worldbank.org/countries?format=json&per_page=100&page=3"';
+ 
+ WITH je AS (SELECT json_array_elements(data->1) AS jd 
+FROM  worldbank_json)
+SELECT jd->>'id' AS id, jd->>'name' As country, 
+  jd#>>'{adminregion,id}' As region_id
+FROM je ;
+			]]>
+			</screen>
+		</section>
+	</section>
+</chapter>

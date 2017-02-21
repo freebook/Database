@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="mongo.gui">
+	<title>Mongo Admin UI</title>
+	<para>http://docs.mongodb.org/ecosystem/tools/administration-interfaces/</para>
+	<section id="rockmongo">
+		<title>RockMongo</title>
+		<para><ulink url="http://code.google.com/p/rock-php/" /></para>
+	</section>
+	<section id="mongovue">
+		<title>MongoVUE</title>
+		<para>http://blog.mongovue.com/</para>
+		<para>MongoVUE 是收费软件，提供的功能比较完善，可以免费试用</para>
+	</section>
+</chapter>

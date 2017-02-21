@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="dcl.lock">
+	<title>锁</title>
+	<para>锁机制</para>
+	<screen>
+    1) 共享锁：由读表操作加上的锁，加锁后其他用户只能获取该表或行的共享锁，不能获取排它锁，也就是说只能读不能写
+    2) 排它锁：由写表操作加上的锁，加锁后其他用户不能获取该表或行的任何锁，典型是mysql事务中的
+
+    锁的范围:
+    行锁: 对某行记录加上锁
+    表锁: 对整个表加上锁
+	</screen>
+	<para>共享锁(share mode), 排他锁(for update) </para>
+	<section id="share">
+		<title>共享锁</title>
+		<subtitle></subtitle>
+		
+	</section>
+	<section id="mutex">
+		<title>排他锁</title>
+		<para>下面做作一个实验，验证锁的效果</para>
+		<para>终端一,首先进入事务状态然后运行下面语句</para>
+		<screen>
+		<![CDATA[
+mysql> begin;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from t1 where id='3' for update;
++----+--------+---------------------+---------------------+
+| id | name   | ctime               | mtime               |
++----+--------+---------------------+---------------------+
+|  3 | test   | 0000-00-00 00:00:00 | 2013-01-14 13:05:41 |
++----+--------+---------------------+---------------------+
+1 row in set (0.00 sec)
+		]]>
+		</screen>
+		<para>终端二, 查询表中数据</para>
+		<screen>
+		<![CDATA[
+mysql> select * from t1;
++----+--------+---------------------+---------------------+
+| id | name   | ctime               | mtime               |
++----+--------+---------------------+---------------------+
+|  1 | neo    | 0000-00-00 00:00:00 | 2013-01-14 13:00:00 |
+|  2 | zen    | 0000-00-00 00:00:00 | 2013-01-14 13:00:43 |
+|  3 | test   | 0000-00-00 00:00:00 | 2013-01-14 13:05:41 |
++----+--------+---------------------+---------------------+
+3 rows in set (0.00 sec)
+		]]>
+		</screen>
+		<para>增加“for update”查询非锁定记录</para>
+		<screen>
+		<![CDATA[
+mysql> select * from t1 where id=2 for update;
++----+------+---------------------+---------------------+
+| id | name | ctime               | mtime               |
++----+------+---------------------+---------------------+
+|  2 | zen  | 0000-00-00 00:00:00 | 2013-01-14 13:00:43 |
++----+------+---------------------+---------------------+
+1 row in set (0.00 sec)
+		]]>
+		</screen>
+		<para>查询被锁定记录</para>
+		<screen>
+		<![CDATA[
+mysql> select * from t1 where id=3 for update;
+ERROR 1205 (HY000): Lock wait timeout exceeded; try restarting transaction
+		]]>
+		</screen>
+		<para>查询所有记录，因为记录中包含了id=3那条，所以也不允许查询。</para>
+		<screen>
+		<![CDATA[
+mysql> select * from t1 for update;
+ERROR 1205 (HY000): Lock wait timeout exceeded; try restarting transaction
+		]]>
+		</screen>
+		<para>测试修改记录</para>
+		<screen>
+		<![CDATA[
+mysql> UPDATE `t1` SET `name`='testaa' WHERE  `id`=3;
+ERROR 1205 (HY000): Lock wait timeout exceeded; try restarting transaction
+		]]>
+		</screen>
+		<tip>
+			<para>在没有出现ERROR 1205 (HY000)的这段时间，只要终端一中执行commit,rollback锁就释放了.终端二中的语句就会运行。</para>
+			<para>select trx_query from information_schema.innodb_trx; 可以查看被锁的SQL语句</para>
+		</tip>
+		
+	</section>
+
+	<section id="locking">
+		<title>锁</title>
+		<section>
+			<title>表的加锁与解锁</title>
+			<screen>
+LOCK TABLES tablename WRITE;
+LOCK TABLES tablename READ;
+
+...
+...
+
+UNLOCK TABLES;
+			</screen>
+
+			<screen>
+			<![CDATA[
+CREATE TABLE `locking` (
+	`name` VARCHAR(50) NULL DEFAULT NULL
+)
+ENGINE=InnoDB
+;
+
+mysql> insert into locking values('test');
+Query OK, 1 row affected (0.02 sec)
+
+mysql> select * from locking;
++------+
+| name |
++------+
+| test |
++------+
+1 row in set (0.00 sec)
+
+mysql> UNLOCK TABLES;
+			]]>
+			</screen>
+			<screen>
+			<![CDATA[
+
+mysql> LOCK TABLES locking READ;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> insert into locking values('test');
+ERROR 1099 (HY000): Table 'locking' was locked with a READ lock and can't be updated
+
+
+mysql> LOCK TABLE locking WRITE;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from locking;
++------+
+| name |
++------+
+| test |
+| test |
++------+
+2 rows in set (0.00 sec)
+
+mysql> insert into locking values('test');
+Query OK, 1 row affected (0.05 sec)
+
+mysql> UNLOCK TABLES;
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>禁止查询</title>
+			<screen>
+			<![CDATA[
+
+mysql> LOCK TABLE locking AS myalias READ;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from locking;
+ERROR 1100 (HY000): Table 'locking' was not locked with LOCK TABLES
+
+mysql> select * from locking as myalias;
++------+
+| name |
++------+
+| test |
+| test |
+| test |
++------+
+3 rows in set (0.00 sec)
+
+			]]>
+			</screen>
+		</section>
+	</section>
+	<section>
+		<title>锁等待与超时</title>
+		<para>当你开启了事务 begin 忘记，或者各种原因没有commit也没有rollback。悲剧了！</para>
+		<section>
+			<title>超时设置</title>
+			<screen>
+begin;
+SET SESSION wait_timeout = 60;	
+select * from locking for update;
+			</screen>
+			<para>60秒内如果没有commit/rollback将自动释放本次事务。</para>
+		</section>
+			
+		<section>
+			<title>select for update nowait</title>
+			<para>使用 for update 是会遇到一个问题，就是其他用户会漫长的等待，而我们需要程序非阻塞运行，当遇到 for update 的时候应该立即返回此表已被加锁。</para>
+			<para>mysql 并没有实现 nowait 关键字（类似Oracle的功能），但又一个方法能够达到同样目的。</para>
+			<screen>
+			<![CDATA[
+mysql> select @@innodb_version;
++------------------+
+| @@innodb_version |
++------------------+
+| 5.6.24           |
++------------------+
+1 row in set (0.05 sec)
+			
+mysql> select * from locking;
+ERROR 1100 (HY000): Table 'locking' was not locked with LOCK TABLES
+			]]>
+			</screen>
+			<para>此时需要等待很长时间才能提示 “Table 'locking' was not locked with LOCK TABLES”</para>
+			<screen>
+			<![CDATA[
+mysql> set session innodb_lock_wait_timeout=1;
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> select * from locking for update;
+ERROR 1205 (HY000): Lock wait timeout exceeded; try restarting transaction
+			]]>
+			</screen>
+			<para>设置 innodb_lock_wait_timeout 参数后，很快就返回</para>
+			<screen>
+			<![CDATA[
+mysql> show variables like 'innodb_lock_wait_timeout';
++--------------------------+-------+
+| Variable_name            | Value |
++--------------------------+-------+
+| innodb_lock_wait_timeout | 1     |
++--------------------------+-------+
+1 row in set (0.00 sec)
+
+mysql> show global variables like 'innodb_lock_wait_timeout';
++--------------------------+-------+
+| Variable_name            | Value |
++--------------------------+-------+
+| innodb_lock_wait_timeout | 50    |
++--------------------------+-------+
+1 row in set (0.00 sec)	
+			]]>
+			</screen>
+			<para>innodb_lock_wait_timeout 默认值是 50</para>
+		</section>		
+	</section>
+</section>

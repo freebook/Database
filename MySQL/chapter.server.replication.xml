@@ -1,0 +1,868 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="replication">
+	<title>Replication</title>
+	<section id="master.slave">
+		<title>Master Slave</title>
+
+		<section id="replication.master">
+			<title>Master</title>
+			<procedure><title>Master 设置步骤</title>
+				<step>
+					<para>配置 my.cnf 文件</para>
+					<para>确保主服务器主机上my.cnf文件的[mysqld]部分包括一个log-bin选项。该部分还应有一个server-id=Master_id选项</para>
+					<screen>
+# vim /etc/mysql/my.cnf
+
+server-id               = 1
+log_bin                 = /var/log/mysql/mysql-bin.log
+expire_logs_days        = 10
+max_binlog_size         = 100M
+binlog_do_db            = test
+binlog_ignore_db        = mysql
+					</screen>
+					<para>bind-address默认是127.0.0.1你必须更改它，否则Slave将无法链接到 Master</para>
+					<screen>
+#bind-address		= 127.0.0.1
+bind-address		= 0.0.0.0
+					</screen>
+					<para>重启服务器</para>
+					<screen>
+neo@netkiller:~$ sudo /etc/init.d/mysql reload
+ * Reloading MySQL database server mysqld          [ OK ]
+					</screen>
+					<para>建议使用reload,如果不起作用再用restart</para>
+					<screen>
+					<![CDATA[
+mysql> SHOW GLOBAL VARIABLES like 'server_id';
++---------------+-------+
+| Variable_name | Value |
++---------------+-------+
+| server_id     | 1     |
++---------------+-------+
+1 row in set (0.00 sec)
+					]]>
+					</screen>
+				</step>
+				<step>
+					<para>登录slave服务器，测试主库3306工作情况，如果看到下面相关信息表示工作正常。</para>
+					<screen>
+					<![CDATA[
+# telnet 192.168.1.246 3306
+Trying 192.168.1.246...
+Connected to 192.168.1.246.
+Escape character is '^]'.
+I
+5.1.61-0ubuntu0.11.10.1-log1W<gs/*'#}p<u[J=5//:
+					]]>
+					</screen>
+				</step>
+				<step>
+					<para>创建账户并授予REPLICATION SLAVE权限</para>
+					<screen>
+					<![CDATA[
+mysql> GRANT REPLICATION SLAVE,REPLICATION CLIENT ON *.* TO 'replication'@'%.mydomain.com' IDENTIFIED BY 'slavepass';
+mysql> FLUSH PRIVILEGES;
+					]]>
+					</screen>
+					<para>创建监控账号monitor（可选项），monitor 使用SHOW MASTER STATUS和SHOW SLAVE STATUS命令但没有复制权限</para>
+					<para>GRANT REPLICATION CLIENT ON *.* TO monitor@'192.168.245.131' IDENTIFIED BY 'monitorpass'</para>
+				</step>
+				<step>
+					<para>锁表禁止写入新数据</para>
+					<screen>
+					<![CDATA[
+mysql> FLUSH TABLES WITH READ LOCK;
+					]]>
+					</screen>
+				</step>
+				<step>
+					<para>查看Master 工作状态</para>
+					<screen>
+					<![CDATA[
+mysql> SHOW MASTER STATUS;
++------------------+----------+--------------+------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB |
++------------------+----------+--------------+------------------+
+| mysql-bin.000002 |      106 | test         | mysql            |
++------------------+----------+--------------+------------------+
+1 row in set (0.00 sec)
+					]]>
+					</screen>
+					<para>如果显示下面内容表示，配置不正确</para>
+					<screen>
+					<![CDATA[
+
+mysql> SHOW MASTER STATUS;
+Empty set (0.02 sec)
+					]]>
+					</screen>
+
+					<para>取得快照并记录日志名和偏移量后，可以在主服务器上重新启用写活动</para>
+					<screen>
+					<![CDATA[
+mysql> UNLOCK TABLES;
+					]]>
+					</screen>
+				</step>
+			</procedure>
+		</section>
+		<section id="replication.slave">
+			<title>Slave</title>
+			<procedure>
+				<title>Slave 设置步骤</title>
+				<step>
+					<para>配置my.cnf</para>
+					<para>从服务器的ID必须与主服务器的ID不相同,如果设置多个从服务器，每个从服务器必须有一个唯一的server-id值，必须与主服务器的以及其它从服务器的不相同。</para>
+					<screen>
+# vim /etc/mysql/my.cnf
+
+[mysqld]
+server-id               = 2
+					</screen>
+				</step>
+				<step>
+					<screen>
+# service mysql restart
+mysql start/running, process 22893
+					</screen>
+				</step>
+
+				<step>
+					<para>指定  master 相关参数</para>
+					<para>在从服务器上执行下面的语句，用你的系统的实际值替换选项值</para>
+					<screen>
+					<![CDATA[
+mysql> CHANGE MASTER TO
+	->     MASTER_HOST='master_host_name',
+	->     MASTER_USER='replication_user_name',
+    ->     MASTER_PASSWORD='replication_password',
+    ->     MASTER_LOG_FILE='recorded_log_file_name',
+    ->     MASTER_LOG_POS=recorded_log_position;
+	   				]]>
+					</screen>
+					<para>如果是全新服务器，空数据库可以忽略MASTER_LOG_FILE与MASTER_LOG_POS</para>
+					<screen>
+CHANGE MASTER TO MASTER_HOST='192.168.245.129', MASTER_USER='replication', MASTER_PASSWORD='slavepass';
+					</screen>
+					<para>如果是复制已经存在的数据库需要MASTER_LOG_FILE与MASTER_LOG_POS选项</para>
+					<para>首先到Master上运行 show master status 找到File与Position</para>
+					<screen>
+					<![CDATA[
+mysql> show master status \G
+*************************** 1. row ***************************
+            File: mysql-bin.000009
+        Position: 3988
+    Binlog_Do_DB:
+Binlog_Ignore_DB:
+1 row in set (0.00 sec)
+					]]>
+					</screen>
+					<screen>
+CHANGE MASTER TO
+     MASTER_HOST='192.168.2.1',
+     MASTER_USER='replication',
+     MASTER_PASSWORD='kJZBTo3BjMx9AnmD9Ryn',
+     MASTER_LOG_FILE='mysql-bin.000009',
+     MASTER_LOG_POS=3988;
+					</screen>
+				</step>
+
+				<step>
+					<para>启动从服务器线程</para>
+					<screen>
+					<![CDATA[
+mysql> START SLAVE;
+Query OK, 0 rows affected (0.00 sec)
+					]]>
+					</screen>
+				</step>
+
+				<step>
+					<para>SLAVE STATUS</para>
+					<screen>
+					<![CDATA[
+mysql> SHOW SLAVE STATUS\G
+*************************** 1. row ***************************
+             Slave_IO_State: Connecting to master
+                Master_Host: 192.168.245.129
+                Master_User: repl
+                Master_Port: 3306
+              Connect_Retry: 60
+            Master_Log_File:
+        Read_Master_Log_Pos: 4
+             Relay_Log_File: mysqld-relay-bin.000002
+              Relay_Log_Pos: 98
+      Relay_Master_Log_File:
+           Slave_IO_Running: Yes
+          Slave_SQL_Running: Yes
+            Replicate_Do_DB:
+        Replicate_Ignore_DB:
+         Replicate_Do_Table:
+     Replicate_Ignore_Table:
+    Replicate_Wild_Do_Table:
+Replicate_Wild_Ignore_Table:
+                 Last_Errno: 0
+                 Last_Error:
+               Skip_Counter: 0
+        Exec_Master_Log_Pos: 0
+            Relay_Log_Space: 98
+            Until_Condition: None
+             Until_Log_File:
+              Until_Log_Pos: 0
+         Master_SSL_Allowed: No
+         Master_SSL_CA_File:
+         Master_SSL_CA_Path:
+            Master_SSL_Cert:
+          Master_SSL_Cipher:
+             Master_SSL_Key:
+      Seconds_Behind_Master: NULL
+1 row in set (0.00 sec)
+					]]>
+					</screen>
+				</step>
+			</procedure>
+		</section>
+		<section id="replication.testing">
+			<title>Testing</title>
+			<procedure>
+				<step>
+					<para>登录 master</para>
+					<para>复制进程的信息</para>
+					<para>SHOW PROCESSLIST语句可以提供在主服务器上和从服务器上发生的关于复制的信息</para>
+					<screen>
+mysql> SHOW PROCESSLIST\G
+*************************** 1. row ***************************
+     Id: 62
+   User: replication
+   Host: ken-hx409.local:36465
+     db: NULL
+Command: Binlog Dump
+   Time: 679
+  State: Has sent all binlog to slave; waiting for binlog to be updated
+   Info: NULL
+*************************** 2. row ***************************
+     Id: 64
+   User: root
+   Host: localhost
+     db: NULL
+Command: Query
+   Time: 0
+  State: NULL
+   Info: SHOW PROCESSLIST
+2 rows in set (0.00 sec)
+
+					</screen>
+				</step>
+				<step>
+					<para>登录从库，查看复制线程</para>
+					<screen>
+					<![CDATA[
+mysql> SHOW PROCESSLIST\G
+*************************** 1. row ***************************
+     Id: 273
+   User: root
+   Host: localhost
+     db: NULL
+Command: Query
+   Time: 0
+  State: NULL
+   Info: SHOW PROCESSLIST
+*************************** 2. row ***************************
+     Id: 276
+   User: system user
+   Host:
+     db: NULL
+Command: Connect
+   Time: 2
+  State: Waiting for master to send event
+   Info: NULL
+*************************** 3. row ***************************
+     Id: 277
+   User: system user
+   Host:
+     db: NULL
+Command: Connect
+   Time: 2
+  State: Has read all relay log; waiting for the slave I/O thread to update it
+   Info: NULL
+3 rows in set (0.00 sec)
+					]]>
+					</screen>
+					<para>如果没有复制进程，请使用start slave;启动</para>
+					<screen>
+					<![CDATA[
+mysql> SHOW PROCESSLIST\G
+*************************** 1. row ***************************
+     Id: 273
+   User: root
+   Host: localhost
+     db: NULL
+Command: Query
+   Time: 0
+  State: NULL
+   Info: SHOW PROCESSLIST
+1 row in set (0.02 sec)
+
+mysql> start slave;
+Query OK, 0 rows affected (0.00 sec)
+					]]>
+					</screen>
+				</step>
+				<step>
+					<para>登录 master</para>
+					<screen>
+					<![CDATA[
+mysql> insert into foo(id,data) values(2,'Hello world!!!');
+Query OK, 1 row affected (0.00 sec)
+					]]>
+					</screen>
+				</step>
+				<step>
+					<para>登录 slave</para>
+					<screen>
+					<![CDATA[
+mysql> select * from foo;
+					]]>
+					</screen>
+					<para>在master服务器上插入一条记录，你可以立刻在slave服务器上看到变化。</para>
+				</step>
+			</procedure>
+		</section>
+		<section id="replication.db">
+			<title>将现有数据库迁移到主从结构数据库</title>
+			<para>数据库已经存在的情况下怎么迁移</para>
+			<procedure>
+				<step>
+					<para>Master 锁表禁止写入新数据</para>
+					<screen>
+					<![CDATA[
+mysql> FLUSH TABLES WITH READ LOCK;
+					]]>
+					</screen>
+				</step>
+				<step>
+					<para>Slave 停止复制进程</para>
+					<screen>
+					<![CDATA[
+mysql> stop slave;
+					]]>
+					</screen>
+				</step>
+				<step>
+					<para>备份Master数据库</para>
+					<screen>
+					<![CDATA[
+mysqldump yourdb | gzip > yourdb.sql.gz
+					]]>
+					</screen>
+				</step>
+				<step>
+					<para>恢复数据库</para>
+					<para>如果使用mysqldump备份主服务器的数据，将转储文件装载到从服务器</para>
+					<screen>
+					<![CDATA[
+# zcat yourdb.sql.gz | mysql -u root -p yourdb
+					]]>
+					</screen>
+				</step>
+				<step>
+					<para>启动 Slave 复制进程</para>
+					<screen>
+					<![CDATA[
+mysql> start slave;
+					]]>
+					</screen>
+				</step>
+				<step>
+					<para>解除 Master 表锁定</para>
+					<screen>
+					<![CDATA[
+mysql> UNLOCK TABLES;
+					]]>
+					</screen>
+				</step>
+			</procedure>
+			<para>MyIASM引擎可以采用下面方法</para>
+			<para>备份数据库</para>
+			<screen>
+# tar zcvf mysql-snapshot.tar.gz /var/lib/mysql/neo
+			</screen>
+			<para>复制给从数据库</para>
+			<screen>
+scp mysql-snapshot.tar.gz  neo@192.168.245.131:/tmp
+			</screen>
+
+			<para>snapshot 恢复</para>
+			<screen>
+$ tar zxvf mysql-snapshot.tar.gz
+$ cd /var/lib/mysql
+
+$ mv /tmp/var/lib/mysql/neo .
+$ sudo chown mysql.mysql -R neo
+			</screen>
+			<para>重新启动Mysql</para>
+			<screen>
+$ sudo /etc/init.d/mysql restart
+			</screen>
+			<para>有兴趣可以看看mysqlhotcopy</para>
+		</section>
+		<section id="replication.privi">
+			<title>主从复制安全问题</title>
+			<para>复制帐号权限</para>
+			<screen>
+grant replication slave on *.* to 'replication'@'192.168.1.%' identified by '000000';
+			</screen>
+			<para>主库数据库操作帐号权限</para>
+			<screen>
+grant DELETE, INSERT, SELECT, UPDATE ON your_user.* to yourdb@'your_host' identified by 'password' with grant option;
+			</screen>
+			<para>从库数据库操作帐号权限</para>
+			<screen>
+grant SELECT ON your_user.* to yourdb@'your_host' identified by 'password' with grant option;
+			</screen>
+			<para>从库必须收回写操作</para>
+		</section>
+	</section>
+
+	<section id="master.master">
+		<title>Master Master(主主)</title>
+		<section>
+			<title>Master A</title>
+			<para>my.cnf 文件加入下面的内容</para>
+			<screen>
+cp /etc/mysql/my.cnf /etc/mysql/my.cnf.old
+vim /etc/mysql/my.cnf
+
+[mysqld]
+server-id = 1
+log-bin=/data/mysql/binlog/binlog
+binlog-do-db = test
+binlog-ignore-db=mysql
+
+log-slave-updates
+sync_binlog=1
+auto_increment_offset=1
+auto_increment_increment=2
+replicate-do-db = test
+replicate-ignore-db = mysql,information_schema
+			</screen>
+			<para>创建复制权限</para>
+			<screen>
+grant replication slave on *.* to 'replication'@'192.168.1.%' identified by '000000';
+flush privileges;
+			</screen>
+			<screen>
+			<![CDATA[
+mysql>flush tables with read lock;
+
+mysql> show master status\G
+*************************** 1. row ***************************
+File: binlog.000007
+Position: 107
+Binlog_Do_DB: test
+Binlog_Ignore_DB: mysql
+1 row in set (0.00 sec)
+			]]>
+			</screen>
+
+		</section>
+		<section>
+			<title>Master B</title>
+			<para>创建复制权限</para>
+			<screen>
+grant replication slave on *.* to 'replication'@'192.168.1.%' identified by '000000';
+flush privileges;
+			</screen>
+			<para>my.cnf 文件加入下面的内容</para>
+			<screen>
+[mysqld]
+server-id = 2
+log-bin = /data/mysql/binlog/binlog
+replicate-do-db = test
+replicate-ignore-db = mysql,information_schema
+
+binlog-do-db = test
+binlog-ignore-db=mysql
+log-slave-updates
+sync_binlog=1
+auto_increment_offset=2
+auto_increment_increment=2
+			</screen>
+			<para>B 与 A 配置文件不同的两处。</para>
+			<screen>
+server-id = 2
+auto_increment_offset=2
+			</screen>
+			<screen>
+			<![CDATA[
+mysql> show master status\G
+*************************** 1. row ***************************
+File: binlog.000005
+Position: 107
+Binlog_Do_DB: test
+Binlog_Ignore_DB: mysql
+1 row in set (0.00 sec)
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>将Master A 数据库 同步到 Master B 两端数据库内容保持一致</title>
+			<para>Master A，首先锁表为只读状态</para>
+			<screen>
+			<![CDATA[
+mysqldump --databases test > /tmp/test.sql
+			]]>
+			</screen>
+			<para>Master B 创建一个与Master A同名的空数据库,然后将备份文件恢复到数据库中</para>
+			<screen>
+			<![CDATA[
+# mysql
+mysql> CREATE DATABASE test;
+mysql>\q
+
+# scp 192.168.1.1:/tmp/test.sql ./
+# mysql -uroot -p test < /tmp/test.sql
+  			]]>
+			</screen>
+		</section>
+		<section>
+			<title>Master A - B 同步两端数据库</title>
+			<para>master-A</para>
+			<screen>
+			<![CDATA[
+mysql>change master to master_host='192.168.1.2', master_user='replication', master_password='000000', master_log_file='binlog.000005', master_log_pos=107;
+			]]>
+			</screen>
+			<para>master-B</para>
+			<screen>
+			<![CDATA[
+mysql>change master to master_host='192.168.1.1', master_user='replication', master_password='000000', master_log_file='binlog.000007', master_log_pos=107;
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>Master A 数据库解除只读权限</title>
+			<para>Master A 解锁</para>
+			<screen>
+			<![CDATA[
+mysql> UNLOCK TABLES;
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>查看主主的工作状态</title>
+			<para>分别在Master A与B 上运行</para>
+			<screen>
+			<![CDATA[
+mysql>show slave status\G;
+
+Slave_IO_Running: Yes
+Slave_SQL_Running: Yes
+			]]>
+			</screen>
+		</section>
+	</section>
+
+	<section id="semisynchronous">
+		<title>Semisynchronous Replication</title>
+		<section>
+			<title>Master</title>
+			<screen>
+			<![CDATA[
+mysql> SHOW VARIABLES LIKE "have_dynamic_loading";
++----------------------+-------+
+| Variable_name        | Value |
++----------------------+-------+
+| have_dynamic_loading | YES   |
++----------------------+-------+
+1 row in set (0.00 sec)
+
+mysql>
+			]]>
+			</screen>	
+			<para>Master 配置</para>
+			<screen>
+mysql> install plugin rpl_semi_sync_master SONAME 'semisync_master.so';
+mysql> set global rpl_semi_sync_master_enabled = 1; 
+mysql> set global rpl_semi_sync_master_timeout = 30;
+mysql> select * from mysql.plugin;
++----------------------+--------------------+
+| name                 | dl                 |
++----------------------+--------------------+
+| rpl_semi_sync_master | semisync_master.so |
++----------------------+--------------------+
+1 row in set (0.00 sec)
+			</screen>	
+			<para>状态查看</para>
+			<screen>
+mysql> SHOW VARIABLES LIKE "%semi%";
++------------------------------------+-------+
+| Variable_name                      | Value |
++------------------------------------+-------+
+| rpl_semi_sync_master_enabled       | ON    |
+| rpl_semi_sync_master_timeout       | 10    |
+| rpl_semi_sync_master_trace_level   | 32    |
+| rpl_semi_sync_master_wait_no_slave | ON    |
++------------------------------------+-------+
+4 rows in set (0.00 sec)			
+			</screen>	
+		</section>
+		<section>
+			<title>Slave 配置</title>
+			<screen>
+install plugin rpl_semi_sync_slave soname 'semisync_slave.so';
+set global rpl_semi_sync_slave_enabled = 1;
+stop slave io_thread;
+start slave io_thread;			
+			</screen>
+			<para>Slave 状态查看</para>
+			<screen>
+show global status like 'rpl_semi%';
+			</screen>
+		</section>
+		<section>
+			<title>卸载插件</title>
+			<para>卸载插件 UNINSTALL PLUGIN plugin_name</para>
+			<screen>
+UNINSTALL PLUGIN rpl_semi_sync_master; 	
+UNINSTALL PLUGIN rpl_semi_sync_slave; 			
+			</screen>
+		</section>
+<!-- 		
+		<screen>
+		</screen>
+		<para>master_heartbeat_period</para>
+		<screen>
+STOP SLAVE;
+CHANGE MASTER TO master_heartbeat_period=milliseconds;
+START SLAVE;
+		</screen>
+		<screen>
+mysql> CHANGE MASTER TO MASTER_HOST='xxx.xxx.xxx.xxx', MASTER_USER='root', MASTER_PASSWORD='password', MASTER_PORT=3306, MASTER_CONNECT_RETRY=10, MASTER_LOG_FILE='mysql-bin.000004', MASTER_LOG_POS=107;
+		</screen>
+		<para>跳过出问题的MySQL实例</para>
+		<screen>
+CHANGE MASTER TO MASTER_HOST=xxx.xxx.xxx.xxx IGNORE_SERVER_IDS=y
+		</screen>
+ -->		
+ 		<section>
+ 			<title>my.cnf</title>
+			<para>编辑my.cnf加入</para>
+			<screen>
+# On Master
+[mysqld]
+rpl_semi_sync_master_enabled=1
+rpl_semi_sync_master_timeout=1000 # 1 second
+
+# On Slave
+[mysqld]
+rpl_semi_sync_slave_enabled=1
+			</screen>
+ 		</section>
+
+	</section>
+	<section id="multi-master">
+		<title>multi-master replication</title>
+		<para>MySQL 5.7 以上版本才能使用</para>
+		<screen>
+		<![CDATA[
+ master1  ---------> master2
+    ^                   |
+    |                   |
+    |                   |
+    |                   V
+ master4  <--------- master3
+ 		]]>
+		</screen>
+	</section>
+	<section id="multi-source">
+		<title>multi-source replication</title>
+		<para>MySQL 5.7 以上版本才能使用</para>
+		<screen>
+		<![CDATA[
+ master1    master2    master3    master4
+    |          |          |          |
+    |          |          |          |
+    |          |          |          |
+    `--------------------------------'
+                    |
+                    V
+                  Slave
+ 		]]>
+		</screen>
+		<para>slave 配置</para>
+		<screen>
+		<![CDATA[
+slave> change master to master_host="172.16.0.1", master_port=3306, master_user="replication",master_password="password" for channel="master1";
+slave> change master to master_host="172.16.0.2", master_port=3306, master_user="replication",master_password="password" for channel="master2";
+
+slave> start slave for channel="master1";
+slave> start slave for channel="master2";
+		]]>
+		</screen>
+		<para>检查从服务器状态</para>
+		<screen>
+		<![CDATA[
+slave > SHOW SLAVE STATUS FOR CHANNEL="master1"\G
+slave > SHOW SLAVE STATUS FOR CHANNEL="master2"\G
+		]]>
+		</screen>
+		<para>测试,分别在两个主服务器上创建数据库，然后查看从数据库同步结果.</para>
+		<screen>
+		<![CDATA[
+master1 > create database master1;
+master2 > create database master2;
+
+slave > show databases like 'master%';
++--------------------+
+| Database (master%) |
++--------------------+
+| master1            |
+| master2            |
++--------------------+
+
+		]]>
+		</screen>
+	</section>
+	<section id="replication.error">
+		<title>与复制有关的问题</title>
+		<section id="replication.error">
+			<title>主从不同步问题</title>
+			<para>执行下面语句</para>
+			<screen>
+stop slave;
+set global sql_slave_skip_counter =1 ;
+start slave;
+
+mysql> slave stop;
+mysql> set GLOBAL SQL_SLAVE_SKIP_COUNTER=1;
+mysql> slave start;
+			</screen>
+
+			<para>Seconds_Behind_Master 值从NULL变为大于等于0是表示已经同步</para>
+			<screen>
+Seconds_Behind_Master: NULL
+Seconds_Behind_Master: 8893
+			</screen>
+		</section>
+		<section id="replication.expire-logs-days">
+			<title>mysql-bin 清理问题</title>
+			<para>缺省expire-logs-days为30天。这里设为7天，可根据自己情况调整。</para>
+			<screen>
+[mysqld]
+expire-logs-days = 7
+			</screen>
+			<para>通过SQL删除</para>
+			<screen>
+删除某个日志：	mysql>PURGE MASTER LOGS TO ‘mysql-bin.015′;
+删除某天前的日志：	mysql>PURGE MASTER LOGS BEFORE ’2010-10-25  14:00:00′;
+			</screen>
+		</section>
+		<section>
+			<title>跳过 Last_Errno</title>
+			<para>修改mysql配置文件 /etc/my.cnf 在 [mysqld]下加一行</para>
+			<screen>
+[mysqld]
+slave_skip_errors = 1062
+			</screen>
+			<para>跳过所有错误</para>
+			<screen>
+slave-skip-errors=all			
+			</screen>
+		</section>
+		<section>
+			<title>重置Slave</title>
+			<screen>
+STOP SLAVE; 
+RESET SLAVE; 
+START SLAVE;			
+			</screen>
+		</section>
+	</section>
+	<section id="GTID">
+		<title>GTID</title>
+		<para>5.6 新增功能</para>
+		<screen>
+mysql> show global variables like '%gtid%';
++---------------------------------+-------+
+| Variable_name                   | Value |
++---------------------------------+-------+
+| binlog_gtid_simple_recovery     | OFF   |
+| enforce_gtid_consistency        | OFF   |
+| gtid_executed                   |       |
+| gtid_mode                       | OFF   |
+| gtid_owned                      |       |
+| gtid_purged                     |       |
+| simplified_binlog_gtid_recovery | OFF   |
++---------------------------------+-------+
+7 rows in set (0.00 sec)		
+		</screen>
+		<section>
+			<title>Master</title>
+			<screen>
+[root@master mysql]# vim my.cnf
+
+binlog-format=ROW
+log-slave-updates=true
+gtid-mode=on
+enforce-gtid-consistency=true
+master-info-repository=TABLE
+relay-log-info-repository=TABLE
+sync-master-info=1
+slave-parallel-workers=2
+
+binlog-checksum=CRC32
+master-verify-checksum=1
+slave-sql-verify-checksum=1
+binlog-rows-query-log_events=1
+port=3306
+report-host=192.168.1.21
+report-port=3306
+server_id = 1
+			</screen>
+			<para>创建有复制权限的用户</para>
+			<screen>
+GRANT REPLICATION SLAVE,REPLICATION CLIENT ON *.* TO 'replication'@'%.mydomain.com' IDENTIFIED BY 'slavepass';
+FLUSH PRIVILEGES;						
+			</screen>
+		</section>
+		<section>
+			<title>Slave</title>
+			<screen>
+[root@slave mysql]# vim my.cnf
+
+relay-log = relay-log
+relay-log-index = relay-log.index
+binlog-format=ROW
+log-slave-updates=true
+
+gtid-mode=on
+enforce-gtid-consistency=true
+
+master-info-repository=TABLE
+relay-log-info-repository=TABLE
+sync-master-info=1
+slave-parallel-workers=2
+
+;binlog-checksum=CRC32
+master-verify-checksum=1
+slave-sql-verify-checksum=1
+
+binlog-rows-query-log_events=1
+report-port=3306
+port=3306
+report-host=192.168.1.22
+server_id = 10	
+			</screen>
+			<para>登录到Master并进行复制</para>
+			<screen>
+CHANGE MASTER TO
+     MASTER_HOST='192.168.2.1',
+     MASTER_USER='replication',
+     MASTER_PASSWORD='kJZBTo3BjMx9AnmD9Ryn',
+     MASTER_AUTO_POSITION=1;     
+			</screen>
+			<para>就这么简单，你不再需要指定 MASTER_LOG_FILE='mysql-bin.000009', MASTER_LOG_POS=3988 两个参数。</para>
+		</section>
+	</section>
+</section>

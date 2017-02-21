@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<part id="index"><?dbhtml dir="nosql" ?>
+	<title>NoSQL</title>
+	<para>http://nosql-database.org/</para>
+<!--
+
+What is NOSQL
+
+NOSQL != NO SQL
+
+NOSQL = Not Only SQL
+
+What do we want?
+
+Performance
+
+Scalability
+
+Flexibility
+
+Two important theories
+
+CAP (Every system only can match 2 of them, NoSQL supports to match A and P)
+
+Consistency
+
+Availability
+
+Tolerance to network Partitions
+
+ACID & BASE(Anti-ACID)
+
+ACID – RDBMS use this theory
+
+BASE – Anti-ACID and NoSQL use it.
+
+Compare with current RDBMS with NoSQL solutions
+
+RDBMS are working w/ relationship, and the relationship are not easy to extend (scalability)
+
+RDBMS software are implemented as a big system with additional function which make the database slow
+
+ACID can make the data perfect, but it does not care about the performance.
+
+Most of NoSQL solutions are schemaless
+
+Make the simple things simple (for example: log)
+
+Upcoming solutions of the software.
+
+NoSQL is nibbling up the SQL solutions.
+
+NoSQL + SQL = Data solution
+
+What is the issues we are meeting now?
+
+Performance
+
+Document generation (PDF/Email)
+
+Image solutions
+
+Compare with MySQL
+
+Performance is better
+
+Scalability is excellent
+
+MongoDB vs CouchDB
+
+Similar solutions.
+
+Performance of MongoDB is better than CouchDB
+
+MongoDB is better at web solutions.
+
+Three words about the MongoDB
+
+NOSQL –> RDBMS
+
+BSON
+
+GridFS
+
+How to use it?
+
+1 Click install
+
+2 clicks helloworld using java client
+
+types which mongo supports now
+
+Collection oriented database.
+
+index using with MongoDB
+
+GridFS for the big file
+
+Sharding with Mongodb
+
+How to shard?
+
+Scalability is excellent.
+
+Upcoming solutions for Mongodb
+
+ORM with MongoDB java client
+
+Performance tuning with java client
+
+What can Mongodb  do? cannot do?
+
+Document
+
+Image store
+
+Real-time Analysis
+
+Caching
+
+Upcoming simple desgin with Mongodb.
+
+-->
+
+	&chapter.nosql.xml;
+
+
+</part>

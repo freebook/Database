@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- $Id: chapter.mysql.log.xml 545 2013-03-27 09:30:42Z netkiller $ -->
+<section id="log">
+	<title>mysql log</title>
+	<para>/etc/my.cnf 配置文件</para>
+	<screen>
+在服务器上的/etc/my.cnf中的[client]加入
+tee =/tmp/mysql_history.log即可.
+	</screen>
+	<para>查看log设置</para>
+	<screen>
+show VARIABLES like '%log%';
+	</screen>
+	<para>命令行</para>
+	<screen>
+mysql -uroot --tee=/tmp/mysql_history.log
+	</screen>
+
+	<screen>
+mysql> tee mysql_history.log
+Logging to file 'mysql_history.log '
+
+或者
+mysql> \T mysql_history.log
+Logging to file 'mysql_history.log '
+	</screen>
+
+	<screen>
+mysql> notee
+Outfile disabled.
+或者
+mysql> \t
+Outfile disabled.
+	</screen>
+</section>

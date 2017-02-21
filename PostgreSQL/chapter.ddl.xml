@@ -1,0 +1,1129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="ddl">
+	<title>数据定义（DDL）</title>
+	<section id="schema">
+		<title>模式</title>
+		<screen>
+		<![CDATA[
+3.10       模式
+
+一些用户为了使某些模块的表看起来清晰，一般他们采用“模块名_表名”：
+Auth_user
+Auth_group
+Bbs_topic
+Bbs_message
+
+PostgreSQL不必这样命名，可以使用Schema（模式）如：
+Auth.user
+Auth.group
+Bbs.topic
+Bbs.message
+
+3.10.1 创建模式
+
+CREATE SCHEMA your_schema;
+例：
+CREATE SCHEMA btob;
+CREATE SCHEMA auction;
+3.10.2 删除模式
+
+DROP SCHEMA your_schema;
+删除模式，并且同时删除模式下的（表，视图，触发器，过程……）
+DROP SCHEMA your_schema CASCADE;
+例：
+DROP SCHEMA btob CASCADE;
+DROP SCHEMA btob CASCADE;
+3.10.3 模式搜索路径
+
+查看当前模式SHOW search_path ;
+netkiller=> SHOW search_path ;
+ search_path
+--------------
+ $user,public
+(1 row)
+netkiller=> \dt
+            List of relations
+ Schema |    Name     | Type  |   Owner
+--------+-------------+-------+-----------
+ public | company     | table | netkiller
+ public | group       | table | netkiller
+ public | groupmember | table | netkiller
+ public | guestbook   | table | netkiller
+ public | prodorder   | table | netkiller
+ public | role        | table | netkiller
+ public | rolemember  | table | netkiller
+ public | system_log  | table | netkiller
+ public | templates   | table | netkiller
+ public | trust       | table | netkiller
+ public | user        | table | netkiller
+ public | user_log    | table | netkiller
+ public | userinfo    | table | netkiller
+(13 rows)
+如果不设置模式搜索路径，“\dt”只显示public模式下的表。
+设置模式SET search_path TO public,btob,auction;
+netkiller=> SET search_path TO public,btob,auction;
+SET
+netkiller=> \dt
+              List of relations
+ Schema  |     Name      | Type  |   Owner
+---------+---------------+-------+-----------
+ auction | messages      | table | netkiller
+ auction | product       | table | netkiller
+ auction | product_order | table | netkiller
+ btob    | directory     | table | netkiller
+ btob    | trade         | table | netkiller
+ btob    | trade_message | table | netkiller
+ public  | company       | table | netkiller
+ public  | group         | table | netkiller
+ public  | groupmember   | table | netkiller
+ public  | guestbook     | table | netkiller
+ public  | prodorder     | table | netkiller
+ public  | role          | table | netkiller
+ public  | rolemember    | table | netkiller
+ public  | system_log    | table | netkiller
+ public  | templates     | table | netkiller
+ public  | trust         | table | netkiller
+ public  | user          | table | netkiller
+ public  | user_log      | table | netkiller
+ public  | userinfo      | table | netkiller
+(19 rows)
+
+netkiller=>
+
+-- ======================================================================
+-- 'btob.directory'
+-- ======================================================================
+Drop table btob.directory CASCADE;
+
+Create table btob.directory
+(
+    "id" Serial NOT NULL,
+    "root_id" Integer NOT NULL Default 0,
+    "name"    Varchar(20)NOT NULL ,
+    "status"   boolean Default 'true',
+    "created" Timestamp Default current_timestamp,
+    "modified" Timestamp Default current_timestamp,
+    UNIQUE (id,root_id,name),
+    PRIMARY KEY ("id")
+--    FOREIGN KEY (root_id) REFERENCES directory (id) ON DELETE CASCADE
+);
+INSERT INTO btob.directory (id,root_id,name) VALUES (0,0,'/');
+Alter table btob.directory add  FOREIGN KEY (root_id) REFERENCES btob.directory (id) ON DELETE CASCADE;
+Create index "directory_index" on btob.directory using btree ("id","root_id","name");
+
+		]]>
+		</screen>
+	</section>
+	<section id="types">
+		<title>Types</title>
+		<section>
+			<title>Enumerated Types</title>
+			<programlisting >
+CREATE TYPE gender AS ENUM ('Male', 'Female');
+			</programlisting >
+			<programlisting>
+CREATE TABLE person (
+    name character varying,
+    gender gender
+);
+			</programlisting>
+		</section>
+		<section>
+			<title>uuid</title>
+			<programlisting>
+create extension "uuid-ossp";
+create table products (
+	product_id  uuid primary key default uuid_generate_v4()
+);
+			</programlisting>
+			<screen>
+-bash-4.1$ psql test
+psql (9.2.4)
+Type "help" for help.
+
+test=# create extension "uuid-ossp";
+CREATE EXTENSION
+test=# select uuid_generate_v4();
+           uuid_generate_v4
+--------------------------------------
+ fed01361-b3bd-4844-8a99-34b0d7eab78d
+(1 row)
+
+test=# create table products (product_id  uuid primary key default uuid_generate_v4());
+NOTICE:  CREATE TABLE / PRIMARY KEY will create implicit index "products_pkey" for table "products"
+CREATE TABLE
+test=#
+test=# insert into products values (default), (default);
+INSERT 0 2
+test=# select * from products;
+              product_id
+--------------------------------------
+ 25bef8e4-35a2-439c-83ed-dd40a61aef92
+ ea02a9a3-114d-417f-9a65-7292715538da
+(2 rows)
+
+test=#
+			</screen>
+		</section>
+	</section>
+	<section id="table">
+		<title>表</title>
+		<section>
+			<title>默认时间与时区</title>
+			<para>默认时间省略时区信息</para>
+			<screen>
+			<![CDATA[
+CREATE TABLE message
+(
+  id serial NOT NULL,
+  title character varying(250) NOT NULL,
+  message character varying(250) NOT NULL,
+  status boolean NOT NULL DEFAULT false,
+  operator character varying(5) NOT NULL,
+  ctime timestamp without time zone NOT NULL DEFAULT (now())::timestamp(0) without time zone,
+  mtime timestamp without time zone NOT NULL DEFAULT (now())::timestamp(0) without time zone,
+  CONSTRAINT message_pkey PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+			]]>
+			</screen>
+		</section>
+		<section id="field.charset">
+			<title>汉字做字段名</title>
+			<screen>
+			<![CDATA[
+PostgreSQL是支持“区域”，“字符集支持”的，允许你使用本区域的字符集做为字段名。但要注意，你的终端要支持该字符集支持。我这里使用UNICODE，EUC_CN也适用。
+
+Create table "组"(
+       "序号" Serial NOT NULL UNIQUE,
+       "组名" Varchar(20) NOT NULL,
+       "描述" Varchar(255),
+       UNIQUE ("组名"),
+      PRIMARY KEY ("序号")
+);
+
+创建表：
+member=> Create table "组"(
+member(> "序号" Serial NOT NULL UNIQUE,
+member(> "组名" Varchar(20) NOT NULL,
+member(> "描述" Varchar(255),
+member(> UNIQUE ("组名"),
+member(>  PRIMARY KEY ("序号")
+member(> );
+NOTICE:  CREATE TABLE will create implicit sequence '组_序号_seq' for SERIAL column '组.序号'
+NOTICE:  CREATE TABLE / PRIMARY KEY will create implicit index '组_pkey' for table '组'
+NOTICE:  CREATE TABLE / UNIQUE will create implicit index '组_组名_key' for table '组'
+CREATE TABLE
+member=> \d
+               List of relations
+ Schema |        Name        |   Type   | Owner
+--------+--------------------+----------+-------
+ public | group              | table    | chen
+ public | group_id_seq       | sequence | chen
+ public | groupmember        | table    | chen
+ public | groupmember_id_seq | sequence | chen
+ public | role               | table    | chen
+ public | role_id_seq        | sequence | chen
+ public | rolemember         | table    | chen
+ public | rolemember_id_seq  | sequence | chen
+ public | system_log         | table    | chen
+ public | system_log_id_seq  | sequence | chen
+ public | trust              | table    | chen
+ public | trust_id_seq       | sequence | chen
+ public | user               | table    | chen
+ public | user_id_seq        | sequence | chen
+ public | user_log           | table    | chen
+ public | user_log_id_seq    | sequence | chen
+ public | userinfo           | table    | chen
+ public | userinfo_id_seq    | sequence | chen
+ public | vgroup             | view     | chen
+ public | vgroupmember       | view     | chen
+ public | vsystem_log        | view     | chen
+ public | vuser              | view     | chen
+ public | 组                | table    | chen
+ public | 组_序号_seq     | sequence | chen
+(24 rows)
+
+查看表结构：
+
+member=> \d 组
+                                     Table "public.组"
+ Column |          Type          |                         Modifiers
+--------+------------------------+-----------------------------------------------------------
+ 序号 | integer                | not null default nextval('public."组_序号_seq"'::text)
+ 组名 | character varying(20)  | not null
+ 描述 | character varying(255) |
+Indexes: 组_pkey primary key btree ("序号"),
+         组_组名_key unique btree ("组名")
+
+插入数据：
+member=> insert into 组(组名,描述) values('域用户','9812.net域内用户');
+INSERT 110971 1
+member=> insert into "组"("组名","描述") values('域用户','9812.net域内用户');
+ERROR:  Cannot insert a duplicate key into unique index 组_组名_key
+member=> insert into "组"("组名","描述") values('计算机维护组','维护计算机的用户用户');
+INSERT 110973 1
+
+查看数据：
+member=> select * from 组;
+ 序号 |       组名       |             描述
+--------+--------------------+--------------------------------
+      1 | 域用户          | 9812.net域内用户
+      3 | 计算机维护组 | 维护计算机的用户用户
+(2 rows)
+member=> select * from "组";
+ 序号 |       组名       |             描述
+--------+--------------------+--------------------------------
+      1 | 域用户          | 9812.net域内用户
+      3 | 计算机维护组 | 维护计算机的用户用户
+(2 rows)
+
+注：在操作非英文字段的表时。建议最好前，后加上“"”，“"”符号。并非所有API都支持非英文的编码。
+			]]>
+			</screen>
+		</section>
+	</section>
+	<section id="serial">
+		<title>序列</title>
+		<screen>
+		<![CDATA[
+
+-- ------------------------------------------------------
+--  'Region'
+-- ------------------------------------------------------
+DROP TABLE region;
+DROP SEQUENCE       region_id_seq;
+DROP INDEX              region_id_index;
+DROP VIEW vregion;
+
+CREATE TABLE region (
+    id                   integer DEFAULT nextval('region_id_seq') NOT NULL,
+    region      varchar(20) DEFAULT '' NOT NULL,
+    description  text ,
+    note        text ,
+    remark           text ,
+     create_date  timestamp DEFAULT now() ,
+     modify_date  timestamp DEFAULT now() ,
+    PRIMARY KEY (id),
+    UNIQUE (id,region)
+);
+CREATE SEQUENCE   region_id_seq;
+CREATE INDEX          region_id_index ON region (id);
+
+CREATE VIEW vregion AS
+    SELECT pv.id,pv.region,pv.description,pv.note,pv.remark,to_char(pv.create_date,'YYYY-MM-DD HH:MI:SS') as date
+        FROM region pv
+        ORDER BY pv.id;
+		]]>
+		</screen>
+
+		<section>
+			<title>等差列 “1，2，3，4，5，6，7，8，9…”</title>
+			<screen>
+			<![CDATA[
+DROP SEQUENCE       region_id_seq;
+CREATE SEQUENCE   region_id_seq;
+
+member=> insert into region(region) values('广西');
+INSERT 111264 1
+member=>
+member=> insert into region(region) values('贵州');
+INSERT 111265 1
+member=>
+member=> insert into region(region) values('海南');
+INSERT 111266 1
+member=>
+member=> insert into region(region) values('河北');
+INSERT 111267 1
+member=>
+member=> insert into region(region) values('河南');
+INSERT 111268 1
+member=>
+member=> insert into region(region) values('黑龙江');
+INSERT 111269 1
+member=> select * from vregion ;
+ id | region | description | note | remark |        date
+----+--------+-------------+------+--------+---------------------
+  1 | 安徽   |             |      |        | 2003-11-01 10:44:26
+  2 | 北京   |             |      |        | 2003-11-01 10:44:26
+  3 | 重庆   |             |      |        | 2003-11-01 10:44:26
+  4 | 福建   |             |      |        | 2003-11-01 10:44:26
+  5 | 甘肃   |             |      |        | 2003-11-01 10:44:26
+  6 | 广东   |             |      |        | 2003-11-01 10:44:26
+  7 | 广西   |             |      |        | 2003-11-01 10:44:26
+  8 | 贵州   |             |      |        | 2003-11-01 10:44:26
+  9 | 海南   |             |      |        | 2003-11-01 10:44:26
+ 10 | 河北   |             |      |        | 2003-11-01 10:44:26
+ 11 | 河南   |             |      |        | 2003-11-01 10:44:26
+ 12 | 黑龙江 |             |      |        | 2003-11-01 10:44:26
+(12 rows)
+
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>等差列 “1，3，5，7，9…”</title>
+			<screen>
+			<![CDATA[
+DROP SEQUENCE       region_id_seq;
+Delete from region;
+CREATE SEQUENCE region_id_seq INCREMENT 2 START 1;
+
+member=> DROP SEQUENCE region_id_seq;
+DROP SEQUENCE
+member=> Delete from region;
+DELETE 15
+member=>
+member=> CREATE SEQUENCE region_id_seq INCREMENT 2 START 1;
+CREATE SEQUENCE
+member=> insert into region(region) values('广东');
+INSERT 111282 1
+member=>
+member=> insert into region(region) values('广西');
+INSERT 111283 1
+member=>
+member=> insert into region(region) values('贵州');
+INSERT 111284 1
+member=>
+member=> insert into region(region) values('海南');
+INSERT 111285 1
+member=>
+member=> insert into region(region) values('河北');
+INSERT 111286 1
+member=>
+member=> insert into region(region) values('河南');
+INSERT 111287 1
+member=>
+member=> insert into region(region) values('黑龙江');
+INSERT 111288 1
+member=> select * from region ;
+ id | region | description | note | remark |        create_date         |        modify_date
+----+--------+-------------+------+--------+----------------------------+----------------------------
+  1 | 安徽   |             |      |        | 2003-11-01 11:49:58.004475 | 2003-11-01 11:49:58.004475
+  3 | 北京   |             |      |        | 2003-11-01 11:49:58.093188 | 2003-11-01 11:49:58.093188
+  5 | 重庆   |             |      |        | 2003-11-01 11:49:58.138582 | 2003-11-01 11:49:58.138582
+  7 | 福建   |             |      |        | 2003-11-01 11:49:58.166903 | 2003-11-01 11:49:58.166903
+  9 | 甘肃   |             |      |        | 2003-11-01 11:49:58.195132 | 2003-11-01 11:49:58.195132
+ 11 | 广东   |             |      |        | 2003-11-01 11:49:58.239133 | 2003-11-01 11:49:58.239133
+ 13 | 广西   |             |      |        | 2003-11-01 11:49:58.267372 | 2003-11-01 11:49:58.267372
+ 15 | 贵州   |             |      |        | 2003-11-01 11:49:58.295643 | 2003-11-01 11:49:58.295643
+ 17 | 海南   |             |      |        | 2003-11-01 11:49:58.324202 | 2003-11-01 11:49:58.324202
+ 19 | 河北   |             |      |        | 2003-11-01 11:49:58.352543 | 2003-11-01 11:49:58.352543
+ 21 | 河南   |             |      |        | 2003-11-01 11:49:58.381273 | 2003-11-01 11:49:58.381273
+ 23 | 黑龙江 |             |      |        | 2003-11-01 11:49:58.415112 | 2003-11-01 11:49:58.415112
+(12 rows)
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>等差列 “2，4，6，8，10…”</title>
+			<screen>
+			<![CDATA[
+DROP SEQUENCE       region_id_seq;
+Delete from region;
+CREATE SEQUENCE region_id_seq INCREMENT 2 START 2;
+member=> DROP SEQUENCE region_id_seq;
+ERROR:  sequence "region_id_seq" does not exist
+member=> Delete from region;
+DELETE 0
+member=> CREATE SEQUENCE region_id_seq INCREMENT 2 START 2;
+CREATE SEQUENCE
+member=> insert into region(region) values('安徽');
+INSERT 111303 1
+member=> insert into region(region) values('北京');
+INSERT 111304 1
+……
+……
+member=> insert into region(region) values('海南');
+INSERT 111311 1
+member=> insert into region(region) values('河北');
+INSERT 111312 1
+member=> select * from vregion;
+ id | region | description | note | remark |        date
+----+--------+-------------+------+--------+---------------------
+  2 | 安徽   |             |      |        | 2003-11-01 12:00:28
+  4 | 北京   |             |      |        | 2003-11-01 12:00:28
+  6 | 重庆   |             |      |        | 2003-11-01 12:00:28
+  8 | 福建   |             |      |        | 2003-11-01 12:00:28
+ 10 | 甘肃   |             |      |        | 2003-11-01 12:00:28
+ 12 | 广东   |             |      |        | 2003-11-01 12:00:28
+ 14 | 广西   |             |      |        | 2003-11-01 12:00:28
+ 16 | 贵州   |             |      |        | 2003-11-01 12:00:28
+ 18 | 海南   |             |      |        | 2003-11-01 12:00:28
+ 20 | 河北   |             |      |        | 2003-11-01 12:00:28
+(10 rows)
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>n1+n2</title>
+			<screen>
+			<![CDATA[
+CREATE SEQUENCE region_id_seq INCREMENT n2 START n1;
+			]]>
+			</screen>
+		</section>
+	</section>
+	<section id="constraints">
+		<title>约束</title>
+		<section>
+			<title>检查约束</title>
+			<screen>
+			<![CDATA[
+例子1：
+有这样一个需求，在很多电子商务网站上都要对用户进行诚信评估，诚信分为五级（五个星），这样就要求某字段插入的数据0，1，2，3，4，5。“0”表示该用户没用评估。
+-- ======================================================
+--  'trust'
+-- ======================================================
+Create table "trust"
+(
+       "id" Serial NOT NULL UNIQUE,
+       "uid" integer NOT NULL Default 0,
+       "rate" Varchar(20) Default '0' Check (rate in ('0','1','2','3','4','5')),
+      primary key ("id")
+);
+Alter table "trust" add  foreign key ("uid") references "user" ("id") on update restrict on delete restrict;
+member=> Insert into trust (uid) values((select id from "user" where userid='netkiller'));
+INSERT 111237 1
+member=> Insert into trust (uid,rate) values((select id from "user" where userid='netkiller'),5);
+INSERT 111220 1
+member=> Insert into trust (uid,rate) values((select id from "user" where userid='netkiller'),2);
+INSERT 111236 1
+member=> Insert into trust (uid,rate) values((select id from "user" where userid='netkiller'),6);
+ERROR:  ExecInsert: rejected due to CHECK constraint "trust_rate" on "trust"
+member=> Insert into trust (uid,rate) values((select id from "user" where userid='netkiller'),10);
+ERROR:  ExecInsert: rejected due to CHECK constraint "trust_rate" on "trust"
+member=> select * from trust;
+ id | uid | rate
+----+-----+------
+  1 | 257 | 2
+  4 | 257 | 0
+  5 | 257 | 5
+(3 rows)
+
+当插入数据不在枚举的范围内，提示ERROR:  ExecInsert: rejected due to CHECK constraint "trust_rate" on "trust"。
+
+例子2：
+检查某字段，不允许出现数值，使用not in 来完成。
+DROP TABLE ctoc.bid CASCADE;
+CREATE TABLE ctoc.bid(
+       id Serial NOT NULL UNIQUE,
+    salesroom_id integer DEFAULT '1' NOT NULL,  -- foreign key
+    bidder integer  DEFAULT '1' NOT NULL,  -- foreign key
+       price       numeric(8,2) DEFAULT '0.00' NOT NULL,
+       quantity Integer DEFAULT '1' NOT NULL Check (quantity not in ('0')),
+    created  timestamp DEFAULT current_timestamp::timestamp (0) without time zone,
+    status boolean DEFAULT true,
+    PRIMARY KEY (id),
+    FOREIGN KEY (salesroom_id) REFERENCES ctoc.salesroom (id) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (bidder) REFERENCES person (uid) ON UPDATE CASCADE ON DELETE CASCADE
+);
+netkiller=> insert into ctoc.bid(salesroom_id,bidder,price,quantity,status) values(1,8,100,0,true);
+ERROR:  ExecInsert: rejected due to CHECK constraint "bid_quantity" on "bid"
+
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>非空约束</title>
+			<screen>
+			<![CDATA[
+显示的有note字段为空的记录：
+member=> select * from vregion where note is null;
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>唯一约束</title>
+			<para>单字段约束</para>
+			<screen>
+			<![CDATA[
+这个例子对groupname字段做唯一操作。
+-- ======================================================
+--  'group'
+-- ======================================================
+Create table "group"
+(
+       "id" Serial NOT NULL UNIQUE,
+       "groupname" Varchar(20) NOT NULL,
+       "description" Varchar(255),
+       UNIQUE (groupname),
+      PRIMARY KEY ("id")
+);
+测试：
+member=> insert into "group"(groupname,description) values('Admin','xxxxxxxxxxxxxxxxxx');
+INSERT 110497 1
+member=> insert into "group"(groupname,description) values('Admin','xxxxxxxxxxxxxxxxxx');
+ERROR:  Cannot insert a duplicate key into unique index group_groupname_key
+member=> insert into "group"(groupname,description) values('Admin','xxxxxxxxxxxxxxxxxx');
+ERROR:  Cannot insert a duplicate key into unique index group_groupname_key
+Psql 命令行返回ERROR:  Cannot insert a duplicate key into unique index group_groupname_key唯一约束成功。
+			]]>
+			</screen>
+			<para>多个字段组合约束</para>
+			<screen>
+			<![CDATA[
+UNIQUE (rid,uid)中有多个参数，是对rid,uid组合约束。
+例如：
+1，1
+1，2
+是正确的
+
+1，1
+2，1
+也是正确的
+
+2，1
+1，1
+2，2
+1，2
+1，1
+不正确的不允许插入数据“1，1”，数据“1，1”出现了两次，所以要同时满足rid,uid两个条件。
+
+三个字段以上组合：
+1,1,1
+1,1,2
+1,2,1
+2,1,2
+2,1,1
+2,2,2
+正确可以插入数据
+
+1，2，1
+2，1，2
+2，2，1
+1，1，2
+2，2，1
+“2，2，1”，“2，2，1”出现两次，违反约束条件，所以不能再次插入数据“2，2，1”。
+
+-- ======================================================
+--  'rolemember'
+-- ======================================================
+-- drop table rolemember CASCADE ;
+Create table "rolemember"
+(
+       "id" Serial NOT NULL UNIQUE,
+       "rid" integer NOT NULL Default 0,
+       "uid" integer NOT NULL Default 0,
+       UNIQUE (rid,uid),
+ primary key ("id")
+);
+member=> insert into rolemember(rid,uid) values((select id from role where rolename ='System'),(select id from vuser where userid='sysop'));
+INSERT 110954 1
+member=> insert into rolemember(rid,uid) values((select id from role where rolename ='System'),(select id from vuser where userid='sysop'));
+ERROR:  Cannot insert a duplicate key into unique index rolemember_rid_key
+member=> insert into rolemember(rid,uid) values((select id from role where rolename ='System'),(select id from vuser where userid='admin'));
+ERROR:  More than one tuple returned by a subselect used as an expression.
+member=> insert into rolemember(rid,uid) values((select id from role where rolename ='System'),(select id from vuser where userid='test'));
+INSERT 110956 1
+member=> insert into rolemember(rid,uid) values((select id from role where rolename ='System'),(select id from vuser where userid='test'));
+ERROR:  Cannot insert a duplicate key into unique index rolemember_rid_key
+			]]>
+			</screen>
+			<para>唯一约束的注意事项</para>
+			<screen>
+			<![CDATA[
+这个例子对groupname字段做唯一操作。
+-- ======================================================
+--  'group'
+-- ======================================================
+Create table "group"
+(
+       "id" Serial NOT NULL UNIQUE,
+       "groupname" Varchar(20) NOT NULL,
+       "description" Varchar(255),
+       UNIQUE (id,groupname),
+      PRIMARY KEY ("id")
+);
+仔细看这个例子没有错。
+运行结果：
+postgres=# Create table "group"
+postgres-# (
+postgres(# "id" Serial NOT NULL UNIQUE,
+postgres(# "groupname" Varchar(20) NOT NULL,
+postgres(# "description" Varchar(255),
+postgres(# UNIQUE (id,groupname),
+postgres(#  PRIMARY KEY ("id")
+postgres(# );
+NOTICE:  CREATE TABLE will create implicit sequence 'group_id_seq' for SERIAL column 'group.id'
+NOTICE:  CREATE TABLE / PRIMARY KEY will create implicit index 'group_pkey' for table 'group'
+NOTICE:  CREATE TABLE / UNIQUE will create implicit index 'group_id_key' for table 'group'
+CREATE TABLE
+
+运行结果也没有错，现在插入数据。
+insert into "group"(groupname,description) values('Admin','xxxxxxxxxxxxxxxxxx');
+insert into "group"(groupname,description) values('Guest','xxxxxxxxxxxxxxxxxx');
+insert into "group"(groupname,description) values('Domain','xxxxxxxxxxxxxxxxxx');
+postgres=# insert into "group"(groupname,description) values('Admin','xxxxxxxxxxxxxxxxxx');
+INSERT 110466 1
+postgres=# insert into "group"(groupname,description) values('Guest','xxxxxxxxxxxxxxxxxx');
+INSERT 110467 1
+postgres=# insert into "group"(groupname,description) values('Domain','xxxxxxxxxxxxxxxxxx');
+INSERT 110468 1
+postgres=#
+postgres=# insert into "group"(groupname,description) values('Admin','xxxxxxxxxxxxxxxxxx');
+INSERT 110469 1
+postgres=# insert into "group"(groupname,description) values('Guest','xxxxxxxxxxxxxxxxxx');
+INSERT 110470 1
+postgres=# insert into "group"(groupname,description) values('Domain','xxxxxxxxxxxxxxxxxx');
+INSERT 110471 1
+postgres=# insert into "group"(groupname,description) values('Admin','xxxxxxxxxxxxxxxxxx');
+INSERT 110472 1
+postgres=# insert into "group"(groupname,description) values('Guest','xxxxxxxxxxxxxxxxxx');
+INSERT 110473 1
+postgres=# insert into "group"(groupname,description) values('Domain','xxxxxxxxxxxxxxxxxx');
+INSERT 110474 1
+postgres=# insert into "group"(groupname,description) values('Admin','xxxxxxxxxxxxxxxxxx');
+INSERT 110475 1
+postgres=# insert into "group"(groupname,description) values('Guest','xxxxxxxxxxxxxxxxxx');
+INSERT 110476 1
+postgres=# insert into "group"(groupname,description) values('Domain','xxxxxxxxxxxxxxxxxx');
+INSERT 110477 1
+postgres=# insert into "group"(groupname,description) values('Admin','xxxxxxxxxxxxxxxxxx');
+INSERT 110478 1
+postgres=# insert into "group"(groupname,description) values('Guest','xxxxxxxxxxxxxxxxxx');
+INSERT 110479 1
+postgres=# insert into "group"(groupname,description) values('Domain','xxxxxxxxxxxxxxxxxx');
+INSERT 110480 1
+postgres=# select * from "group";
+ id | groupname |    description
+----+-----------+--------------------
+  1 | Admin     | xxxxxxxxxxxxxxxxxx
+  2 | Guest     | xxxxxxxxxxxxxxxxxx
+  3 | Domain    | xxxxxxxxxxxxxxxxxx
+  4 | Admin     | xxxxxxxxxxxxxxxxxx
+  5 | Guest     | xxxxxxxxxxxxxxxxxx
+  6 | Domain    | xxxxxxxxxxxxxxxxxx
+  7 | Admin     | xxxxxxxxxxxxxxxxxx
+  8 | Guest     | xxxxxxxxxxxxxxxxxx
+  9 | Domain    | xxxxxxxxxxxxxxxxxx
+ 10 | Admin     | xxxxxxxxxxxxxxxxxx
+ 11 | Guest     | xxxxxxxxxxxxxxxxxx
+ 12 | Domain    | xxxxxxxxxxxxxxxxxx
+ 13 | Admin     | xxxxxxxxxxxxxxxxxx
+ 14 | Guest     | xxxxxxxxxxxxxxxxxx
+ 15 | Domain    | xxxxxxxxxxxxxxxxxx
+(15 rows)
+
+但你会发现对groupname字段的唯一约束不起使用。失效原因：
+"id" Serial NOT NULL UNIQUE, (唯一约束)
+UNIQUE (id,groupname), (id字段又做了一次唯一约束)
+这就是它失效的原因。正确的脚本写法是：
+Create table "group"
+(
+       "id" Serial NOT NULL UNIQUE,
+       "groupname" Varchar(20) NOT NULL,
+       "description" Varchar(255),
+       UNIQUE (groupname),
+      PRIMARY KEY ("id")
+);
+member=> insert into "group"(groupname,description) values('Admin','xxxxxxxxxxxxxxxxxx');
+INSERT 110497 1
+member=> insert into "group"(groupname,description) values('Admin','xxxxxxxxxxxxxxxxxx');
+ERROR:  Cannot insert a duplicate key into unique index group_groupname_key
+member=> insert into "group"(groupname,description) values('Admin','xxxxxxxxxxxxxxxxxx');
+ERROR:  Cannot insert a duplicate key into unique index group_groupname_key
+			]]>
+			</screen>
+			<tip><para>Psql 命令行返回ERROR:  Cannot insert a duplicate key into unique index group_groupname_key 唯一约束成功。</para></tip>
+		</section>
+	</section>
+	<section id="key">
+		<title>主键/外键</title>
+
+		<section>
+			<title>主键</title>
+			<screen>
+			<![CDATA[
+下面书写方式，推荐第二种，比较清晰。
+CREATE TABLE products (
+    product_no integer PRIMARY KEY,
+    name text,
+    price numeric
+);
+
+CREATE TABLE example (
+    a integer,
+    b integer,
+    c integer,
+    PRIMARY KEY (a, c)
+);
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>外键约束</title>
+			<screen>
+			<![CDATA[
+下面第前两种写法不推荐。第三、四种写法较清晰。
+1.      第一种书写方式
+CREATE TABLE orders (
+    order_id integer PRIMARY KEY,
+    product_no integer REFERENCES products,
+    quantity integer
+);
+2.      第二种书写方式
+CREATE TABLE orders (
+    order_id integer PRIMARY KEY,
+    product_no integer REFERENCES products (product_no),
+    quantity integer
+);
+3.      第三种书写方式
+CREATE TABLE table1 (
+  a integer PRIMARY KEY,
+  b integer,
+  c integer,
+  FOREIGN KEY (b, c) REFERENCES other_table (c1, c2)
+);
+4.      第四种书写方式，在SQL脚本最后面添加外键约束
+Alter table "groupmember" add  foreign key ("uid") references "user" ("id") on update restrict on delete restrict;
+Alter table "groupmember" add  foreign key ("gid") references "group" ("id") on update restrict on delete restrict;
+Alter table "rolemember" add  foreign key ("uid") references "user" ("id") on update restrict on delete restrict;
+Alter table "rolemember" add  foreign key ("rid") references "role" ("id") on update restrict on delete restrict;
+3.9.3   PostgreSQL 7.3.x 新增功能
+
+CREATE TABLE order_items (
+    product_no integer REFERENCES products ON DELETE RESTRICT,
+    order_id integer REFERENCES orders ON DELETE CASCADE,
+    quantity integer,
+    PRIMARY KEY (product_no, order_id)
+);
+类似 ON DELETE，还有 ON UPDATE 选项，它是在主键被修改（更新）的时候调用的。
+以前我们删除其它表中受外键约束的记录，使用规则或触发器来完成。现可以用CASCADE
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>案例</title>
+			<para>层次递归-分类目录</para>
+			<screen>
+实现一个无限向下分类的目录，例如：
+计算机与互联网
+       免费资源
+              软件下载(3431)
+壁纸/屏保/桌面(109)
+免费电子贺卡(197)
+代理服务器(33)
+免费电子邮箱(73)
+免费主页空间(75)
+免费聊天室(11)
+免费论坛(36)
+软件
+       XXXXXXXX
+       XXXXXXXX
+       XXXXXXXX
+       XXXXXXXX
+硬件
+互联网
+编程
+			</screen>
+			<para>数据结构定义</para>
+			<screen>
+			<![CDATA[
+Drop table "directory" CASCADE;
+
+Create table "directory"
+(
+    "id" Serial NOT NULL,
+    "root_id" Integer NOT NULL Default 0,
+    "name"    Varchar(20)NOT NULL ,
+    "status"   boolean Default 'true',
+    "created" Timestamp Default current_timestamp,
+    "modified" Timestamp Default current_timestamp,
+    UNIQUE (id,root_id),
+    PRIMARY KEY ("id")
+--    FOREIGN KEY (root_id) REFERENCES directory (id) ON DELETE CASCADE
+);
+INSERT INTO directory (id,root_id,name) VALUES (0,0,'/');
+Alter table "directory" add  FOREIGN KEY (root_id) REFERENCES directory (id) ON DELETE CASCADE;
+Create index "directory_index" on "directory" using btree ("id","root_id","name");
+
+			]]>
+			</screen>
+			<para>演示</para>
+			<screen>
+			<![CDATA[
+数据存储状态：
+Id
+Root_id
+Name
+0
+0
+/
+1
+0
+计算机
+2
+1
+显示器
+3
+1
+鼠标
+4
+1
+主板
+5
+2
+Samsung 显示器
+6
+2
+LG显示器
+7
+2
+SONY显示器
+
+
+上图是一个分类目录，当删除子目录时如果子目录中有目录或数据，将删除这些数据和目录
+
+说明：
+       id            目录根
+       root_id    REFERENCES id ON DELETE CASCADE当pk删除时关联的fk自动删除
+       name       目录名
+       status      状态true可用，false不可用
+       created    创建时间
+       modified  修改时间
+
+注意：
+       因为使用了关联字段，所以不能在create table 中使用
+       FOREIGN KEY (root_id) REFERENCES directory (id) ON DELETE CASCADE
+       因为插入记录做参考表中的“id”字段，创建表的中没有数据，所以无法插入数据。
+       先创建表，不定义FOREIGN KEY，然后初始化插入第一条数据：
+INSERT INTO directory (id,root_id,name) VALUES (0,0,'/');
+       再定义外建：
+       Alter table "directory" add  FOREIGN KEY (root_id) REFERENCES directory (id) ON DELETE CASCADE;
+
+postgres=# Create table "directory"
+postgres-# (
+postgres(#     "id" Serial NOT NULL,
+postgres(#     "root_id" Integer NOT NULL Default 0,
+postgres(#     "name" Varchar(20)NOT NULL ,
+postgres(#     "status"boolean Default 'true',
+postgres(#     "created" Timestamp Default current_timestamp,
+postgres(#     "modified" Timestamp Default current_timestamp,
+postgres(#     UNIQUE (id,root_id),
+postgres(#     PRIMARY KEY ("id")
+postgres(# --    FOREIGN KEY (root_id) REFERENCES directory (id) ON DELETE CASCADE
+postgres(# );
+NOTICE:  CREATE TABLE will create implicit sequence 'directory_id_seq' for SERIAL column 'directory.id'
+NOTICE:  CREATE TABLE / PRIMARY KEY will create implicit index 'directory_pkey' for table 'directory'
+NOTICE:  CREATE TABLE / UNIQUE will create implicit index 'directory_id_key' for table 'directory'
+CREATE TABLE
+postgres=# INSERT INTO directory (id,root_id,name) VALUES (0,0,'/');
+INSERT 17110 1
+postgres=# Alter table "directory" add  FOREIGN KEY (root_id) REFERENCES directory (id) ON DELETE CASCADE;
+NOTICE:  ALTER TABLE will create implicit trigger(s) for FOREIGN KEY check(s)
+ALTER TABLE
+postgres=# Create index "directory_index" on "directory" using btree ("id","root_id","name");
+CREATE INDEX
+postgres=# INSERT INTO directory (root_id,name) VALUES (0,'计算机');
+INSERT 17116 1
+postgres=# SELECT * from directory ;
+ id | root_id |   name    | status |          created           |          modified
+----+---------+-----------+--------+----------------------------+----------------------------
+  0 |       0 | /         | t      | 2003-11-12 16:55:39.727365 | 2003-11-12 16:55:39.727365
+  1 |       0 | 计算机 | t      | 2003-11-12 16:56:39.663584 | 2003-11-12 16:56:39.663584
+(2 rows)
+
+postgres=# INSERT INTO directory (root_id,name) VALUES (0,'金融');
+INSERT 17117 1
+postgres=# SELECT * from directory ;
+ id | root_id |   name    | status |          created           |          modified
+----+---------+-----------+--------+----------------------------+----------------------------
+  0 |       0 | /         | t      | 2003-11-12 16:55:39.727365 | 2003-11-12 16:55:39.727365
+  1 |       0 | 计算机 | t      | 2003-11-12 16:56:39.663584 | 2003-11-12 16:56:39.663584
+  2 |       0 | 金融    | t      | 2003-11-12 16:57:50.509436 | 2003-11-12 16:57:50.509436
+(3 rows)
+
+postgres=# INSERT INTO directory (root_id,name) VALUES (1,'显示器');
+INSERT 17118 1
+postgres=# INSERT INTO directory (root_id,name) VALUES (1,'鼠标');
+INSERT 17119 1
+postgres=# INSERT INTO directory (root_id,name) VALUES (1,'主板');
+INSERT 17120 1
+postgres=# SELECT * from directory ;
+ id | root_id |   name    | status |          created           |          modified
+----+---------+-----------+--------+----------------------------+----------------------------
+  0 |       0 | /         | t      | 2003-11-12 16:55:39.727365 | 2003-11-12 16:55:39.727365
+  1 |       0 | 计算机 | t      | 2003-11-12 16:56:39.663584 | 2003-11-12 16:56:39.663584
+  2 |       0 | 金融    | t      | 2003-11-12 16:57:50.509436 | 2003-11-12 16:57:50.509436
+  3 |       1 | 显示器 | t      | 2003-11-12 16:59:15.911196 | 2003-11-12 16:59:15.911196
+  4 |       1 | 鼠标    | t      | 2003-11-12 16:59:30.646916 | 2003-11-12 16:59:30.646916
+  5 |       1 | 主板    | t      | 2003-11-12 16:59:44.400317 | 2003-11-12 16:59:44.400317
+(6 rows)
+
+postgres=# INSERT INTO directory (root_id,name) VALUES (3,'Samsung 显示器');
+INSERT 17121 1
+postgres=# INSERT INTO directory (root_id,name) VALUES (3,'LG显示器');
+INSERT 17122 1
+postgres=# INSERT INTO directory (root_id,name) VALUES (3,'SONY显示器');
+INSERT 17123 1
+postgres=# SELECT * from directory ;
+ id | root_id |       name        | status |          created           |          modified
+----+---------+-------------------+--------+----------------------------+----------------------------
+  0 |       0 | /                 | t      | 2003-11-12 16:55:39.727365 | 2003-11-12 16:55:39.727365
+  1 |       0 | 计算机         | t      | 2003-11-12 16:56:39.663584 | 2003-11-12 16:56:39.663584
+  2 |       0 | 金融            | t      | 2003-11-12 16:57:50.509436 | 2003-11-12 16:57:50.509436
+  3 |       1 | 显示器         | t      | 2003-11-12 16:59:15.911196 | 2003-11-12 16:59:15.911196
+  4 |       1 | 鼠标            | t      | 2003-11-12 16:59:30.646916 | 2003-11-12 16:59:30.646916
+  5 |       1 | 主板            | t      | 2003-11-12 16:59:44.400317 | 2003-11-12 16:59:44.400317
+  6 |       3 | Samsung 显示器 | t      | 2003-11-12 17:00:45.964053 | 2003-11-12 17:00:45.964053
+  7 |       3 | LG显示器       | t      | 2003-11-12 17:01:03.736121 | 2003-11-12 17:01:03.736121
+  8|       3 | SONY显示器     | t      | 2003-11-12 17:01:18.257337 | 2003-11-12 17:01:18.257337
+(9 rows)
+
+postgres=# INSERT INTO directory (root_id,name) VALUES (7,'CRT显示器');
+INSERT 17124 1
+postgres=# INSERT INTO directory (root_id,name) VALUES (7,'液晶显示器');
+INSERT 17125 1
+postgres=# INSERT INTO directory (root_id,name) VALUES (8,'液晶显示器');
+INSERT 17126 1
+postgres=# INSERT INTO directory (root_id,name) VALUES (8,'特利隆显示器');
+INSERT 17127 1
+postgres=# INSERT INTO directory (root_id,name) VALUES (7,'钻石隆显示器');
+INSERT 17128 1
+postgres=# SELECT * from directory ;
+ id | root_id |        name        | status |          created           |          modified
+----+---------+--------------------+--------+----------------------------+----------------------------
+  0 |       0 | /                  | t      | 2003-11-12 16:55:39.727365 | 2003-11-12 16:55:39.727365
+  1 |       0 | 计算机          | t      | 2003-11-12 16:56:39.663584 | 2003-11-12 16:56:39.663584
+  2 |       0 | 金融             | t      | 2003-11-12 16:57:50.509436 | 2003-11-12 16:57:50.509436
+  3 |       1 | 显示器          | t      | 2003-11-12 16:59:15.911196 | 2003-11-12 16:59:15.911196
+  4 |       1 | 鼠标             | t      | 2003-11-12 16:59:30.646916 | 2003-11-12 16:59:30.646916
+  5 |       1 | 主板             | t      | 2003-11-12 16:59:44.400317 | 2003-11-12 16:59:44.400317
+  6 |       3 | Samsung 显示器  | t      | 2003-11-12 17:00:45.964053 | 2003-11-12 17:00:45.964053
+  7 |       3 | LG显示器        | t      | 2003-11-12 17:01:03.736121 | 2003-11-12 17:01:03.736121
+  8 |       3 | SONY显示器      | t      | 2003-11-12 17:01:18.257337 | 2003-11-12 17:01:18.257337
+  9 |       7 | CRT显示器       | t      | 2003-11-12 17:03:05.594891 | 2003-11-12 17:03:05.594891
+ 10 |       7 | 液晶显示器    | t      | 2003-11-12 17:03:21.793674 | 2003-11-12 17:03:21.793674
+ 11 |       8 | 液晶显示器    | t      | 2003-11-12 17:03:30.688531 | 2003-11-12 17:03:30.688531
+ 12 |       8 | 特利隆显示器 | t      | 2003-11-12 17:03:57.697321 | 2003-11-12 17:03:57.697321
+ 13 |       7 | 钻石隆显示器 | t      | 2003-11-12 17:04:28.61153  | 2003-11-12 17:04:28.61153
+(14 rows)
+
+测试：
+1.         删除子目录：计算机/显示器/ LG显示器/ CRT显示器
+CRT显示器的id是9
+SQL：DELETE FROM directory WHERE id=9;
+postgres=# DELETE FROM directory WHERE id=9;
+DELETE 1
+postgres=# SELECT * from directory ;
+ id | root_id |        name        | status |          created           |          modified
+----+---------+--------------------+--------+----------------------------+----------------------------
+  0 |       0 | /                  | t      | 2003-11-12 16:55:39.727365 | 2003-11-12 16:55:39.727365
+  1 |       0 | 计算机          | t      | 2003-11-12 16:56:39.663584 | 2003-11-12 16:56:39.663584
+  2 |       0 | 金融             | t      | 2003-11-12 16:57:50.509436 | 2003-11-12 16:57:50.509436
+  3 |       1 | 显示器          | t      | 2003-11-12 16:59:15.911196 | 2003-11-12 16:59:15.911196
+  4 |       1 | 鼠标             | t      | 2003-11-12 16:59:30.646916 | 2003-11-12 16:59:30.646916
+  5 |       1 | 主板             | t      | 2003-11-12 16:59:44.400317 | 2003-11-12 16:59:44.400317
+  6 |       3 | Samsung 显示器  | t      | 2003-11-12 17:00:45.964053 | 2003-11-12 17:00:45.964053
+  7 |       3 | LG显示器        | t      | 2003-11-12 17:01:03.736121 | 2003-11-12 17:01:03.736121
+  8 |       3 | SONY显示器      | t      | 2003-11-12 17:01:18.257337 | 2003-11-12 17:01:18.257337
+ 10 |       7 | 液晶显示器    | t      | 2003-11-12 17:03:21.793674 | 2003-11-12 17:03:21.793674
+ 11 |       8 | 液晶显示器    | t      | 2003-11-12 17:03:30.688531 | 2003-11-12 17:03:30.688531
+ 12 |       8 | 特利隆显示器 | t      | 2003-11-12 17:03:57.697321 | 2003-11-12 17:03:57.697321
+ 13 |       7 | 钻石隆显示器 | t      | 2003-11-12 17:04:28.61153  | 2003-11-12 17:04:28.61153
+(13 rows)
+
+postgres=#
+2.         删除子目录：计算机/显示器/ LG显示器
+LG显示器目录下的子目录：液晶显示器、钻石隆显示器也将被删除
+postgres=# DELETE FROM directory WHERE id=7;
+DELETE 1
+postgres=# SELECT * from directory ;
+ id | root_id |        name        | status |          created           |          modified
+----+---------+--------------------+--------+----------------------------+----------------------------
+  0 |       0 | /                  | t      | 2003-11-12 16:55:39.727365 | 2003-11-12 16:55:39.727365
+  1 |       0 | 计算机          | t      | 2003-11-12 16:56:39.663584 | 2003-11-12 16:56:39.663584
+  2 |       0 | 金融             | t      | 2003-11-12 16:57:50.509436 | 2003-11-12 16:57:50.509436
+  3 |       1 | 显示器          | t      | 2003-11-12 16:59:15.911196 | 2003-11-12 16:59:15.911196
+  4 |       1 | 鼠标             | t      | 2003-11-12 16:59:30.646916 | 2003-11-12 16:59:30.646916
+  5 |       1 | 主板             | t      | 2003-11-12 16:59:44.400317 | 2003-11-12 16:59:44.400317
+  6 |       3 | Samsung 显示器  | t      | 2003-11-12 17:00:45.964053 | 2003-11-12 17:00:45.964053
+  8 |       3 | SONY显示器      | t      | 2003-11-12 17:01:18.257337 | 2003-11-12 17:01:18.257337
+ 11 |       8 | 液晶显示器    | t      | 2003-11-12 17:03:30.688531 | 2003-11-12 17:03:30.688531
+ 12 |       8 | 特利隆显示器 | t      | 2003-11-12 17:03:57.697321 | 2003-11-12 17:03:57.697321
+(10 rows)
+
+3.         再删除：计算机/显示器/ SONY显示器
+postgres=# DELETE FROM directory WHERE id=8;
+DELETE 1
+postgres=# SELECT * from directory ;
+ id | root_id |       name        | status |          created           |          modified
+----+---------+-------------------+--------+----------------------------+----------------------------
+  0 |       0 | /                 | t      | 2003-11-12 16:55:39.727365 | 2003-11-12 16:55:39.727365
+  1 |       0 | 计算机         | t      | 2003-11-12 16:56:39.663584 | 2003-11-12 16:56:39.663584
+  2 |       0 | 金融            | t      | 2003-11-12 16:57:50.509436 | 2003-11-12 16:57:50.509436
+  3 |       1 | 显示器         | t      | 2003-11-12 16:59:15.911196 | 2003-11-12 16:59:15.911196
+  4 |       1 | 鼠标            | t      | 2003-11-12 16:59:30.646916 | 2003-11-12 16:59:30.646916
+  5 |       1 | 主板            | t      | 2003-11-12 16:59:44.400317 | 2003-11-12 16:59:44.400317
+  6 |       3 | Samsung 显示器 | t      | 2003-11-12 17:00:45.964053 | 2003-11-12 17:00:45.964053
+(7 rows)
+
+
+4.         删除子目录：计算机/显示器
+显示器目录下的子目录：
+下有目录LG显示器/ CRT显示器、SONY显示器/……、LG显示器/……
+删除显示器目录后，下的所有子目录将被删除。
+postgres=# INSERT INTO directory (root_id,name) VALUES (3,'LG显示器');
+INSERT 17129 1
+postgres=# INSERT INTO directory (root_id,name) VALUES (3,'SONY显示器');
+INSERT 17130 1
+postgres=# INSERT INTO directory (root_id,name) VALUES (6,'CRT显示器');
+INSERT 17131 1
+postgres=# INSERT INTO directory (root_id,name) VALUES (14,'CRT显示器');
+INSERT 17132 1
+postgres=# INSERT INTO directory (root_id,name) VALUES (15,'CRT显示器');
+INSERT 17133 1
+postgres=# INSERT INTO directory (root_id,name) VALUES (15,'特利隆显示器');
+INSERT 17134 1
+postgres=# INSERT INTO directory (root_id,name) VALUES (15,'钻石隆显示器');
+INSERT 17135 1
+postgres=# INSERT INTO directory (root_id,name) VALUES (6,'液晶显示器');
+INSERT 17136 1
+postgres=# INSERT INTO directory (root_id,name) VALUES (14,'液晶显示器');
+INSERT 17137 1
+postgres=# INSERT INTO directory (root_id,name) VALUES (15,'液晶显示器');
+INSERT 17138 1
+postgres=# SELECT * from directory ;
+ id | root_id |        name        | status |          created           |          modified
+----+---------+--------------------+--------+----------------------------+----------------------------
+  0 |       0 | /                  | t      | 2003-11-12 16:55:39.727365 | 2003-11-12 16:55:39.727365
+  1 |       0 | 计算机          | t      | 2003-11-12 16:56:39.663584 | 2003-11-12 16:56:39.663584
+  2 |       0 | 金融             | t      | 2003-11-12 16:57:50.509436 | 2003-11-12 16:57:50.509436
+  3 |       1 | 显示器          | t      | 2003-11-12 16:59:15.911196 | 2003-11-12 16:59:15.911196
+  4 |       1 | 鼠标             | t      | 2003-11-12 16:59:30.646916 | 2003-11-12 16:59:30.646916
+  5 |       1 | 主板             | t      | 2003-11-12 16:59:44.400317 | 2003-11-12 16:59:44.400317
+  6 |       3 | Samsung 显示器  | t      | 2003-11-12 17:00:45.964053 | 2003-11-12 17:00:45.964053
+ 14 |       3 | LG显示器        | t      | 2003-11-12 17:28:03.927651 | 2003-11-12 17:28:03.927651
+ 15 |       3 | SONY显示器      | t      | 2003-11-12 17:28:15.235316 | 2003-11-12 17:28:15.235316
+ 16 |       6 | CRT显示器       | t      | 2003-11-12 17:28:49.586084 | 2003-11-12 17:28:49.586084
+ 17 |      14 | CRT显示器       | t      | 2003-11-12 17:28:55.290861 | 2003-11-12 17:28:55.290861
+ 18 |      15 | CRT显示器       | t      | 2003-11-12 17:28:59.731191 | 2003-11-12 17:28:59.731191
+ 19 |      15 | 特利隆显示器 | t      | 2003-11-12 17:29:10.747115 | 2003-11-12 17:29:10.747115
+ 20 |      15 | 钻石隆显示器 | t      | 2003-11-12 17:29:30.770079 | 2003-11-12 17:29:30.770079
+ 21 |       6 | 液晶显示器    | t      | 2003-11-12 17:29:47.006177 | 2003-11-12 17:29:47.006177
+ 22 |      14 | 液晶显示器    | t      | 2003-11-12 17:29:51.904914 | 2003-11-12 17:29:51.904914
+ 23 |      15 | 液晶显示器    | t      | 2003-11-12 17:29:57.355213 | 2003-11-12 17:29:57.355213
+(17 rows)
+
+postgres=# DELETE FROM directory WHERE id=3;
+DELETE 1
+postgres=# SELECT * from directory ;
+ id | root_id |   name    | status |          created           |          modified
+----+---------+-----------+--------+----------------------------+----------------------------
+  0 |       0 | /         | t      | 2003-11-12 16:55:39.727365 | 2003-11-12 16:55:39.727365
+  1 |       0 | 计算机 | t      | 2003-11-12 16:56:39.663584 | 2003-11-12 16:56:39.663584
+  2 |       0 | 金融    | t      | 2003-11-12 16:57:50.509436 | 2003-11-12 16:57:50.509436
+  4 |       1 | 鼠标    | t      | 2003-11-12 16:59:30.646916 | 2003-11-12 16:59:30.646916
+  5 |       1 | 主板    | t      | 2003-11-12 16:59:44.400317 | 2003-11-12 16:59:44.400317
+(5 rows)
+不再举例了，删除id=0将删除计算机包括下面的所有目录被删除。
+注意，千万不要删除id=0。
+			]]>
+			</screen>
+			<para>总结: 分类目录的例子中使用了ON DELETE CASCADE，方便了操作，但也有危险。如果不用ON DELETE CASCADE而用程序来实现，需要使用递归算法，非常麻烦。</para>
+		</section>
+	</section>
+</chapter>

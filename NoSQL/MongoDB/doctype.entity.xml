@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!ENTITY chapter.mongo.xml			SYSTEM "chapter.mongo.xml">
+<!ENTITY chapter.setup.xml			SYSTEM "chapter.setup.xml">
+<!ENTITY chapter.mongo.gui.xml		SYSTEM "chapter.mongo.gui.xml">
+<!ENTITY chapter.mongo.cli.xml		SYSTEM "chapter.mongo.cli.xml">
+<!ENTITY chapter.mongo.shell.xml	SYSTEM "chapter.mongo.shell.xml">
+<!ENTITY chapter.indexes.xml		SYSTEM "chapter.indexes.xml">
+<!ENTITY chapter.config.xml			SYSTEM "chapter.config.xml">
+<!ENTITY chapter.mapreduce.xml		SYSTEM "chapter.mapreduce.xml">
+<!ENTITY chapter.old.xml			SYSTEM "chapter.old.xml">

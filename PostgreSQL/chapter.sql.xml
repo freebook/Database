@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="sql">
+    <title>SQL</title>
+    <section>
+    	<title>"::"数据转换</title>
+    	<screen>
+    	<![CDATA[
+3.3    “：：”数据转换
+
+PostgreSQL 数据之间的转换可以使用“：：”操作符。
+3.3.1   text to varchar
+
+vperson 表gender字段为布尔型（boolean）在视图中要显示为true显示为“先生”，false显示为“女士”CASE WHEN 表达式应该是：
+CASE WHEN p.gender = true THEN '先生' ELSE '女士' END as gender,
+直接使用'先生', '女士' PostgreSQL认为' '中间的字符为text类型，请看下面：
+
+postgres=# CREATE OR REPLACE VIEW vperson AS
+postgres-#     SELECT p.uid,p.name,
+postgres-#     CASE WHEN p.gender = true THEN '先生' ELSE '女士' END as gender,
+postgres-#     p.nickname,p.mobile,p.tel,p.fax,p.email,p.province,p.city,p.addre
+ss,p.postalcode
+postgres-#     FROM "person" p
+postgres-#     Order By p.uid;
+CREATE VIEW
+postgres=# \dv vperson
+         List of relations
+ Schema |  Name   | Type |  Owner
+--------+---------+------+----------
+ public | vperson | view | postgres
+(1 row)
+
+postgres=# \d person
+                    Table "public.person"
+   Column    |          Type          |      Modifiers
+-------------+------------------------+----------------------
+ uid         | integer                | not null default 0
+ name        | character varying(20)  | not null
+ gender      | boolean                | not null default 'F'
+ nickname    | character varying(20)  |
+ mobile      | character varying(13)  |
+ tel         | character varying(20)  | not null
+ fax         | character varying(20)  |
+ email       | character varying(60)  |
+ province    | character varying(10)  | not null
+ city        | character varying(10)  | not null
+ address     | character varying(255) | not null
+ postalcode  | character varying(6)   | not null
+ rate        | character varying(20)  | default '0'
+ bank        | character varying(20)  | not null default ''
+ bankaccount | character varying(20)  | not null default ''
+Indexes: person_pkey primary key btree (uid)
+Check constraints: "person_rate" ((((((rate = '0'::character varying) OR (rate = '1'::character varying)) OR (rate = '2'::character varying)) OR (rate = '3'::character varying)) OR (rate = '4'::character varying)) OR (rate = '5'::character varying))
+
+postgres=#
+postgres=# \d vperson
+              View "public.vperson"
+   Column   |          Type          | Modifiers
+------------+------------------------+-----------
+ uid        | integer                |
+ name       | character varying(20)  |
+ gender     | text                   |
+ nickname   | character varying(20)  |
+ mobile     | character varying(13)  |
+ tel        | character varying(20)  |
+ fax        | character varying(20)  |
+ email      | character varying(60)  |
+ province   | character varying(10)  |
+ city       | character varying(10)  |
+ address    | character varying(255) |
+ postalcode | character varying(6)   |
+View definition: SELECT p.uid, p.name, CASE WHEN (p.gender = true) THEN '先生'::
+text ELSE '女士'::text END AS gender, p.nickname, p.mobile, p.tel, p.fax, p.emai
+l, p.province, p.city, p.address, p.postalcode FROM person p ORDER BY p.uid;
+
+
+使用“：：”将test 转为varchar：
+CASE WHEN p.gender = true THEN '先生'::varchar(2) ELSE '女士'::varchar(2) END as gender,
+例：
+CREATE OR REPLACE VIEW vperson AS
+    SELECT p.uid,p.name,
+           CASE WHEN p.gender = true THEN '先生'::varchar(2) ELSE '女士'::varchar(2) END as gender,
+           p.nickname,p.mobile,p.tel,p.fax,p.email,p.province,p.city,p.address,p.postalcode
+    FROM "person" p
+    Order By p.uid;
+postgres=# drop view vperson ;
+DROP VIEW
+postgres=# CREATE OR REPLACE VIEW vperson AS
+postgres-#     SELECT p.uid,p.name,
+postgres-#     CASE WHEN p.gender = true THEN '先生'::varchar(2) ELSE '女士'::varchar(2) END as gender,
+postgres-#     p.nickname,p.mobile,p.tel,p.fax,p.email,p.province,p.city,p.address,p.postalcode
+postgres-#     FROM "person" p
+postgres-#     Order By p.uid;
+CREATE VIEW
+postgres=# \d vperson
+              View "public.vperson"
+   Column   |          Type          | Modifiers
+------------+------------------------+-----------
+ uid        | integer                |
+ name       | character varying(20)  |
+ gender     | character varying(2)   |
+ nickname   | character varying(20)  |
+ mobile     | character varying(13)  |
+ tel        | character varying(20)  |
+ fax        | character varying(20)  |
+ email      | character varying(60)  |
+ province   | character varying(10)  |
+ city       | character varying(10)  |
+ address    | character varying(255) |
+ postalcode | character varying(6)   |
+View definition: SELECT p.uid, p.name, CASE WHEN (p.gender = true) THEN ('先生'::character varying)::character varying(2) ELSE ('女士'::character varying)::character varying(2) END AS gender, p.nickname, p.mobile, p.tel, p.fax, p.email, p.province, p.city, p.address, p.postalcode FROM person p ORDER BY p.uid;
+
+postgres=#
+
+    	]]>
+    	</screen>
+    </section>
+    <section id="orderby">
+    	<title>ORDER BY 排序</title>
+    	<para>使用数字表示排序的字段，注意：不要再程序中这样使用，一旦需求变更，字段前后顺序有所调整，将会影响程序运行</para>
+    	<programlisting>
+select f1, f2, f3 from tab order by 1,3,2
+    	</programlisting>
+    </section>
+	<section id="sql.recursive">
+		<title>递归查询</title>
+    	<para>http://old.storytotell.org/blog/2009/08/11/postgresql84-recursive-queries.html</para>
+	    <example>
+	        <title>递归查询实例</title>
+	        <para>http://justcramer.com/2010/05/30/scaling-threaded-comments-on-django-at-disqus/</para>
+	        <screen>
+	        <![CDATA[
+create table comments (
+    id SERIAL PRIMARY KEY,
+    message VARCHAR,
+    author VARCHAR,
+    parent_id INTEGER REFERENCES comments(id)
+);
+insert into comments (message, author, parent_id)
+    values ('This thread is really cool!', 'David', NULL), ('Ya David, we love it!', 'Jason', 1), ('I agree David!', 'Daniel', 1), ('gift Jason', 'Anton', 2),
+    ('Very interesting post!', 'thedz', NULL), ('You sir, are wrong', 'Chris', 5), ('Agreed', 'G', 5), ('Fo sho, Yall', 'Mac', 5);
+			]]>
+	        </screen>
+
+			<screen>
+			<![CDATA[
+WITH RECURSIVE cte (id, message, author, path, parent_id, depth)  AS (
+    SELECT  id,
+        message,
+        author,
+        array[id] AS path,
+        parent_id,
+        1 AS depth
+    FROM    comments
+    WHERE   parent_id IS NULL
+
+    UNION ALL
+
+    SELECT  comments.id,
+        comments.message,
+        comments.author,
+        cte.path || comments.id,
+        comments.parent_id,
+        cte.depth + 1 AS depth
+    FROM    comments
+    JOIN cte ON comments.parent_id = cte.id
+    )
+    SELECT id, message, author, path, depth FROM cte ORDER BY path;
+	    	]]>
+			</screen>
+			<para>输出结果</para>
+			<screen>
+ id |           message           | author |  path   | depth
+----+-----------------------------+--------+---------+-------
+  1 | This thread is really cool! | David  | {1}     |     1
+  2 | Ya David, we love it!       | Jason  | {1,2}   |     2
+  4 | gift Jason                  | Anton  | {1,2,4} |     3
+  3 | I agree David!              | Daniel | {1,3}   |     2
+  5 | Very interesting post!      | thedz  | {5}     |     1
+  6 | You sir, are wrong          | Chris  | {5,6}   |     2
+  7 | Agreed                      | G      | {5,7}   |     2
+  8 | Fo sho, Yall                | Mac    | {5,8}   |     2
+(8 rows)
+		    </screen>
+	    </example>
+	    <example>
+	    	<title>递归查询实例 city 表</title>
+	    	<para>定义结构</para>
+			<screen>
+	    	<![CDATA[
+CREATE TABLE city
+(
+  id serial NOT NULL,
+  name character varying,
+  parent_id integer,
+  status boolean,
+  CONSTRAINT city_pkey PRIMARY KEY (id),
+  CONSTRAINT city_parent_id_fkey FOREIGN KEY (parent_id)
+      REFERENCES city (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE city
+  OWNER TO sys;
+	    	]]>
+	    	</screen>
+	    	<para>插入数据</para>
+	    	<screen>
+	    	<![CDATA[
+INSERT INTO city (id, name, parent_id, status) VALUES (1, '广东', NULL, NULL);
+INSERT INTO city (id, name, parent_id, status) VALUES (2, '湖南', NULL, NULL);
+INSERT INTO city (id, name, parent_id, status) VALUES (3, '深圳', 1, NULL);
+INSERT INTO city (id, name, parent_id, status) VALUES (4, '东莞', 1, NULL);
+INSERT INTO city (id, name, parent_id, status) VALUES (5, '福田', 3, NULL);
+INSERT INTO city (id, name, parent_id, status) VALUES (6, '南山', 3, NULL);
+INSERT INTO city (id, name, parent_id, status) VALUES (7, '宝安', 3, NULL);
+INSERT INTO city (id, name, parent_id, status) VALUES (8, '西乡', 7, NULL);
+INSERT INTO city (id, name, parent_id, status) VALUES (9, '福永', 7, NULL);
+INSERT INTO city (id, name, parent_id, status) VALUES (10, '龙华', 7, NULL);
+INSERT INTO city (id, name, parent_id, status) VALUES (11, '长沙', 2, NULL);
+INSERT INTO city (id, name, parent_id, status) VALUES (12, '湘潭', 2, NULL);
+INSERT INTO city (id, name, parent_id, status) VALUES (13, '常德', 2, NULL);
+INSERT INTO city (id, name, parent_id, status) VALUES (14, '桃源', 13, NULL);
+INSERT INTO city (id, name, parent_id, status) VALUES (15, '汉寿', 13, NULL);
+INSERT INTO city (id, name, parent_id, status) VALUES (16, '黑龙江', NULL, NULL);
+INSERT INTO city (id, name, parent_id, status) VALUES (17, '伊春', 16, NULL);
+INSERT INTO city (id, name, parent_id, status) VALUES (18, '哈尔滨', 16, NULL);
+INSERT INTO city (id, name, parent_id, status) VALUES (19, '齐齐哈尔', 16, NULL);
+INSERT INTO city (id, name, parent_id, status) VALUES (20, '牡丹江', 16, NULL);
+INSERT INTO city (id, name, parent_id, status) VALUES (21, '佳木斯', 16, NULL);
+INSERT INTO city (id, name, parent_id, status) VALUES (22, '民治', 10, NULL);
+INSERT INTO city (id, name, parent_id, status) VALUES (23, '上塘', 10, NULL);
+	    	]]>
+	    	</screen>
+			<para>查询</para>
+	    	<screen>
+	    	<![CDATA[
+WITH RECURSIVE path(id, name, path, idpath, parent_id, status) AS (
+  SELECT id, name, '/' || name , '/' || id , parent_id, status FROM city WHERE parent_id is null
+  UNION
+  SELECT
+    city.id,
+    city.name,
+    parentpath.path ||
+      CASE parentpath.path
+	WHEN '/' THEN ''
+	ELSE '/'
+      END || city.name,
+    parentpath.idpath ||
+     CASE parentpath.idpath
+	WHEN '/' THEN ''
+	ELSE '/'
+      END || city.id,
+    city.parent_id, city.status
+  FROM city, path as parentpath
+  WHERE city.parent_id = parentpath.id
+)
+
+SELECT * FROM path;
+	    	]]>
+	    	</screen>
+	    	<para>结果输出</para>
+	    	<screen>
+	    	<![CDATA[
+ id |   name   |           path            |    idpath    | parent_id | status
+----+----------+---------------------------+--------------+-----------+--------
+  1 | 广东     | /广东                     | /1           |           |
+  2 | 湖南     | /湖南                     | /2           |           |
+ 16 | 黑龙江   | /黑龙江                   | /16          |           |
+  3 | 深圳     | /广东/深圳                | /1/3         |         1 |
+  4 | 东莞     | /广东/东莞                | /1/4         |         1 |
+ 11 | 长沙     | /湖南/长沙                | /2/11        |         2 |
+ 12 | 湘潭     | /湖南/湘潭                | /2/12        |         2 |
+ 13 | 常德     | /湖南/常德                | /2/13        |         2 |
+ 17 | 伊春     | /黑龙江/伊春              | /16/17       |        16 |
+ 18 | 哈尔滨   | /黑龙江/哈尔滨            | /16/18       |        16 |
+ 19 | 齐齐哈尔 | /黑龙江/齐齐哈尔          | /16/19       |        16 |
+ 20 | 牡丹江   | /黑龙江/牡丹江            | /16/20       |        16 |
+ 21 | 佳木斯   | /黑龙江/佳木斯            | /16/21       |        16 |
+  5 | 福田     | /广东/深圳/福田           | /1/3/5       |         3 |
+  6 | 南山     | /广东/深圳/南山           | /1/3/6       |         3 |
+  7 | 宝安     | /广东/深圳/宝安           | /1/3/7       |         3 |
+ 14 | 桃源     | /湖南/常德/桃源           | /2/13/14     |        13 |
+ 15 | 汉寿     | /湖南/常德/汉寿           | /2/13/15     |        13 |
+  8 | 西乡     | /广东/深圳/宝安/西乡      | /1/3/7/8     |         7 |
+  9 | 福永     | /广东/深圳/宝安/福永      | /1/3/7/9     |         7 |
+ 10 | 龙华     | /广东/深圳/宝安/龙华      | /1/3/7/10    |         7 |
+ 22 | 民治     | /广东/深圳/宝安/龙华/民治 | /1/3/7/10/22 |        10 |
+ 23 | 上塘     | /广东/深圳/宝安/龙华/上塘 | /1/3/7/10/23 |        10 |
+(23 rows)
+	    	]]>
+	    	</screen>
+	    </example>
+	</section>
+	<section id="returning">
+		<title>returning</title>
+		<example>
+			<title>PostgreSQL insert returning</title>
+			<screen>
+test=# create table account(id serial,name varchar,pass varchar);
+NOTICE:  CREATE TABLE will create implicit sequence "account_id_seq" for serial column "account.id"
+CREATE TABLE
+test=# insert into account(name,pass) values('neo','chen') returning id;
+ id
+----
+  1
+(1 row)
+
+INSERT 0 1
+			</screen>
+			<para>returning p1,p2...</para>
+			<screen>
+test=# insert into account(name,pass) values('jam','123'),('john','456') returning id, name;
+ id | name
+----+------
+  2 | jam
+  3 | john
+(2 rows)
+
+INSERT 0 2
+			</screen>
+			<para>returning *</para>
+			<screen>
+test=# insert into account(name,pass) values('sam',md5('123')),('ivan',md5('456')),('lily',md5('789')) returning *;
+ id | name |               pass
+----+------+----------------------------------
+  4 | sam  | 202cb962ac59075b964b07152d234b70
+  5 | ivan | 250cf8b51c773f3f8dc8b4be867a9a02
+  6 | lily | 68053af2923e00204c3ca7c6a3150cf7
+(3 rows)
+
+INSERT 0 3
+			</screen>
+		</example>
+		<example>
+			<title>PostgreSQL update returning</title>
+			<screen>
+test=# update account set pass = md5(pass) where id=3 returning id,pass;
+ id |               pass
+----+----------------------------------
+  3 | 250cf8b51c773f3f8dc8b4be867a9a02
+(1 row)
+
+UPDATE 1
+			</screen>
+			<screen>
+			<![CDATA[
+test=# update account set pass = md5(pass) where id < 3 returning *;
+ id | name |               pass
+----+------+----------------------------------
+  1 | neo  | a1a8887793acfc199182a649e905daab
+  2 | jam  | 202cb962ac59075b964b07152d234b70
+(2 rows)
+
+UPDATE 2
+			]]>
+			</screen>
+		</example>
+		<example>
+			<title>PostgreSQL delete returning</title>
+			<screen>
+test=# delete from account where id=6 returning id,name;
+ id | name
+----+------
+  6 | lily
+(1 row)
+
+DELETE 1
+			</screen>
+			<screen>
+			<![CDATA[
+test=# delete from account where id<6 returning *;
+ id | name |               pass
+----+------+----------------------------------
+  4 | sam  | 202cb962ac59075b964b07152d234b70
+  5 | ivan | 250cf8b51c773f3f8dc8b4be867a9a02
+  3 | john | 250cf8b51c773f3f8dc8b4be867a9a02
+  1 | neo  | a1a8887793acfc199182a649e905daab
+  2 | jam  | 202cb962ac59075b964b07152d234b70
+(5 rows)
+
+DELETE 5
+			]]>
+			</screen>
+		</example>
+	</section>
+
+	&chapter.sql.function.xml;
+</chapter>
+
+<chapter>
+	<title>事务处理与锁</title>
+	<section>
+		<title>FOR UPDATE SKIP LOCKED</title>
+		<para>当使用 FOR UPDATE 时，会锁住所有where匹配条件的记录，但有时我们只是修改其中的一条，
+		例如where条件匹配后跟随LIMIT 1，这时FOR UPDATE会锁住所有where匹配的记录，我们使用 SKIP LOCKED 可以跳过被锁记录，并找到一条没有加锁的记录，然后锁定。</para>
+		<programlisting>
+SELECT field  
+  
+FROM your_table  
+  
+WHERE field1 = 'netkiller'  
+  
+AND field2 = 'neo'  
+  
+LIMIT 1  
+  
+FOR UPDATE SKIP LOCKED  
+		</programlisting>
+		<para>SKIP LOCKED 在高并发系统中十分重要</para>
+	</section>
+	<section>
+		<title>FOR SHARE</title>
+	</section>
+</chapter>

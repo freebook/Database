@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter>
+	<title>MongoDB 管理</title>
+	<section id="security">
+		<title>Security and Authentication</title>
+		<para>开启认证</para>
+		<screen>
+# vim /etc/mongodb.conf
+auth = true
+		</screen>
+		<para>重载配置文件</para>
+		<screen>
+# /etc/init.d/mongod reload
+Stopping mongod:                                           [  OK  ]
+Starting mongod:                                           [  OK  ]
+		</screen>
+		<section>
+			<title>超级管理员</title>
+			<screen>
+			<![CDATA[
+use admin;
+db.createUser(
+   {
+     user: "admin",
+     pwd: "WkAFdmfVQpP1oAEkz4YVlMCDxkG36TAi",
+     roles: [ "readWrite", "dbAdmin" ]
+   }
+);
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>数据库用户</title>
+			<para>注意，只有创建了超级管理后，下面的操作才会生效</para>
+			<para>MongoDB</para>
+			<screen>
+			<![CDATA[
+use products
+db.createUser(
+   {
+     user: "accountUser",
+     pwd: "password",
+     roles: [ "readWrite", "dbAdmin" ]
+   }
+)
+
+db.createUser(
+   {
+     user: "monitor",
+     pwd: "netkiller",
+     roles: [ "clusterMonitor"]
+   }
+)
+			]]>
+			</screen>
+			<para>早期版本</para>
+			<screen>
+			<![CDATA[
+> use neo
+switched to db neo
+> db.addUser('neo','chen')
+{
+        "user" : "neo",
+        "readOnly" : false,
+        "pwd" : "68ace374737253d87e0ec91d4fcb673d"
+}
+
+> db.system.users.find()
+{ "_id" : ObjectId("4c481404b9db6474d2fcb76f"), "user" : "neo", "readOnly" : false, "pwd" : "68ace374737253d87e0ec91d4fcb673d" }
+
+> db.auth('neo','chen')
+1
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>删除用户</title>
+			<para>Deleting Users 删除用户</para>
+			<para>To delete a user:</para>
+			<screen>
+			<![CDATA[
+> db.getUsers();
+[
+	{
+		"_id" : "test.monitor",
+		"user" : "monitor",
+		"db" : "test",
+		"roles" : [
+			{
+				"role" : "dbOwner",
+				"db" : "test"
+			}
+		]
+	}
+]
+			
+> db.dropUser('monitor')
+ture
+
+> db.getUsers();
+[ ]
+			]]>			
+			</screen>
+			<para>早期版本</para>
+			<screen>
+			<![CDATA[
+db.system.users.remove( { user: username } )
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>更新角色</title>
+			<screen>
+			<![CDATA[
+
+db.updateUser( "monitor",
+   {
+     roles: [ "read", "clusterMonitor" ]
+   }
+)
+			]]>
+			</screen>
+		</section>
+	</section>
+	&chapter.indexes.xml;
+</chapter>
