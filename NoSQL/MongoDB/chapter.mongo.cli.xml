@@ -36,6 +36,24 @@ Tue Sep  8 10:12:33.175 	test.img.files to /tmp/test/img.files.bson
 Tue Sep  8 10:12:33.176 		 1 objects
 Tue Sep  8 10:12:33.176 	Metadata for test.img.files to /tmp/test/img.files.metadata.json
 		</screen>
+		<section>
+			<title>远程备份</title>
+			<para>短参数</para>
+			<screen>
+mongodump -h mongodb.example.net -p 27017 -u neo -p password -d netkiller -c yourcollection
+			</screen>
+			<para>长参数</para>
+			<screen>
+mongodump --host mongodb.example.net --port 27017 --username backup --password passwd --db mdb --collection some			
+			</screen>
+		</section>
+		<section>
+			<title>本地备份</title>
+			<para>通过指定dbpath在本地导出bson文件</para>
+			<screen>
+mongodump --dbpath /var/lib/mongodb --out /opt/backup --db test --username backup --password passwd			
+			</screen>
+		</section>
 	</section>
 	<section id="mongorestore">
 		<title>mongorestore</title>
@@ -98,6 +116,25 @@ Tue Sep  8 10:18:31.417 	Creating index: { key: { _id: 1 }, ns: "test.bios", nam
 		<screen>
 # mongorestore -h 127.0.0.1 -d test123 /tmp/test
 		</screen>
+		<section>
+			<title>远程回复</title>
+			<screen>
+mongorestore --host mongodb.example.net --port 27017 --username backup --password password --db test --collection some /data/backup
+			</screen>
+		</section>
+		<section>
+			<title>本地恢复</title>
+			<screen>
+mongorestore --dbpath /var/lib/mongodb --journal /opt/backup
+			</screen>
+		</section>
+		<section>
+			<title>filter</title>
+			<para>如果只想恢复部分数据，可以使用--filter</para>
+			<screen>
+$ mongorestore -h 127.0.0.1 -d test123 /tmp/test --filter '{"field": 1}'			
+			</screen>
+		</section>
 	</section>
 
 	<section id="mongostat">
