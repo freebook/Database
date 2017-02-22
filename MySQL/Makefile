@@ -1,11 +1,11 @@
 XSLTPROC = /usr/bin/xsltproc
-DSSSL = ../docbook-xsl/docbook.xsl
+DSSSL = ../../docbook-xsl/docbook.xsl
 TMPDIR = $(shell mktemp -d --suffix=.tmp -p /tmp mysql.html.XXXXXX)
 WORKSPACE=~/workspace
 PROJECT=MySQL
 DOCBOOK=mysql
 PUBLIC_HTML=~/public_html
-PROJECT_DIR=$(WORKSPACE)/$(PROJECT)
+PROJECT_DIR=$(WORKSPACE)/Database/$(PROJECT)
 HTML_DIR=$(PUBLIC_HTML)/$(DOCBOOK)
 HTMLHELP_DIR=~/htmlhelp/$(DOCBOOK)/chm
 
@@ -14,7 +14,7 @@ all: html htmlhelp
 html:
 	@mkdir -p ${HTML_DIR}
 	@find ${HTML_DIR} -type f -iname "*.html" -exec rm -rf {} \;
-	@rsync -au ../common/docbook.css $(HTML_DIR)/
+	@rsync -au ../../common/docbook.css $(HTML_DIR)/
 	@$(XSLTPROC) -o $(HTML_DIR)/ $(DSSSL) $(PROJECT_DIR)/book.xml
 	@$(shell test -d $(HTML_DIR)/images && find $(HTML_DIR)/images/ -type f -exec rm -rf {} \;)
 	@$(shell test -d images && rsync -au --exclude=.svn $(PROJECT_DIR)/images $(HTML_DIR)/)
