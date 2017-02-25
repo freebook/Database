@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="query">
+	<title>Query</title>
+	<section>
+		<title>find()</title>
+		<screen>
+db.getCollection('tracker').find({name:"81004892"})
+		</screen>
+	</section>
+	<section>
+		<title>sort()</title>
+		<para></para>
+		<screen>
+db.getCollection('tracker').find({name:"81004892"}).sort({ctime: -1})
+		</screen>
+	</section>
+</section>

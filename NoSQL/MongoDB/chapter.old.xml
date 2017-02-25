@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter>
+<section id="old">
 	<title>MongoDB 2.x 早期版本</title>
 	<section>
 		<title>用户管理</title>
@@ -22,4 +22,4 @@ switched to db admin
 		]]>
 		</screen>
 	</section>
-</chapter>
+</section>

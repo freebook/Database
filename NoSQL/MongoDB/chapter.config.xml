@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter>
+<section id="config">
 	<title>MongoDB 管理</title>
 	<section id="security">
 		<title>Security and Authentication</title>
@@ -122,5 +122,6 @@ db.updateUser( "monitor",
 			</screen>
 		</section>
 	</section>
+	&chapter.mongo.query.xml;
 	&chapter.indexes.xml;
-</chapter>
+</section>
