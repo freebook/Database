@@ -513,6 +513,7 @@ interactive-timeout
 		</section>
 	</section>
 	&chapter.server.status.xml;
+	&chapter.server.plugin.xml;
 	&chapter.server.replication.xml;
 	&chapter.server.cluster.xml;
 	&chapter.server.proxy.xml;

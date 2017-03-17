@@ -332,8 +332,13 @@ SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));
 		]]>
 		</screen>
 	</section>
-	<section>
+	<section id="max_open_files">
 		<title>[Warning] Changed limits: max_open_files: 5000 (requested 20480)</title>
+		<para>提出出现在 CentOS 7 ulimit 配置没有问题的情况下mysql日志提示 Warning</para>
+		<screen>
+# ulimit -Sa | grep "open files"
+open files                      (-n) 40960		
+		</screen>
 		<screen>
 [root@netkiller ~]# cat /proc/`pidof mysqld`/limits
 Limit                     Soft Limit           Hard Limit           Units     
@@ -359,6 +364,28 @@ Max realtime timeout      unlimited            unlimited            us
 [root@netkiller ~]# egrep '^(Limit|Max open files)' /proc/`pidof mysqld`/limits
 Limit                     Soft Limit           Hard Limit           Units     
 Max open files            5000                 5000                 files  
+		</screen>
+		<para>问题的出现出现原因是systemctl启动脚本覆盖了ulimit配置</para>
+		<screen>
+# cat /usr/lib/systemd/system/mysqld.service | grep -A2 open_files_limit
+# Sets open_files_limit
+LimitNOFILE = 5000
+		</screen>
+		<para>解决方法，直接修改上面的数值，不建议修改mysqld.service，这样会影响你下次升级。请采用下面的方案完美解决：</para>
+		<screen>
+		<![CDATA[
+mkdir /usr/lib/systemd/system/mysqld.service.d
+
+cat >> /usr/lib/systemd/system/mysqld.service.d/override.conf <<EOF
+[Service]
+LimitNOFILE=40960
+EOF
+		]]>
+		</screen>
+		<para></para>
+		<screen>
+systemctl daemon-reload
+systemctl restart mysqld		
 		</screen>
 	</section>
 </chapter>

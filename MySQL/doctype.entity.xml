@@ -8,6 +8,7 @@
 <!ENTITY chapter.server.cluster.xml		SYSTEM "chapter.server.cluster.xml">
 <!ENTITY chapter.server.proxy.xml		SYSTEM "chapter.server.proxy.xml">
 <!ENTITY chapter.server.router.xml		SYSTEM "chapter.server.router.xml">
+<!ENTITY chapter.server.plugin.xml		SYSTEM "chapter.server.plugin.xml">
 <!ENTITY chapter.client.xml 			SYSTEM "chapter.client.xml">
 <!ENTITY chapter.monitoring.xml			SYSTEM "chapter.monitoring.xml">
 <!ENTITY chapter.monitoring.analysis.xml 	SYSTEM "chapter.monitoring.analysis.xml">
