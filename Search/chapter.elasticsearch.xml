@@ -370,7 +370,7 @@ curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
 	<section id="plugin">
 		<title>中文分词插件管理</title>
 		<section>
-			<title>手工安装插件</title>
+			<title>安装插件</title>
 			<screen>
 curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elasticsearch/elasticsearch-analysis-ik-5.2.2.sh | bash
 			</screen>
