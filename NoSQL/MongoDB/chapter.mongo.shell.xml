@@ -276,8 +276,8 @@ db.foo.find({'address.city':'shenzhen'})
 cat data.bson | mongo test
 		]]>
 		</screen>
-	</section>	
-	
+	</section>
+
 	<section id="shutdownServer">
 		<title>shutdownServer</title>
 		<para>关闭MongoDB数据库</para>
@@ -287,4 +287,23 @@ db.shutdownServer()
 		]]>
 		</screen>
 	</section>
+
+	<section id="aggregate">
+		<title>aggregate</title>
+		<section id="groupby">
+			<title>groupby + sum</title>
+			<para>select username, sum(balance) as total from users group by member.</para>
+			<screen>
+			<![CDATA[
+db.member.aggregate([{ 
+    $group: { 
+        _id: "$username", 
+        total: { $sum: "$balance" }
+    } 
+}])
+			]]>
+			</screen>
+		</section>
+	</section>
+	
 </section>
