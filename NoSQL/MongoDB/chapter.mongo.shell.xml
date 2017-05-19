@@ -204,6 +204,49 @@ db.shutdownServer()
 
 	<section id="aggregate">
 		<title>aggregate</title>
+		<section>
+			<title>project</title>
+			<section>
+				<title>$split</title>		
+				<screen>
+{
+    "_id" : ObjectId("591a710320156761bdf68a06"),
+    "_class" : "mis.domain.PyramidSelling",
+
+	...
+	...
+
+    "status" : true,
+    "createdDate" : ISODate("2017-05-16T03:24:51.511Z")
+}			
+				</screen>
+				<screen>
+				<![CDATA[
+db.getCollection('pyramidSelling').aggregate([
+  { $project : { _class : { $split: ["$_class", "."] } } }
+]);			
+				]]>
+				</screen>
+			</section>
+			<section>
+				<title>substr</title>
+				<screen>
+db.getCollection('pyramidSelling').aggregate(
+   [
+      {
+         $project: {
+            userName: 1,
+            phone: {
+               prefix: { $substr: [ "$phone", 0, 3 ] },
+               mobile: { $substr: [ "$phone", 3, 11 ] }
+            },
+         }
+      }
+   ]
+)				
+				</screen>
+			</section>
+		</section>
 		<section id="groupby">
 			<title>groupby + sum</title>
 			<para>select username, sum(balance) as total from users group by member.</para>
