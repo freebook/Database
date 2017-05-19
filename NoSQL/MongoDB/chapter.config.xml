@@ -122,6 +122,5 @@ db.updateUser( "monitor",
 			</screen>
 		</section>
 	</section>
-	&chapter.mongo.query.xml;
 	&chapter.indexes.xml;
 </section>

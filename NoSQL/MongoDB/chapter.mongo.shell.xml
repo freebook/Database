@@ -1,56 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section id="shell">
-	<title>mongo shell</title>
-	<section id="eval">
-		<title>eval</title>
-		<screen>
-		<![CDATA[
-# mongo
-MongoDB shell version: 2.2.3
-connecting to: test
-Welcome to the MongoDB shell.
-For interactive help, type "help".
-For more comprehensive documentation, see
-	http://docs.mongodb.org/
-Questions? Try the support group
-	http://groups.google.com/group/mongodb-user
->
-		]]>
-		</screen>
-		<para>3.4</para>
-		<screen>
-		<![CDATA[
-[root@netkiller ~]# mongo
-MongoDB shell version v3.4.1
-connecting to: mongodb://127.0.0.1:27017
-MongoDB server version: 3.4.1
-Server has startup warnings: 
-2017-01-03T11:26:57.516+0800 I CONTROL  [initandlisten] 
-2017-01-03T11:26:57.516+0800 I CONTROL  [initandlisten] ** WARNING: Access control is not enabled for the database.
-2017-01-03T11:26:57.516+0800 I CONTROL  [initandlisten] **          Read and write access to data and configuration is unrestricted.
-2017-01-03T11:26:57.516+0800 I CONTROL  [initandlisten] 
-2017-01-03T11:26:57.516+0800 I CONTROL  [initandlisten] 
-2017-01-03T11:26:57.516+0800 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/enabled is 'always'.
-2017-01-03T11:26:57.516+0800 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
-2017-01-03T11:26:57.516+0800 I CONTROL  [initandlisten] 
-2017-01-03T11:26:57.516+0800 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/defrag is 'always'.
-2017-01-03T11:26:57.516+0800 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
-2017-01-03T11:26:57.516+0800 I CONTROL  [initandlisten] 
->
-		]]>
-		</screen>
-		<screen>
-# mongo 127.0.0.1:27017/admin --eval "db.stats()"		
-		</screen>
-	</section>
-	<section id="help">
-		<title>help</title>
-		<para>help</para>
-		<screen>
-db.help()                    help on DB methods
-db.foo.help()                help on collection methods
-		</screen>
-	</section>
+	<title>MongoDB Shell</title>
 	<section id="show">
 		<title>show 查看命令</title>
 		<section>
@@ -118,27 +68,25 @@ switched to db logging
 		]]>
 		</screen>
 	</section>
-	<section id="crud">
-		<title>记录管理</title>
-		<section>
-			<title>save</title>
-			<para>存储嵌套的对象</para>
-			<screen>
-			<![CDATA[
+	<section>
+		<title>save</title>
+		<para>存储嵌套的对象</para>
+		<screen>
+		<![CDATA[
 db.foo.save({'name':'neo','address':{'city':'shenzhen','post':518000},'phone':[13113668890,13322993040]})
-			]]>
-			</screen>
-			<para>存储数组对象</para>
-			<screen>
-			<![CDATA[
+		]]>
+		</screen>
+		<para>存储数组对象</para>
+		<screen>
+		<![CDATA[
 db.foo.save({'Uid':'netkiller@msn.com','phone':['13322993040','13113668890']})
-			]]>
-			</screen>
-		</section>
-		<section>
-			<title>insert</title>
-			<screen>
-			<![CDATA[
+		]]>
+		</screen>
+	</section>
+	<section>
+		<title>insert</title>
+		<screen>
+		<![CDATA[
 db.bios.insert(
    {
      _id: 1,
@@ -170,90 +118,52 @@ db.bios.insert(
              ]
    }
 )
-			]]>
-			</screen>
-		</section>
-		<section>
-			<title>update</title>
-			<para>根据query条件修改，如果不存在则插入，允许修改多条记录</para>
-			<screen>
+		]]>
+		</screen>
+	</section>
+	<section>
+		<title>update</title>
+		<para>根据query条件修改，如果不存在则插入，允许修改多条记录</para>
+		<screen>
 db.foo.update({'yy':5},{'$set':{'xx':2}},upsert=true,multi=true)
-			</screen>
-		</section>
-		<section id="remove">
-			<title>remove</title>
-			<para>删除uid=10的记录</para>
-			<screen>
-			<![CDATA[
+		</screen>
+	</section>
+	<section id="remove">
+		<title>remove</title>
+		<para>删除uid=10的记录</para>
+		<screen>
+		<![CDATA[
 db.foo.remove({'uid':10})
-			]]>
-			</screen>
-			<para>删除所有的记录</para>
-			<screen>
+		]]>
+		</screen>
+		<para>删除所有的记录</para>
+		<screen>
 db.foo.remove()
-			</screen>
-			<section>
-				<title>删除条件使用 _id </title>
-				<screen>
+		</screen>
+		<section>
+			<title>删除条件使用 _id </title>
+			<screen>
 db.foo.remove({ "_id" : ObjectId("56e10b66a22ef1b1408b4567")})
-				</screen>
-			</section>
-		</section>
-		<section>
-			<title>find</title>
-			<para>查找所有 所有记录</para>
-			<screen>
-db.foo.find()                list objects in collection foo
-db.foo.find( { a : 1 } )     list objects in foo where a == 1
-			</screen>
-			<para>查找一条记录</para>
-			<screen>
-db.foo.findOne()
-			</screen>
-			<para>根据条件检索10条记录</para>
-			<screen>
-db.foo.find({'name':'neo'}).limit(10)
-			</screen>
-			<para>sort排序</para>
-			<screen>
-db.foo.find({'name':'neo'}).sort({'Dt',-1})
-db.foo.find().sort({'Ct':-1}).limit(1)
-			</screen>
-			<para>count记录统计操作</para>
-			<screen>
-db.foo.count()
-			</screen>
-			<para>distinct操作,去重复查询指定列，</para>
-			<screen>
-db.foo.distinct('name')
-			</screen>
-			<para>”&gt;=”操作</para>
-			<screen>
-			<![CDATA[
-db.foo.find({"timestamp": {"$gte" : 2}})
-			]]>
-			</screen>
-			<para>子对象的查找</para>
-			<screen>
-db.foo.find({'address.city':'shenzhen'})
 			</screen>
 		</section>
-		<section>
-			<title>count()</title>
-			<screen>
-			<![CDATA[
+	</section>
+	
+	<section>
+		<title>count()</title>
+		<screen>
+		<![CDATA[
 > db.access.count()
 51528
 > db.access.count()
 104401
-			]]>
-			</screen>
-		</section>
-		<section>
-			<title>group()</title>
-			<para>group()类似SQL中的Group by</para>
-			<screen>
-			<![CDATA[
+		]]>
+		</screen>
+	</section>
+	<section>
+		<title>group()</title>
+		<para>group()类似SQL中的Group by</para>
+		<screen>
+		<![CDATA[
 > db.test.group({key: {remote_addr: true}, initial: {count: 0}, reduce: function(obj, prev) {prev.count++}});
 [
 	{
@@ -265,10 +175,12 @@ db.foo.find({'address.city':'shenzhen'})
 		"count" : 1
 	}
 ]
-			]]>
-			</screen>
-		</section>
+		]]>
+		</screen>
 	</section>
+	
+	&chapter.mongo.query.xml;
+
 	<section id="bson">
 		<title>管道操作</title>
 		<screen>
@@ -277,7 +189,9 @@ cat data.bson | mongo test
 		]]>
 		</screen>
 	</section>
-
+	
+	
+	
 	<section id="shutdownServer">
 		<title>shutdownServer</title>
 		<para>关闭MongoDB数据库</para>

@@ -1,7 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section id="cli">
 	<title>命令工具</title>
-	&chapter.mongo.shell.xml;
+	<section id="mongo">
+		<title>mongo - MongoDB Shell</title>
+		<section id="eval">
+			<title>eval</title>
+			<screen>
+			<![CDATA[
+# mongo
+MongoDB shell version: 2.2.3
+connecting to: test
+Welcome to the MongoDB shell.
+For interactive help, type "help".
+For more comprehensive documentation, see
+	http://docs.mongodb.org/
+Questions? Try the support group
+	http://groups.google.com/group/mongodb-user
+>
+			]]>
+			</screen>
+			<para>3.4</para>
+			<screen>
+			<![CDATA[
+[root@netkiller ~]# mongo
+MongoDB shell version v3.4.1
+connecting to: mongodb://127.0.0.1:27017
+MongoDB server version: 3.4.1
+Server has startup warnings: 
+2017-01-03T11:26:57.516+0800 I CONTROL  [initandlisten] 
+2017-01-03T11:26:57.516+0800 I CONTROL  [initandlisten] ** WARNING: Access control is not enabled for the database.
+2017-01-03T11:26:57.516+0800 I CONTROL  [initandlisten] **          Read and write access to data and configuration is unrestricted.
+2017-01-03T11:26:57.516+0800 I CONTROL  [initandlisten] 
+2017-01-03T11:26:57.516+0800 I CONTROL  [initandlisten] 
+2017-01-03T11:26:57.516+0800 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/enabled is 'always'.
+2017-01-03T11:26:57.516+0800 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2017-01-03T11:26:57.516+0800 I CONTROL  [initandlisten] 
+2017-01-03T11:26:57.516+0800 I CONTROL  [initandlisten] ** WARNING: /sys/kernel/mm/transparent_hugepage/defrag is 'always'.
+2017-01-03T11:26:57.516+0800 I CONTROL  [initandlisten] **        We suggest setting it to 'never'
+2017-01-03T11:26:57.516+0800 I CONTROL  [initandlisten] 
+>
+			]]>
+			</screen>
+			<screen>
+# mongo 127.0.0.1:27017/admin --eval "db.stats()"		
+			</screen>
+		</section>
+		<section id="help">
+			<title>help</title>
+			<para>help</para>
+			<screen>
+db.help()                    help on DB methods
+db.foo.help()                help on collection methods
+			</screen>
+		</section>		
+	</section>
 	<section id="mongodump">
 		<title>mongodump - Backup</title>
 		<screen>

@@ -10,6 +10,7 @@
 	&chapter.setup.xml;
 	&chapter.config.xml;
 	&chapter.mongo.cli.xml;
+	&chapter.mongo.shell.xml;
 	&chapter.mongo.gui.xml;
 	&chapter.mapreduce.xml;
 	&chapter.old.xml;
