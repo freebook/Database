@@ -52,7 +52,15 @@ Server has startup warnings:
 db.help()                    help on DB methods
 db.foo.help()                help on collection methods
 			</screen>
-		</section>		
+		</section>
+		<section>
+			<title>登陆认证</title>
+			<screen>
+			<![CDATA[
+# mongo -u<user> -p<password> --authenticationDatabase <db> <host>/<db> 
+			]]>			
+			</screen>
+		</section>
 	</section>
 	<section id="mongodump">
 		<title>mongodump - Backup</title>

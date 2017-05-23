@@ -147,7 +147,12 @@ db.foo.remove({ "_id" : ObjectId("56e10b66a22ef1b1408b4567")})
 			</screen>
 		</section>
 	</section>
-	
+	<section>
+		<title>删除 collection</title>
+		<screen>
+db.collection.drop()
+		</screen>
+	</section>
 	<section>
 		<title>count()</title>
 		<screen>
@@ -189,9 +194,7 @@ cat data.bson | mongo test
 		]]>
 		</screen>
 	</section>
-	
-	
-	
+
 	<section id="shutdownServer">
 		<title>shutdownServer</title>
 		<para>关闭MongoDB数据库</para>
