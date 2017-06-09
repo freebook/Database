@@ -8,11 +8,11 @@
 	</chapterinfo>
 	<para>http://www.mongodb.org/</para>
 	&chapter.setup.xml;
-	&chapter.config.xml;
+	&chapter.administrator.xml;
 	&chapter.mongo.cli.xml;
 	&chapter.mongo.shell.xml;
 	&chapter.mongo.gui.xml;
 	&chapter.mapreduce.xml;
-	&chapter.old.xml;
+	&chapter.faq.xml;
 	
 </chapter>

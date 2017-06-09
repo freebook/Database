@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="faq">
+	<title>FAQ</title>
+	<section>
+		<title>MongoDB 3.x 启用认证后恢复数据库需指定 collection</title>
+		<screen>
+# mongorestore -u yourdb  dump/
+Enter password:
+
+2017-06-09T11:55:58.566+0800	Failed: error connecting to db server: server returned error on SASL authentication step: Authentication failed.
+		</screen>
+		<screen>
+# mongorestore -u yourdb -d yourdb dump/yourdb
+		</screen>
+	</section>
+	<section>
+		<title>MongoDB 2.x 早期版本用户管理</title>
+		<screen>
+		<![CDATA[
+> use admin
+switched to db admin
+> db.addUser('neo','chen')
+{
+        "user" : "neo",
+        "readOnly" : false,
+        "pwd" : "68ace374737253d87e0ec91d4fcb673d"
+}
+
+> db.system.users.find()
+{ "_id" : ObjectId("4c481404b9db6474d2fcb76f"), "user" : "neo", "readOnly" : false, "pwd" : "68ace374737253d87e0ec91d4fcb673d" }
+
+> db.auth('neo','chen')
+1		
+		]]>
+		</screen>
+	</section>
+</section>
