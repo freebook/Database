@@ -507,6 +507,39 @@ min: 1, max: 210, avg: 3.64 (13453 samples)
 			</screen>
 		</section>
 	</section>
+	<section id="redis-benchmark">
+		<title>redis-benchmark 测试工具</title>
+		<para>redis-benchmark 基准性能测试</para>
+		<screen>
+		<![CDATA[
+用法 redis-benchmark [-h <host>][-p ] [-c <clients>][-n ]> [-k <boolean>]
+
+选项：
+
+选项	说明
+-h <hostname>	主机名 （默认 127.0.0.1）
+-p <port>	主机端口 （默认 6379）
+-s <socket>	UNIX socket （会覆盖 -h -p 设置的内容）
+-a <password>	密码（密码错误之类不会直接保错，而是在操作时才会保错，这时可以使用 Redis 的 AUTH 命令再次认证）
+-c <clients>	客户端的并发数量（默认是50）
+-n <requests>	客户端请求总量（默认是100000）
+-d <size>		使用 SET/GET 添加的数据的字节大小 (默认 2)
+-dbnum <db>		选择一个数据库进行测试 (默认 0)
+-k <boolean>	客户端是否使用keepalive，1为使用，0为不使用，（默认为 1）
+-r <keyspacelen>使用 SET/GET/INCR 命令添加数据 key, SADD 添加随机数据，keyspacelen 指定的是添加 键的数量
+-P <numreq>		每个请求 pipeline 的数据量（默认为1，没有 pipeline ）
+-q				仅仅显示redis-benchmark的requests per second信息
+--csv			将结果按照csv格式输出，便于后续处理
+-l				循环测试
+-t <tests>		可以对指定命令进行基准测试
+-I				空闲模式 只打开N个空闲连接并等待。
+		]]>
+		</screen>
+		<para>代表256各个客户端同时请求 Redis，一 共执行 20000 次。redis-benchmark会对各类数据结构的命令进行测试，并给 出性能指标：</para>
+		<screen>
+redis-benchmark -c 256 -n 20000		
+		</screen>
+	</section>
 	<section id="cluster">
 		<title>Redis Cluster</title>
 	</section>
