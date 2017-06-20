@@ -411,7 +411,15 @@ masterauth  password
 			]]>
 			</screen>
 		</section>
-		<section>
+		<section id="latency">
+			<title>--latency Enter a special mode continuously sampling latency.</title>
+			<para>参数的功能是从客户端发出一条命令到客户端接受到该命令的反馈所用的最长响应时间</para>
+			<screen>
+# redis-cli --latency -h 192.168.2.1 
+min: 1, max: 210, avg: 3.64 (13453 samples)
+			</screen>
+		</section>		
+		<section id="auth">
 			<title>auth</title>
 			<para>认证密码</para>
 			<screen>
@@ -438,127 +446,6 @@ OK
 $ redis-cli monitor			
 			</screen>
 		</section>
-		
-		<section id="save">
-			<title>save/bgsave/lastsave</title>
-			<para>save/bgsave 保存持久化将数据，lastsave 查看相关信息</para>
-			<screen>
-			<![CDATA[
-redis 127.0.0.1:6379> save
-OK
-redis 127.0.0.1:6379> bgsave
-Background saving started
-redis 127.0.0.1:6379> lastsave
-(integer) 1373335757
-			]]>
-			</screen>
-		</section>
-		<section id="pubsub">
-			<title>Pub/Sub 订阅与发布</title>
-			<para>redis 提供基本的MQ 功能，下面我们做一个演示</para>
-			<para>开启第一个终端窗口，订阅first second</para>
-			<screen>
-$ redis-cli
-redis 127.0.0.1:6379> SUBSCRIBE first second
-Reading messages... (press Ctrl-C to quit)
-1) "subscribe"
-2) "first"
-3) (integer) 1
-1) "subscribe"
-2) "second"
-3) (integer) 2
-			</screen>
-			<para>开启第二个终端窗口，分别发送first second</para>
-			<screen>
-$ redis-cli
-redis 127.0.0.1:6379>  PUBLISH second Hello
-(integer) 1
-redis 127.0.0.1:6379>  PUBLISH first Helloworld!!!
-(integer) 1
-redis 127.0.0.1:6379> quit
-			</screen>
-			<para>现在切换到第一个终端窗口，应该能够看到发送过来的字符串</para>
-			<screen>
-$ redis-cli
-redis 127.0.0.1:6379> SUBSCRIBE first second
-Reading messages... (press Ctrl-C to quit)
-1) "subscribe"
-2) "first"
-3) (integer) 1
-1) "subscribe"
-2) "second"
-3) (integer) 2
-
-1) "message"
-2) "second"
-3) "Hello"
-
-1) "message"
-2) "first"
-3) "Helloworld!!!"
-			</screen>
-		</section>
-		<section>
-			<title>--latency Enter a special mode continuously sampling latency.</title>
-			<para>参数的功能是从客户端发出一条命令到客户端接受到该命令的反馈所用的最长响应时间</para>
-			<screen>
-# redis-cli --latency -h 192.168.2.1 
-min: 1, max: 210, avg: 3.64 (13453 samples)
-			</screen>
-		</section>
-	</section>
-	<section id="redis-benchmark">
-		<title>redis-benchmark 测试工具</title>
-		<para>redis-benchmark 基准性能测试</para>
-		<screen>
-		<![CDATA[
-用法 redis-benchmark [-h <host>][-p ] [-c <clients>][-n ]> [-k <boolean>]
-
-选项：
-
-选项	说明
--h <hostname>	主机名 （默认 127.0.0.1）
--p <port>	主机端口 （默认 6379）
--s <socket>	UNIX socket （会覆盖 -h -p 设置的内容）
--a <password>	密码（密码错误之类不会直接保错，而是在操作时才会保错，这时可以使用 Redis 的 AUTH 命令再次认证）
--c <clients>	客户端的并发数量（默认是50）
--n <requests>	客户端请求总量（默认是100000）
--d <size>		使用 SET/GET 添加的数据的字节大小 (默认 2)
--dbnum <db>		选择一个数据库进行测试 (默认 0)
--k <boolean>	客户端是否使用keepalive，1为使用，0为不使用，（默认为 1）
--r <keyspacelen>使用 SET/GET/INCR 命令添加数据 key, SADD 添加随机数据，keyspacelen 指定的是添加 键的数量
--P <numreq>		每个请求 pipeline 的数据量（默认为1，没有 pipeline ）
--q				仅仅显示redis-benchmark的requests per second信息
---csv			将结果按照csv格式输出，便于后续处理
--l				循环测试
--t <tests>		可以对指定命令进行基准测试
--I				空闲模式 只打开N个空闲连接并等待。
-		]]>
-		</screen>
-		<para>代表256各个客户端同时请求 Redis，一 共执行 20000 次。redis-benchmark会对各类数据结构的命令进行测试，并给 出性能指标：</para>
-		<screen>
-redis-benchmark -c 256 -n 20000		
-		</screen>
-	</section>
-	<section id="cluster">
-		<title>Redis Cluster</title>
-	</section>
-	<section id="protocol">
-		<title>Redis 通信协议</title>
-		<section>
-			<title>切换DB</title>
-			<para>select n 切换DB， n表示数据库ID</para>
-			<screen>
-# telnet 192.168.41.160 6379
-Trying 192.168.41.160...
-Connected to 192.168.41.160.
-Escape character is '^]'.
-select 1
-+OK
-
-			</screen>
-		</section>
-		
 		<section id="info">
 			<title>info</title>
 			<screen>
@@ -612,29 +499,22 @@ redis 127.0.0.1:6379>
 			]]>
 			</screen>
 		</section>		
-		<section>
-			<title>监控</title>
-			<para>telnet方式</para>
+		<section id="save">
+			<title>save/bgsave/lastsave</title>
+			<para>save/bgsave 保存持久化将数据，lastsave 查看相关信息</para>
 			<screen>
-# telnet 172.18.52.13 6379
-Trying 172.18.52.163...
-Connected to 172.18.52.13.
-Escape character is '^]'.
-MONITOR
-+OK
-+1425454378.190210 "MONITOR"
-+1425454381.165317 "GET" "admin:633"
-+1425454381.165725 "SET" "admin:633" "{\"id\":\"633\",\"username\":\"7209\",\"password\":\"eea5981a4fd021b8d78f8431084ba760\",\"status\":\"N\",\"belong_user_id\":\"133\",\"level_id\":\"67\",\"create_time\":1425454381,\"session_id\":\"l1s609t9gq8nj7vc94hb1i3s25\"}"
-+1425454381.166088 "EXPIRE" "admin:633" "3600"
-+1425454387.956387 "GET" "admin:633"			
+			<![CDATA[
+redis 127.0.0.1:6379> save
+OK
+redis 127.0.0.1:6379> bgsave
+Background saving started
+redis 127.0.0.1:6379> lastsave
+(integer) 1373335757
+			]]>
 			</screen>
-			<para>使用 nc 监控状态</para>
-			<screen>
-# (echo -en "MONITOR\r\n"; sleep 10) | nc 172.18.52.13 6379
-			</screen>			
 		</section>
 		
-<section id="keys">
+		<section id="keys">
 			<title>keys</title>
 			<para>查询所有key</para>
 			<screen>
@@ -679,6 +559,30 @@ OK
 			]]>
 			</screen>
 		</section>
+		<section id="setnx">
+			<title>setnx</title>
+			<command>SETNX key value</command>
+			<para>当 key 不存在时将 key 的值设为 value，若给定的 key 已经存在，则 SETNX 不做任何动作。SETNX 是(SET if Not eXists) (如果不存在，则 SET)的简写。</para>
+			<screen>
+			<![CDATA[
+返回值：
+	设置成功，返回 1
+	设置失败，返回 0
+
+redis> EXISTS neo             # neo 不存在
+(integer) 0
+
+redis> SETNX neo "chen"    	  # neo 设置成功
+(integer) 1
+
+redis> SETNX neo "netkiller"  # 尝试覆盖 neo ，失败
+(integer) 0
+
+redis> GET neo                # 没有被覆盖
+"chen"	
+			]]>
+			</screen>
+		</section>
 		<section id="expire">
 			<title>expire/ttl</title>
 			<para>EXPIRE 设置过期时间, TTL 可以查询过期时间倒计时。</para>
@@ -703,6 +607,124 @@ OK
 			<para>注意ttl返回-1有两种情况，一是没有设置过期时间，另一种是该key已经过期不存在。</para>
 		</section>		
 		
+		<section id="pubsub">
+			<title>Pub/Sub 订阅与发布</title>
+			<para>redis 提供基本的MQ 功能，下面我们做一个演示</para>
+			<para>开启第一个终端窗口，订阅first second</para>
+			<screen>
+$ redis-cli
+redis 127.0.0.1:6379> SUBSCRIBE first second
+Reading messages... (press Ctrl-C to quit)
+1) "subscribe"
+2) "first"
+3) (integer) 1
+1) "subscribe"
+2) "second"
+3) (integer) 2
+			</screen>
+			<para>开启第二个终端窗口，分别发送first second</para>
+			<screen>
+$ redis-cli
+redis 127.0.0.1:6379>  PUBLISH second Hello
+(integer) 1
+redis 127.0.0.1:6379>  PUBLISH first Helloworld!!!
+(integer) 1
+redis 127.0.0.1:6379> quit
+			</screen>
+			<para>现在切换到第一个终端窗口，应该能够看到发送过来的字符串</para>
+			<screen>
+$ redis-cli
+redis 127.0.0.1:6379> SUBSCRIBE first second
+Reading messages... (press Ctrl-C to quit)
+1) "subscribe"
+2) "first"
+3) (integer) 1
+1) "subscribe"
+2) "second"
+3) (integer) 2
+
+1) "message"
+2) "second"
+3) "Hello"
+
+1) "message"
+2) "first"
+3) "Helloworld!!!"
+			</screen>
+		</section>
+
+	</section>
+	<section id="redis-benchmark">
+		<title>redis-benchmark 测试工具</title>
+		<para>redis-benchmark 基准性能测试</para>
+		<screen>
+		<![CDATA[
+用法 redis-benchmark [-h <host>][-p ] [-c <clients>][-n ]> [-k <boolean>]
+
+选项：
+
+选项	说明
+-h <hostname>	主机名 （默认 127.0.0.1）
+-p <port>	主机端口 （默认 6379）
+-s <socket>	UNIX socket （会覆盖 -h -p 设置的内容）
+-a <password>	密码（密码错误之类不会直接保错，而是在操作时才会保错，这时可以使用 Redis 的 AUTH 命令再次认证）
+-c <clients>	客户端的并发数量（默认是50）
+-n <requests>	客户端请求总量（默认是100000）
+-d <size>		使用 SET/GET 添加的数据的字节大小 (默认 2)
+-dbnum <db>		选择一个数据库进行测试 (默认 0)
+-k <boolean>	客户端是否使用keepalive，1为使用，0为不使用，（默认为 1）
+-r <keyspacelen>使用 SET/GET/INCR 命令添加数据 key, SADD 添加随机数据，keyspacelen 指定的是添加 键的数量
+-P <numreq>		每个请求 pipeline 的数据量（默认为1，没有 pipeline ）
+-q				仅仅显示redis-benchmark的requests per second信息
+--csv			将结果按照csv格式输出，便于后续处理
+-l				循环测试
+-t <tests>		可以对指定命令进行基准测试
+-I				空闲模式 只打开N个空闲连接并等待。
+		]]>
+		</screen>
+		<para>代表256各个客户端同时请求 Redis，一 共执行 20000 次。redis-benchmark会对各类数据结构的命令进行测试，并给 出性能指标：</para>
+		<screen>
+redis-benchmark -c 256 -n 20000		
+		</screen>
+	</section>
+	<section id="cluster">
+		<title>Redis Cluster</title>
+	</section>
+	<section id="protocol">
+		<title>Redis 通信协议</title>
+		<section>
+			<title>切换DB</title>
+			<para>select n 切换DB， n表示数据库ID</para>
+			<screen>
+# telnet 192.168.41.160 6379
+Trying 192.168.41.160...
+Connected to 192.168.41.160.
+Escape character is '^]'.
+select 1
++OK
+			</screen>
+		</section>	
+		<section>
+			<title>监控</title>
+			<para>telnet方式</para>
+			<screen>
+# telnet 172.18.52.13 6379
+Trying 172.18.52.163...
+Connected to 172.18.52.13.
+Escape character is '^]'.
+MONITOR
++OK
++1425454378.190210 "MONITOR"
++1425454381.165317 "GET" "admin:633"
++1425454381.165725 "SET" "admin:633" "{\"id\":\"633\",\"username\":\"7209\",\"password\":\"eea5981a4fd021b8d78f8431084ba760\",\"status\":\"N\",\"belong_user_id\":\"133\",\"level_id\":\"67\",\"create_time\":1425454381,\"session_id\":\"l1s609t9gq8nj7vc94hb1i3s25\"}"
++1425454381.166088 "EXPIRE" "admin:633" "3600"
++1425454387.956387 "GET" "admin:633"			
+			</screen>
+			<para>使用 nc 监控状态</para>
+			<screen>
+# (echo -en "MONITOR\r\n"; sleep 10) | nc 172.18.52.13 6379
+			</screen>			
+		</section>		
 	</section>
 	<section id="phpredisadmin">
 		<title>phpRedisAdmin</title>
