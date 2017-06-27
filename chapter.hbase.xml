@@ -29,7 +29,7 @@ cat > /srv/hbase/conf/hbase-site.xml <<EOF
 <configuration>  
 	<property>  
 		<name>hbase.rootdir</name>  
-		<value>file:///tmp/hbase</value>  
+		<value>file:///tmp/hbase-${user.name}</value>  
 	</property>  
 </configuration>
 EOF
@@ -49,7 +49,30 @@ EOF
 		<title>配置 Apache Hbase</title>
 		<section>
 			<title>hbase-env.sh</title>
-			<para></para>
+			<para>环境变量配置文件</para>
+			<para>HBASE_MANAGES_ZK=true 使用 Hbase 自带的 Zookeeper</para>
+		</section>
+	</section>
+	<section>
+		<title>FAQ</title>
+		<section>
+			<title>HBaseConfTool : Unsupported major.minor version 51.0</title>
+			<para>错误提示</para>
+			<screen>
+Exception in thread "main" java.lang.UnsupportedClassVersionError: org/apache/hadoop/hbase/util/HBaseConfTool : Unsupported major.minor version 51.0			
+			</screen>
+			<para>解决方案，Hbase 不支持 OpenJDK 更换 Oracle Server JRE 后可以解决。</para>
+		</section>
+		<section>
+			<title>ignoring option PermSize=128m; support was removed in 8.0</title>
+			<para>jvm 1.8 之后不再支持PermSize和MaxPermSize选项</para>
+			<screen>
+[root@localhost hbase]# bin/start-hbase.sh
+starting master, logging to /srv/hbase/bin/../logs/hbase-root-master-localhost.localdomain.out
+Java HotSpot(TM) 64-Bit Server VM warning: ignoring option PermSize=128m; support was removed in 8.0
+Java HotSpot(TM) 64-Bit Server VM warning: ignoring option MaxPermSize=128m; support was removed in 8.0
+			</screen>
+			<para>解决方案："-server -Xms2048m -Xmx4096m" </para>
 		</section>
 	</section>
 </chapter>

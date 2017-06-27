@@ -23,8 +23,6 @@
 	<!ENTITY part.design.xml 				SYSTEM "part.design.xml">
 	<!ENTITY chapter.design.rdbms.xml 		SYSTEM "chapter.design.rdbms.xml">
 	<!ENTITY chapter.design.hdbms.xml		SYSTEM "chapter.design.hdbms.xml">
-	<!ENTITY chapter.design.ordbms.xml		SYSTEM "chapter.design.ordbms.xml">
-
 -->
 	<!ENTITY % mysql.doctype.entity.xml 	SYSTEM "MySQL/doctype.entity.xml">
 	%mysql.doctype.entity.xml;
@@ -50,6 +48,8 @@
 	<!ENTITY chapter.etl.xml				SYSTEM "chapter.etl.xml">
 	<!ENTITY chapter.migration.xml			SYSTEM "chapter.migration.xml">
 	<!ENTITY chapter.test.xml 				SYSTEM "chapter.test.xml">
+	
+	<!ENTITY chapter.hbase.xml				SYSTEM "chapter.hbase.xml">
 
 	<!ENTITY home "<![CDATA[ <ulink url='&homepage;'>&homepage;</ulink> ]]>">
 
@@ -102,6 +102,7 @@
 	&part.postgres.xml;
 	&part.oracle.xml;
 	&part.nosql.xml;
+	&chapter.hbase.xml;
 	&part.search.xml;
 
 <!-- ===========================================================================
