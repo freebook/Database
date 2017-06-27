@@ -1,0 +1,55 @@
+<chapter id="apache-hbase">
+	<title>Apache Hbase</title>
+	<section>
+		<title>安装 Apache Hbase</title>
+		<para>注意：Apache Hbase 不能使用 OpenJDK 启动，需要去 Oracle 网站下载 Server JRE</para>
+		<section>
+			<title>单机安装</title>
+			<para>如果你是第一次安装Hbase，建议你从单机安装开始，这样成功率比较高，不会受挫。请直接粘贴复制下面的命令即可完成安装：</para>
+			<screen>
+			<![CDATA[
+cd /usr/local/src
+wget http://mirrors.hust.edu.cn/apache/hbase/stable/hbase-1.2.6-bin.tar.gz
+
+tar zxf hbase-1.2.6-bin.tar.gz
+cp hbase-1.2.6/conf/hbase-site.xml{,.original}
+mv hbase-1.2.6 /srv/apache-hbase-1.2.6
+ln -s /srv/apache-hbase-1.2.6 /srv/apache-hbase
+
+cp /srv/apache-hbase/conf/hbase-env.sh{,.original}
+cat > /srv/apache-hbase/conf/hbase-env.sh <<EOF
+export JAVA_HOME=/srv/java
+#export HBASE_CLASSPATH=
+export HBASE_MANAGES_ZK=true
+EOF
+
+cat > /srv/hbase/conf/hbase-site.xml <<EOF
+<?xml version="1.0"?>  
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>  
+<configuration>  
+	<property>  
+		<name>hbase.rootdir</name>  
+		<value>file:///tmp/hbase</value>  
+	</property>  
+</configuration>
+EOF
+			]]>
+			</screen>
+			<para>启动 Apache Hbase</para>
+			<screen>
+/srv/apache-hbase/bin/start-hbase.sh
+			</screen>
+			<para>进入 Hbase shell</para>
+			<screen>
+/srv/apache-hbase/bin/hbase shell
+			</screen>
+		</section>
+	</section>
+	<section>
+		<title>配置 Apache Hbase</title>
+		<section>
+			<title>hbase-env.sh</title>
+			<para></para>
+		</section>
+	</section>
+</chapter>
