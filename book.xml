@@ -50,6 +50,7 @@
 	<!ENTITY chapter.test.xml 				SYSTEM "chapter.test.xml">
 	
 	<!ENTITY chapter.hbase.xml				SYSTEM "chapter.hbase.xml">
+	<!ENTITY chapter.hive.xml				SYSTEM "chapter.hive.xml">
 
 	<!ENTITY home "<![CDATA[ <ulink url='&homepage;'>&homepage;</ulink> ]]>">
 
@@ -103,6 +104,7 @@
 	&part.oracle.xml;
 	&part.nosql.xml;
 	&chapter.hbase.xml;
+	&chapter.hive.xml;
 	&part.search.xml;
 
 <!-- ===========================================================================
