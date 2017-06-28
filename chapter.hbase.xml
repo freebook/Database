@@ -60,7 +60,6 @@ Version 1.2.6, rUnknown, Mon May 29 02:25:32 CDT 2017
 hbase(main):001:0>
 		]]>
 		</screen>
-		
 		<para>创建一个名为 t1 的表，使用默认命名空间 namespace=default，这个表有一个column family 为 f1。后面会解释什么是 column family，这里你只要对着操作就可以了。</para>
 		<screen>
 		<![CDATA[
@@ -116,11 +115,21 @@ hbase(main):038:0> exit
 		</screen>
 	</section>
 	<section>
+		<title>Web UI</title>
+		<para>除了 Web Shell Hbase 还提供了 Web UI 地址是：</para>
+		<para>http://localhost:16010/master-status</para>
+		<para>请确保你的防火墙放行了 16010 端口</para>
+		<screen>
+[root@localhost conf]# iptables-save | grep 16010
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 16010 -j ACCEPT
+		</screen>
+	</section>
+	<section>
 		<title>配置 Apache Hbase</title>
 		<section>
 			<title>hbase-env.sh</title>
 			<para>环境变量配置文件</para>
-			<para>HBASE_MANAGES_ZK=true 使用 Hbase 自带的 Zookeeper</para>
+			<para>HBASE_MANAGES_ZK=true 仅用于单机运行，true表示不使用 Zookeeper</para>
 		</section>
 	</section>
 	<section>
