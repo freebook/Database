@@ -182,7 +182,7 @@ lrwxrwxrwx 1 root root 40 Jun 29 01:59 /srv/apache-hive/lib/mysql-connector-java
 			</screen>
 		</section>
 		<section>
-			<title></title>
+			<title>启动 Hive</title>
 			<para>启动 Hive 前你必须做两件事，一是创建HDFS目录，二是初始化 MySQL 数据库。</para>
 			<para>为 Hive 创建 HDFS 工作目录并给它们赋相应的权限。</para>
 			<screen>
@@ -252,18 +252,19 @@ hive>
 			<para>至此 Apache Hive 已经安装配置完成！</para>
 		</section>
 	</section>
-	<section>
-		<title>管理 Hive </title>
+	<section id="hive.shell">
+		<title>管理 Hive</title>
+		<para>如果你又任何一种关系型数据库的使用经验，那么你将在这里看到非常熟悉的操作。</para>
 		<section>
 			<title>表管理</title>
 			<section>
 				<title>创建表</title>
 				<literallayout>
-CREATE TABLE test (name string, age int, sex int) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
+CREATE TABLE member (name string, age int, sex int);
 			</literallayout>
 			<screen>
 			<![CDATA[
-hive> CREATE TABLE test (name string, age int, sex int) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
+hive> CREATE TABLE member (name string, age int, sex int);
 OK
 Time taken: 0.687 seconds
 hive> 
@@ -281,6 +282,10 @@ Time taken: 0.041 seconds, Fetched: 1 row(s)
 hive> 
 				]]>
 				</screen>
+				<para>通配符匹配表名称</para>
+				<screen>
+show tables '*t*';
+				</screen>
 			</section>
 			<section>
 				<title>删除表</title>
@@ -294,15 +299,342 @@ hive>
 				]]>
 				</screen>
 			</section>
+			<section>
+				<title>查看表结构</title>
+				<screen>
+				<![CDATA[
+hive> CREATE TABLE member (name string, age int, sex int);
+OK
+Time taken: 0.273 seconds
+
+hive> desc member;
+OK
+name                	string              	                    
+age                 	int                 	                    
+sex                 	int                 	                    
+Time taken: 0.035 seconds, Fetched: 3 row(s)
+hive> 
+				]]>
+				</screen>
+			</section>
+			<section>
+				<title>为表增加字段</title>
+				<para>增加一个字段 phone 字符串类型</para>
+				<screen>
+				<![CDATA[
+hive> ALTER TABLE member ADD COLUMNS (phone String);
+OK
+Time taken: 0.188 seconds
+hive> desc member;
+OK
+name                	string              	                    
+age                 	int                 	                    
+sex                 	int                 	                    
+phone               	string              	                    
+Time taken: 0.033 seconds, Fetched: 4 row(s)
+				]]>
+				</screen>
+			</section>
+			<section>
+				<title>修改表名称</title>
+				<para>将 test 表重命名为 vipuser</para>
+				<screen>
+				<![CDATA[
+hive> CREATE TABLE test (name string, age int, sex int);
+OK
+Time taken: 0.311 seconds
+hive> ALTER TABLE test RENAME TO vipuser;
+OK
+Time taken: 0.115 seconds
+hive> desc vipuser;
+OK
+name                	string              	                    
+age                 	int                 	                    
+sex                 	int                 	                    
+Time taken: 0.032 seconds, Fetched: 3 row(s)
+hive> 
+				]]>
+				</screen>
+			</section>
+			<section>
+				<title>使用已有表结构创建新表</title>
+				<para>仅仅创建表结构，不会复制数据过来。</para>
+				<screen>
+				<![CDATA[
+hive> CREATE TABLE news_2017 LIKE news;
+OK
+Time taken: 0.311 seconds
+				]]>
+				</screen>
+			</section>
+		</section>
+		<section>
+			<title>分区表</title>
+			<section>
+				<title>创建分区表</title>
+				<screen>
+				<![CDATA[
+hive> CREATE TABLE invites (foo INT, bar STRING) PARTITIONED BY (ds STRING);
+				]]>
+				</screen>
+			</section>
+			<section>
+				<title>显示分区情况</title>
+				<screen>
+				<![CDATA[
+hive> SHOW PARTITIONS passwd;
+OK
+computer=hadoop
+computer=hbase
+computer=hive
+Time taken: 0.056 seconds, Fetched: 3 row(s)
+				]]>
+				</screen>
+			</section>
+			<section>
+				<title>增加分区</title>
+				<screen>
+				<![CDATA[
+hive> alter table member add partition (province='shenzhen');
+				]]>
+				</screen>
+			</section>
+			<section>
+				<title>向分区表导入数据</title>
+				<screen>
+				<![CDATA[
+hive> CREATE TABLE passwd (a string, b string, c string, d string, e string, f string) PARTITIONED BY (computer string) ROW FORMAT DELIMITED FIELDS TERMINATED BY ':';
+OK
+Time taken: 0.323 seconds
+hive> load data local inpath '/etc/passwd' overwrite into table passwd partition(computer="hive");
+Loading data to table default.passwd partition (computer=hive)
+OK
+Time taken: 0.499 seconds
+hive> select * from passwd;
+OK
+root	x	0	0	root	/root	hive
+bin	x	1	1	bin	/bin	hive
+daemon	x	2	2	daemon	/sbin	hive
+adm	x	3	4	adm	/var/adm	hive
+lp	x	4	7	lp	/var/spool/lpd	hive
+sync	x	5	0	sync	/sbin	hive
+shutdown	x	6	0	shutdown	/sbin	hive
+halt	x	7	0	halt	/sbin	hive
+mail	x	8	12	mail	/var/spool/mail	hive
+operator	x	11	0	operator	/root	hive
+games	x	12	100	games	/usr/games	hive
+ftp	x	14	50	FTP User	/var/ftp	hive
+nobody	x	99	99	Nobody	/	hive
+dbus	x	81	81	System message bus	/	hive
+polkitd	x	999	998	User for polkitd	/	hive
+avahi	x	70	70	Avahi mDNS/DNS-SD Stack	/var/run/avahi-daemon	hive
+avahi-autoipd	x	170	170	Avahi IPv4LL Stack	/var/lib/avahi-autoipd	hive
+postfix	x	89	89		/var/spool/postfix	hive
+sshd	x	74	74	Privilege-separated SSH	/var/empty/sshd	hive
+ntp	x	38	38		/etc/ntp	hive
+rpc	x	32	32	Rpcbind Daemon	/var/lib/rpcbind	hive
+qemu	x	107	107	qemu user	/	hive
+unbound	x	998	996	Unbound DNS resolver	/etc/unbound	hive
+rpcuser	x	29	29	RPC Service User	/var/lib/nfs	hive
+nfsnobody	x	65534	65534	Anonymous NFS User	/var/lib/nfs	hive
+saslauth	x	997	76	"Saslauthd user"	/run/saslauthd	hive
+radvd	x	75	75	radvd user	/	hive
+nagios	x	1000	1000		/home/nagios	hive
+apache	x	48	48	Apache	/usr/share/httpd	hive
+exim	x	93	93		/var/spool/exim	hive
+tss	x	59	59	Account used by the trousers package to sandbox the tcsd daemon	/dev/null	hive
+git	x	996	994		/var/opt/gitlab	hive
+gitlab-www	x	995	993		/var/opt/gitlab/nginx	hive
+gitlab-redis	x	994	992		/var/opt/gitlab/redis	hive
+gitlab-psql	x	993	991		/var/opt/gitlab/postgresql	hive
+nginx	x	992	990	nginx user	/var/cache/nginx	hive
+www	x	80	80	Web Application	/www	hive
+mysql	x	27	27	MySQL Server	/var/lib/mysql	hive
+redis	x	991	989	Redis Database Server	/var/lib/redis	hive
+epmd	x	990	988	Erlang Port Mapper Daemon	/tmp	hive
+rabbitmq	x	989	987	RabbitMQ messaging server	/var/lib/rabbitmq	hive
+solr	x	1001	1001	Apache Solr	/srv/solr	hive
+mongodb	x	184	986	MongoDB Database Server	/var/lib/mongodb	hive
+test	x	1002	1002		/home/test	hive
+sysaccount	x	988	985		/home/sysaccount	hive
+systemd-bus-proxy	x	987	983	systemd Bus Proxy	/	hive
+systemd-network	x	986	982	systemd Network Management	/	hive
+elasticsearch	x	985	980	elasticsearch user	/home/elasticsearch	hive
+zabbix	x	984	979	Zabbix Monitoring System	/var/lib/zabbix	hive
+mysqlrouter	x	983	978	MySQL Router	/var/lib/mysqlrouter	hive
+hadoop	x	1003	1003		/home/hadoop	hive
+Time taken: 0.118 seconds, Fetched: 51 row(s)
+
+hive> SHOW PARTITIONS passwd;
+OK
+computer=hive
+Time taken: 0.058 seconds, Fetched: 1 row(s)
+				]]>
+				</screen>
+			</section>
+		</section>
+		<section>
+			<title>视图管理</title>
+			<section>
+				<title>创建视图</title>
+			
+				<screen>
+				<![CDATA[
+hive> CREATE VIEW v_test AS SELECT name,age FROM member where age>20;
+hive> select * from v_test;
+				]]>
+				</screen>
+			</section>
+			<section>
+				<title>删除视图</title>
+				<screen>
+				<![CDATA[
+hive> drop view test;
+OK
+Time taken: 0.276 seconds			
+				]]>
+				</screen>
+				<para>判断视图是否存在</para>
+				<screen>
+				<![CDATA[
+hive> DROP VIEW IF EXISTS v_test;
+OK
+Time taken: 0.495 seconds
+				]]>
+				</screen>
+			</section>
 		</section>
 		<section>
 			<title>数据管理</title>
+			<section>
+				<title>从文本文件导入数据</title>
+				<para>首先创建一个文本文件，如下：</para>
+				<screen>
+				<![CDATA[
+[root@localhost ~]# cat /tmp/hive.txt 
+1	2	3
+2	3	4
+3	4	5
+6	7	8
+				]]>
+				</screen>
+				<screen>
+				<![CDATA[
+hive> CREATE TABLE test (a int, b int, c int) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t';
+OK
+Time taken: 0.294 seconds
+hive> LOAD DATA LOCAL INPATH '/tmp/hive.txt' OVERWRITE INTO TABLE test;
+Loading data to table default.test
+OK
+Time taken: 0.541 seconds
+hive> select * from test;
+OK
+1	2	3
+2	3	4
+3	4	5
+6	7	8
+Time taken: 0.952 seconds, Fetched: 5 row(s)
+				]]>
+				</screen>
+			</section>
+			<section>
+				<title>从其他表查询数据并创建新表</title>
+				<screen>
+				<![CDATA[
+hive> CREATE TABLE mytable AS SELECT * FROM anytable;
+				]]>
+				</screen>
+			</section>
+			<section>
+				<title>从其他表查询数据然后插入指定表中</title>
+				<screen>
+				<![CDATA[
+ INSERT OVERWRITE TABLE mytable SELECT * FROM other ;
+				]]>
+				</screen>
+			</section>
+			<section>
+				<title></title>
+				<screen>
+				<![CDATA[
+	
+				]]>
+				</screen>
+			</section>
+		</section>
+		<section>
+			<title>HDFS与本地文件系统管理</title>
+			<section>
+				<title>HDFS 目录迁移</title>
+				<screen>
+				<![CDATA[
+[hadoop@localhost ~]$ hdfs dfs -ls /user/hive/warehouse
+Found 3 items
+drwxrwxr-x   - hadoop supergroup          0 2017-06-29 03:36 /user/hive/warehouse/member
+drwxrwxr-x   - hadoop supergroup          0 2017-06-29 03:32 /user/hive/warehouse/test
+drwxrwxr-x   - hadoop supergroup          0 2017-06-29 03:41 /user/hive/warehouse/vipuser
+
+[hadoop@localhost ~]$ hdfs dfs -cp /user/hive/warehouse/vipuser /user/hive/warehouse/vipuser2
+				]]>
+				</screen>
+			</section>
+			<section>
+				<title>导出表数据到本地文件</title>
+				<screen>
+				<![CDATA[
+hive> INSERT OVERWRITE LOCAL DIRECTORY '/tmp/test' SELECT * FROM test;
+
+hive> INSERT OVERWRITE LOCAL DIRECTORY '/tmp/test' SELECT * FROM member;
+WARNING: Hive-on-MR is deprecated in Hive 2 and may not be available in the future versions. Consider using a different execution engine (i.e. spark, tez) or using Hive 1.X releases.
+Query ID = hadoop_20170629040540_ddeda146-efed-44c4-bb20-a6453c21cc8e
+Total jobs = 1
+Launching Job 1 out of 1
+Number of reduce tasks is set to 0 since there's no reduce operator
+Starting Job = job_1498716998098_0001, Tracking URL = http://localhost:8088/proxy/application_1498716998098_0001/
+Kill Command = /srv/apache-hadoop/bin/hadoop job  -kill job_1498716998098_0001
+Hadoop job information for Stage-1: number of mappers: 0; number of reducers: 0
+2017-06-29 04:05:49,221 Stage-1 map = 0%,  reduce = 0%
+Ended Job = job_1498716998098_0001
+Moving data to local directory /tmp/test
+MapReduce Jobs Launched: 
+Stage-Stage-1:  HDFS Read: 0 HDFS Write: 0 SUCCESS
+Total MapReduce CPU Time Spent: 0 msec
+OK
+Time taken: 10.54 seconds	
+				]]>
+				</screen>
+			</section>
+			<section>
+				<title></title>
+				<screen>
+				<![CDATA[
+	
+				]]>
+				</screen>
+			</section>
+		</section>
+	</section>
+	<section>
+		<title>HiveQL - Hive查询语言</title>
+		<para>HiveQL 与 SQL 极其相似，SQL语法尽管尝试。</para>
+		<section>
+			<title>JOIN 连接查询</title>
+			<screen>
+			<![CDATA[
+hive> SELECT t1.a,t1.b,t2.a,t2.b
+    > FROM table1 t1 JOIN table2 t2 on t1.a=t2.a
+    > WHERE t1.a>10;
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>子查询</title>
 			<screen>
 			<![CDATA[
 
 			]]>
 			</screen>
 		</section>
-		
+
 	</section>
 </chapter>
