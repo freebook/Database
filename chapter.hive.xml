@@ -795,7 +795,7 @@ hive> SELECT t1.a,t1.b,t2.a,t2.b
 		</section>
 
 	</section>
-	<section>
+	<section id="hive.faq">
 		<title>FAQ</title>
 		<section>
 			<title>adoop.security.authorize.AuthorizationException): User: hadoop is not allowed to impersonate anonymous</title>
