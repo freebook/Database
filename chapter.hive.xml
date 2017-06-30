@@ -107,6 +107,15 @@ lrwxrwxrwx 1 root root 40 Jun 29 01:59 /srv/apache-hive/lib/mysql-connector-java
 			<para>修改 hive-site.xml 配置文件，配置工作目录</para>
 			<screen>
 			<![CDATA[
+<property>
+    <name>system:java.io.tmpdir</name>
+    <value>/tmp/hive</value>
+</property>
+<property>
+    <name>system:user.name</name>
+    <value>hadoop</value>
+</property>
+
   <property>
     <name>hive.querylog.location</name>
     <value>/tmp/live/hadoop</value>
@@ -251,6 +260,156 @@ hive>
 			</screen>
 			<para>至此 Apache Hive 已经安装配置完成！</para>
 		</section>
+		<section>
+			<title>配置 hiveserver2</title>
+			<para>hiveserver2 提供远程访问 Hive 服务，用户可以通过IP地址和端口号连接到Hive，类似mysql client</para>
+			<screen>
+			<![CDATA[
+[hadoop@localhost ~]$ /srv/apache-hive/bin/hiveserver2 
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/srv/apache-hive-2.1.1/lib/log4j-slf4j-impl-2.4.1.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/srv/apache-hadoop-2.8.0/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+			]]>
+			</screen>
+			<para>检查端口</para>
+			<screen>
+[hadoop@localhost bin]$ ss -lnt | grep 10000
+LISTEN     0      50           *:10000                    *:* 
+			</screen>
+			<para>测试 beeline 是否可以正常进入</para>
+			<screen>
+			<![CDATA[
+[hadoop@localhost ~]$ /srv/apache-hive/bin/beeline -u jdbc:hive2://
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/srv/apache-hive-2.1.1/lib/log4j-slf4j-impl-2.4.1.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/srv/apache-hadoop-2.8.0/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+Connecting to jdbc:hive2://
+17/06/29 22:01:16 [main]: WARN session.SessionState: METASTORE_FILTER_HOOK will be ignored, since hive.security.authorization.manager is set to instance of HiveAuthorizerFactory.
+Connected to: Apache Hive (version 2.1.1)
+Driver: Hive JDBC (version 2.1.1)
+17/06/29 22:01:16 [main]: WARN jdbc.HiveConnection: Request to set autoCommit to false; Hive does not support autoCommit=false.
+Transaction isolation: TRANSACTION_REPEATABLE_READ
+Beeline version 2.1.1 by Apache Hive
+0: jdbc:hive2://> show databases;
+OK
++----------------+--+
+| database_name  |
++----------------+--+
+| default        |
++----------------+--+
+1 row selected (1.318 seconds)
+			]]>
+			</screen>
+			<para>如果是生产环境启动请使用下面的方法</para>
+			<screen>
+			<![CDATA[
+[hadoop@localhost ~]$ /srv/apache-hive/bin/hive --service hiveserver2 &
+[1] 20375
+[hadoop@localhost ~]$ SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/srv/apache-hive-2.1.1/lib/log4j-slf4j-impl-2.4.1.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/srv/apache-hadoop-2.8.0/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]			
+			]]>
+			</screen>
+		</section>
+	</section>
+	<section id="beeline">
+		<title>beeline</title>
+		<para>beeline 是 hive 提供的一个新的命令行工具，基于SQLLine CLI的JDBC客户端，beeline 与HiveServer2配合使用，支持嵌入模式和远程模式两种，可以像hive client一样访问本机的hive服务，也可以通过指定ip和端口访问远程hive服务。</para>
+		<para>hive 官方是推荐使用beeline，因为它还提供了更为友好的交互方式（类似mysql client）</para>
+		<para>连接到本机的Hive</para>
+		<screen>
+		<![CDATA[
+[hadoop@localhost ~]$ /srv/apache-hive/bin/beeline -u jdbc:hive2://
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/srv/apache-hive-2.1.1/lib/log4j-slf4j-impl-2.4.1.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/srv/apache-hadoop-2.8.0/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+Connecting to jdbc:hive2://
+17/06/29 22:01:16 [main]: WARN session.SessionState: METASTORE_FILTER_HOOK will be ignored, since hive.security.authorization.manager is set to instance of HiveAuthorizerFactory.
+Connected to: Apache Hive (version 2.1.1)
+Driver: Hive JDBC (version 2.1.1)
+17/06/29 22:01:16 [main]: WARN jdbc.HiveConnection: Request to set autoCommit to false; Hive does not support autoCommit=false.
+Transaction isolation: TRANSACTION_REPEATABLE_READ
+Beeline version 2.1.1 by Apache Hive
+0: jdbc:hive2://> show databases;
+OK
++----------------+--+
+| database_name  |
++----------------+--+
+| default        |
++----------------+--+
+1 row selected (1.318 seconds)
+0: jdbc:hive2://> use default;
+OK
+No rows affected (0.03 seconds)
+0: jdbc:hive2://> show tables;
+OK
++-----------+--+
+| tab_name  |
++-----------+--+
+| invites   |
+| member    |
+| passwd    |
+| v_test    |
+| vipuser   |
++-----------+--+
+5 rows selected (0.068 seconds)
+0: jdbc:hive2://> 			
+		]]>
+		</screen>
+		<para>连接远程主机</para>
+		<screen>
+		<![CDATA[
+[hadoop@localhost ~]$ /srv/apache-hive/bin/beeline -u jdbc:hive2://hadoop@localhost:10000
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/srv/apache-hive-2.1.1/lib/log4j-slf4j-impl-2.4.1.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/srv/apache-hadoop-2.8.0/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+SLF4J: Actual binding is of type [org.apache.logging.slf4j.Log4jLoggerFactory]
+Connecting to jdbc:hive2://hadoop@localhost:10000
+Connected to: Apache Hive (version 2.1.1)
+Driver: Hive JDBC (version 2.1.1)
+17/06/29 23:05:35 [main]: WARN jdbc.HiveConnection: Request to set autoCommit to false; Hive does not support autoCommit=false.
+Transaction isolation: TRANSACTION_REPEATABLE_READ
+Beeline version 2.1.1 by Apache Hive
+0: jdbc:hive2://hadoop@localhost:10000> show databases;
++----------------+--+
+| database_name  |
++----------------+--+
+| default        |
++----------------+--+
+1 row selected (1.332 seconds)
+0: jdbc:hive2://hadoop@localhost:10000> use default;
+No rows affected (0.038 seconds)
+0: jdbc:hive2://hadoop@localhost:10000> show tables;
++-----------+--+
+| tab_name  |
++-----------+--+
+| invites   |
+| member    |
+| passwd    |
+| t_hive    |
+| v_test    |
+| vipuser   |
++-----------+--+
+6 rows selected (0.049 seconds)
+0: jdbc:hive2://hadoop@localhost:10000> select * from member;
++--------------+-------------+-------------+---------------+--+
+| member.name  | member.age  | member.sex  | member.phone  |
++--------------+-------------+-------------+---------------+--+
+| Neo          | 30          | 1           | 13113668890   | 
++--------------+-------------+-------------+---------------+--+
+No rows selected (1.137 seconds)
+1: jdbc:hive2://hadoop@localhost:10000> 
+		]]>
+		</screen>
 	</section>
 	<section id="hive.shell">
 		<title>管理 Hive</title>
@@ -267,7 +426,7 @@ CREATE TABLE member (name string, age int, sex int);
 hive> CREATE TABLE member (name string, age int, sex int);
 OK
 Time taken: 0.687 seconds
-hive> 
+hive>
 				]]>
 				</screen>
 			</section>
@@ -294,8 +453,7 @@ show tables '*t*';
 hive> DROP TABLE test;
 OK
 Time taken: 1.337 seconds
-hive> 
-
+hive>
 				]]>
 				</screen>
 			</section>
@@ -614,7 +772,7 @@ Time taken: 10.54 seconds
 			</section>
 		</section>
 	</section>
-	<section>
+	<section id="HiveQL">
 		<title>HiveQL - Hive查询语言</title>
 		<para>HiveQL 与 SQL 极其相似，SQL语法尽管尝试。</para>
 		<section>
@@ -636,5 +794,81 @@ hive> SELECT t1.a,t1.b,t2.a,t2.b
 			</screen>
 		</section>
 
+	</section>
+	<section>
+		<title>FAQ</title>
+		<section>
+			<title>adoop.security.authorize.AuthorizationException): User: hadoop is not allowed to impersonate anonymous</title>
+			<para>编辑 /srv/apache-hadoop/etc/hadoop/core-site.xml 文件，增加如下配置，这里使用 * 匹配，你可以根据实际需要修改。</para>
+			<screen>
+			<![CDATA[
+ 	<property>
+        <name>hadoop.proxyuser.hadoop.groups</name>
+        <value>*</value>
+        <description>Allow the superuser oozie to impersonate any members of the group group1 and group2</description>
+    </property>
+    <property>
+        <name>hadoop.proxyuser.hadoop.hosts</name>
+        <value>*</value>
+        <description>The superuser can connect only from host1 and host2 to impersonate a user</description>
+    </property>
+			]]>
+			</screen>
+			<para>下面是我的配置文件仅供参考</para>
+			<screen>
+			<![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+	<property>
+		<name>fs.defaultFS</name>
+		<value>hdfs://localhost:9000/</value>
+	</property>
+    <property>
+        <name>hadoop.proxyuser.hadoop.groups</name>
+        <value>hadoop</value>
+        <description>Allow the superuser oozie to impersonate any members of the group group1 and group2</description>
+    </property>
+    <property>
+        <name>hadoop.proxyuser.hadoop.hosts</name>
+        <value>192.168.0.1,127.0.0.1,localhost</value>
+        <description>The superuser can connect only from host1 and host2 to impersonate a user</description>
+    </property>
+</configuration>
+			]]>
+			</screen>
+			<para>重启 Hadoop</para>
+			<screen>
+			<![CDATA[
+[hadoop@localhost hadoop]$ /srv/apache-hadoop/sbin/stop-all.sh 
+This script is Deprecated. Instead use stop-dfs.sh and stop-yarn.sh
+Stopping namenodes on [localhost]
+localhost: stopping namenode
+localhost: stopping datanode
+Stopping secondary namenodes [0.0.0.0]
+0.0.0.0: stopping secondarynamenode
+stopping yarn daemons
+stopping resourcemanager
+localhost: stopping nodemanager
+localhost: nodemanager did not stop gracefully after 5 seconds: killing with kill -9
+no proxyserver to stop
+
+[hadoop@localhost hadoop]$ /srv/apache-hadoop/sbin/start-all.sh 
+This script is Deprecated. Instead use start-dfs.sh and start-yarn.sh
+Starting namenodes on [localhost]
+localhost: starting namenode, logging to /srv/apache-hadoop-2.8.0/logs/hadoop-hadoop-namenode-localhost.localdomain.out
+localhost: starting datanode, logging to /srv/apache-hadoop-2.8.0/logs/hadoop-hadoop-datanode-localhost.localdomain.out
+Starting secondary namenodes [0.0.0.0]
+0.0.0.0: starting secondarynamenode, logging to /srv/apache-hadoop-2.8.0/logs/hadoop-hadoop-secondarynamenode-localhost.localdomain.out
+starting yarn daemons
+starting resourcemanager, logging to /srv/apache-hadoop-2.8.0/logs/yarn-hadoop-resourcemanager-localhost.localdomain.out
+localhost: starting nodemanager, logging to /srv/apache-hadoop-2.8.0/logs/yarn-hadoop-nodemanager-localhost.localdomain.out
+			]]>
+			</screen>
+			<para>刷新配置</para>
+			<screen>
+			
+			</screen>
+		</section>
 	</section>
 </chapter>

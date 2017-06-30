@@ -99,10 +99,10 @@
 	&book.preface.xml;
 	&part.database;
 
-	&part.mysql.xml;
-	&part.postgres.xml;
+	<!-- &part.mysql.xml; -->
+	<!-- &part.postgres.xml; -->
 	&part.oracle.xml;
-	&part.nosql.xml;
+	<!-- &part.nosql.xml; -->
 	&chapter.hbase.xml;
 	&chapter.hive.xml;
 	&part.search.xml;
