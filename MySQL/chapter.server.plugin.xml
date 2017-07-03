@@ -3,10 +3,38 @@
 	<title>MySQL Plugin</title>
 	<section>
 		<title>validate_password</title>
+		<para>插件的卸载与安装</para>
 		<screen>
 uninstall plugin validate_password;
-SET PASSWORD FOR 'app' = PASSWORD('abcd');
 INSTALL PLUGIN validate_password SONAME 'validate_password.so';
+		</screen>
+		<para>查看变量设置</para>
+		<screen>
+		<![CDATA[
+mysql> SHOW VARIABLES LIKE 'validate_password%';
++--------------------------------------+--------+
+| Variable_name                        | Value  |
++--------------------------------------+--------+
+| validate_password_check_user_name    | OFF    |
+| validate_password_dictionary_file    |        |
+| validate_password_length             | 8      |
+| validate_password_mixed_case_count   | 1      |
+| validate_password_number_count       | 1      |
+| validate_password_policy             | MEDIUM |
+| validate_password_special_char_count | 1      |
++--------------------------------------+--------+
+7 rows in set (0.00 sec)
+
+mysql> 
+		]]>
+		</screen>
+		<para>修改策略与密码长度</para>
+		<screen>
+		<![CDATA[
+mysql> set global validate_password_policy=0;
+mysql> set global validate_password_length=4;
+mysql> grant all privileges on test.* to 'test'@localhost  identified by 'chen';
+		]]>
 		</screen>
 	</section>
 	<section>

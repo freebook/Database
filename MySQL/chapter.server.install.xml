@@ -378,7 +378,7 @@ Max realtime priority     0                    0
 Max realtime timeout      unlimited            unlimited            us   		
 		</screen>
 	</section>
-	<section>
+	<section id="mysql.btrfs">
 		<title>使用 Btrfs 文件系统存储mysql数据</title>
 		<screen>
 		<![CDATA[
@@ -404,6 +404,12 @@ mv /tmp/mysql/* /var/lib/mysql/
 
 systemctl start mysqld
 		]]>
+		</screen>
+	</section>
+	<section>
+		<title>Mac OS</title>
+		<screen>
+
 		</screen>
 	</section>
 </section>
