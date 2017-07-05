@@ -299,7 +299,7 @@ mysqladmin -u root password 'new-password'
 			<title>MySQL 5.7</title>
 			<screen>
 			<![CDATA[
-yum localinstall -y http://dev.mysql.com/get/mysql57-community-release-el7-7.noarch.rpm
+yum localinstall -y https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
 yum install mysql-server -y
 systemctl enable mysqld
 systemctl start mysqld
@@ -406,10 +406,10 @@ systemctl start mysqld
 		]]>
 		</screen>
 	</section>
-	<section>
+	<section id="mysql">
 		<title>Mac OS</title>
 		<screen>
-
+brew install mysql
 		</screen>
 	</section>
 </section>
