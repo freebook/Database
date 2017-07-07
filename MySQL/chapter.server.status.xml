@@ -240,6 +240,18 @@ SELECT @@SESSION.sql_mode;
 				</screen>
 			</section>
 			<section>
+				<title>兼容早起 MySQL 版本</title>
+				<para>导入数据库遇到这样的问题</para>
+				<screen>
+[root@netkiller]/tmp# cat cms.sql| mysql -uroot -p cms
+				</screen>
+				<para>ERROR 1067 (42000) at line 2194: Invalid default value for 'created_date'</para>
+				<para>将下面代码加入到 cms.sql 头部可以解决</para>
+				<screen>
+set @@global.sql_mode='NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+				</screen>
+			</section>
+			<section>
 				<title>5.7.16</title>
 				<screen>
 				<![CDATA[
