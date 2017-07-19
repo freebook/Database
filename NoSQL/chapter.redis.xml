@@ -524,7 +524,19 @@ redis 127.0.0.1:6379> lastsave
 			]]>
 			</screen>
 		</section>
-		
+		<section id="config">
+			<title>config</title>
+			<screen>
+			<![CDATA[
+CONFIG GET dir
+CONFIG GET dbfilename
+
+config set stop-writes-on-bgsave-error yes
+CONFIG SET dir /tmp
+CONFIG SET dbfilename temp.rdb
+			]]>
+			</screen>
+		</section>
 		<section id="keys">
 			<title>keys</title>
 			<para>查询所有key</para>
@@ -786,6 +798,10 @@ $redis->publish('channel'.$channel, $msg);
 			</screen>
 		</section>
 	</section>
+	<section id="twemproxy">
+		<title>A fast, light-weight proxy for memcached and redis</title>
+		<para>https://github.com/twitter/twemproxy</para>
+	</section>
 	<section id="faq">
 		<title>FAQ</title>
 		<section>
@@ -795,9 +811,56 @@ FLUSHDB       - Removes data from your connection's CURRENT database.
 FLUSHALL      - Removes data from ALL databases.
 			</screen>
 		</section>
+		<section>
+			<title>(error) MISCONF Redis is configured to save RDB snapshots</title>
+			<para>(error) MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk. Commands that may modify the data set are disabled, because this instance is configured to report errors during writes if RDB snapshotting fails (stop-writes-on-bgsave-error option). Please check the Redis logs for details about the RDB error.</para>
+			<para>临时解决方案</para>
+			<screen>
+			<![CDATA[
+# redis-cli
+
+127.0.0.1:6379> config set stop-writes-on-bgsave-error no
+OK
+127.0.0.1:6379> set name neo
+OK
+127.0.0.1:6379> get name
+"neo"
+			]]>
+			</screen>
+			<para>原因是数据库持久化写入硬盘出现问题，可能是数据库目录权限不足。</para>
+			<para>排查方法</para>
+			<screen>
+			<![CDATA[
+CONFIG GET dir
+CONFIG GET dbfilename
+
+config set stop-writes-on-bgsave-error yes
+CONFIG SET dir /tmp
+CONFIG SET dbfilename temp.rdb
+			]]>
+			</screen>
+			<para>尝试解决</para>
+			<screen>
+			<![CDATA[
+# redis-cli 
+127.0.0.1:6379> CONFIG GET dir
+1) "dir"
+2) "/"
+127.0.0.1:6379> CONFIG GET dbfilename
+1) "dbfilename"
+2) "dump.rdb"
+127.0.0.1:6379> config set stop-writes-on-bgsave-error yes
+OK
+127.0.0.1:6379> CONFIG SET dir /tmp
+OK
+127.0.0.1:6379> set test aaaa
+OK
+127.0.0.1:6379> get test
+"aaaa"
+			]]>
+			</screen>
+			<para>如果确认是 dir 权限问题，我们就通过修改redis.conf 中得dir配置解决。</para>
+		</section>
 	</section>
-	<section id="twemproxy">
-		<title>A fast, light-weight proxy for memcached and redis</title>
-		<para>https://github.com/twitter/twemproxy</para>
-	</section>
+
 </chapter>
