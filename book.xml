@@ -51,6 +51,7 @@
 	
 	<!ENTITY chapter.hbase.xml				SYSTEM "chapter.hbase.xml">
 	<!ENTITY chapter.hive.xml				SYSTEM "chapter.hive.xml">
+	<!ENTITY chapter.sqoop.xml				SYSTEM "chapter.sqoop.xml">
 
 	<!ENTITY home "<![CDATA[ <ulink url='&homepage;'>&homepage;</ulink> ]]>">
 
@@ -105,6 +106,7 @@
 	<!-- &part.nosql.xml; -->
 	&chapter.hbase.xml;
 	&chapter.hive.xml;
+	&chapter.sqoop.xml;
 	&part.search.xml;
 
 <!-- ===========================================================================
