@@ -406,10 +406,14 @@ systemctl start mysqld
 		]]>
 		</screen>
 	</section>
-	<section id="mysql">
+	<section id="mac">
 		<title>Mac OS</title>
 		<screen>
 brew install mysql
+		</screen>
+		<para>启动</para>
+		<screen>
+brew services start mysql
 		</screen>
 	</section>
 </section>
