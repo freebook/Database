@@ -702,7 +702,17 @@ Reading messages... (press Ctrl-C to quit)
 3) "Helloworld!!!"
 			</screen>
 		</section>
-
+		<section>
+			<title>flushdb 清空 Redis 数据</title>
+			<screen>
+			<![CDATA[
+root@netkiller ~ % redis-cli 
+127.0.0.1:6379> flushdb
+OK
+127.0.0.1:6379> 			
+			]]>
+			</screen>
+		</section>
 	</section>
 	<section id="redis-benchmark">
 		<title>redis-benchmark 测试工具</title>

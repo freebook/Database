@@ -2,7 +2,7 @@
 <chapter id="index"><?dbhtml dir="elasticsearch" ?>
 	<title>Elasticsearch</title>
 	<para>http://www.elasticsearch.org/</para>
-	<section>
+	<section id="install">
 		<title>安装 Elasticsearch</title>
 		<para>使用 Netkiller OSCM 一键安装 Elasticsearch 5.2</para>
 		<screen>
@@ -10,7 +10,7 @@
 curl -s https://raw.githubusercontent.com/oscm/shell/master/lang/java/openjdk/java-1.8.0-openjdk.sh | bash
 
 # Install
-curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elasticsearch/elasticsearch-5.2.sh | bash
+curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elasticsearch/elasticsearch-5.x.sh | bash
 
 # Bind 0.0.0.0
 curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elasticsearch/network.bind_host.sh | bash
@@ -20,7 +20,20 @@ curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elasticsearch
 
 # elasticsearch-analysis-ik
 
-curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elasticsearch/elasticsearch-analysis-ik-5.2.2.sh | bash
+curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elasticsearch/elasticsearch-analysis-ik-5.5.0.sh | bash
+		</screen>
+		<para>通常 elasticsearch-analysis-ik 的版本会比 elasticsearch 慢一个版本，所以请使用下面命令查看版本是否一致，如果不一致可以修改 plugin-descriptor.properties 配置文件，使其一致。</para>
+		<screen>
+root@netkiller /usr/share/elasticsearch/plugins/ik % grep ^version plugin-descriptor.properties
+version=5.5.1
+		</screen>
+		<para>启动后使用 jps 命令检查进城是否工作正常</para>
+		<screen>
+root@netkiller /var/log/elasticsearch % jps | grep Elasticsearch
+9706 Elasticsearch
+
+root@netkiller /var/log/elasticsearch % ss -lnt | grep 9200
+LISTEN     0      128    127.0.0.1:9200                     *:*
 		</screen>
 	</section>
 	<section id="document">
@@ -182,7 +195,7 @@ Content-Length: 0
 			<para>HTTP/1.1 200 OK 表示已经找到你要的数据</para>
 			<para>HTTP/1.1 404 Not Found 表示数据不存在</para>
 		</section>
-		<section>
+		<section id="delete">
 			<title>删除 Delete</title>
 			<para>删除 _index</para>
 			<screen>
@@ -369,19 +382,19 @@ curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
 	</section>
 	<section id="plugin">
 		<title>中文分词插件管理</title>
-		<section>
+		<section id="plugin.install">
 			<title>安装插件</title>
 			<screen>
 curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elasticsearch/elasticsearch-analysis-ik-5.2.2.sh | bash
 			</screen>
 		</section>
-		<section>
+		<section id="plugin.index">
 			<title>创建索引</title>
 			<screen>
 curl -XPUT http://localhost:9200/information
 			</screen>
 		</section>
-		<section>
+		<section id="plugin.delete">
 			<title>删除索引</title>
 			<para>如果索引已经存在请删除后重新创建索引</para>
 			<screen>
@@ -389,7 +402,7 @@ curl -XDELETE http://localhost:9200/information/news/_mapping?pretty
 curl -XDELETE http://localhost:9200/information/?pretty			
 			</screen>
 		</section>
-		<section>
+		<section id="plugin.config">
 			<title>配置索引分词插件</title>
 			<para></para>
 			<screen>
@@ -1063,6 +1076,292 @@ curl -XPOST http://localhost:9200/information/news/_search  -d'
 }'
 
 
+			]]>
+			</screen>
+		</section>
+	</section>
+	<section id="Jdbc-input-plugin">
+		<title>Migrating MySQL Data into Elasticsearch using logstash</title>
+		<para>https://www.elastic.co/guide/en/logstash/current/plugins-inputs-jdbc.html</para>
+		<section>
+			<title>安装 logstash</title>
+			<para>安装 JDBC 驱动 和 Logstash </para>
+			<screen>
+curl -s https://raw.githubusercontent.com/oscm/shell/master/database/mysql/5.7/mysql-connector-java.sh	 | bash			
+curl -s https://raw.githubusercontent.com/oscm/shell/master/log/kibana/logstash-5.x.sh | bash
+			</screen>
+			<para>mysql 驱动文件位置在 /usr/share/java/mysql-connector-java.jar </para>
+		</section>
+		<section>
+			<title>配置 logstash</title>
+			<para>创建配置文件 /etc/logstash/conf.d/jdbc-mysql.conf</para>
+			<screen>
+			<![CDATA[
+mysql> desc article;
++-------------+--------------+------+-----+---------+-------+
+| Field       | Type         | Null | Key | Default | Extra |
++-------------+--------------+------+-----+---------+-------+
+| id          | int(11)      | NO   |     | 0       |       |
+| title       | mediumtext   | NO   |     | NULL    |       |
+| description | mediumtext   | YES  |     | NULL    |       |
+| author      | varchar(100) | YES  |     | NULL    |       |
+| source      | varchar(100) | YES  |     | NULL    |       |
+| ctime       | datetime     | NO   |     | NULL    |       |
+| content     | longtext     | YES  |     | NULL    |       |
++-------------+--------------+------+-----+---------+-------+
+7 rows in set (0.00 sec)
+			]]>
+			</screen>
+			<screen>
+			<![CDATA[
+input {
+  jdbc {
+    jdbc_driver_library => "/usr/share/java/mysql-connector-java.jar"
+    jdbc_driver_class => "com.mysql.jdbc.Driver"
+    jdbc_connection_string => "jdbc:mysql://localhost:3306/cms"
+    jdbc_user => "cms"
+    jdbc_password => "password"
+    schedule => "* * * * *"
+    statement => "select * from article"
+  }
+}
+output {
+    elasticsearch {
+    		hosts => "localhost:9200"
+        index => "information"
+        document_type => "article"
+        document_id => "%{id}"
+        
+    }
+}
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>启动 Logstash</title>
+			<screen>
+			<![CDATA[
+root@netkiller /var/log/logstash % systemctl restart logstash
+
+root@netkiller /var/log/logstash % systemctl status logstash
+● logstash.service - logstash
+   Loaded: loaded (/etc/systemd/system/logstash.service; enabled; vendor preset: disabled)
+   Active: active (running) since Mon 2017-07-31 09:35:00 CST; 11s ago
+ Main PID: 10434 (java)
+   CGroup: /system.slice/logstash.service
+           └─10434 /usr/bin/java -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly -XX:+DisableExplicitGC -Djava.awt.headless=true -Dfi...
+
+Jul 31 09:35:00 VM_3_2_centos systemd[1]: Started logstash.
+Jul 31 09:35:00 VM_3_2_centos systemd[1]: Starting logstash...
+			
+root@netkiller /var/log/logstash % cat logstash-plain.log 
+[2017-07-31T09:35:28,169][INFO ][logstash.outputs.elasticsearch] Elasticsearch pool URLs updated {:changes=>{:removed=>[], :added=>[http://localhost:9200/]}}
+[2017-07-31T09:35:28,172][INFO ][logstash.outputs.elasticsearch] Running health check to see if an Elasticsearch connection is working {:healthcheck_url=>http://localhost:9200/, :path=>"/"}
+[2017-07-31T09:35:28,298][WARN ][logstash.outputs.elasticsearch] Restored connection to ES instance {:url=>#<Java::JavaNet::URI:0x453a18e9>}
+[2017-07-31T09:35:28,299][INFO ][logstash.outputs.elasticsearch] Using mapping template from {:path=>nil}
+[2017-07-31T09:35:28,337][INFO ][logstash.outputs.elasticsearch] Attempting to install template {:manage_template=>{"template"=>"logstash-*", "version"=>50001, "settings"=>{"index.refresh_interval"=>"5s"}, "mappings"=>{"_default_"=>{"_all"=>{"enabled"=>true, "norms"=>false}, "dynamic_templates"=>[{"message_field"=>{"path_match"=>"message", "match_mapping_type"=>"string", "mapping"=>{"type"=>"text", "norms"=>false}}}, {"string_fields"=>{"match"=>"*", "match_mapping_type"=>"string", "mapping"=>{"type"=>"text", "norms"=>false, "fields"=>{"keyword"=>{"type"=>"keyword", "ignore_above"=>256}}}}}], "properties"=>{"@timestamp"=>{"type"=>"date", "include_in_all"=>false}, "@version"=>{"type"=>"keyword", "include_in_all"=>false}, "geoip"=>{"dynamic"=>true, "properties"=>{"ip"=>{"type"=>"ip"}, "location"=>{"type"=>"geo_point"}, "latitude"=>{"type"=>"half_float"}, "longitude"=>{"type"=>"half_float"}}}}}}}}
+[2017-07-31T09:35:28,344][INFO ][logstash.outputs.elasticsearch] Installing elasticsearch template to _template/logstash
+[2017-07-31T09:35:28,465][INFO ][logstash.outputs.elasticsearch] New Elasticsearch output {:class=>"LogStash::Outputs::ElasticSearch", :hosts=>[#<Java::JavaNet::URI:0x66df34ae>]}
+[2017-07-31T09:35:28,483][INFO ][logstash.pipeline        ] Starting pipeline {"id"=>"main", "pipeline.workers"=>8, "pipeline.batch.size"=>125, "pipeline.batch.delay"=>5, "pipeline.max_inflight"=>1000}
+[2017-07-31T09:35:29,562][INFO ][logstash.pipeline        ] Pipeline main started
+[2017-07-31T09:35:29,700][INFO ][logstash.agent           ] Successfully started Logstash API endpoint {:port=>9600}
+[2017-07-31T09:36:01,019][INFO ][logstash.inputs.jdbc     ] (0.006000s) select * from article	
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>验证</title>
+			<screen>
+			<![CDATA[
+% curl -XGET 'http://localhost:9200/_all/_search?pretty'
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>配置模板</title>
+			<section>
+				<title>全量导入</title>
+				<para>适合数据没有改变的归档数据或者只能增加没有修改的数据</para>
+				<screen>
+				<![CDATA[
+input {
+  jdbc {
+    jdbc_driver_library => "/usr/share/java/mysql-connector-java.jar"
+    jdbc_driver_class => "com.mysql.jdbc.Driver"
+    jdbc_connection_string => "jdbc:mysql://localhost:3306/cms"
+    jdbc_user => "cms"
+    jdbc_password => "password"
+    schedule => "* * * * *"
+    statement => "select * from article"
+  }
+}
+output {
+    elasticsearch {
+    		hosts => "localhost:9200"
+        index => "information"
+        document_type => "article"
+        document_id => "%{id}"
+        
+    }
+}
+				]]>
+				</screen>
+			</section>
+			<section>
+				<title>多表导入</title>
+				<para>多张数据表导入到 Elasticsearch</para>
+				<screen>
+				<![CDATA[
+# multiple inputs on logstash jdbc
+
+input {
+  jdbc {
+    jdbc_driver_library => "/usr/share/java/mysql-connector-java.jar"
+    jdbc_driver_class => "com.mysql.jdbc.Driver"
+    jdbc_connection_string => "jdbc:mysql://localhost:3306/cms"
+    jdbc_user => "cms"
+    jdbc_password => "password"
+    schedule => "* * * * *"
+    statement => "select * from article"
+    type => "article"
+  }
+  jdbc {
+    jdbc_driver_library => "/usr/share/java/mysql-connector-java.jar"
+    jdbc_driver_class => "com.mysql.jdbc.Driver"
+    jdbc_connection_string => "jdbc:mysql://localhost:3306/cms"
+    jdbc_user => "cms"
+    jdbc_password => "password"
+    schedule => "* * * * *"
+    statement => "select * from comment"
+    type => "comment"
+  } 
+}
+output {
+    elasticsearch {
+    		hosts => "localhost:9200"
+        index => "information"
+        document_type => "%{type}"
+        document_id => "%{id}"
+        
+    }
+}				
+				]]>
+				</screen>
+				<para>需要在每一个jdbc配置项中加入 type 配置，然后 elasticsearch 配置项中加入 document_type => "%{type}" </para>
+			</section>
+			<section>
+				<title>通过 ID 主键字段增量复制数据</title>
+				<screen>
+				<![CDATA[
+input {
+  jdbc {
+    statement => "SELECT id, mycolumn1, mycolumn2 FROM my_table WHERE id > :sql_last_value"
+    use_column_value => true
+    tracking_column => "id"
+    tracking_column_type => "numeric"
+    # ... other configuration bits
+  }
+}
+				]]>
+				</screen>
+				<para>tracking_column_type => "numeric" 可以声明 id 字段的数据类型, 如果不指定将会默认为日期</para>
+				<screen>
+[2017-07-31T11:08:00,193][INFO ][logstash.inputs.jdbc     ] (0.020000s) select * from article where id > '2017-07-31 02:47:00'
+				</screen>
+				<para>如果复制不对称可以加入 clean_run => true 配置项，清楚数据</para>
+			</section>
+			<section>
+				<title>通过日期字段增量复制数据</title>
+				<screen>
+				<![CDATA[
+input {
+  jdbc {
+    statement => "SELECT * FROM my_table WHERE create_date > :sql_last_value"
+    use_column_value => true
+    tracking_column => "create_date"
+    # ... other configuration bits
+  }
+}
+				]]>
+				</screen>
+				<para>如果复制不对称可以加入 clean_run => true 配置项，清楚数据</para>
+			</section>
+			<section>
+				<title>指定SQL文件</title>
+				<para>statement_filepath 指定 SQL 文件，有时SQL太复杂写入 statement 配置项维护部方便，可以将 SQL 写入一个文本文件，然后使用 statement_filepath 配置项引用该文件。</para>
+				<screen>
+				<![CDATA[
+input {
+    jdbc {
+        jdbc_driver_library => "/path/to/driver.jar"
+        jdbc_driver_class => "org.postgresql.Driver"
+        jdbc_url => "jdbc://postgresql"
+        jdbc_user => "neo"
+        jdbc_password => "password"
+        statement_filepath => "query.sql"
+    }
+}				
+				]]>
+				</screen>
+			</section>
+			<section>
+				<title>参数传递</title>
+				<para>将需要复制的条件参数写入 parameters 配置项</para>
+				<screen>
+				<![CDATA[
+input {
+  jdbc {
+    jdbc_driver_library => "mysql-connector-java-5.1.36-bin.jar"
+    jdbc_driver_class => "com.mysql.jdbc.Driver"
+    jdbc_connection_string => "jdbc:mysql://localhost:3306/mydb"
+    jdbc_user => "mysql"
+    parameters => { "favorite_artist" => "Beethoven" }
+    schedule => "* * * * *"
+    statement => "SELECT * from songs where artist = :favorite_artist"
+  }
+}				
+				]]>
+				</screen>
+			</section>
+			<section>
+				<title>控制返回JDBC数据量</title>
+				<screen>
+	jdbc_fetch_size => 1000  #jdbc获取数据的数量大小
+	jdbc_page_size => 1000 #jdbc一页的大小，
+	jdbc_paging_enabled => true  #和jdbc_page_size组合，将statement的查询分解成多个查询,相当于: SELECT * FROM table LIMIT 1000 OFFSET 4000 				
+				</screen>
+			</section>
+		</section>
+		<section>
+			<title>example</title>
+			<screen>
+			<![CDATA[
+input {
+  jdbc {
+    jdbc_driver_library => "/usr/share/java/mysql-connector-java.jar"
+    jdbc_driver_class => "com.mysql.jdbc.Driver"
+    jdbc_connection_string => "jdbc:mysql://localhost:3306/cms"
+    jdbc_user => "cms"
+    jdbc_password => "password"
+    schedule => "* * * * *"	#定时cron的表达式,这里是每分钟执行一次
+    statement => "select id, title, description, author, source, ctime, content from article where id > :sql_last_value"
+    use_column_value => true
+    tracking_column => "id"
+    tracking_column_type => "numeric" 
+    record_last_run => true
+    last_run_metadata_path => "/var/tmp/article.last"
+  }
+}
+output {
+    elasticsearch {
+    		hosts => "localhost:9200"
+        index => "information"
+        document_type => "article"
+        document_id => "%{id}"
+        action => "update"　 # 操作执行的动作,可选值有["index", "delete", "create", "update"]
+        doc_as_upsert => true  #支持update模式
+    }
+}
 			]]>
 			</screen>
 		</section>
