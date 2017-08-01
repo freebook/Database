@@ -1334,6 +1334,7 @@ input {
 		</section>
 		<section>
 			<title>example</title>
+			<para>下面的例子实现了新数据复制，旧数据更新</para>
 			<screen>
 			<![CDATA[
 input {
@@ -1350,6 +1351,20 @@ input {
     tracking_column_type => "numeric" 
     record_last_run => true
     last_run_metadata_path => "/var/tmp/article.last"
+  }
+  jdbc {
+    jdbc_driver_library => "/usr/share/java/mysql-connector-java.jar"
+    jdbc_driver_class => "com.mysql.jdbc.Driver"
+    jdbc_connection_string => "jdbc:mysql://localhost:3306/cms"
+    jdbc_user => "cms"
+    jdbc_password => "password"
+    schedule => "* * * * *"	#定时cron的表达式,这里是每分钟执行一次
+    statement => "select * from article where ctime > :sql_last_value"
+    use_column_value => true
+    tracking_column => "ctime"
+    tracking_column_type => "timestamp" 
+    record_last_run => true
+    last_run_metadata_path => "/var/tmp/article-ctime.last"
   }
 }
 output {
