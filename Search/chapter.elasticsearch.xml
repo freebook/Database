@@ -36,6 +36,32 @@ root@netkiller /var/log/elasticsearch % ss -lnt | grep 9200
 LISTEN     0      128    127.0.0.1:9200                     *:*
 		</screen>
 	</section>
+	<section id="plugin">
+		<title>Plugin</title>
+		<screen>
+root@VM_3_2_centos ~ % /usr/share/elasticsearch/bin/elasticsearch-plugin -h
+A tool for managing installed elasticsearch plugins
+
+Commands
+--------
+list - Lists installed elasticsearch plugins
+install - Install a plugin
+remove - removes a plugin from Elasticsearch
+
+Non-option arguments:
+command              
+
+Option         Description        
+------         -----------        
+-h, --help     show help          
+-s, --silent   show minimal output
+-v, --verbose  show verbose output			
+		</screen>
+		<section>
+			<title></title>
+			
+		</section>
+	</section>
 	<section id="document">
 		<title>文档API</title>
 		<section id="quickstart">
@@ -380,12 +406,12 @@ curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
 			</section>			
 		</section>
 	</section>
-	<section id="plugin">
+	<section id="elasticsearch-analysis-ik">
 		<title>中文分词插件管理</title>
 		<section id="plugin.install">
 			<title>安装插件</title>
 			<screen>
-curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elasticsearch/elasticsearch-analysis-ik-5.2.2.sh | bash
+curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elasticsearch/elasticsearch-analysis-ik-5.5.0.sh | bash
 			</screen>
 		</section>
 		<section id="plugin.index">
