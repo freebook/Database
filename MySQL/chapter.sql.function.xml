@@ -15,7 +15,7 @@ SELECT (SELECT count(1) FROM ecs_category) as 'Export category count',
 		<title>group_concat() 列传行</title>
 		<para></para>
 		<screen>
-SELECT tags FROM cms.article;
+SELECT tags FROM neo.article;
 
 linux
 redis
@@ -25,9 +25,21 @@ php
 		</screen>
 		<para>tags字段专为一行显示</para>
 		<screen>
-SELECT group_concat(tags) FROM cms.article;		
+SELECT group_concat(tags) FROM neo.article;		
 
 linux,redis,mysql,java,php
+		</screen>
+		<para>distinct 去除重复数据</para>
+		<screen>
+select group_concat(distinct author) from neo.article;		
+		</screen>
+		<para>以id分组，把name字段的值打印在一行，分号分隔</para>
+		<screen>
+select id,group_concat(tags separator ';') from neo.article group by tags;		
+		</screen>
+		<para>排序结果</para>
+		<screen>
+select group_concat(distinct author order by author desc) from neo.article;			
 		</screen>
 	</section>
 	<section id="uuid">
