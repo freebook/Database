@@ -11,6 +11,25 @@ SELECT (SELECT count(1) FROM ecs_category) as 'Export category count',
 	(SELECT count(1) FROM ecs_goods_attr) as 'Attr count';
 		</screen>
 	</section>
+	<section id="group_concat">
+		<title>group_concat() 列传行</title>
+		<para></para>
+		<screen>
+SELECT tags FROM cms.article;
+
+linux
+redis
+mysql
+java
+php
+		</screen>
+		<para>tags字段专为一行显示</para>
+		<screen>
+SELECT group_concat(tags) FROM cms.article;		
+
+linux,redis,mysql,java,php
+		</screen>
+	</section>
 	<section id="uuid">
 		<title>UUID()</title>
 		<programlisting>
