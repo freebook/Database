@@ -412,7 +412,7 @@ masterauth  password
 	</section>
 	<section id="redis-cli">
 		<title>redis-cli - Command-line client to redis-server</title>
-		<section>
+		<section id="redis-cli.args">
 			<title>命令参数</title>
 			<section>
 				<title>password</title>
@@ -592,6 +592,9 @@ OK
 			]]>	
 			</screen>
 		</section>
+		<section id="redis.string">
+			<title>字符串操作</title>
+		
 		<section id="set">
 			<title>set/get/del</title>
 			<screen>
@@ -633,97 +636,8 @@ redis> GET neo                # 没有被覆盖
 			]]>
 			</screen>
 		</section>
-		<section id="expire">
-			<title>expire/ttl</title>
-			<para>EXPIRE 设置过期时间, TTL 可以查询过期时间倒计时。</para>
-			<screen>
-			<![CDATA[
-172.18.52.165:6379> set name neo
-OK
-172.18.52.165:6379> ttl name
-(integer) -1
-172.18.52.165:6379> expire name 30
-(integer) 1
-172.18.52.165:6379> ttl name
-(integer) 22
-172.18.52.165:6379> ttl name
-(integer) 9
-172.18.52.165:6379> ttl name
-(integer) -1
-172.18.52.165:6379> get  name
-(nil)
-			]]>
-			</screen>
-			<para>注意ttl返回-1有两种情况，一是没有设置过期时间，另一种是该key已经过期不存在。</para>
-		</section>		
-		
-		<section id="pubsub">
-			<title>Pub/Sub 订阅与发布</title>
-			<para>redis 提供基本的MQ 功能，下面我们做一个演示</para>
-			<para>开启第一个终端窗口，订阅first second</para>
-			<screen>
-$ redis-cli
-redis 127.0.0.1:6379> SUBSCRIBE first second
-Reading messages... (press Ctrl-C to quit)
-1) "subscribe"
-2) "first"
-3) (integer) 1
-1) "subscribe"
-2) "second"
-3) (integer) 2
-			</screen>
-			<para>开启第二个终端窗口，分别发送first second</para>
-			<screen>
-$ redis-cli
-redis 127.0.0.1:6379>  PUBLISH second Hello
-(integer) 1
-redis 127.0.0.1:6379>  PUBLISH first Helloworld!!!
-(integer) 1
-redis 127.0.0.1:6379> quit
-			</screen>
-			<para>现在切换到第一个终端窗口，应该能够看到发送过来的字符串</para>
-			<screen>
-$ redis-cli
-redis 127.0.0.1:6379> SUBSCRIBE first second
-Reading messages... (press Ctrl-C to quit)
-1) "subscribe"
-2) "first"
-3) (integer) 1
-1) "subscribe"
-2) "second"
-3) (integer) 2
-
-1) "message"
-2) "second"
-3) "Hello"
-
-1) "message"
-2) "first"
-3) "Helloworld!!!"
-			</screen>
 		</section>
-		<section id="flushdb"> 
-			<title>flushdb 清空 Redis 数据</title>
-			<screen>
-			<![CDATA[
-root@netkiller ~ % redis-cli 
-127.0.0.1:6379> flushdb
-OK
-127.0.0.1:6379> 			
-			]]>
-			</screen>
-		</section>
-		<section id="TYPE">
-			<title>获取 key 类型</title>
-			<screen>
-			<![CDATA[
-root@netkiller ~ % redis-cli 
-127.0.0.1:6379> TYPE "logstash:redis"
-list		
-			]]>
-			</screen>
-		</section>
-		<section id="list">
+		<section id="redis.list">
 			<title>LIST 数据类型</title>
 			<para>获取 list 列表长度</para>
 			<screen>
@@ -897,7 +811,97 @@ redis 127.0.0.1:6379> lrange queue:test 0 -1
 4) "c"			
 			]]>
 			</screen>
+		</section><section id="expire">
+			<title>expire/ttl</title>
+			<para>EXPIRE 设置过期时间, TTL 可以查询过期时间倒计时。</para>
+			<screen>
+			<![CDATA[
+172.18.52.165:6379> set name neo
+OK
+172.18.52.165:6379> ttl name
+(integer) -1
+172.18.52.165:6379> expire name 30
+(integer) 1
+172.18.52.165:6379> ttl name
+(integer) 22
+172.18.52.165:6379> ttl name
+(integer) 9
+172.18.52.165:6379> ttl name
+(integer) -1
+172.18.52.165:6379> get  name
+(nil)
+			]]>
+			</screen>
+			<para>注意ttl返回-1有两种情况，一是没有设置过期时间，另一种是该key已经过期不存在。</para>
+		</section>		
+		
+		<section id="pubsub">
+			<title>Pub/Sub 订阅与发布</title>
+			<para>redis 提供基本的MQ 功能，下面我们做一个演示</para>
+			<para>开启第一个终端窗口，订阅first second</para>
+			<screen>
+$ redis-cli
+redis 127.0.0.1:6379> SUBSCRIBE first second
+Reading messages... (press Ctrl-C to quit)
+1) "subscribe"
+2) "first"
+3) (integer) 1
+1) "subscribe"
+2) "second"
+3) (integer) 2
+			</screen>
+			<para>开启第二个终端窗口，分别发送first second</para>
+			<screen>
+$ redis-cli
+redis 127.0.0.1:6379>  PUBLISH second Hello
+(integer) 1
+redis 127.0.0.1:6379>  PUBLISH first Helloworld!!!
+(integer) 1
+redis 127.0.0.1:6379> quit
+			</screen>
+			<para>现在切换到第一个终端窗口，应该能够看到发送过来的字符串</para>
+			<screen>
+$ redis-cli
+redis 127.0.0.1:6379> SUBSCRIBE first second
+Reading messages... (press Ctrl-C to quit)
+1) "subscribe"
+2) "first"
+3) (integer) 1
+1) "subscribe"
+2) "second"
+3) (integer) 2
+
+1) "message"
+2) "second"
+3) "Hello"
+
+1) "message"
+2) "first"
+3) "Helloworld!!!"
+			</screen>
 		</section>
+		<section id="flushdb"> 
+			<title>flushdb 清空 Redis 数据</title>
+			<screen>
+			<![CDATA[
+root@netkiller ~ % redis-cli 
+127.0.0.1:6379> flushdb
+OK
+127.0.0.1:6379> 			
+			]]>
+			</screen>
+		</section>
+		<section id="TYPE">
+			<title>获取 key 类型</title>
+			<screen>
+			<![CDATA[
+root@netkiller ~ % redis-cli 
+127.0.0.1:6379> TYPE "logstash:redis"
+list		
+			]]>
+			</screen>
+		</section>
+		
 	</section>
 	<section id="redis-benchmark">
 		<title>redis-benchmark 测试工具</title>
