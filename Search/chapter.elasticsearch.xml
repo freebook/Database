@@ -4,8 +4,11 @@
 	<para>http://www.elasticsearch.org/</para>
 	<section id="install">
 		<title>安装 Elasticsearch</title>
-		<para>使用 Netkiller OSCM 一键安装 Elasticsearch 5.2</para>
-		<screen>
+		<section id="single">
+			<title>单机模式 (适用于开发环境)</title>
+			
+			<para>使用 Netkiller OSCM 一键安装 Elasticsearch 5.5.1</para>
+			<screen>
 # Java
 curl -s https://raw.githubusercontent.com/oscm/shell/master/lang/java/openjdk/java-1.8.0-openjdk.sh | bash
 
@@ -20,21 +23,110 @@ curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elasticsearch
 
 # elasticsearch-analysis-ik
 
-curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elasticsearch/elasticsearch-analysis-ik-5.5.0.sh | bash
-		</screen>
-		<para>通常 elasticsearch-analysis-ik 的版本会比 elasticsearch 慢一个版本，所以请使用下面命令查看版本是否一致，如果不一致可以修改 plugin-descriptor.properties 配置文件，使其一致。</para>
-		<screen>
+curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elasticsearch/5.5/elasticsearch-analysis-ik-5.5.1.sh | bash
+			</screen>
+			<para>通常 elasticsearch-analysis-ik 的版本会比 elasticsearch 慢一个版本，所以请使用下面命令查看版本是否一致，如果不一致可以修改 plugin-descriptor.properties 配置文件，使其一致。</para>
+			<screen>
 root@netkiller /usr/share/elasticsearch/plugins/ik % grep ^version plugin-descriptor.properties
 version=5.5.1
-		</screen>
-		<para>启动后使用 jps 命令检查进城是否工作正常</para>
-		<screen>
+			</screen>
+			<para>启动后使用 jps 命令检查进城是否工作正常</para>
+			<screen>
 root@netkiller /var/log/elasticsearch % jps | grep Elasticsearch
 9706 Elasticsearch
 
 root@netkiller /var/log/elasticsearch % ss -lnt | grep 9200
 LISTEN     0      128    127.0.0.1:9200                     *:*
-		</screen>
+			</screen>
+		</section>
+		<section id="cluster">
+			<title>Elasticsearch Cluster</title>
+			<para>集群模式需要两个以上的节点，通常是一个 master 节点，多个 data 节点</para>
+			<para>首先在所有节点上安装 elasticsearch，然后配置各节点的配置文件，对于 5.5.1 不需要配置决定哪些节点属于 master 节点 或者 data 节点。</para>
+			<screen>
+curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elasticsearch/elasticsearch-5.x.sh | bash			
+			</screen>
+			<para>配置文件</para>
+			<screen>
+cluster.name: elasticsearch-cluster # 配置集群名称,所有服务器服务器保持一致
+
+node.name: node-1 # 每个节点唯一标识，每个节点只需改动这里，一次递增 node-1, node-2, node-3 ...
+
+network.host: 0.0.0.0
+
+discovery.zen.ping.unicast.hosts: ["172.16.0.20", "172.16.0.21","172.16.0.22"]  # 所有节点的IP 地址写在这里
+
+discovery.zen.minimum_master_nodes: 3 # 可以作为master的节点总数，有多少个节点就写多少
+
+http.cors.enabled: true
+http.cors.allow-origin: "*"
+			</screen>
+			<para>查看节点状态，使用curl工具: curl 'http://localhost:9200/_nodes/process?pretty'</para>
+			<screen>
+root@netkiller /var/log/elasticsearch % curl 'http://localhost:9200/_nodes/process?pretty'
+{
+  "_nodes" : {
+    "total" : 2,
+    "successful" : 2,
+    "failed" : 0
+  },
+  "cluster_name" : "my-application",
+  "nodes" : {
+    "-lnKCmBXRpiwExLns0jc9g" : {
+      "name" : "node-1",
+      "transport_address" : "10.104.3.2:9300",
+      "host" : "10.104.3.2",
+      "ip" : "10.104.3.2",
+      "version" : "5.5.1",
+      "build_hash" : "19c13d0",
+      "roles" : [
+        "master",
+        "data",
+        "ingest"
+      ],
+      "process" : {
+        "refresh_interval_in_millis" : 1000,
+        "id" : 23669,
+        "mlockall" : false
+      }
+    },
+    "WVsgYi2HT8GWnZU1kUwFwA" : {
+      "name" : "node-2",
+      "transport_address" : "10.186.7.221:9300",
+      "host" : "10.186.7.221",
+      "ip" : "10.186.7.221",
+      "version" : "5.5.1",
+      "build_hash" : "19c13d0",
+      "roles" : [
+        "master",
+        "data",
+        "ingest"
+      ],
+      "process" : {
+        "refresh_interval_in_millis" : 1000,
+        "id" : 12641,
+        "mlockall" : false
+      }
+    }
+  }
+}
+			</screen>
+			<para>启动节点后回生成 cluster.name 为文件名的日志文件。</para>
+			<para>谁先启动谁讲成为master</para>
+			<screen>
+[2017-08-11T17:42:46,018][INFO ][o.e.c.s.ClusterService   ] [node-1] new_master {node-1}{-lnKCmBXRpiwExLns0jc9g}{rZcJDIynSzq2Td3yP2kN5A}{10.104.3.2}{10.104.3.2:9300}, added {{node-2}{WVsgYi2HT8GWnZU1kUwFwA}{X13ShUpAQa2zA1Mgcsm3bQ}{10.186.7.221}{10.186.7.221:9300},}, reason: zen-disco-elected-as-master ([1] nodes joined)[{node-2}{WVsgYi2HT8GWnZU1kUwFwA}{X13ShUpAQa2zA1Mgcsm3bQ}{10.186.7.221}{10.186.7.221:9300}]			
+			</screen>
+			<para>如果master出现故障，其他节点会接管</para>
+			<screen>
+[2017-08-11T17:44:52,797][INFO ][o.e.c.s.ClusterService   ] [node-2] master {new {node-2}{WVsgYi2HT8GWnZU1kUwFwA}{vl8kQx8sQdGVVohrNQnZOQ}{10.186.7.221}{10.186.7.221:9300}}, removed {{node-1}{-lnKCmBXRpiwExLns0jc9g}{rZcJDIynSzq2Td3yP2kN5A}{10.104.3.2}{10.104.3.2:9300},}, added {{node-1}{-lnKCmBXRpiwExLns0jc9g}{odnoG9kpQpeX1ltx5KYTSw}{10.104.3.2}{10.104.3.2:9300},}, reason: zen-disco-elected-as-master ([1] nodes joined)[{node-1}{-lnKCmBXRpiwExLns0jc9g}{odnoG9kpQpeX1ltx5KYTSw}{10.104.3.2}{10.104.3.2:9300}]
+[2017-08-11T17:44:53,184][INFO ][o.e.c.r.DelayedAllocationService] [node-2] scheduling reroute for delayed shards in [59.5s] (11 delayed shards)
+[2017-08-11T17:44:53,929][INFO ][o.e.c.r.a.AllocationService] [node-2] Cluster health status changed from [RED] to [YELLOW] (reason: [shards started [[information][0]] ...]).		
+			</screen>
+			<para>master 节点恢复上线会提示</para>
+			<screen>
+[2017-08-11T17:44:52,855][INFO ][o.e.c.s.ClusterService   ] [node-1] detected_master {node-2}{WVsgYi2HT8GWnZU1kUwFwA}{vl8kQx8sQdGVVohrNQnZOQ}{10.186.7.221}{10.186.7.221:9300}, added {{node-2}{WVsgYi2HT8GWnZU1kUwFwA}{vl8kQx8sQdGVVohrNQnZOQ}{10.186.7.221}{10.186.7.221:9300},}, reason: zen-disco-receive(from master [master {node-2}{WVsgYi2HT8GWnZU1kUwFwA}{vl8kQx8sQdGVVohrNQnZOQ}{10.186.7.221}{10.186.7.221:9300} committed version [44]])
+			</screen>
+		</section>
 	</section>
 	<section id="plugin">
 		<title>Plugin</title>
@@ -79,6 +171,80 @@ curl -XPOST http://localhost:9200/index/fulltext/_mapping -d'
         }
     
 }'			
+			</screen>
+		</section>
+	</section>
+	<section>
+		<title>管理</title>
+		<section>
+			<title>查看索引</title>
+			<screen>
+root@netkiller ~ % curl 'http://localhost:9200/_cat/indices?v'         
+health status index        uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+yellow open   information  oygxIi-dR1eB9NoIZtJrxQ   5   1         45           42      731kb          731kb
+green  open   .kibana      9jBBaOomTO2EakZlZqnE-g   1   1          5            1     62.5kb         31.2kb
+green  open   logstash-api WHXZhn3vRWiuVbhR8rGoEg   5   1        565            0      3.8mb          1.9mb			
+			</screen>
+		</section>
+		<section>
+			<title>节点健康状态</title>
+			<screen>
+root@netkiller ~ % curl 'http://localhost:9200/_cat/health?v' 
+epoch      timestamp cluster        status node.total node.data shards pri relo init unassign pending_tasks max_task_wait_time active_shards_percent
+1502445967 18:06:07  my-application yellow          2         2     17  11    0    0        5             0                  -                 77.3%			
+			</screen>
+			<screen>
+root@netkiller ~ % curl 'http://localhost:9200/_cluster/health'  
+{"cluster_name":"my-application","status":"yellow","timed_out":false,"number_of_nodes":2,"number_of_data_nodes":2,"active_primary_shards":11,"active_shards":17,"relocating_shards":0,"initializing_shards":0,"unassigned_shards":5,"delayed_unassigned_shards":0,"number_of_pending_tasks":0,"number_of_in_flight_fetch":0,"task_max_waiting_in_queue_millis":0,"active_shards_percent_as_number":77.27272727272727} 			
+			</screen>
+		</section>
+		<section>
+			<title>节点http状态</title>
+			<screen>
+root@VM_3_2_centos ~ % curl 'localhost:9200/_nodes/stats/http?pretty'
+{
+  "_nodes" : {
+    "total" : 2,
+    "successful" : 2,
+    "failed" : 0
+  },
+  "cluster_name" : "my-application",
+  "nodes" : {
+    "-lnKCmBXRpiwExLns0jc9g" : {
+      "timestamp" : 1502446878773,
+      "name" : "node-1",
+      "transport_address" : "10.104.3.2:9300",
+      "host" : "10.104.3.2",
+      "ip" : "10.104.3.2:9300",
+      "roles" : [
+        "master",
+        "data",
+        "ingest"
+      ],
+      "http" : {
+        "current_open" : 4,
+        "total_opened" : 29
+      }
+    },
+    "WVsgYi2HT8GWnZU1kUwFwA" : {
+      "timestamp" : 1502446878782,
+      "name" : "node-2",
+      "transport_address" : "10.186.7.221:9300",
+      "host" : "10.186.7.221",
+      "ip" : "10.186.7.221:9300",
+      "roles" : [
+        "master",
+        "data",
+        "ingest"
+      ],
+      "http" : {
+        "current_open" : 0,
+        "total_opened" : 2
+      }
+    }
+  }
+}
+			
 			</screen>
 		</section>
 	</section>
@@ -1184,7 +1350,7 @@ curl -XPOST http://localhost:9200/information/news/_search  -d'
 			<para>安装 JDBC 驱动 和 Logstash </para>
 			<screen>
 curl -s https://raw.githubusercontent.com/oscm/shell/master/database/mysql/5.7/mysql-connector-java.sh	 | bash			
-curl -s https://raw.githubusercontent.com/oscm/shell/master/log/kibana/logstash-5.x.sh | bash
+curl -s https://raw.githubusercontent.com/oscm/shell/master/search/logstash/logstash-5.x.sh | bash
 			</screen>
 			<para>mysql 驱动文件位置在 /usr/share/java/mysql-connector-java.jar </para>
 		</section>
@@ -1427,6 +1593,29 @@ input {
 	jdbc_paging_enabled => true  #和jdbc_page_size组合，将statement的查询分解成多个查询,相当于: SELECT * FROM table LIMIT 1000 OFFSET 4000 				
 				</screen>
 			</section>
+			<section>
+				<title>输出到不同的 Elasticsearch 中</title>
+				<para>通过 if [type]=="news" 执行不同的区块，实现将不同的type输出到指定的 index 中。</para>
+				<screen>
+output {
+	if [type]=="news" {
+	  elasticsearch {
+	  	hosts => "node1.netkiller.cn:9200"
+		index => "information"
+		document_id => "%{id}"
+	  }
+	}
+	
+	if [type]=="comment" {
+	  elasticsearch {
+		hosts => "node2.netkiller.cn:9200"
+		index => "information"
+		document_id => "%{id}"
+	  }
+	}
+}		
+				</screen>
+			</section>
 		</section>
 		<section>
 			<title>example</title>
@@ -1520,6 +1709,14 @@ curl -XPOST "http://localhost:9200/netkiller/news/" -d'
     "content": "Hello World!",
     "CreateDate": "2009-11-15T12:12:12"
 }'
+			</screen>
+		</section>
+		<section>
+			<title>配置 JAVA_HOME</title>
+			<para>编辑 /etc/sysconfig/elasticsearch 配置文件</para>
+			<screen>
+# Elasticsearch Java path
+JAVA_HOME=/srv/java
 			</screen>
 		</section>
 	</section>
