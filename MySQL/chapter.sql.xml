@@ -154,6 +154,27 @@ CHARACTER SET gbk FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY
 			</screen>
 		</section>
 	</section>
+	<section>
+		<title>CASE Syntax</title>
+		<screen>
+CASE case_value
+    WHEN when_value THEN statement_list
+    [WHEN when_value THEN statement_list] ...
+    [ELSE statement_list]
+END CASE
+
+Or:
+
+CASE
+    WHEN search_condition THEN statement_list
+    [WHEN search_condition THEN statement_list] ...
+    [ELSE statement_list]
+END CASE
+		</screen>
+		<screen>
+
+		</screen>
+	</section>
 <section id="sql.mysql">
 	<title>MySQL 专有命令</title>
 	<section id="sql_no_cache">
