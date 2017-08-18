@@ -225,7 +225,7 @@ curl -XPOST http://localhost:9200/index/fulltext/_mapping -d'
 			</screen>
 		</section>
 	</section>
-	<section>
+	<section id="manager">
 		<title>管理</title>
 		<section>
 			<title>查看索引</title>
@@ -296,6 +296,44 @@ root@VM_3_2_centos ~ % curl 'localhost:9200/_nodes/stats/http?pretty'
   }
 }
 			
+			</screen>
+		</section>
+		<section>
+			<title>查看master节点</title>
+			<screen>
+root@netkiller ~ % curl 'http://localhost:9200/_cat/nodes?v'      
+ip           heap.percent ram.percent cpu load_1m load_5m load_15m node.role master name
+10.104.3.2             31          98  50    0.20    0.55     0.61 mdi       -      node-1
+10.186.7.221           25          99   0    0.00    0.01     0.05 mdi       *      node-2
+			</screen>
+		</section>
+		<section>
+			<title>查看索引的节点分布</title>
+			<screen>
+root@netkiller ~ % curl 'http://localhost:9200/_cat/shards?v'
+index        shard prirep state      docs   store ip           node
+logstash-api 1     p      STARTED     103   342kb 10.186.7.221 node-2
+logstash-api 1     r      STARTED     103   342kb 10.104.3.2   node-1
+logstash-api 3     p      STARTED     104 404.1kb 10.186.7.221 node-2
+logstash-api 3     r      STARTED     104 404.1kb 10.104.3.2   node-1
+logstash-api 4     p      STARTED     117 349.2kb 10.186.7.221 node-2
+logstash-api 4     r      STARTED     117 349.2kb 10.104.3.2   node-1
+logstash-api 2     p      STARTED     113 405.8kb 10.186.7.221 node-2
+logstash-api 2     r      STARTED     113 405.8kb 10.104.3.2   node-1
+logstash-api 0     p      STARTED     128 488.4kb 10.186.7.221 node-2
+logstash-api 0     r      STARTED     128 488.4kb 10.104.3.2   node-1
+.kibana      0     p      STARTED       5  31.2kb 10.186.7.221 node-2
+.kibana      0     r      STARTED       5  31.2kb 10.104.3.2   node-1
+information  1     p      STARTED      10 122.3kb 10.104.3.2   node-1
+information  1     r      UNASSIGNED                           
+information  3     p      STARTED       7 159.6kb 10.104.3.2   node-1
+information  3     r      UNASSIGNED                           
+information  4     p      STARTED       8  86.1kb 10.104.3.2   node-1
+information  4     r      UNASSIGNED                           
+information  2     p      STARTED      11   160kb 10.104.3.2   node-1
+information  2     r      UNASSIGNED                           
+information  0     p      STARTED       9 202.8kb 10.104.3.2   node-1
+information  0     r      UNASSIGNED                           
 			</screen>
 		</section>
 	</section>
