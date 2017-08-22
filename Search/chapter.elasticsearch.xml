@@ -1431,7 +1431,7 @@ curl -XPOST http://localhost:9200/information/news/_search  -d'
 			</screen>
 		</section>
 	</section>
-	<section id="Jdbc-input-plugin">
+	<section id="jdbc-input-plugin">
 		<title>Migrating MySQL Data into Elasticsearch using logstash</title>
 		<para>https://www.elastic.co/guide/en/logstash/current/plugins-inputs-jdbc.html</para>
 		<section>
@@ -1753,6 +1753,84 @@ output {
 }
 			]]>
 			</screen>
+		</section>
+		<section>
+			<title>解决数据不对称问题</title>
+			<para>jdbc-input-plugin 只能实现数据库的追加，对于 elasticsearch 增量写入，但经常jdbc源一端的数据库可能会做数据库删除或者更新操作。这样一来数据库与搜索引擎的数据库就出现了不对称的情况。</para>
+			<para>当然你如果有开发团队可以写程序在删除或者更新的时候同步对搜索引擎操作。如果你没有这个能力，可以尝试下面的方法。</para>
+			<para>这里有一个数据表 article , mtime 字段定义了 ON UPDATE CURRENT_TIMESTAMP 所以每次更新mtime的时间都会变化</para>
+			<screen>
+			<![CDATA[
+mysql> desc article;
++-------------+--------------+------+-----+--------------------------------+-------+
+| Field       | Type         | Null | Key | Default                        | Extra |
++-------------+--------------+------+-----+--------------------------------+-------+
+| id          | int(11)      | NO   |     | 0                              |       |
+| title       | mediumtext   | NO   |     | NULL                           |       |
+| description | mediumtext   | YES  |     | NULL                           |       |
+| author      | varchar(100) | YES  |     | NULL                           |       |
+| source      | varchar(100) | YES  |     | NULL                           |       |
+| content     | longtext     | YES  |     | NULL                           |       |
+| status      | enum('Y','N')| NO   |     | 'N'                            |       |
+| ctime       | timestamp    | NO   |     | CURRENT_TIMESTAMP              |       |
+| mtime       | timestamp    | YES  |     | ON UPDATE CURRENT_TIMESTAMP    |       |
++-------------+--------------+------+-----+--------------------------------+-------+
+7 rows in set (0.00 sec)
+			]]>
+			</screen>
+			<para>logstash 增加 mtime 的查询规则</para>
+			<screen>
+			<![CDATA[
+  jdbc {
+    jdbc_driver_library => "/usr/share/java/mysql-connector-java.jar"
+    jdbc_driver_class => "com.mysql.jdbc.Driver"
+    jdbc_connection_string => "jdbc:mysql://localhost:3306/cms"
+    jdbc_user => "cms"
+    jdbc_password => "password"
+    schedule => "* * * * *"	#定时cron的表达式,这里是每分钟执行一次
+    statement => "select * from article where mtime > :sql_last_value"
+    use_column_value => true
+    tracking_column => "mtime"
+    tracking_column_type => "timestamp" 
+    record_last_run => true
+    last_run_metadata_path => "/var/tmp/article-mtime.last"
+  }
+			
+			]]>
+			</screen>
+			<para>创建回收站表，这个事用于解决数据库删除，或者禁用 status = 'N' 这种情况的。</para>
+			<screen>
+			<![CDATA[
+CREATE TABLE `elasticsearch_trash` (
+  `id` int(11) NOT NULL,
+  `ctime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+			]]>
+			</screen>
+			<para>为 article 表创建触发器</para>
+			<screen>
+			<![CDATA[
+CREATE DEFINER=`dba`@`%` TRIGGER `article_BEFORE_UPDATE` BEFORE UPDATE ON `article` FOR EACH ROW
+BEGIN
+	-- 此处的逻辑是解决文章状态变为 N 的时候，需要将搜索引擎中对应的数据删除。
+	IF NEW.status = 'N' THEN
+		insert into elasticsearch_trash(id) values(OLD.id);
+	END IF;
+	-- 此处逻辑是修改状态到 Y 的时候，方式elasticsearch_trash仍然存在该文章ID，导致误删除。所以需要删除回收站中得回收记录。
+    IF NEW.status = 'Y' THEN
+		delete from elasticsearch_trash where id = OLD.id;
+	END IF;
+END
+
+CREATE DEFINER=`dba`@`%` TRIGGER `article_BEFORE_DELETE` BEFORE DELETE ON `article` FOR EACH ROW
+BEGIN
+	-- 此处逻辑是文章被删除同事将改文章放入搜索引擎回收站。
+	insert into elasticsearch_trash(id) values(OLD.id);
+END
+			]]>
+			</screen>
+			<para>接下来我们需要写一个简单地 Shell 每分钟运行一次，从 elasticsearch_trash 数据表中取出数据，然后使用 curl 命令调用 elasticsearch restful 接口，删除被收回的数据。 </para>
 		</section>
 	</section>
 	&chapter.elasticsearch.old.xml;
