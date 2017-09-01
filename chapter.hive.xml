@@ -221,6 +221,10 @@ Initialization script completed
 schemaTool completed
 			]]>
 			</screen>
+			<para>如果使用内嵌数据库 derby 请使用下面命令初始化</para>
+			<screen>
+schematool -initSchema -dbType derby
+			</screen>
 		</section>
 		<section>
 			<title>访问 Hive</title>
@@ -259,6 +263,14 @@ hive>
 			]]>
 			</screen>
 			<para>至此 Apache Hive 已经安装配置完成！</para>
+			<para>尝试执行下面的SQL命令测试Hive是否正常</para>
+			<screen>
+create database test;
+use test;
+create table test_table (id int,name string) row format delimited fields terminated by ',' stored as textfile
+insert into test_table values (1, 'Neo');
+select * from test_table;
+			</screen>
 		</section>
 		<section>
 			<title>配置 hiveserver2</title>
@@ -420,13 +432,19 @@ No rows selected (1.137 seconds)
 				<title>创建表</title>
 				<literallayout>
 CREATE TABLE member (name string, age int, sex int);
-			</literallayout>
-			<screen>
-			<![CDATA[
+				</literallayout>
+				<screen>
+				<![CDATA[
 hive> CREATE TABLE member (name string, age int, sex int);
 OK
 Time taken: 0.687 seconds
 hive>
+				]]>
+				</screen>
+				<para>基于现有的数据建表</para>
+				<screen>
+				<![CDATA[
+hive> create table newtable as select * from oldtable;
 				]]>
 				</screen>
 			</section>
@@ -703,6 +721,7 @@ hive> CREATE TABLE mytable AS SELECT * FROM anytable;
 				]]>
 				</screen>
 			</section>
+			
 			<section>
 				<title>从其他表查询数据然后插入指定表中</title>
 				<screen>
@@ -712,10 +731,11 @@ hive> CREATE TABLE mytable AS SELECT * FROM anytable;
 				</screen>
 			</section>
 			<section>
-				<title></title>
+				<title>从现有表中查询数据然后插入到新的分区表中</title>
 				<screen>
 				<![CDATA[
-	
+hive> insert into table table2 partition(created_date) select * from table1;
+hive> insert into table newtable partition(type='1') select * from oldtable;
 				]]>
 				</screen>
 			</section>
@@ -759,6 +779,14 @@ Stage-Stage-1:  HDFS Read: 0 HDFS Write: 0 SUCCESS
 Total MapReduce CPU Time Spent: 0 msec
 OK
 Time taken: 10.54 seconds	
+				]]>
+				</screen>
+			</section>
+			<section>
+				<title>导出到HDFS</title>
+				<screen>
+				<![CDATA[
+hive> insert overwrite directory '/usr/tmp/test' select * from test;				
 				]]>
 				</screen>
 			</section>
