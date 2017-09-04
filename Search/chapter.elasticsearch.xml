@@ -129,11 +129,15 @@ root@netkiller /var/log/elasticsearch % curl 'http://localhost:9200/_nodes/proce
 		</section>
 		<section id="loadbalance">
 			<title>负载均衡配置</title>
+			<para>首先安装 nginx, 这里使用 Netkiller OSCM 一键安装脚本完成。</para>
+			<screen>
+# curl -s https://raw.githubusercontent.com/oscm/shell/master/web/nginx/stable/nginx.sh | bash
+			</screen>
 			<para>因为 elasticsearch 没有用户认证机制我们通常在内网访问他。如果对外提供服务需要增加用户认证。</para>
 			<para></para>
 			<screen>
 			<![CDATA[
-$ printf "john:$(openssl passwd -crypt s3cr3t)n" > /etc/nginx/passwords 			
+# printf "neo:$(openssl passwd -crypt s3cr3t)n" > /etc/nginx/passwords 			
 			]]>
 			</screen>
 			<para>创建 nginx 配置文件 /etc/nginx/conf.d/elasticsearch.conf</para>
@@ -148,6 +152,12 @@ upstream elasticsearch {
 
 server {
 	listen 9200;
+	server_name so.netkiller.cn;
+	
+	charset utf-8;
+    access_log /var/log/nginx/so.netkiller.cn.access.log;
+    error_log /var/log/nginx/so.netkiller.cn.error.log;
+	
 	auth_basic "Protected Elasticsearch";
 	auth_basic_user_file passwords;
 
@@ -162,14 +172,10 @@ server {
 		    return 403;
 		    break;
 		}
-		if ($request_method !~ "HEAD") {
-          return 403;
-          break;
-        }
-        if ($request_method !~ "DELETE") {
-          return 403;
-          break;
-        }
+
+        if ($request_method !~ ^(GET|HEAD|POST)$) {
+			return 403;
+		}
 
 		proxy_pass http://elasticsearch;
 		proxy_http_version 1.1;
@@ -198,6 +204,8 @@ upstream elasticsearch {
 
 server {
 	listen 9200;
+	server_name so.netkiller.cn;
+	
 	auth_basic "Protected Elasticsearch";
 	auth_basic_user_file passwords;
 
@@ -216,7 +224,7 @@ server {
           return 403;
           break;
         }
-        if ($request_method !~ "DELETE") {
+        if ($request_method ~ "DELETE") {
           return 403;
           break;
         }
@@ -231,6 +239,19 @@ server {
 				]]>
 				</screen>
 			</example>
+			<para>通过 limit_except 可以控制访问权限，例如删除操作。</para>
+			<screen>
+			<![CDATA[
+limit_except PUT {
+	allow 192.168.1.1;
+	deny all;
+}
+limit_except DELETE {
+	allow 192.168.1.1;
+	deny all;
+}
+			]]>
+			</screen>
 		</section>
 	</section>
 	<section id="plugin">
@@ -610,22 +631,10 @@ curl -XDELETE http://localhost:9200/information/news/1?pretty
 # curl -XGET 'http://localhost:9200/_all/news,blog/_search?pretty'
 		</screen>
 		
-		<section id="search.page">
-			<title>分页</title>
-			<para>该功能与SQL的LIMIT关键字结果一样，Elasticsearch接受size和from两个参数参数：</para>
-			<para>size: 返回结果集数量，默认10，用法与SQL中的 Limit相同</para>
-			<para>from: 偏移量，默认0，用法与 SQL中的 Offset相同</para>
-			<para>如果你想每页显示10个结果，那么请求如下：</para>
-			<screen>
-			<![CDATA[
-第一页 GET /_search?size=10
-第二页 GET /_search?size=10&from=10
-第三页 GET /_search?size=10&from=20
-			]]>
-			</screen>
-		</section>
+		
 		<section id="query">
-			<title>字符串搜索</title>
+			<title>URL 搜索</title>
+			<para>字符串搜索</para>
 			<screen>
 			<![CDATA[
 # curl -XGET 'http://localhost:9200/_all/_search?q=neo&pretty'
@@ -645,12 +654,27 @@ curl -XDELETE http://localhost:9200/information/news/1?pretty
 +name:(neo jam) +age:<30 +date:>1980-09-10
 			]]>
 			</screen>
+		</section><section id="search.page">
+			<title>分页</title>
+			<para>该功能与SQL的LIMIT关键字结果一样，Elasticsearch接受size和from两个参数参数：</para>
+			<para>size: 返回结果集数量，默认10，用法与SQL中的 Limit相同</para>
+			<para>from: 偏移量，默认0，用法与 SQL中的 Offset相同</para>
+			<para>如果你想每页显示10个结果，那么请求如下：</para>
+			<screen>
+			<![CDATA[
+第一页 GET /_search?size=10
+第二页 GET /_search?size=10&from=10
+第三页 GET /_search?size=10&from=20
+			]]>
+			</screen>
 		</section>
-		<section id="dsl">
-			<title>Query DSL</title>
-			<section>
-				<title>match</title>
-				<screen>
+		
+	</section>
+	<section id="dsl">
+		<title>Query DSL</title>
+		<section id="match">
+			<title>match 匹配</title>
+			<screen>
 curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
 {
 	"query" : {
@@ -660,13 +684,13 @@ curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
 	}
 }
 '
-				</screen>
-				
-			</section>
-			<section>
-				<title>multi_match</title>
-				<para>multi_match 实现多字段查询</para>
-				<screen>
+			</screen>
+			
+		</section>
+		<section id="multi_match">
+			<title>multi_match 多字段匹配</title>
+			<para>multi_match 实现多字段查询</para>
+			<screen>
 curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
 {
 	"query": {
@@ -688,13 +712,111 @@ curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
 	
 }
 '
-				</screen>	
-			</section>	
-			
+			</screen>	
+		</section>	
+		
+		<section id="bool">
+			<title>Query bool 布尔条件</title>
+			<para>Elasticsearch 提供三个布尔条件</para>
+			<para>must： AND </para>
+			<para>must_not：NOT</para>
+			<para>should：OR</para>
 			<section>
-				<title>sort</title>
-			
+				<title>must</title>
+				<para>查询必须满足 tags=天气 and title 包含 台风关键字</para>
 				<screen>
+				<![CDATA[
+curl -XPOST http://test:123456@so.netkiller.cn/information/article/_search?pretty  -d'
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "match": { "tags" : "天气" }},
+        { "match": { "title": "台风"   }}
+      ]
+    }
+  },
+ "_source":["id","title","ctime"],
+ "highlight" : {
+        "pre_tags" : ["<strong>", "<b>"],
+        "post_tags" : ["</strong >", "</b>"],
+        "fields" : {
+            "content" : {}
+        }
+    }
+}'
+				]]>
+				</screen>
+				
+			</section>
+			<section>
+				<title>should</title>
+				<para>查询必须满足标title or author 两个条件</para>
+				<screen>
+GET /_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        { "match": { "title":  "Linux" }},
+        { "match": { "author": "Neo"   }}
+      ]
+    }
+  }
+}
+				</screen>
+				<para>可以嵌套使用</para>
+				<screen>
+GET /_search
+{
+  "query": {
+    "bool": {
+      "should": [
+        { "match": { "title":  "War and Peace" }},
+        { "match": { "author": "Leo Tolstoy"   }},
+        { "bool":  {
+          "should": [
+            { "match": { "translator": "Constance Garnett" }},
+            { "match": { "translator": "Louise Maude"      }}
+          ]
+        }}
+      ]
+    }
+  }
+}				
+				</screen>
+			</section>
+			<section>
+				<title>must_not</title>
+			</section>
+		</section>
+		<section id="filter">
+			<title>filter 过滤</title>
+			<para>query 相当于 SQL 中的 LIKE 匹配， filter 更像是 where 条件。下面的例子查询 site_id = 23 的数据并且 tags 包含 “头条” 关键字</para>
+			<screen>
+curl -XGET 'http://test:123456@so.netkiller.cn/information/article/_search?pretty' -d '
+{
+  "query": {
+    "bool": {
+      "must": {
+        "match": {
+          "tags": "头条"
+        }
+      },
+      "filter": {
+        "term": {
+          "site_id" : "23"
+        }
+      }
+    }
+  }
+}'
+			</screen>
+		</section>
+		<section id="sort">
+			<title>sort 排序</title>
+		
+			<screen>
 curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
 {
 	"query" : {
@@ -704,11 +826,11 @@ curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
 		"ctime": {"order": "desc", "mode":  "min"}
 	}
 }
-	'			</screen>
-			</section>
-			<section>
-				<title>_source</title>
-				<screen>
+'			</screen>
+		</section>
+		<section id="_source">
+			<title>_source</title>
+			<screen>
 curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
 {
 	"query" : {
@@ -731,8 +853,26 @@ curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
 	}
 }
 '	
-				</screen>
-			</section>			
+			</screen>
+		</section>
+		<section id="highlight">
+			<title>highlight 高亮处理</title>
+			<screen>
+			<![CDATA[
+curl -XPOST http://test:123456@so.netkiller.cn/information/article/_search  -d'
+{
+    "query" : { "match" : {  "content" : "股市" }},
+    "highlight" : {
+        "pre_tags" : ["<strong>", "<b>"],
+        "post_tags" : ["</strong >", "</b>"],
+        "fields" : {
+            "content" : {}
+        }
+    }
+}
+'			
+			]]>
+			</screen>
 		</section>
 	</section>
 	<section id="elasticsearch-analysis-ik">
