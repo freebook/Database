@@ -4,8 +4,15 @@
 	<para>http://redis.io/</para>
 	<section id="redis">
 		<title>Redis 安装</title>
-		<section id="centos">
-			<title>CentOS</title>
+		<section id="centos7">
+			<title>CentOS 7</title>
+			<para>Netkiller OSCM 一键安装</para>
+			<screen>
+curl -s https://raw.githubusercontent.com/oscm/shell/master/database/redis/redis.sh | bash
+			</screen>
+		</section>
+		<section id="centos6">
+			<title>CentOS 6</title>
 			<para>安装fedora的YUM源，</para>
 			<screen>
 rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-7.noarch.rpm
@@ -278,7 +285,13 @@ shareobjectspoolsize 1024
 $ sudo /etc/init.d/redis-server start
 			</screen>
 		</section>
-
+		<section>
+			<title>源码编译安装</title>
+			<para>这里仍然使用 &OSCM; 安装，源码安装</para>
+			<screen>
+curl -s https://raw.githubusercontent.com/oscm/shell/master/database/redis/source/redis-4.0.1.sh | bash
+			</screen>
+		</section>
 		<section id="test">
 			<title>Test Redis</title>
 			<para><ulink url="http://redis.io/commands"></ulink></para>
@@ -322,7 +335,9 @@ Connection closed by foreign host.
 	</section>
 	<section id="redis.conf">
 		<title>/etc/redis.conf</title>
-		<section>
+		<screen>
+		</screen>
+		<section id="auth">
 			<title>密码认证</title>
 			<para>打开 /etc/redis.conf 修改 requirepass 配置项</para>
 			<screen>

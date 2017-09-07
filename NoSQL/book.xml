@@ -9,6 +9,7 @@
 	<!ENTITY Neo "http://netkiller.sf.net/">
 	<!ENTITY BG7NYT "&Neo;">
 	<!ENTITY Netkiller "<emphasis><trademark>Netkiller</trademark></emphasis>">
+	<!ENTITY OSCM "<ulink url='https://github.com/oscm/shell'>Netkiller OSCM</ulink>">
 
 	<!ENTITY % common.doctype.entity.xml 		SYSTEM "../../common/doctype.entity.xml">
 	%common.doctype.entity.xml;
