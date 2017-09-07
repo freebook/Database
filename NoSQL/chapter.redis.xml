@@ -684,10 +684,10 @@ OK
 		<section id="redis.string">
 			<title>字符串操作</title>
 		
-		<section id="set">
-			<title>set/get/del</title>
-			<screen>
-			<![CDATA[
+			<section id="set">
+				<title>set/get/del</title>
+				<screen>
+				<![CDATA[
 172.18.52.15:6379> set name neo
 OK
 172.18.52.15:6379> get name 
@@ -698,15 +698,15 @@ OK
 (integer) 1
 172.18.52.15:6379> get name
 (nil)			
-			]]>
-			</screen>
-		</section>
-		<section id="setnx">
-			<title>setnx</title>
-			<command>SETNX key value</command>
-			<para>当 key 不存在时将 key 的值设为 value，若给定的 key 已经存在，则 SETNX 不做任何动作。SETNX 是(SET if Not eXists) (如果不存在，则 SET)的简写。</para>
-			<screen>
-			<![CDATA[
+				]]>
+				</screen>
+			</section>
+			<section id="setnx">
+				<title>setnx</title>
+				<command>SETNX key value</command>
+				<para>当 key 不存在时将 key 的值设为 value，若给定的 key 已经存在，则 SETNX 不做任何动作。SETNX 是(SET if Not eXists) (如果不存在，则 SET)的简写。</para>
+				<screen>
+				<![CDATA[
 返回值：
 	设置成功，返回 1
 	设置失败，返回 0
@@ -722,9 +722,9 @@ redis> SETNX neo "netkiller"  # 尝试覆盖 neo ，失败
 
 redis> GET neo                # 没有被覆盖
 "chen"	
-			]]>
-			</screen>
-		</section>
+				]]>
+				</screen>
+			</section>
 		</section>
 		<section id="expire">
 			<title>expire/ttl</title>
@@ -934,12 +934,144 @@ redis 127.0.0.1:6379> lrange queue:test 0 -1
 			]]>
 			</screen>
 		</section>
+		<section id="set">
+			<title>set 无序字符集合</title>
+			<para>Set和List类型不同的是，Set集合中不允许出现重复的元素，和List类型相比，Set类型在功能上还存在着一个非常重要的特性，即在服务器端完成多个Sets之间的聚合计算操作，如unions、intersections和differences。由于这些操作均在服务端完成，因此效率极高，而且也节省了大量的网络IO开销。</para>
+			<para>1. SADD/SMEMBERS/SCARD/SISMEMBER:</para>
+			<screen>
+			<![CDATA[
+    #插入测试数据，由于该键set:test之前并不存在，因此参数中的三个成员都被正常插入。
+    redis 127.0.0.1:6379> sadd set:test a b c
+    (integer) 3
+    #由于参数中的a在set:test中已经存在，因此本次操作仅仅插入了d和e两个新成员。
+    redis 127.0.0.1:6379> sadd set:test a d e
+    (integer) 2
+    #判断a是否已经存在，返回值为1表示存在。
+    redis 127.0.0.1:6379> sismember set:test a
+    (integer) 1
+    #判断f是否已经存在，返回值为0表示不存在。
+    redis 127.0.0.1:6379> sismember set:test f
+    (integer) 0
+    #通过smembers命令查看插入的结果，从结果可以，输出的顺序和插入顺序无关。
+    redis 127.0.0.1:6379> smembers set:test
+    1) "c"
+    2) "d"
+    3) "a"
+    4) "b"
+    5) "e"
+    #获取Set集合中元素的数量。
+    redis 127.0.0.1:6379> scard set:test
+    (integer) 5
+    			]]>
+			</screen>
+			<para>2. SPOP/SREM/SRANDMEMBER/SMOVE:</para>
+			<screen>
+			<![CDATA[
+    #删除该键，便于后面的测试。
+    redis 127.0.0.1:6379> del set:test
+    (integer) 1
+    #为后面的示例准备测试数据。
+    redis 127.0.0.1:6379> sadd set:test a b c d
+    (integer) 4
+    #查看Set中成员的位置。
+    redis 127.0.0.1:6379> smembers set:test
+    1) "c"
+    2) "d"
+    3) "a"
+    4) "b"
+    #从结果可以看出，该命令确实是随机的返回了某一成员。
+    redis 127.0.0.1:6379> srandmember set:test
+    "c"
+    #Set中尾部的成员b被移出并返回，事实上b并不是之前插入的第一个或最后一个成员。
+    redis 127.0.0.1:6379> spop set:test
+    "b"
+    #查看移出后Set的成员信息。
+    redis 127.0.0.1:6379> smembers set:test
+    1) "c"
+    2) "d"
+    3) "a"
+    #从Set中移出a、d和f三个成员，其中f并不存在，因此只有a和d两个成员被移出，返回为2。
+    redis 127.0.0.1:6379> srem set:test a d f
+    (integer) 2
+    #查看移出后的输出结果。
+    redis 127.0.0.1:6379> smembers set:test
+    1) "c"
+    #为后面的smove命令准备数据。
+    redis 127.0.0.1:6379> sadd set:test a b
+    (integer) 2
+    redis 127.0.0.1:6379> sadd set:test2 c d
+    (integer) 2
+    #将a从set:test移到set:test2，从结果可以看出移动成功。
+    redis 127.0.0.1:6379> smove set:test set:test2 a
+    (integer) 1
+    #再次将a从set:test移到set:test2，由于此时a已经不是set:test的成员了，因此移动失败并返回0。
+    redis 127.0.0.1:6379> smove set:test set:test2 a
+    (integer) 0
+    #分别查看set:test和set:test2的成员，确认移动是否真的成功。
+    redis 127.0.0.1:6379> smembers set:test
+    1) "b"
+    redis 127.0.0.1:6379> smembers set:test2
+    1) "c"
+    2) "d"
+    3) "a"
+    			]]>
+			</screen>
+			<para>3. SDIFF/SDIFFSTORE/SINTER/SINTERSTORE:</para>
+			<screen>
+			<![CDATA[
+    #为后面的命令准备测试数据。
+    redis 127.0.0.1:6379> sadd set:test a b c d
+    (integer) 4
+    redis 127.0.0.1:6379> sadd set:test2 c
+    (integer) 1
+    redis 127.0.0.1:6379> sadd set:test3 a c e
+    (integer) 3
+    #set:test和set:test2相比，a、b和d三个成员是两者之间的差异成员。再用这个结果继续和set:test3进行差异比较，b和d是set:test3不存在的成员。
+    redis 127.0.0.1:6379> sdiff set:test set:test2 set:test3
+    1) "d"
+    2) "b"
+    #将3个集合的差异成员存在在diffkey关联的Set中，并返回插入的成员数量。
+    redis 127.0.0.1:6379> sdiffstore diffkey set:test set:test2 set:test3
+    (integer) 2
+    #查看一下sdiffstore的操作结果。
+    redis 127.0.0.1:6379> smembers diffkey
+    1) "d"
+    2) "b"
+    #从之前准备的数据就可以看出，这三个Set的成员交集只有c。
+    redis 127.0.0.1:6379> sinter set:test set:test2 set:test3
+    1) "c"
+    #将3个集合中的交集成员存储到与interkey关联的Set中，并返回交集成员的数量。
+    redis 127.0.0.1:6379> sinterstore interkey set:test set:test2 set:test3
+    (integer) 1
+    #查看一下sinterstore的操作结果。
+    redis 127.0.0.1:6379> smembers interkey
+    1) "c"
+    #获取3个集合中的成员的并集。    
+    redis 127.0.0.1:6379> sunion set:test set:test2 set:test3
+    1) "b"
+    2) "c"
+    3) "d"
+    4) "e"
+    5) "a"
+    #将3个集合中成员的并集存储到unionkey关联的set中，并返回并集成员的数量。
+    redis 127.0.0.1:6379> sunionstore unionkey set:test set:test2 set:test3
+    (integer) 5
+    #查看一下suiionstore的操作结果。
+    redis 127.0.0.1:6379> smembers unionkey
+    1) "b"
+    2) "c"
+    3) "d"
+    4) "e"
+    5) "a"
+			]]>
+			</screen>
+		</section>
 		<section id="zset">
-			<title>zset (有序集)</title>
+			<title>zset (有序集合)</title>
 			<para>添加到集合</para>
 			<screen>
 			<![CDATA[
-root@VM_3_2_centos /etc/nginx/conf.d % redis-cli -n 16
+root@netkiller ~ % redis-cli -n 16
 127.0.0.1:6379[16]> zadd book 1 "Linux"
 1
 127.0.0.1:6379[16]> zadd book 2 "Java"
@@ -962,7 +1094,6 @@ root@VM_3_2_centos /etc/nginx/conf.d % redis-cli -n 16
 4) "2"
 5) "Perl"
 6) "5"
-
 			]]>
 			</screen>
 			<para>指定开始和结束范围</para>
