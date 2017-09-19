@@ -1,8 +1,8 @@
 <part id="index"><?dbhtml dir="search" ?>
 	<title>Search Engine</title>
 
-	&chapter.solr.xml;
 	&chapter.elasticsearch.xml;
+	&chapter.solr.xml;
 	&chapter.nutch.xml;
 	&chapter.sphinx.xml;
 	
