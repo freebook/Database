@@ -454,6 +454,23 @@ mysql> show binary logs;
 		]]>
 		</screen>
 	</section>
+	<section id="threads">
+		<title>线程的使用情况</title>
+		<screen>
+		<![CDATA[
+mysql> SHOW STATUS LIKE 'threads%';
++-------------------+-------+
+| Variable_name     | Value |
++-------------------+-------+
+| Threads_cached    | 0     |
+| Threads_connected | 1     |
+| Threads_created   | 1     |
+| Threads_running   | 1     |
++-------------------+-------+
+4 rows in set (0.01 sec)		
+		]]>
+		</screen>
+	</section>
 	<section id="databases">
 		<title>DATABASES</title>
 		<screen>
@@ -464,6 +481,54 @@ SHOW DATABASES;
 		<title>TABLE</title>
 		<screen>
 SHOW TABLE STATUS FROM `dbname`;
+		</screen>
+	</section>
+	<section id="created_tmp">
+		<title>临时表</title>
+		<screen>
+		<![CDATA[
+mysql> SHOW STATUS LIKE 'created_tmp%';
++-------------------------+-------+
+| Variable_name           | Value |
++-------------------------+-------+
+| Created_tmp_disk_tables | 0     |
+| Created_tmp_files       | 5     |
+| Created_tmp_tables      | 0     |
++-------------------------+-------+
+3 rows in set (0.00 sec)
+		]]>
+		</screen>
+	</section>
+	<section id="sort">
+		<title>排序统计信息</title>
+		<screen>
+		<![CDATA[
+mysql> SHOW STATUS LIKE "sort%";
++-------------------+-------+
+| Variable_name     | Value |
++-------------------+-------+
+| Sort_merge_passes | 0     |
+| Sort_range        | 0     |
+| Sort_rows         | 0     |
+| Sort_scan         | 0     |
++-------------------+-------+
+4 rows in set (0.00 sec)		
+		]]>
+		</screen>
+	</section>
+	<section id="key_read">
+		<title>Key 状态</title>
+		<screen>
+		<![CDATA[
+mysql> show status like '%key_read%';
++-------------------+-------+
+| Variable_name     | Value |
++-------------------+-------+
+| Key_read_requests | 6     |
+| Key_reads         | 3     |
++-------------------+-------+
+2 rows in set (0.00 sec)		
+		]]>
 		</screen>
 	</section>
 	<section id="function">

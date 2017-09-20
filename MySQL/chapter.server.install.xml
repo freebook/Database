@@ -347,7 +347,17 @@ ALTER USER root@localhost PASSWORD EXPIRE NEVER;
 			</screen>
 		</section>
 	</section>
-
+	<section>
+		<title>Mac</title>
+		<para>安装</para>
+		<screen>
+brew install mysql	
+		</screen>
+		<para>启动</para>
+		<screen>
+brew services start mysql		
+		</screen>
+	</section>
 	<section id="firewall">
 		<title>Firewall</title>
 		<para>iptables</para>

@@ -2,6 +2,21 @@
 <!-- $Id: chapter.optimization.xml 572 2013-04-24 05:37:11Z netkiller $ -->
 <chapter id="index"><?dbhtml dir="optimization"?>
 	<title>Optimization</title>
+	<section>
+		<title>打开表的数量</title>
+		<screen>
+		<![CDATA[
+mysql> SHOW STATUS LIKE 'open%tables';
++---------------+-------+
+| Variable_name | Value |
++---------------+-------+
+| Open_tables   | 100   |
+| Opened_tables | 1     |
++---------------+-------+
+2 rows in set (0.04 sec)		
+		]]>
+		</screen>
+	</section>
 	<section id="cache">
 		<title>Buffering and Caching</title>
 		<para>查看缓存是否开启</para>
@@ -107,6 +122,17 @@ show status like 'qcache_q%';
 MySQL> show status like 'qcache_q%';
 				]]>
 				</programlisting>
+				<screen>
+其中各个参数的意义如下：
+Qcache_free_blocks：缓存中相邻内存块的个数。数目大说明可能有碎片。FLUSH QUERY CACHE会对缓存中的碎片进行整理，从而得到一个空闲块。
+Qcache_free_memory：缓存中的空闲内存。
+Qcache_hits：每次查询在缓存中命中时就增大
+Qcache_inserts：每次插入一个查询时就增大。命中次数除以插入次数就是不中比率。
+Qcache_lowmem_prunes：缓存出现内存不足并且必须要进行清理以便为更多查询提供空间的次数。这个数字最好长时间来看;如果这个 数字在不断增长，就表示可能碎片非常严重，或者内存很少。(上面的 free_blocks和free_memory可以告诉您属于哪种情况)
+Qcache_not_cached：不适合进行缓存的查询的数量，通常是由于这些查询不是 SELECT 语句或者用了now()之类的函数。
+Qcache_queries_in_cache：当前缓存的查询(和响应)的数量。
+Qcache_total_blocks：缓存中块的数量。				
+				</screen>
 			</example>
 		</section>
 	</section>
