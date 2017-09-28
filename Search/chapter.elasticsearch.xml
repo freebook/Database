@@ -365,6 +365,10 @@ curl -XPOST http://localhost:9200/index/fulltext/_mapping -d'
 }'			
 			</screen>
 		</section>
+		<section id="elasticsearch-analysis-pinyin">
+			<title>elasticsearch-analysis-pinyin</title>
+			<para>https://github.com/medcl/elasticsearch-analysis-pinyin</para>
+		</section>
 	</section>
 	<section id="manager">
 		<title>管理</title>
