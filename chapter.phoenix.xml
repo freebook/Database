@@ -1,4 +1,146 @@
-<chapter>
+<chapter id="index"><?dbhtml dir="phoenix" ?>
 	<title>Phoenix</title>
-	<para>Phoenix 是基于 Hbase 的 SQL</para>
+	<para><ulink url="phoenix" /></para>
+	<para>Phoenix 是基于 Hbase 的 SQL 层</para>
+	<section id="setup">
+		<title>安装 Phoenix</title>
+		<screen>
+		<![CDATA[
+cd /usr/local/src/
+wget https://mirrors.tuna.tsinghua.edu.cn/apache/phoenix/apache-phoenix-4.12.0-HBase-1.3/bin/apache-phoenix-4.12.0-HBase-1.3-bin.tar.gz		
+tar zxvf apache-phoenix-4.12.0-HBase-1.3-bin.tar.gz 
+cp apache-phoenix-4.12.0-HBase-1.3-bin/phoenix-core-4.12.0-HBase-1.3.jar /srv/apache-hbase-1.3.1/lib/
+mv apache-phoenix-4.12.0-HBase-1.3-bin /srv/apache-phoenix-4.12.0
+ln -s /srv/apache-phoenix-4.12.0 /srv/apache-phoenix
+		]]>
+		</screen>
+		<para>配置环境变量</para>
+		<screen>
+		<![CDATA[
+% vim /srv/apache-hbase-1.3.1/conf/hbase-env.sh
+
+export JAVA_HOME=/srv/java
+export HBASE_CLASSPATH=/srv/apache-phoenix
+export HBASE_MANAGES_ZK=true
+		]]>
+		</screen>
+		<para>环境配置</para>
+		<screen>
+		<![CDATA[
+cat >> ~/.bash_profile << 'EOF'
+export CLASSPATH=$CLASSPATH:/srv/apache-phoenix
+export PATH=$PATH:/srv/apache-phoenix/bin
+EOF		
+		]]>
+		</screen>
+		<para>重启 Hbase</para>
+		<screen>
+su - hadoop -c "/srv/apache-hbase/bin/start-hbase.sh"
+		</screen>
+	</section>
+	<section id="sqlline">
+		<title>sqlline.py 命令行界面</title>
+		<screen>
+[hadoop@VM_7_221_centos ~]$ sqlline.py localhost		
+		</screen>
+		<screen>
+		<![CDATA[
+[hadoop@VM_7_221_centos ~]$ sqlline.py 
+Setting property: [incremental, false]
+Setting property: [isolation, TRANSACTION_READ_COMMITTED]
+issuing: !connect jdbc:phoenix:localhost:2181:/hbase none none org.apache.phoenix.jdbc.PhoenixDriver
+Connecting to jdbc:phoenix:localhost:2181:/hbase
+SLF4J: Class path contains multiple SLF4J bindings.
+SLF4J: Found binding in [jar:file:/srv/apache-phoenix-4.12.0-HBase-1.3/phoenix-4.12.0-HBase-1.3-client.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: Found binding in [jar:file:/srv/apache-hadoop-2.8.1/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar!/org/slf4j/impl/StaticLoggerBinder.class]
+SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.
+17/10/13 10:43:48 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Connected to: Phoenix (version 4.12)
+Driver: PhoenixEmbeddedDriver (version 4.12)
+Autocommit status: true
+Transaction isolation: TRANSACTION_READ_COMMITTED
+Building list of tables and columns for tab-completion (set fastconnect to true to skip)...
+95/95 (100%) Done
+Done
+sqlline version 1.2.0
+0: jdbc:phoenix:localhost:2181:/hbase>		
+		]]>
+		</screen>
+		<section>
+			<title>帮助信息</title>
+			<screen>
+			<![CDATA[
+0: jdbc:phoenix:localhost> help
+!all                Execute the specified SQL against all the current connections
+!autocommit         Set autocommit mode on or off
+!batch              Start or execute a batch of statements
+!brief              Set verbose mode off
+!call               Execute a callable statement
+!close              Close the current connection to the database
+!closeall           Close all current open connections
+!columns            List all the columns for the specified table
+!commit             Commit the current transaction (if autocommit is off)
+!connect            Open a new connection to the database.
+!dbinfo             Give metadata information about the database
+!describe           Describe a table
+!dropall            Drop all tables in the current database
+!exportedkeys       List all the exported keys for the specified table
+!go                 Select the current connection
+!help               Print a summary of command usage
+!history            Display the command history
+!importedkeys       List all the imported keys for the specified table
+!indexes            List all the indexes for the specified table
+!isolation          Set the transaction isolation for this connection
+!list               List the current connections
+!manual             Display the SQLLine manual
+!metadata           Obtain metadata information
+!nativesql          Show the native SQL for the specified statement
+!outputformat       Set the output format for displaying results
+(table,vertical,csv,tsv,xmlattrs,xmlelements)
+!primarykeys        List all the primary keys for the specified table
+!procedures         List all the procedures
+!properties         Connect to the database specified in the properties file(s)
+!quit               Exits the program
+!reconnect          Reconnect to the database
+!record             Record all output to the specified file
+!rehash             Fetch table and column names for command completion
+!rollback           Roll back the current transaction (if autocommit is off)
+!run                Run a script from the specified file
+!save               Save the current variabes and aliases
+!scan               Scan for installed JDBC drivers
+!script             Start saving a script to a file
+!set                Set a sqlline variable
+!sql                Execute a SQL command
+!tables             List all the tables in the database
+!typeinfo           Display the type map for the current connection
+!verbose            Set verbose mode on	
+			]]>		
+			</screen>
+		</section>
+		<section>
+			<title>创建表</title>
+			<screen>
+			<![CDATA[
+0: jdbc:phoenix:localhost> CREATE TABLE IF NOT EXISTS us_population (
+. . . . . . . . . . . . .>       state CHAR(2) NOT NULL,
+. . . . . . . . . . . . .>       city VARCHAR NOT NULL,
+. . . . . . . . . . . . .>       population BIGINT
+. . . . . . . . . . . . .>       CONSTRAINT my_pk PRIMARY KEY (state, city));
+No rows affected (2.287 seconds)
+
+0: jdbc:phoenix:localhost> !tables 
++------------+--------------+----------------+---------------+----------+------------+----------------------------+-----------------+--------------+-----------------+---------------+---------------+---+
+| TABLE_CAT  | TABLE_SCHEM  |   TABLE_NAME   |  TABLE_TYPE   | REMARKS  | TYPE_NAME  | SELF_REFERENCING_COL_NAME  | REF_GENERATION  | INDEX_STATE  | IMMUTABLE_ROWS  | SALT_BUCKETS  | MULTI_TENANT  | V |
++------------+--------------+----------------+---------------+----------+------------+----------------------------+-----------------+--------------+-----------------+---------------+---------------+---+
+|            | SYSTEM       | CATALOG        | SYSTEM TABLE  |          |            |                            |                 |              | false           | null          | false         |   |
+|            | SYSTEM       | FUNCTION       | SYSTEM TABLE  |          |            |                            |                 |              | false           | null          | false         |   |
+|            | SYSTEM       | SEQUENCE       | SYSTEM TABLE  |          |            |                            |                 |              | false           | null          | false         |   |
+|            | SYSTEM       | STATS          | SYSTEM TABLE  |          |            |                            |                 |              | false           | null          | false         |   |
+|            |              | US_POPULATION  | TABLE         |          |            |                            |                 |              | false           | null          | false         |   |
++------------+--------------+----------------+---------------+----------+------------+----------------------------+-----------------+--------------+-----------------+---------------+---------------+---+
+
+			]]>
+			</screen>
+		</section>
+	</section>
 </chapter>
