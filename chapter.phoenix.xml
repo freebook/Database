@@ -143,4 +143,8 @@ No rows affected (2.287 seconds)
 			</screen>
 		</section>
 	</section>
+	<section id="squirrel">
+		<title>SQuirreL SQL Client</title>
+		<para><ulink url="http://www.squirrelsql.org/" /></para>
+	</section>
 </chapter>
