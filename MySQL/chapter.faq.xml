@@ -393,7 +393,17 @@ EOF
 		<para></para>
 		<screen>
 systemctl daemon-reload
-systemctl restart mysqld		
+systemctl restart mysqld
+		</screen>
+	</section>
+	<section>
+		<title>ERROR 1364: 1364: Field 'id' doesn't have a default value</title>
+		<screen>
+		<![CDATA[
+set @@SESSION.sql_mode='NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+SELECT @@GLOBAL.sql_mode;
+UPDATE `cms`.`content` SET `source`='test' WHERE `content_id`='1099';		
+		]]>
 		</screen>
 	</section>
 </chapter>

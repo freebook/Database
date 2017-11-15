@@ -1227,8 +1227,9 @@ curl -XPOST http://localhost:9200/information/news/_mapping?pretty -d'
 }'
 			</screen>
 		</section>
-		<section>
+		<section id="mapping.update">
 			<title>更新 mapping</title>
+			<para>注意：更新只能用于空的index，如果index中存在数据无法修改_mapping，必须重建，或者采用别名方案</para>
 			<para>更新已存在的 mapping，首先我们创建一个 _mapping</para>
 			<screen>
 			<![CDATA[
@@ -1892,7 +1893,7 @@ curl "http://localhost:9200/information/article/_mapping?pretty"
 	<section id="jdbc-input-plugin">
 		<title>Migrating MySQL Data into Elasticsearch using logstash</title>
 		<para>https://www.elastic.co/guide/en/logstash/current/plugins-inputs-jdbc.html</para>
-		<section>
+		<section id="logstash.install">
 			<title>安装 logstash</title>
 			<para>安装 JDBC 驱动 和 Logstash </para>
 			<screen>
@@ -1901,7 +1902,7 @@ curl -s https://raw.githubusercontent.com/oscm/shell/master/search/logstash/logs
 			</screen>
 			<para>mysql 驱动文件位置在 /usr/share/java/mysql-connector-java.jar </para>
 		</section>
-		<section>
+		<section id="logstash.config">
 			<title>配置 logstash</title>
 			<para>创建配置文件 /etc/logstash/conf.d/jdbc-mysql.conf</para>
 			<screen>
@@ -1946,7 +1947,7 @@ output {
 			]]>
 			</screen>
 		</section>
-		<section>
+		<section id="logstash.start">
 			<title>启动 Logstash</title>
 			<screen>
 			<![CDATA[
@@ -1978,7 +1979,7 @@ root@netkiller /var/log/logstash % cat logstash-plain.log
 			]]>
 			</screen>
 		</section>
-		<section>
+		<section id="logstash.test">
 			<title>验证</title>
 			<screen>
 			<![CDATA[
@@ -1986,7 +1987,7 @@ root@netkiller /var/log/logstash % cat logstash-plain.log
 			]]>
 			</screen>
 		</section>
-		<section>
+		<section id="logstash.template">
 			<title>配置模板</title>
 			<section>
 				<title>全量导入</title>
@@ -2200,12 +2201,11 @@ output {
 				]]>
 				</screen>
 			</section>
-		</section>
-		<section>
-			<title>example</title>
-			<para>下面的例子实现了新数据复制，旧数据更新</para>
-			<screen>
-			<![CDATA[
+			<section id="logstash.example">
+				<title>example</title>
+				<para>下面的例子实现了新数据复制，旧数据更新</para>
+				<screen>
+				<![CDATA[
 input {
   jdbc {
     jdbc_driver_library => "/usr/share/java/mysql-connector-java.jar"
@@ -2246,10 +2246,12 @@ output {
         doc_as_upsert => true  #支持update模式
     }
 }
-			]]>
-			</screen>
+				]]>
+				</screen>
+			</section>
 		</section>
-		<section>
+
+		<section id="logstash.sync">
 			<title>解决数据不对称问题</title>
 			<para>jdbc-input-plugin 只能实现数据库的追加，对于 elasticsearch 增量写入，但经常jdbc源一端的数据库可能会做数据库删除或者更新操作。这样一来数据库与搜索引擎的数据库就出现了不对称的情况。</para>
 			<para>当然你如果有开发团队可以写程序在删除或者更新的时候同步对搜索引擎操作。如果你没有这个能力，可以尝试下面的方法。</para>
@@ -2327,6 +2329,128 @@ END
 			</screen>
 			<para>接下来我们需要写一个简单地 Shell 每分钟运行一次，从 elasticsearch_trash 数据表中取出数据，然后使用 curl 命令调用 elasticsearch restful 接口，删除被收回的数据。 </para>
 		</section>
+		
+		<section id="logstash.mapping">
+			<title>修改 Mapping</title>
+			<paraf>需求 Elasticsearch 时间格式 从ISO 8601 到 yyyy-MM-dd HH:mm:ss。首先停止 logstash</paraf>
+			<screen>
+			<![CDATA[
+systemctl stop logstash
+
+rm -rf /var/tmp/article* 			
+			]]>
+			</screen>
+			<para>修改 /etc/logstash/conf.d/jdbc.conf 配置文件</para>
+			<screen>
+			<![CDATA[
+input {
+  jdbc {
+    jdbc_driver_library => "/usr/share/java/mysql-connector-java.jar"
+    jdbc_driver_class => "com.mysql.jdbc.Driver"
+    jdbc_connection_string => "jdbc:mysql://localhost:3306/cms"
+    jdbc_user => "cms"
+    jdbc_password => "123456"
+    schedule => "* * * * *"
+    statement => "select * from article where id > :sql_last_value"
+    use_column_value => true
+    tracking_column => "id"
+    tracking_column_type => "numeric" 
+    record_last_run => true
+    last_run_metadata_path => "/var/tmp/article.last"
+  }
+jdbc {
+    jdbc_driver_library => "/usr/share/java/mysql-connector-java.jar"
+    jdbc_driver_class => "com.mysql.jdbc.Driver"
+    jdbc_connection_string => "jdbc:mysql://localhost:3306/cms"
+    jdbc_user => "cms"
+    jdbc_password => "123456"
+    schedule => "* * * * *"	#定时cron的表达式,这里是每分钟执行一次
+    statement => "select * from article where ctime > :sql_last_value"
+    use_column_value => true
+    tracking_column => "ctime"
+    tracking_column_type => "timestamp" 
+    record_last_run => true
+    last_run_metadata_path => "/var/tmp/article-ctime.last"
+  }
+
+}
+
+filter {
+
+    ruby {
+        code => "event.set('ctime', event.get('[ctime]').time.localtime.strftime('%Y-%m-%d %H:%M:%S'))"
+    }
+
+    ruby {
+        code => "event.set('mtime', event.get('[mtime]').time.localtime.strftime('%Y-%m-%d %H:%M:%S'))"
+    }
+
+}
+
+output {
+    elasticsearch {
+    	hosts => "localhost:9200"
+        index => "information"
+        document_type => "article"
+        document_id => "%{id}"
+        action => "update"
+        doc_as_upsert => true
+    }
+}
+			
+			]]>
+			</screen>
+			<para>删除就的index，重新创建，并配置 mapping。</para>
+			<programlisting>
+			<![CDATA[
+
+
+curl -XDELETE http://localhost:9200/information
+
+curl -XPUT http://localhost:9200/information
+			
+curl -XPOST http://localhost:9200/information/article/_mapping -d'
+{
+        "properties": {
+            "title": {
+                "type": "text",
+                "analyzer": "ik_max_word",
+                "search_analyzer": "ik_max_word"
+            },
+            "description": {
+                "type": "text",
+                "analyzer": "ik_max_word",
+                "search_analyzer": "ik_max_word"
+            },
+            "content": {
+                "type": "text",
+                "analyzer": "ik_max_word",
+                "search_analyzer": "ik_max_word"
+            },
+            "ctime": {
+               "type":   "date",
+               "format": "yyyy-MM-dd HH:mm:ss"
+           	},
+ 			"mtime": {
+               "type":   "date",
+               "format": "yyyy-MM-dd HH:mm:ss"
+           	}
+        }
+}'
+
+curl "http://localhost:9200/information/article/_mapping?pretty"
+			]]>
+			</programlisting>
+			<para>启动 logstash 重新复制数据。</para>
+			<screen>
+			<![CDATA[
+rm -rf /var/log/logstash/*
+systemctl start logstash			
+			]]>
+			</screen>
+			
+		</section>
+		
 	</section>
 	&chapter.elasticsearch.old.xml;
 	<section id="faq">
