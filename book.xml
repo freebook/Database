@@ -101,15 +101,13 @@
 	&book.preface.xml;
 	&part.database;
 
-	&part.mysql.xml;
-	&part.nosql.xml;
-	&part.search.xml;
-	
+	&part.search.xml;	
 	&chapter.hbase.xml;
 	&chapter.phoenix.xml;
 	&chapter.hive.xml;
 	&chapter.sqoop.xml;
-	
+	&part.mysql.xml;
+	&part.nosql.xml;
 	&part.postgres.xml; 
 	&part.oracle.xml;
 
