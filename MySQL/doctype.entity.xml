@@ -23,6 +23,7 @@
 <!ENTITY chapter.dcl.lock.xml			SYSTEM "chapter.dcl.lock.xml">
 <!ENTITY chapter.dcl.transactional.xml	SYSTEM "chapter.dcl.transactional.xml">
 <!ENTITY chapter.ddl.trigger.xml			SYSTEM "chapter.ddl.trigger.xml">
+<!ENTITY chapter.ddl.procedure.xml		SYSTEM "chapter.ddl.procedure.xml">
 
 <!ENTITY chapter.manager.xml			SYSTEM "chapter.manager.xml">
 <!ENTITY chapter.backup.xml 			SYSTEM "chapter.backup.xml">

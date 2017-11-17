@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<section id="procedure">
+		<title>存储过程(PROCEDURE)</title>
+		<section>
+			<title>存储程序</title>
+			<para>存储过程没有返回数据，需使用call proc()调用</para>
+			<programlisting>
+CREATE DEFINER=`neo`@`%` PROCEDURE `angelfund`(IN `puid` VARCHAR(50), IN `ptime` DATETIME)
+	LANGUAGE SQL
+	NOT DETERMINISTIC
+	CONTAINS SQL
+	SQL SECURITY DEFINER
+	COMMENT ''
+BEGIN
+
+	DECLARE fusername VARCHAR(16) DEFAULT NULL;
+	DECLARE fname VARCHAR(16) DEFAULT NULL;
+	DECLARE fmembers_date VARCHAR(20) DEFAULT NULL;
+
+	SELECT username,name,FROM_UNIXTIME(createtime) INTO fusername,fname,fmembers_date FROM members WHERE username = puid;
+
+	IF fusername IS NOT NULL THEN
+		INSERT IGNORE INTO angelfund(username,name,members_date,accounts_date,endtime,`status`,op,operator,`description`) value(fusername,fname,fmembers_date,ptime,DATE_ADD(ptime, INTERVAL +1 MONTH),'N','N','computer','');
+	END IF;
+
+END			
+			</programlisting>
+			<para>调用过程</para>
+			<screen>
+call angelfund('100','2013-10-10 10:10:10');			
+			</screen>
+		</section>
+		<section id="execute">
+			<title>EXECUTE 执行 SQL</title>
+			<para>在过程中运行SQL，下面的例子是文件导出的例子。</para>
+			<programlisting>
+			<![CDATA[
+DROP procedure IF EXISTS `export_file`;
+
+DELIMITER $$
+CREATE DEFINER=`dba`@`%` PROCEDURE `export_file`(IN file_name char(64), IN tabname char(64))
+BEGIN
+	set @sql = concat('SELECT * INTO OUTFILE ',"'/var/lib/mysql-files/",file_name,"'",' FROM ', tabname) ; 
+    select @sql;
+	PREPARE stmt FROM @sql; 
+	EXECUTE stmt; 
+	Deallocate prepare stmt;
+END$$
+
+DELIMITER ;
+			]]>
+			</programlisting>
+		</section>
+	</section>
+	<section id="function">
+			<title>函数</title>
+			<para>函数会返回数据，调用函数使用 select fun(),不能使用call调用，否则提示</para>
+			<screen>
+			<![CDATA[
+mysql> call myfun();
+ERROR 1305 (42000): PROCEDURE test.myfun does not exist			
+			]]>
+			</screen>
+			<para>下面做一个实验</para>
+			<programlisting>
+CREATE TABLE `t` (
+	`id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`n` INT(11) UNSIGNED NULL DEFAULT '0',
+	PRIMARY KEY (`id`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=5;
+
+CREATE DEFINER=`neo`@`%` FUNCTION `myfun`()
+	RETURNS int(11)
+	LANGUAGE SQL
+	NOT DETERMINISTIC
+	READS SQL DATA
+	SQL SECURITY DEFINER
+	COMMENT ''
+BEGIN
+	INSERT INTO t (n) VALUES(rand()*100);
+	RETURN LAST_INSERT_ID();
+END			
+			</programlisting>
+			<screen>
+			<![CDATA[
+mysql> select myfun();
++---------+
+| myfun() |
++---------+
+|       9 |
++---------+
+1 row in set, 2 warnings (0.07 sec)
+			]]>
+			</screen>
+		</section>

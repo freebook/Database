@@ -396,13 +396,52 @@ systemctl daemon-reload
 systemctl restart mysqld
 		</screen>
 	</section>
-	<section>
+	<section id="ERROR.1364">
 		<title>ERROR 1364: 1364: Field 'id' doesn't have a default value</title>
 		<screen>
 		<![CDATA[
 set @@SESSION.sql_mode='NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
 SELECT @@GLOBAL.sql_mode;
 UPDATE `cms`.`content` SET `source`='test' WHERE `content_id`='1099';		
+		]]>
+		</screen>
+	</section>
+	<section id="ERROR.1290">
+		<title>ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot execute this statement</title>
+		<para>MySQL 不允许向 secure_file_priv 意外的目录导出文件。</para>
+		<programlisting>
+		<![CDATA[
+mysql> SELECT * FROM `order` INTO OUTFILE '/tmp/order.txt';
+ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot execute this statement
+
+mysql> show variables like '%secure%';
++--------------------------+-----------------------+
+| Variable_name            | Value                 |
++--------------------------+-----------------------+
+| require_secure_transport | OFF                   |
+| secure_auth              | ON                    |
+| secure_file_priv         | /var/lib/mysql-files/ |
++--------------------------+-----------------------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT * FROM `order` INTO OUTFILE '/var/lib/mysql-files/order.txt';
+Query OK, 3 rows affected (0.00 sec)
+
+root@netkiller ~ % cat /var/lib/mysql-files/order.txt
+1	Tom	22	2017-11-16 17:23:15
+2	Neo	34.65	2017-11-16 17:29:28
+3	Cici	34.98	2017-11-16 17:30:29
+		]]>
+		</programlisting>
+		<para>在 my.cnf 中 加入 secure-file-priv=/tmp 可以修改为你需要的目录。</para>
+	</section>
+	<section id="ERROR.1086">
+		<title>ERROR 1086 (HY000): File '/var/lib/mysql-files/order.txt' already exists	</title>
+		<para>SELECT * FROM tabname INTO OUTFILE 不支持覆盖操作，这是MySQL从安全角度考虑的。</para>
+		<screen>
+		<![CDATA[
+mysql> SELECT * FROM `order` INTO OUTFILE '/var/lib/mysql-files/order.txt';
+ERROR 1086 (HY000): File '/var/lib/mysql-files/order.txt' already exists		
 		]]>
 		</screen>
 	</section>
