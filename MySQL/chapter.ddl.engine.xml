@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section id="engine">
-	<title>Engine</title>
-	<screen>
-	<![CDATA[
+	<title>Engine 存储引擎</title>
+	<section id="engine.show">
+		<title>显示当前数据库支持引擎</title>
+		<screen>
+		<![CDATA[
 mysql> show engines;
 +--------------------+---------+----------------------------------------------------------------+--------------+------+------------+
 | Engine             | Support | Comment                                                        | Transactions | XA   | Savepoints |
@@ -18,13 +20,21 @@ mysql> show engines;
 | InnoDB             | DEFAULT | Supports transactions, row-level locking, and foreign keys     | YES          | YES  | YES        |
 +--------------------+---------+----------------------------------------------------------------+--------------+------+------------+
 9 rows in set (0.00 sec)
-	]]>
-	</screen>
-	<para>修改与切换引擎</para>
-	<screen>
+		]]>
+		</screen>
+	</section>
+	<section id="engine.alter">
+		<title>切换引擎</title>
+		<para>修改与切换引擎</para>
+		<screen>
+		<![CDATA[
 ALTER TABLE `test` ENGINE=BLACKHOLE;
 ALTER TABLE `test` ENGINE=InnoDB;
-	</screen>
+		]]>
+		</screen>
+	</section>
+	
+	
 	<section id="FEDERATED">
 		<title>FEDERATED</title>
 		<para>启用 FEDERATED 引擎, 服务器环境 Ubuntu 13.04</para>
@@ -143,5 +153,99 @@ mysql> select * from users;
 		<programlisting>
 CREATE TABLE test(id INT, val CHAR(10)) ENGINE = BLACKHOLE;
 		</programlisting>
+	</section>
+	<section id="ARCHIVE">
+		<title>ARCHIVE</title>
+		<para>归档(是适用于存放大量数据的存储引擎), 仅支持select、insert操作; 不支持delete 、update、索引等操作；使用zlib无损算法压缩数据，节省磁盘空间；</para>
+		<para>适用场景：适用于大量可查询但不能删除的历史数据保存；</para>
+		<para>基于 order 表创建 order_audit 归档表</para>
+		<programlisting>
+		<![CDATA[
+create table order_audit engine=archive as select * from `order`;
+		]]>
+		</programlisting>
+		<para>order_audit 表结构如下</para>
+		<programlisting>
+		<![CDATA[
+CREATE TABLE `order_audit` (
+  `id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '订单ID',
+  `name` varchar(45) NOT NULL COMMENT '订单名称',
+  `price` float NOT NULL COMMENT '价格',
+  `ctime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+) ENGINE=ARCHIVE DEFAULT CHARSET=utf8		
+		]]>
+		</programlisting>
+		<programlisting>
+		<![CDATA[
+mysql> show table status like 'order_audit';
++-------------+---------+---------+------------+------+----------------+-------------+-----------------+--------------+-----------+----------------+-------------+---------------------+------------+-----------------+----------+----------------+---------+
+| Name        | Engine  | Version | Row_format | Rows | Avg_row_length | Data_length | Max_data_length | Index_length | Data_free | Auto_increment | Create_time | Update_time         | Check_time | Collation       | Checksum | Create_options | Comment |
++-------------+---------+---------+------------+------+----------------+-------------+-----------------+--------------+-----------+----------------+-------------+---------------------+------------+-----------------+----------+----------------+---------+
+| order_audit | ARCHIVE |      10 | Compressed |    4 |           2215 |        8861 |               0 |            0 |         0 |           NULL | NULL        | 2017-11-16 17:30:34 | NULL       | utf8_general_ci |     NULL |                |         |
++-------------+---------+---------+------------+------+----------------+-------------+-----------------+--------------+-----------+----------------+-------------+---------------------+------------+-----------------+----------+----------------+---------+
+1 row in set (0.01 sec)		
+		]]>
+		</programlisting>
+	</section>
+	<section id="csv">
+		<title>CSV</title>
+		<para>创建表</para>
+		<programlisting>
+		<![CDATA[
+CREATE TABLE `csv_table` (
+  `id` int(11) NOT NULL,
+  `name` varchar(45) NOT NULL,
+  `age` int(11) NOT NULL
+) ENGINE=CSV DEFAULT CHARSET=utf8		
+		]]>
+		</programlisting>
+		<para>查看表状态</para>
+		<programlisting>
+		<![CDATA[
+mysql> show table status like 'csv_table';
++-----------+--------+---------+------------+------+----------------+-------------+-----------------+--------------+-----------+----------------+-------------+-------------+------------+-----------------+----------+----------------+---------+
+| Name      | Engine | Version | Row_format | Rows | Avg_row_length | Data_length | Max_data_length | Index_length | Data_free | Auto_increment | Create_time | Update_time | Check_time | Collation       | Checksum | Create_options | Comment |
++-----------+--------+---------+------------+------+----------------+-------------+-----------------+--------------+-----------+----------------+-------------+-------------+------------+-----------------+----------+----------------+---------+
+| csv_table | CSV    |      10 | Dynamic    |    2 |              0 |           0 |               0 |            0 |         0 |           NULL | NULL        | NULL        | NULL       | utf8_general_ci |     NULL |                |         |
++-----------+--------+---------+------------+------+----------------+-------------+-----------------+--------------+-----------+----------------+-------------+-------------+------------+-----------------+----------+----------------+---------+
+1 row in set (0.00 sec)		
+		]]>
+		</programlisting>
+		<para>插入数据</para>
+		<programlisting>
+		<![CDATA[
+insert into csv_table values (1,'Neo',37),(2,'Jam',40);		
+		]]>
+		</programlisting>
+		<para>查看数据</para>
+		<programlisting>
+		<![CDATA[
+mysql> SELECT * FROM test.csv_table;
++----+------+-----+
+| id | name | age |
++----+------+-----+
+|  1 | Neo  |  37 |
+|  2 | Jam  |  40 |
++----+------+-----+
+2 rows in set (0.00 sec)
+		]]>
+		</programlisting>
+		<para>CSV 引擎是可以直接将csv文件复制出来的，表存储在 /var/lib/mysql/ 目录</para>
+		<screen>
+		<![CDATA[
+root@netkiller /etc/nginx/conf.d % ls -1 /var/lib/mysql/test/csv*
+/var/lib/mysql/test/csv_table.CSM
+/var/lib/mysql/test/csv_table.CSV
+/var/lib/mysql/test/csv_table.frm		
+		]]>
+		</screen>
+		<para>.*CSM, *.frm 是表结构文件，*.CSV 是我们需要的文件，纯文本，可以使用Excel打开。</para>
+		<screen>
+		<![CDATA[
+root@netkiller /etc/nginx/conf.d % cat /var/lib/mysql/test/csv_table.CSV
+1,"Neo",37
+2,"Jam",40		
+		]]>
+		</screen>
 	</section>
 </section>
