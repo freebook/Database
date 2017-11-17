@@ -110,6 +110,55 @@ mysql> select concat('Neo',' ','Chen') as Name;
 1 row in set (0.00 sec)
 			</screen>
 		</section>
+		<section id="CONCAT_WS">
+			<title>CONCAT_WS</title>
+			<programlisting>
+			<![CDATA[
+SELECT CONCAT_WS(',', 'Neo', 'Chen');
+Neo,Chen
+
+SELECT CONCAT_WS('-', 'Neo', 'Chen');
+Neo-Chen			
+			]]>
+			</programlisting>
+			<para>使用逗号链接字符串</para>
+			<programlisting>
+			<![CDATA[
+SELECT 
+    CONCAT_WS(',', id, name, age)
+FROM
+    mytable			
+			]]>
+			</programlisting>
+		</section>
+		<section id="concat_all">
+			<title>链接所有字段</title>
+			<para>当我使用 select CONCAT_WS(",", *) as string from tab 时发现不支持 * 操作。</para>
+			<para>解决方案如下</para>
+			<programlisting>
+			<![CDATA[
+SET @column = NULL;
+
+SELECT 
+    GROUP_CONCAT(COLUMN_NAME) AS fields INTO @column
+FROM
+    INFORMATION_SCHEMA.Columns
+WHERE
+    table_name = 'mytable'
+        AND table_schema = 'test';
+        
+-- select @column;
+
+SET @sql = CONCAT('SELECT CONCAT_WS(",",',@column, ' )  FROM mytable');
+
+select @sql;
+
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+			]]>
+			</programlisting>
+		</section>
 		<section id="group_concat">
 			<title>GROUP_CONCAT</title>
 			<para></para>

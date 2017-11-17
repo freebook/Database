@@ -334,5 +334,22 @@ SHOW TABLE STATUS LIKE 'members';
 			</screen>
 		</section>
 	</section>
+	<section id="INFORMATION_SCHEMA">
+		<title>INFORMATION_SCHEMA</title>
+		<section id="COLUMN_NAME">
+			<title>查询表字段</title>
+			<screen>
+			<![CDATA[
+SELECT 
+    GROUP_CONCAT(COLUMN_NAME) AS fields
+FROM
+    INFORMATION_SCHEMA.Columns
+WHERE
+    table_name = 'mytable'
+        AND table_schema = 'test';
+			]]>
+			</screen>
+		</section>
+	</section>
 	&chapter.backup.xml;
 </chapter>
