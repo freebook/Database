@@ -37,7 +37,7 @@ mysql> grant all privileges on test.* to 'test'@localhost  identified by 'chen';
 		]]>
 		</screen>
 	</section>
-	<section>
+	<section id="netkiller.mysql.images">
 		<title>MySQL Images manager</title>
 		<para>地址： https://github.com/netkiller/mysql-image-plugin</para>
 		<screen>
@@ -75,7 +75,7 @@ select image_move('/path/filename.ext','/path/to/newfile.ext');
 		]]>
 		</screen>
 	</section>
-	<section>
+	<section id="netkiller.mysql.fifo">
 		<title>MySQL fifo</title>
 		<screen>
 		<![CDATA[
@@ -231,4 +231,72 @@ mysql> select fifo_write('/tmp/nofifo',concat(mobile,'\r\n')) from demo;
 		]]>
 		</screen>
 	</section>
+	<section id="netkiller.mysql.out2file">
+		<title>内容输出到文本插件</title>
+		<para>Plugin Install and Uninstall</para>
+		<programlisting>
+		<![CDATA[
+# Install
+create function out2file returns string soname 'liboutfile.so';
+
+# Uninstall
+drop function out2file;	
+		]]>
+		</programlisting>
+		<para>操作演示</para>
+		<programlisting>
+		<![CDATA[
+# 安装插件
+
+mysql> create function out2file returns string soname 'liboutfile.so';
+Query OK, 0 rows affected (0.00 sec)
+
+# 调用插件
+
+mysql> select out2file('/tmp/myoutfile',"Helloworld!!!");
++--------------------------------------------+
+| out2file('/tmp/myoutfile',"Helloworld!!!") |
++--------------------------------------------+
+| true                                       |
++--------------------------------------------+
+1 row in set (0.00 sec)
+
+# 查看文件
+
+root@netkiller ~/mysql-outfile-plugin % cat /tmp/myoutfile
+Helloworld!!!	
+		]]>
+		</programlisting>
+		<para>触发器应用</para>
+		<programlisting>
+		<![CDATA[
+CREATE TABLE `demo` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(45) DEFAULT NULL,
+  `sex` enum('Man','Woman') DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8		
+		
+DROP TRIGGER IF EXISTS `test`.`demo_AFTER_INSERT`;
+
+DELIMITER $$
+USE `test`$$
+CREATE DEFINER=`root`@`%` TRIGGER `test`.`demo_AFTER_INSERT` AFTER INSERT ON `demo` FOR EACH ROW
+BEGIN
+	set @rev = "";
+	SELECT 
+    OUT2FILE('/tmp/demo.log',
+            CONCAT_WS(',',
+                    NEW.id,
+                    NEW.name,
+                    NEW.sex,
+                    NEW.address))
+	INTO @rev;
+END$$
+DELIMITER ;			
+		]]>
+		</programlisting>
+	</section>
+	
 </section>

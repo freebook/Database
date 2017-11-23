@@ -445,4 +445,29 @@ ERROR 1086 (HY000): File '/var/lib/mysql-files/order.txt' already exists
 		]]>
 		</screen>
 	</section>
+	<section id="">
+		<title>ERROR 1415: Not allowed to return a result set from a trigger</title>
+		<para>触发器中不允许返回结果集，解决方法是顶一个变量，然后将返回值返回给变量。</para>
+		<programlisting>
+		<![CDATA[
+DROP TRIGGER IF EXISTS `test`.`demo_AFTER_INSERT`;
+
+DELIMITER $$
+USE `test`$$
+CREATE DEFINER=`root`@`%` TRIGGER `test`.`demo_AFTER_INSERT` AFTER INSERT ON `demo` FOR EACH ROW
+BEGIN
+	set @rev = "";
+	SELECT 
+    OUT2FILE('/tmp/demo.log',
+            CONCAT_WS(',',
+                    NEW.id,
+                    NEW.name,
+                    NEW.sex,
+                    NEW.address))
+	INTO @rev;
+END$$
+DELIMITER ;		
+		]]>
+		</programlisting>
+	</section>
 </chapter>
