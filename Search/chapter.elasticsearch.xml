@@ -1849,7 +1849,7 @@ curl -XPOST http://localhost:9200/information/news/_search  -d'
 		</section>
 		<section>
 			<title>文章搜索案例</title>
-			<section>
+			<screen>
 			<![CDATA[
 curl -XDELETE http://localhost:9200/information
 
@@ -1887,7 +1887,7 @@ curl -XPOST http://localhost:9200/information/article/_mapping -d'
 curl "http://localhost:9200/information/article/_mapping?pretty"
 
 			]]>
-			</section>
+			</screen>
 		</section>
 	</section>
 	<section id="jdbc-input-plugin">

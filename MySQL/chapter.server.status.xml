@@ -223,6 +223,14 @@ Uptime 服务器工作了多少秒。
 show variables;
 show global variables;
 		</screen>
+		<section id="time_zone">
+			<title>time_zone</title>
+			<programlisting>
+			<![CDATA[
+SELECT @@global.time_zone, @@session.time_zone;			
+			]]>
+			</programlisting>
+		</section>
 		<section id="sql_mode">
 			<title>sql_mode</title>
 			<section>
