@@ -32,7 +32,7 @@ SET SQL_MODE=@OLDTMP_SQL_MODE;
 insert ignore into table(name)  select  name from table2
 			</screen>
 		</section>
-		<section>
+		<section id="ON DUPLICATE KEY UPDATE">
 			<title>INSERT...ON DUPLICATE KEY UPDATE</title>
 			<screen>
 			<![CDATA[
@@ -49,11 +49,28 @@ mysql> select * from foo;
 +----+------+
 			]]>
 			</screen>
+			<screen>
+			<![CDATA[
+DROP TRIGGER IF EXISTS `cms`.`jc_content_BEFORE_DELETE`;
+
+DELIMITER $$
+USE `cms`$$
+CREATE DEFINER=`5kwords`@`%` TRIGGER `jc_content_BEFORE_DELETE` BEFORE DELETE ON `jc_content`
+FOR EACH ROW BEGIN
+
+    insert into `cms`.elasticsearch_trash(id) values(OLD.content_id) on duplicate key update ctime = now();
+    insert into `cms`.trash(id,`type`, site_id) values(OLD.content_id, "delete", OLD.site_id) on duplicate key update `type`="delete", ctime = now();
+
+END$$
+DELIMITER ;
+
+			]]>
+			</screen>
 		</section>
 	</section>
 	<section id="replace">
 		<title>REPLACE</title>
-		<para>replace into</para>
+		<para>replace 类似 ON DUPLICATE KEY UPDATE，插入过程遇到已经存在的字段，会更新处理。</para>
 		<screen>
 replace into (id) value('1')
 		</screen>
