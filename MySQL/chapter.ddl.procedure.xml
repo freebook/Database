@@ -219,4 +219,36 @@ mysql> select myfun();
 1 row in set, 2 warnings (0.07 sec)
 		]]>
 		</screen>
+		<section id="timestamp_to_iso8601">
+			<title>TIMESTAMP TO ISO8601</title>
+			<programlisting>
+			<![CDATA[
+USE `netkiller`;
+DROP function IF EXISTS `timestamp_to_iso8601`;
+
+DELIMITER $$
+USE `netkiller`$$
+CREATE DEFINER=`neo`@`db.netkiller.cn` FUNCTION `timestamp_to_iso8601`(dt timestamp) RETURNS varchar(24) CHARSET utf8
+BEGIN
+
+	RETURN DATE_FORMAT( CONVERT_TZ(dt, @@session.time_zone, '+00:00')  ,'%Y-%m-%dT%T.000Z'); 
+    
+END$$
+
+DELIMITER ;
+			]]>
+			</programlisting>
+			<para>调用函数</para>
+			<programlisting>
+			<![CDATA[
+mysql> select timestamp_to_iso8601(current_timestamp()) as iso8601;
++--------------------------+
+| iso8601                  |
++--------------------------+
+| 2017-12-07T07:21:22.000Z |
++--------------------------+
+1 row in set (0.00 sec)
+			]]>
+			</programlisting>
+		</section>
 	</section>
