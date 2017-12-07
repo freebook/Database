@@ -57,18 +57,136 @@ call test.export_file('test', 'mytable');
 			]]>
 			</screen>
 		</section>
+		<section>
+			<title>PREPARE 传递参数</title>
+			<programlisting>
+			<![CDATA[
+mysql> PREPARE stmt1 FROM 'SELECT SQRT(POW(?,2) + POW(?,2)) AS hypotenuse';
+Query OK, 0 rows affected (0.00 sec)
+Statement prepared
+
+mysql> SET @a = 3;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SET @b = 4;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> EXECUTE stmt1 USING @a, @b;
++------------+
+| hypotenuse |
++------------+
+|          5 |
++------------+
+1 row in set (0.00 sec)
+
+mysql> DEALLOCATE PREPARE stmt1;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> 			
+			]]>
+			</programlisting>
+		</section>
+		<section id="procedure.out">
+			<title>存储过程返回数据</title>
+			<programlisting>
+			<![CDATA[
+USE `test`;
+DROP procedure IF EXISTS `test`;
+
+DELIMITER $$
+USE `test`$$
+CREATE DEFINER=`dba`@`%` PROCEDURE `test`(in a int, in b int ,out num int)
+BEGIN
+
+	set num = a + b;
+
+END$$
+
+DELIMITER ;
+
+
+
+			]]>
+			</programlisting>
+			<para>运行后返回结果 10 </para>
+			<programlisting>
+			<![CDATA[
+set @num = 0;
+call test(3,7,@num);
+select @num;
+			]]>
+			</programlisting>
+		</section>
+		<section id="procedure.json">
+			<title>结果集转JSON</title>
+			<programlisting>
+			<![CDATA[
+			
+USE `netkiller`;
+DROP procedure IF EXISTS `table2json`;
+
+DELIMITER $$
+USE `netkiller`$$
+CREATE DEFINER=`dba`@`%` PROCEDURE `table2json`(
+IN `schema` VARCHAR(32), 
+IN `table` VARCHAR(32), 
+IN `id` VARCHAR(10), 
+OUT rev VARCHAR(1024)
+)
+BEGIN
+	SET @column = NULL;
+	SET @str = NULL;
+
+	SELECT 
+    GROUP_CONCAT(fields) AS col INTO @column FROM (
+		SELECT 
+			CONCAT('"', COLUMN_NAME, '",', COLUMN_NAME) AS fields
+		FROM
+			INFORMATION_SCHEMA.Columns
+		WHERE
+			table_name = `table`
+				AND table_schema = `schema`) AS tmptable;
+
+
+	-- SELECT @column;
+
+
+	SET @sql = CONCAT('SELECT json_object(',@column, ' ) as json INTO @str FROM ', `table`,' where id = ', `id`);
+
+	-- SELECT @sql;
+
+	PREPARE stmt FROM @sql; 
+	EXECUTE stmt; 
+	Deallocate prepare stmt;
+
+	set rev = @str;
+
+END$$
+
+DELIMITER ;			
+			]]>
+			</programlisting>
+			<para>使用实例</para>
+			<programlisting>
+			<![CDATA[
+set @rev = '0';
+call netkiller.table2json('gw', 'test', '1', @rev);
+select @rev;
+			]]>
+			</programlisting>
+		</section>
 	</section>
 	<section id="function">
-			<title>函数</title>
-			<para>函数会返回数据，调用函数使用 select fun(),不能使用call调用，否则提示</para>
-			<screen>
-			<![CDATA[
+		<title>函数</title>
+		<para>函数会返回数据，调用函数使用 select fun(),不能使用call调用，否则提示</para>
+		<screen>
+		<![CDATA[
 mysql> call myfun();
 ERROR 1305 (42000): PROCEDURE test.myfun does not exist			
-			]]>
-			</screen>
-			<para>下面做一个实验</para>
-			<programlisting>
+		]]>
+		</screen>
+		<para>下面做一个实验</para>
+		<programlisting>
 CREATE TABLE `t` (
 	`id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`n` INT(11) UNSIGNED NULL DEFAULT '0',
@@ -89,9 +207,9 @@ BEGIN
 	INSERT INTO t (n) VALUES(rand()*100);
 	RETURN LAST_INSERT_ID();
 END			
-			</programlisting>
-			<screen>
-			<![CDATA[
+		</programlisting>
+		<screen>
+		<![CDATA[
 mysql> select myfun();
 +---------+
 | myfun() |
@@ -99,6 +217,6 @@ mysql> select myfun();
 |       9 |
 +---------+
 1 row in set, 2 warnings (0.07 sec)
-			]]>
-			</screen>
-		</section>
+		]]>
+		</screen>
+	</section>
