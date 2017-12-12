@@ -127,7 +127,7 @@ DROP procedure IF EXISTS `table2json`;
 
 DELIMITER $$
 USE `netkiller`$$
-CREATE DEFINER=`dba`@`%` PROCEDURE `table2json`(
+CREATE DEFINER=`neo`@`%` PROCEDURE `table2json`(
 IN `schema` VARCHAR(32), 
 IN `table` VARCHAR(32), 
 IN `id` VARCHAR(10), 
@@ -170,8 +170,66 @@ DELIMITER ;
 			<programlisting>
 			<![CDATA[
 set @rev = '0';
-call netkiller.table2json('gw', 'test', '1', @rev);
+call netkiller.table2json('test', 'test', '1', @rev);
 select @rev;
+			]]>
+			</programlisting>
+		</section>
+		<section id="procedure.trigger2json">
+			<title>例子·过程返回结果</title>
+			<programlisting>
+			<![CDATA[
+USE `netkiller`;
+DROP procedure IF EXISTS `trigger2json`;
+
+DELIMITER $$
+USE `netkiller`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `trigger2json`(
+IN `schema` VARCHAR(32), 
+IN `table` VARCHAR(32), 
+OUT rev VARCHAR(1024)
+)
+BEGIN
+	SET @column = NULL;
+	SET @str = NULL;
+
+	SELECT 
+    GROUP_CONCAT(fields) AS col
+INTO @column FROM
+    (SELECT 
+        CONCAT('"', COLUMN_NAME, '", NEW.', COLUMN_NAME) AS fields
+    FROM
+        INFORMATION_SCHEMA.Columns
+    WHERE
+        table_name = `table`
+            AND table_schema = `schema`) AS tmptable;
+
+
+-- SELECT @column;
+
+
+	SET @sql = CONCAT('SELECT json_object(',@column, ' ) as json INTO @str ');
+
+	-- SELECT @sql; 
+
+	PREPARE stmt FROM @sql; 
+	EXECUTE stmt; 
+	Deallocate prepare stmt;
+
+	set rev = @str;
+
+END$$
+
+DELIMITER ;
+
+
+			]]>
+			</programlisting>
+			<programlisting>
+			<![CDATA[
+set @rev = '0';
+call neo.trigger2json('gw', 'member', @rev);
+select @rev;			
 			]]>
 			</programlisting>
 		</section>
