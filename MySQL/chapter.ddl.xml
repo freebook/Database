@@ -420,14 +420,14 @@ mysql> show events;
 +--------+-------------+---------+-----------+-----------+------------+----------------+----------------+---------------------+------+---------+------------+----------------------+----------------------+--------------------+
 | Db     | Name        | Definer | Time zone | Type      | Execute at | Interval value | Interval field | Starts              | Ends | Status  | Originator | character_set_client | collation_connection | Database Collation |
 +--------+-------------+---------+-----------+-----------+------------+----------------+----------------+---------------------+------+---------+------------+----------------------+----------------------+--------------------+
-| hx9999 | captcha     | neo@%   | SYSTEM    | RECURRING | NULL       | 5              | MINUTE         | 2013-07-08 16:27:03 | NULL | ENABLED |          1 | utf8                 | utf8_general_ci      | utf8_general_ci    |
-| hx9999 | sms_ips_log | neo@%   | SYSTEM    | RECURRING | NULL       | '0 5'          | DAY_HOUR       | 2013-07-09 14:39:51 | NULL | ENABLED |          1 | utf8                 | utf8_general_ci      | utf8_general_ci    |
+| netkiller | captcha     | neo@%   | SYSTEM    | RECURRING | NULL       | 5              | MINUTE         | 2013-07-08 16:27:03 | NULL | ENABLED |          1 | utf8                 | utf8_general_ci      | utf8_general_ci    |
+| netkiller | sms_ips_log | neo@%   | SYSTEM    | RECURRING | NULL       | '0 5'          | DAY_HOUR       | 2013-07-09 14:39:51 | NULL | ENABLED |          1 | utf8                 | utf8_general_ci      | utf8_general_ci    |
 +--------+-------------+---------+-----------+-----------+------------+----------------+----------------+---------------------+------+---------+------------+----------------------+----------------------+--------------------+
 2 rows in set (0.00 sec)
 
 mysql> show events \G;
 *************************** 1. row ***************************
-                  Db: hx9999
+                  Db: netkiller
                 Name: captcha
              Definer: neo@%
            Time zone: SYSTEM
@@ -443,7 +443,7 @@ character_set_client: utf8
 collation_connection: utf8_general_ci
   Database Collation: utf8_general_ci
 *************************** 2. row ***************************
-                  Db: hx9999
+                  Db: netkiller
                 Name: sms_ips_log
              Definer: neo@%
            Time zone: SYSTEM
@@ -462,6 +462,66 @@ collation_connection: utf8_general_ci
 
 ERROR:
 No query specified
+			]]>
+			</programlisting>
+		</section>
+		<section>
+			<title>实例·每月创建一个表</title>
+			<para>每月创建一张新表，适用于分表的场景</para>
+			<programlisting>
+			<![CDATA[
+CREATE DEFINER=`neo`@`netkiller` EVENT `logging`
+	ON SCHEDULE
+		EVERY 1 MONTH STARTS '2017-12-11 15:51:00'
+	ON COMPLETION PRESERVE
+	ENABLE
+	COMMENT '每月自动创建表'
+DO BEGIN
+	declare _table_date varchar(10);
+	select date_format(date_add(curdate(),interval 1 month),'%Y%m') into _table_date;
+	call logging(_table_date);
+END
+			]]>
+			</programlisting>
+			<programlisting>
+			<![CDATA[
+CREATE DEFINER=`neo`@`netkiller` PROCEDURE `logging`(
+	IN `table_date` VARCHAR(10)
+)
+LANGUAGE SQL
+NOT DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+BEGIN
+	set @_table_name = CONCAT('log_',table_date);
+	set @_create = "CREATE TABLE If Not Exists ";
+	set @_param = "(
+			`id` INT(11) NOT NULL AUTO_INCREMENT,
+			`type` VARCHAR(255) NULL DEFAULT NULL COMMENT '日志类型 1：网站 2：IOS 3:Android',
+			`url` VARCHAR(640) NULL DEFAULT NULL COMMENT '用户访问url',
+			`serverIp` VARCHAR(255) NULL DEFAULT NULL COMMENT '服务器ip',
+			`bodyBytesSent` VARCHAR(255) NULL DEFAULT NULL,
+			`bytesSent` VARCHAR(255) NULL DEFAULT NULL COMMENT '参数字节数',
+			`browser` VARCHAR(255) NULL DEFAULT NULL COMMENT '浏览器信息',
+			`ctime` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+			`mtime` TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+			PRIMARY KEY (`id`),
+			INDEX `ctime` (`ctime`, `deviceType`,`isFirst`),
+			INDEX `userIp` (`userIp`),
+			INDEX `deviceId` (`deviceId`),
+			INDEX `account` (`account`)
+		)
+		COMMENT='APP 访问记录'
+		COLLATE='utf8_general_ci'
+		ENGINE=InnoDB
+		;";
+	
+	SET @sql = CONCAT(@_create,@_table_name,@_param);
+	PREPARE stmt FROM @sql;
+	EXECUTE stmt;
+
+END
 			]]>
 			</programlisting>
 		</section>
