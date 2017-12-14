@@ -1,4 +1,4 @@
-<chapter id="index"><?dbhtml dir="phoenix" ?>
+<section id="index"><?dbhtml dir="phoenix" ?>
 	<title>Phoenix</title>
 	<para><ulink url="phoenix" /></para>
 	<para>Phoenix 是基于 Hbase 的 SQL 层</para>
@@ -147,4 +147,5 @@ No rows affected (2.287 seconds)
 		<title>SQuirreL SQL Client</title>
 		<para><ulink url="http://www.squirrelsql.org/" /></para>
 	</section>
-</chapter>
+	
+</section>

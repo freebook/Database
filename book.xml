@@ -103,7 +103,6 @@
 
 	&part.search.xml;	
 	&chapter.hbase.xml;
-	&chapter.phoenix.xml;
 	&chapter.hive.xml;
 	&chapter.sqoop.xml;
 	&part.mysql.xml;

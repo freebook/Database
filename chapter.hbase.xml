@@ -246,6 +246,9 @@ hbase(main):038:0>
 -A INPUT -p tcp -m state --state NEW -m tcp --dport 16010 -j ACCEPT
 		</screen>
 	</section>
+	
+	&chapter.phoenix.xml;
+	
 	<section id="hbase.faq">
 		<title>FAQ</title>
 		<section>
