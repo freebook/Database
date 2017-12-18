@@ -69,8 +69,26 @@ DELIMITER;
 		<programlisting>
 show triggers;
 		</programlisting>
+		<section id="">
+			<title>SHOW CREATE TRIGGER</title>
+			<programlisting>
+			<![CDATA[
+mysql> SHOW CREATE TRIGGER ins_sum\G
+*************************** 1. row ***************************
+               Trigger: ins_sum
+              sql_mode: STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION
+SQL Original Statement: CREATE DEFINER=`me`@`localhost` TRIGGER ins_sum
+                        BEFORE INSERT ON account
+                        FOR EACH ROW SET @sum = @sum + NEW.amount
+  character_set_client: utf8
+  collation_connection: utf8_general_ci
+    Database Collation: latin1_swedish_ci
+               Created: 2013-07-09 10:39:34.96			
+			]]>
+			</programlisting>
+		</section>
 	</section>
-	<section>
+	<section id="trigger.example">
 		<title>EXAMPLE</title>
 		<section>
 			<title>BEFORE/AFTER</title>

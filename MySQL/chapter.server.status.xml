@@ -1,5 +1,224 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<section id="show">
+<section id="variables">
+	<title>variables</title>
+	<screen>
+show variables;
+show global variables;
+	</screen>
+	<section id="time_zone">
+		<title>time_zone</title>
+		<programlisting>
+		<![CDATA[
+SELECT @@global.time_zone, @@session.time_zone;			
+		]]>
+		</programlisting>
+	</section>
+	<section id="sql_mode">
+		<title>sql_mode</title>
+		<section>
+			<title>设置 sql_mode</title>
+			<screen>
+SET GLOBAL sql_mode = 'NO_ENGINE_SUBSTITUTION';
+SET SESSION sql_mode = 'NO_ENGINE_SUBSTITUTION';			
+			</screen>
+		</section>
+		<section>
+			<title>查看 sql_mode</title>
+			<screen>
+SELECT @@GLOBAL.sql_mode;
+SELECT @@SESSION.sql_mode;
+			</screen>
+		</section>
+		<section>
+			<title>兼容早起 MySQL 版本</title>
+			<para>导入数据库遇到这样的问题</para>
+			<screen>
+[root@netkiller]/tmp# cat cms.sql| mysql -uroot -p cms
+			</screen>
+			<para>ERROR 1067 (42000) at line 2194: Invalid default value for 'created_date'</para>
+			<para>将下面代码加入到 cms.sql 头部可以解决</para>
+			<screen>
+set @@global.sql_mode='NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+			</screen>
+		</section>
+		<section>
+			<title>5.7.16</title>
+			<screen>
+			<![CDATA[
+mysql> select version();
++-----------+
+| version() |
++-----------+
+| 5.7.16    |
++-----------+
+1 row in set (0.00 sec)
+
+mysql> SELECT @@global.sql_mode;
++-------------------------------------------------------------------------------------------------------------------------------------------+
+| @@global.sql_mode                                                                                                                         |
++-------------------------------------------------------------------------------------------------------------------------------------------+
+| ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION |
++-------------------------------------------------------------------------------------------------------------------------------------------+
+1 row in set (0.00 sec)
+			]]>
+			</screen>
+		</section>
+	</section>
+	<section id="wait_timeout">
+		<title>wait_timeout</title>
+		<screen>
+		<![CDATA[
+mysql> show global variables like 'wait_timeout';
++----------------------------+-------+
+| Variable_name              | Value |
++----------------------------+-------+
+| wait_timeout               | 10    |
++----------------------------+-------+
+		]]>
+		</screen>
+		<screen>
+		<![CDATA[
+mysql> use mysql;
+Database changed
+
+mysql> set wait_timeout=10;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> show variables  like '%wait_timeout%';
++--------------------------+-------+
+| Variable_name            | Value |
++--------------------------+-------+
+| innodb_lock_wait_timeout | 50    |
+| table_lock_wait_timeout  | 50    |
+| wait_timeout             | 10    |
++--------------------------+-------+
+3 rows in set (0.00 sec)
+		]]>
+		</screen>
+	</section>
+	<section id="table_lock_wait_timeout">
+		<title>table_lock_wait_timeout</title>
+		<screen>
+		<![CDATA[
+mysql> set GLOBAL table_lock_wait_timeout=10;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> show variables  like '%table_lock_wait_timeout%';
++-------------------------+-------+
+| Variable_name           | Value |
++-------------------------+-------+
+| table_lock_wait_timeout | 10    |
++-------------------------+-------+
+1 row in set (0.00 sec)
+		]]>
+		</screen>
+	</section>
+	<section id="low_priority_updates">
+		<title>low_priority_updates</title>
+		<screen>
+		<![CDATA[
+mysql> use mysql
+Database changed
+
+mysql> SET LOW_PRIORITY_UPDATES=1;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> show variables  like '%priority%';
++--------------------------+-------+
+| Variable_name            | Value |
++--------------------------+-------+
+| low_priority_updates     | ON    |
+| sql_low_priority_updates | ON    |
++--------------------------+-------+
+2 rows in set (0.00 sec)
+		]]>
+		</screen>
+	</section>
+	<section id="character_set">
+		<title>character_set</title>
+		<screen>
+		<![CDATA[
+mysql> show variables like 'character%';
++--------------------------+----------------------------+
+| Variable_name            | Value                      |
++--------------------------+----------------------------+
+| character_set_client     | utf8                       |
+| character_set_connection | utf8                       |
+| character_set_database   | utf8                       |
+| character_set_filesystem | binary                     |
+| character_set_results    | utf8                       |
+| character_set_server     | utf8                       |
+| character_set_system     | utf8                       |
+| character_sets_dir       | /usr/share/mysql/charsets/ |
++--------------------------+----------------------------+
+8 rows in set (0.00 sec)
+		]]>
+		</screen>
+	</section>
+	<section id="datadir">
+		<title>datadir</title>
+		<screen>
+ SHOW VARIABLES LIKE 'datadir';
+		</screen>
+		<screen>
+		<![CDATA[
+mysql> SHOW VARIABLES LIKE 'datadir';
++---------------+-------------------------+
+| Variable_name | Value                   |
++---------------+-------------------------+
+| datadir       | /var/lib/mysql/         |
++---------------+-------------------------+
+1 row in set (0.00 sec)
+		]]>
+		</screen>
+	</section>
+	<section id="plugin_dir">
+		<title>plugin_dir</title>
+		<command>show variables like '%plugin_dir%';</command>
+		<screen>
+		<![CDATA[
+mysql> show variables like '%plugin_dir%';
++---------------+------------------------+
+| Variable_name | Value                  |
++---------------+------------------------+
+| plugin_dir    | /usr/lib/mysql/plugin/ |
++---------------+------------------------+
+1 row in set (0.00 sec)
+		]]>
+		</screen>
+	</section>
+	<section id="storage_engine">
+		<title>storage_engine</title>
+		<screen>
+		<![CDATA[
+mysql> show variables like '%storage_engine%';
++------------------------+--------+
+| Variable_name          | Value  |
++------------------------+--------+
+| default_storage_engine | InnoDB |
+| storage_engine         | InnoDB |
++------------------------+--------+
+2 rows in set (0.00 sec)
+		]]>
+		</screen>
+	</section>
+	<section id="timeout">
+		<title>timeout</title>
+		<screen>
+show variables like "%timeout%";
+		</screen>
+	</section>
+	<section id="max_connections">
+		<title>max_connections</title>
+		<screen>
+show variables like "max_connections";
+		</screen>
+		<screen>
+set global max_connections = 200;
+		</screen>
+	</section>
+</section>
+<section id="status">
 	<title>SHOW COMMAND</title>
 	<section id="version">
 		<title>查看版本</title>
@@ -217,225 +436,7 @@ Uptime 服务器工作了多少秒。
 		</screen>
 	</section>
 	
-	<section id="variables">
-		<title>variables</title>
-		<screen>
-show variables;
-show global variables;
-		</screen>
-		<section id="time_zone">
-			<title>time_zone</title>
-			<programlisting>
-			<![CDATA[
-SELECT @@global.time_zone, @@session.time_zone;			
-			]]>
-			</programlisting>
-		</section>
-		<section id="sql_mode">
-			<title>sql_mode</title>
-			<section>
-				<title>设置 sql_mode</title>
-				<screen>
-SET GLOBAL sql_mode = 'NO_ENGINE_SUBSTITUTION';
-SET SESSION sql_mode = 'NO_ENGINE_SUBSTITUTION';			
-				</screen>
-			</section>
-			<section>
-				<title>查看 sql_mode</title>
-				<screen>
-SELECT @@GLOBAL.sql_mode;
-SELECT @@SESSION.sql_mode;
-				</screen>
-			</section>
-			<section>
-				<title>兼容早起 MySQL 版本</title>
-				<para>导入数据库遇到这样的问题</para>
-				<screen>
-[root@netkiller]/tmp# cat cms.sql| mysql -uroot -p cms
-				</screen>
-				<para>ERROR 1067 (42000) at line 2194: Invalid default value for 'created_date'</para>
-				<para>将下面代码加入到 cms.sql 头部可以解决</para>
-				<screen>
-set @@global.sql_mode='NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
-				</screen>
-			</section>
-			<section>
-				<title>5.7.16</title>
-				<screen>
-				<![CDATA[
-mysql> select version();
-+-----------+
-| version() |
-+-----------+
-| 5.7.16    |
-+-----------+
-1 row in set (0.00 sec)
-
-mysql> SELECT @@global.sql_mode;
-+-------------------------------------------------------------------------------------------------------------------------------------------+
-| @@global.sql_mode                                                                                                                         |
-+-------------------------------------------------------------------------------------------------------------------------------------------+
-| ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION |
-+-------------------------------------------------------------------------------------------------------------------------------------------+
-1 row in set (0.00 sec)
-				]]>
-				</screen>
-			</section>
-		</section>
-		<section id="wait_timeout">
-			<title>wait_timeout</title>
-			<screen>
-			<![CDATA[
-mysql> show global variables like 'wait_timeout';
-+----------------------------+-------+
-| Variable_name              | Value |
-+----------------------------+-------+
-| wait_timeout               | 10    |
-+----------------------------+-------+
-			]]>
-			</screen>
-			<screen>
-			<![CDATA[
-mysql> use mysql;
-Database changed
-
-mysql> set wait_timeout=10;
-Query OK, 0 rows affected (0.00 sec)
-
-mysql> show variables  like '%wait_timeout%';
-+--------------------------+-------+
-| Variable_name            | Value |
-+--------------------------+-------+
-| innodb_lock_wait_timeout | 50    |
-| table_lock_wait_timeout  | 50    |
-| wait_timeout             | 10    |
-+--------------------------+-------+
-3 rows in set (0.00 sec)
-			]]>
-			</screen>
-		</section>
-		<section id="table_lock_wait_timeout">
-			<title>table_lock_wait_timeout</title>
-			<screen>
-			<![CDATA[
-mysql> set GLOBAL table_lock_wait_timeout=10;
-Query OK, 0 rows affected (0.00 sec)
-
-mysql> show variables  like '%table_lock_wait_timeout%';
-+-------------------------+-------+
-| Variable_name           | Value |
-+-------------------------+-------+
-| table_lock_wait_timeout | 10    |
-+-------------------------+-------+
-1 row in set (0.00 sec)
-			]]>
-			</screen>
-		</section>
-		<section id="low_priority_updates">
-			<title>low_priority_updates</title>
-			<screen>
-			<![CDATA[
-mysql> use mysql
-Database changed
-
-mysql> SET LOW_PRIORITY_UPDATES=1;
-Query OK, 0 rows affected (0.00 sec)
-
-mysql> show variables  like '%priority%';
-+--------------------------+-------+
-| Variable_name            | Value |
-+--------------------------+-------+
-| low_priority_updates     | ON    |
-| sql_low_priority_updates | ON    |
-+--------------------------+-------+
-2 rows in set (0.00 sec)
-			]]>
-			</screen>
-		</section>
-		<section id="character_set">
-			<title>character_set</title>
-			<screen>
-			<![CDATA[
-mysql> show variables like 'character%';
-+--------------------------+----------------------------+
-| Variable_name            | Value                      |
-+--------------------------+----------------------------+
-| character_set_client     | utf8                       |
-| character_set_connection | utf8                       |
-| character_set_database   | utf8                       |
-| character_set_filesystem | binary                     |
-| character_set_results    | utf8                       |
-| character_set_server     | utf8                       |
-| character_set_system     | utf8                       |
-| character_sets_dir       | /usr/share/mysql/charsets/ |
-+--------------------------+----------------------------+
-8 rows in set (0.00 sec)
-			]]>
-			</screen>
-		</section>
-		<section id="datadir">
-			<title>datadir</title>
-			<screen>
- SHOW VARIABLES LIKE 'datadir';
-			</screen>
-			<screen>
-			<![CDATA[
-mysql> SHOW VARIABLES LIKE 'datadir';
-+---------------+-------------------------+
-| Variable_name | Value                   |
-+---------------+-------------------------+
-| datadir       | /var/lib/mysql/         |
-+---------------+-------------------------+
-1 row in set (0.00 sec)
-			]]>
-			</screen>
-		</section>
-		<section id="plugin_dir">
-			<title>plugin_dir</title>
-			<command>show variables like '%plugin_dir%';</command>
-			<screen>
-			<![CDATA[
-mysql> show variables like '%plugin_dir%';
-+---------------+------------------------+
-| Variable_name | Value                  |
-+---------------+------------------------+
-| plugin_dir    | /usr/lib/mysql/plugin/ |
-+---------------+------------------------+
-1 row in set (0.00 sec)
-			]]>
-			</screen>
-		</section>
-		<section id="storage_engine">
-			<title>storage_engine</title>
-			<screen>
-			<![CDATA[
-mysql> show variables like '%storage_engine%';
-+------------------------+--------+
-| Variable_name          | Value  |
-+------------------------+--------+
-| default_storage_engine | InnoDB |
-| storage_engine         | InnoDB |
-+------------------------+--------+
-2 rows in set (0.00 sec)
-			]]>
-			</screen>
-		</section>
-		<section id="timeout">
-			<title>timeout</title>
-			<screen>
-show variables like "%timeout%";
-			</screen>
-		</section>
-		<section id="max_connections">
-			<title>max_connections</title>
-			<screen>
-show variables like "max_connections";
-			</screen>
-			<screen>
-set global max_connections = 200;
-			</screen>
-		</section>
-	</section>
+	
 	<section id="binary">
 		<title>binary 日志</title>
 		<screen>
@@ -556,6 +557,38 @@ SHOW PROCEDURE STATUS WHERE `Db`='dbname';
 		<screen>
 SHOW TRIGGERS FROM `dbname`;
 		</screen>
+		<programlisting>
+		<![CDATA[
+mysql> SHOW TRIGGERS LIKE '%trigger_name%'\G
+Empty set (0.00 sec)
+
+mysql> SHOW TRIGGERS LIKE '%demo%'\G
+*************************** 1. row ***************************
+             Trigger: demo_AFTER_INSERT
+               Event: INSERT
+               Table: demo
+           Statement: BEGIN
+	set @rev = "";
+	SELECT 
+    OUT2FILE('/tmp/demo.log',
+            CONCAT_WS(',',
+                    NEW.id,
+                    NEW.name,
+                    NEW.sex,
+                    NEW.address))
+INTO @rev;
+END
+              Timing: AFTER
+             Created: 2017-11-23 11:47:58.10
+            sql_mode: ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+             Definer: root@%
+character_set_client: utf8
+collation_connection: utf8_general_ci
+  Database Collation: utf8_general_ci
+1 row in set (0.00 sec)
+		
+		]]>
+		</programlisting>
 	</section>
 	<section id="events">
 		<title>EVENTS</title>
