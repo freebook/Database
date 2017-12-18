@@ -169,29 +169,7 @@ ALTER TABLE <table_name> CONVERT TO CHARACTER SET utf8;
 		</section>
 		<section>
 			<title>DEFAULT</title>
-			<para>更新时间</para>
-			<para>`mtime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更改时间',</para>
-			<screen>
-			<![CDATA[
-CREATE TABLE `bank_account` (
-	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增唯一ID',
-	`bank_name` VARCHAR(255) NOT NULL DEFAULT '0' COMMENT '银行名字(Bank Name)',
-	`name` VARCHAR(50) NOT NULL DEFAULT '0' COMMENT '帐号名称(Name on account)',
-	`account_number` VARCHAR(50) NOT NULL DEFAULT '0' COMMENT '银行帐号(Account Number)',
-	`branch_location` VARCHAR(255) NOT NULL DEFAULT '0' COMMENT '支行位置(Branch Location)',
-	`description` VARCHAR(255) NOT NULL DEFAULT '0' COMMENT '银行描述',
-	`status` ENUM('Y','N') NOT NULL DEFAULT 'N' COMMENT '银行帐号状态',
-	`ctime` DATETIME NOT NULL COMMENT '创建时间',
-	`mtime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更改时间',
-	PRIMARY KEY (`id`)
-)
-COMMENT='银行帐号'
-COLLATE='utf8_general_ci'
-ENGINE=InnoDB
-AUTO_INCREMENT=2;
-			]]>
-			</screen>
-			<section>
+			<section id="AUTO_INCREMENT">
 				<title>AUTO_INCREMENT</title>
 				<para>定义 AUTO_INCREMENT 起始值</para>
 				<programlisting>
@@ -211,6 +189,39 @@ ALTER TABLE `accounts`
 	AUTO_INCREMENT=792257;				
 				</programlisting>
 			</section>
+			<section id="ON.UPDATE">
+				<title>TIMESTAMP NULL DEFAULT NULL ON UPDATE</title>
+				<screen>
+				<![CDATA[
+alter table cms.article ADD  COLUMN `mtime` TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更改时间';				
+				]]>
+				</screen>
+				
+				<para>更新时间</para>
+				<para>`mtime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更改时间',</para>
+				<screen>
+				<![CDATA[
+CREATE TABLE `bank_account` (
+	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增唯一ID',
+	`bank_name` VARCHAR(255) NOT NULL DEFAULT '0' COMMENT '银行名字(Bank Name)',
+	`name` VARCHAR(50) NOT NULL DEFAULT '0' COMMENT '帐号名称(Name on account)',
+	`account_number` VARCHAR(50) NOT NULL DEFAULT '0' COMMENT '银行帐号(Account Number)',
+	`branch_location` VARCHAR(255) NOT NULL DEFAULT '0' COMMENT '支行位置(Branch Location)',
+	`description` VARCHAR(255) NOT NULL DEFAULT '0' COMMENT '银行描述',
+	`status` ENUM('Y','N') NOT NULL DEFAULT 'N' COMMENT '银行帐号状态',
+	`ctime` DATETIME NOT NULL COMMENT '创建时间',
+	`mtime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更改时间',
+	PRIMARY KEY (`id`)
+)
+COMMENT='银行帐号'
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=2;
+				]]>
+				</screen>
+				
+			</section>
+			
 			<section>
 				<title>表存储位置(DATA DIRECTORY)</title>
 				<programlisting>

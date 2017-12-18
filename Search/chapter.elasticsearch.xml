@@ -4,8 +4,23 @@
 	<para>http://www.elasticsearch.org/</para>
 	<section id="install">
 		<title>安装 Elasticsearch</title>
+		<section id="">
+			<title>6.x 安装</title>
+			<para>安装 6.x 仓库</para>
+			<screen>
+			<![CDATA[
+curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elastic/elastic-6.x.sh | bash			
+			]]>
+			</screen>
+			<para>安装 6.x 包</para>
+			<screen>
+			<![CDATA[
+yum install elasticsearch			
+			]]>
+			</screen>
+		</section>
 		<section id="single">
-			<title>单机模式 (适用于开发环境)</title>
+			<title>单机模式 (适用于开发环境) 5.x </title>
 			<para>使用 Netkiller OSCM 一键安装 Elasticsearch 5.6.0</para>
 			<screen>
 # Java
@@ -39,7 +54,7 @@ LISTEN     0      128    127.0.0.1:9200                     *:*
 			</screen>
 		</section>
 		<section id="cluster">
-			<title>Elasticsearch Cluster</title>
+			<title>Elasticsearch Cluster 5.x</title>
 			<para>集群模式需要两个以上的节点，通常是一个 master 节点，多个 data 节点</para>
 			<para>首先在所有节点上安装 elasticsearch，然后配置各节点的配置文件，对于 5.5.1 不需要配置决定哪些节点属于 master 节点 或者 data 节点。</para>
 			<screen>
@@ -1867,7 +1882,7 @@ curl -XDELETE http://localhost:9200/information
 
 curl -XPUT http://localhost:9200/information
 			
-curl -XPOST http://localhost:9200/information/article/_mapping -d'
+curl -H 'Content-Type: application/json' -XPOST http://localhost:9200/information/article/_mapping -d'
 {
         "properties": {
             "title": {
@@ -2194,13 +2209,14 @@ input {
 
 }
 filter {
-
 	ruby {
-        code => "event.set('ctime', event.get('[ctime]').time.localtime.strftime('%Y-%m-%d %H:%M:%S'))"
+		init => "require 'time'"
+        code => "event.set('ctime', event.get('ctime').time.localtime.strftime('%Y-%m-%d %H:%M:%S'))"
     }
 
 	ruby {
-        code => "event.set('mtime', event.get('[mtime]').time.localtime.strftime('%Y-%m-%d %H:%M:%S'))"
+		init => "require 'time'"
+        code => "event.set('mtime', event.get('mtime').time.localtime.strftime('%Y-%m-%d %H:%M:%S'))"
     }
 }
 output {
