@@ -136,7 +136,7 @@ create table admin_user_history select * from admin_user;
 ALTER TABLE ecs_users add user_picture varchar(255);
 			</screen>
 		</section>
-		<section>
+		<section id="temporary">
 			<title>TEMPORARY Table</title>
 			<para>临时表将在你连接期间存在。一旦断开时将自动删除表并释放所用的空间。你在连接期间删除该表也同样释放空间。</para>
 			<screen>
@@ -153,13 +153,13 @@ CREATE TEMPORARY TABLE tmp_mem_table (
 ) TYPE = HEAP
 			</screen>
 		</section>
-		<section>
+		<section id="collate">
 			<title>Collate</title>
 			<programlisting>
 ALTER TABLE `tmp_cats`  COLLATE='utf8_general_ci',  CONVERT TO CHARSET utf8;
 			</programlisting>
 		</section>
-		<section>
+		<section id="character">
 			<title>CHARACTER</title>
 			<screen>
 			<![CDATA[
@@ -167,7 +167,7 @@ ALTER TABLE <table_name> CONVERT TO CHARACTER SET utf8;
 			]]>
 			</screen>
 		</section>
-		<section>
+		<section id="default">
 			<title>DEFAULT</title>
 			<section id="AUTO_INCREMENT">
 				<title>AUTO_INCREMENT</title>
@@ -222,7 +222,7 @@ AUTO_INCREMENT=2;
 				
 			</section>
 			
-			<section>
+			<section id="data.directory">
 				<title>表存储位置(DATA DIRECTORY)</title>
 				<programlisting>
 				<![CDATA[
@@ -252,7 +252,7 @@ PRIMARY KEY (`id`, `user_id`),
 			</section>
 
 		</section>
-		<section>
+		<section id="comment">
 			<title>COMMENT</title>
 			<screen>
 ALTER TABLE `neo`.`stuff` COMMENT = '用户表' ;
