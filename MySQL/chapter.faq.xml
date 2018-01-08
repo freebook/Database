@@ -342,6 +342,12 @@ SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));
 	</section>
 	<section id="max_open_files">
 		<title>[Warning] Changed limits: max_open_files: 5000 (requested 20480)</title>
+		<screen>
+		<![CDATA[
+2018-01-08T01:34:44.515973Z 0 [Warning] Changed limits: max_open_files: 5000 (requested 10240)
+2018-01-08T01:34:44.516402Z 0 [Warning] Changed limits: table_open_cache: 1471 (requested 2000)		
+		]]>
+		</screen>
 		<para>提出出现在 CentOS 7 ulimit 配置没有问题的情况下mysql日志提示 Warning</para>
 		<screen>
 # ulimit -Sa | grep "open files"
@@ -368,6 +374,7 @@ Max realtime priority     0                    0
 Max realtime timeout      unlimited            unlimited            us        
 		
 		</screen>
+		<para>动态改变</para>
 		<screen>
 [root@netkiller ~]# egrep '^(Limit|Max open files)' /proc/`pidof mysqld`/limits
 Limit                     Soft Limit           Hard Limit           Units     
@@ -390,10 +397,22 @@ LimitNOFILE=40960
 EOF
 		]]>
 		</screen>
-		<para></para>
+		<para>重启 MySQL</para>
 		<screen>
 systemctl daemon-reload
 systemctl restart mysqld
+		</screen>
+		<para>检查是否生效</para>
+		<screen>
+		<![CDATA[
+mysql> show variables like 'open_files_limit';
++------------------+-------+
+| Variable_name    | Value |
++------------------+-------+
+| open_files_limit | 65535 |
++------------------+-------+
+1 row in set (0.01 sec)		
+		]]>
 		</screen>
 	</section>
 	<section id="ERROR.1364">
