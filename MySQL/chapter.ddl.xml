@@ -164,6 +164,7 @@ ALTER TABLE `tmp_cats`  COLLATE='utf8_general_ci',  CONVERT TO CHARSET utf8;
 			<screen>
 			<![CDATA[
 ALTER TABLE <table_name> CONVERT TO CHARACTER SET utf8;
+alter table <table_name> convert to charset utf8mb4;
 			]]>
 			</screen>
 		</section>
