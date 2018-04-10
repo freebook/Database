@@ -134,6 +134,22 @@ mysql> show variables  like '%priority%';
 		]]>
 		</screen>
 	</section>
+	<section>
+		<title>collation_server</title>
+		<screen>
+		<![CDATA[
+mysql> SHOW VARIABLES LIKE 'collation_server';
++------------------+-------------------+
+| Variable_name    | Value             |
++------------------+-------------------+
+| collation_server | latin1_swedish_ci |
++------------------+-------------------+
+1 row in set (0.01 sec)
+
+mysql>
+		]]>
+		</screen>
+	</section>
 	<section id="character_set">
 		<title>character_set</title>
 		<screen>
@@ -152,6 +168,12 @@ mysql> show variables like 'character%';
 | character_sets_dir       | /usr/share/mysql/charsets/ |
 +--------------------------+----------------------------+
 8 rows in set (0.00 sec)
+		]]>
+		</screen>
+		<para>链接 MySQL 指定字符集</para>
+		<screen>
+		<![CDATA[
+mysql -uroot -h 192.168.0.10 -p --default-character-set=latin1
 		]]>
 		</screen>
 	</section>
