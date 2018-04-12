@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="ignite">
+	<title>Apache Ignite</title>
+	<para><ulink url="https://ignite.apache.org/" /></para>
+	<para>Ignite™ is a memory-centric distributed database, caching, and processing platform for
+transactional, analytical, and streaming workloads, delivering in-memory speeds at petabyte scale </para>
+</chapter>
