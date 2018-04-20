@@ -7,7 +7,7 @@
 		<title>Installation by apt under debian/ubuntu</title>
 		<para>安装环境 ubuntu 17.10</para>
 		<screen>
-sudo apt install mysql-server mysql-client
+			sudo apt install mysql-server mysql-client
 		</screen>
 		<para>New password for the MySQL "root" user</para>
 		<screen>
@@ -61,10 +61,43 @@ FLUSH PRIVILEGES;
 		</screen>
 		<para>配置监听IP地址，默认数据库只能从 127.0.0.1访问</para>
 		<screen>
-neo@netkiller /etc/mysql/mysql.conf.d % vim /etc/mysql/mysql.conf.d/mysqld.cnf
+			neo@netkiller /etc/mysql/mysql.conf.d % vim
+			/etc/mysql/mysql.conf.d/mysqld.cnf
 
-bind-address            = 0.0.0.0
+			bind-address = 0.0.0.0
 		</screen>
+		<section id="mysql-5.5.21">
+			<title>mysql-5.5.21-debian6.0-i686.deb</title>
+			<screen>
+		<![CDATA[
+sudo apt-get install libaio1
+
+
+sudo groupadd mysql
+sudo useradd -r -g mysql mysql
+
+sudo dpkg -i mysql-5.5.21-debian6.0-i686.deb
+
+cd /opt/mysql/
+sudo chown -R mysql .
+sudo chgrp -R mysql .
+
+cd server-5.5/
+
+sudo support-files/binary-configure
+
+sudo chown -R mysql data
+
+# Next command is optional
+shell> cp support-files/my-medium.cnf /etc/my.cnf
+
+shell> bin/mysqld_safe --user=mysql &
+
+# Next command is optional
+sudo cp support-files/mysql.server /etc/init.d/mysql
+		]]>
+			</screen>
+		</section>
 	</section>
 	<section id="mysql.source">
 		<title>Installation by source code</title>
@@ -96,15 +129,15 @@ make && make install
 		<para>/usr/local/$MYSQL_DIR/bin/mysql_install_db</para>
 		<para>other option</para>
 		<screen>
---without-isam
---without-innodb
---without-ndbcluster
---without-blackhole
---without-ibmdb2i
---without-federated
---without-example
---without-comment
---localstatedir=/usr/local/mysql/data
+			--without-isam
+			--without-innodb
+			--without-ndbcluster
+			--without-blackhole
+			--without-ibmdb2i
+			--without-federated
+			--without-example
+			--without-comment
+			--localstatedir=/usr/local/mysql/data
 		</screen>
 	</section>
 	<section id="mysql.binary">
@@ -169,12 +202,15 @@ Please report any problems with the ./bin/mysqlbug script!
 		</screen>
 		<para>set root's password</para>
 		<screen>
-[root@test mysql]# cp support-files/mysql.server /etc/init.d/mysqld
-[root@test mysql]# /etc/init.d/mysqld start
-Starting MySQL.                                            [  OK  ]
+			[root@test mysql]# cp support-files/mysql.server
+			/etc/init.d/mysqld
+			[root@test mysql]# /etc/init.d/mysqld start
+			Starting MySQL. [ OK ]
 
-[root@test mysql]# ./bin/mysqladmin -u root password 'chen'
-[root@test mysql]# ./bin/mysqladmin -u root -h db.example.com password 'chen'
+			[root@test mysql]# ./bin/mysqladmin -u root
+			password 'chen'
+			[root@test mysql]# ./bin/mysqladmin -u root -h
+			db.example.com password 'chen'
 		</screen>
 		<para>test</para>
 		<screen>
@@ -190,59 +226,43 @@ mysql>
 		]]>
 		</screen>
 	</section>
-	<section id="mysql-5.5.21">
-		<title>mysql-5.5.21-debian6.0-i686.deb</title>
-		<screen>
-		<![CDATA[
-sudo apt-get install libaio1
-
-
-sudo groupadd mysql
-sudo useradd -r -g mysql mysql
-
-sudo dpkg -i mysql-5.5.21-debian6.0-i686.deb
-
-cd /opt/mysql/
-sudo chown -R mysql .
-sudo chgrp -R mysql .
-
-cd server-5.5/
-
-sudo support-files/binary-configure
-
-sudo chown -R mysql data
-
-# Next command is optional
-shell> cp support-files/my-medium.cnf /etc/my.cnf
-
-shell> bin/mysqld_safe --user=mysql &
-
-# Next command is optional
-sudo cp support-files/mysql.server /etc/init.d/mysql
-		]]>
-		</screen>
-	</section>
+	
 	<section id="mysql.centos">
-		<title>CentOS 6.2 + MySQL 5.5.25 (RPM)</title>
-		<para>准备下面的软件包</para>
-		<screen>
+		<title>CentOS</title>
+		<section>
+			<title>CentOS 6.2 + MySQL 5.5.25 (RPM)</title>
+			<para>准备下面的软件包</para>
+			<screen>
 # ls -1
 MySQL-client-5.5.25-1.el6.x86_64.rpm
 MySQL-devel-5.5.25-1.el6.x86_64.rpm
 MySQL-server-5.5.25-1.el6.x86_64.rpm
 MySQL-shared-5.5.25-1.el6.x86_64.rpm
 MySQL-shared-compat-5.5.25-1.el6.x86_64.rpm
-		</screen>
-		<para>使用 yum 本地安装 rpm, yum 可以帮你解决依赖于冲突 </para>
-		<screen>
+			</screen>
+			<para>使用 yum 本地安装 rpm, yum 可以帮你解决依赖于冲突 </para>
+			<screen>
 # yum localinstall MySQL-*
-		</screen>
-		<screen>
+			</screen>
+			<screen>
 # /etc/init.d/mysql start
 Starting MySQL... SUCCESS!
 
 # /usr/bin/mysqladmin -u root password 'tUG26WSslP30bkbwtMhn'
-		</screen>
+			</screen>
+		</section>
+		<section>
+			<title>MySQL 8.0</title>
+			<para>安装</para>
+			<screen>
+curl -s https://raw.githubusercontent.com/oscm/shell/master/database/mysql/8.0/server.sh | bash
+			</screen>
+			<para>启动</para>
+			<screen>
+systemctl enable mysql
+systemctl start mysql
+			</screen>
+		</section>
 	</section>
 	<section id="mysql-admin">
 		<title>mysql-admin</title>
@@ -333,17 +353,7 @@ ALTER USER root@localhost PASSWORD EXPIRE NEVER;
 			</screen>
 		</section>
 	</section>
-	<section>
-		<title>Mac</title>
-		<para>安装</para>
-		<screen>
-brew install mysql	
-		</screen>
-		<para>启动</para>
-		<screen>
-brew services start mysql		
-		</screen>
-	</section>
+	
 	<section id="firewall">
 		<title>Firewall</title>
 		<para>iptables</para>
