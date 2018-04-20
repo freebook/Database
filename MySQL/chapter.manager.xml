@@ -26,6 +26,17 @@ GRANT ALL PRIVILEGES ON *.* TO 'neo'@'localhost' IDENTIFIED BY 'chen' WITH GRANT
 FLUSH PRIVILEGES;
 			]]>
 			</programlisting>
+			<para>MySQL 8.0</para>
+			<screen>
+			<![CDATA[
+mysql> CREATE USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY 'pMQiEge1ikst7S_6tlXzBOmt_4b';
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> grant all on *.* to 'root'@'%';
+Query OK, 0 rows affected (0.11 sec)
+
+			]]>
+			</screen>
 		</section>
 		<section>
 			<title>Drop User</title>
@@ -34,6 +45,9 @@ DROP USER user [, user] ...
 			</screen>
 			<programlisting>
 			<![CDATA[
+mysql> drop user 'root'@'%';
+Query OK, 0 rows affected (0.02 sec)
+			
 mysql> drop user admin@'localhost';
 Query OK, 0 rows affected (0.00 sec)
 
