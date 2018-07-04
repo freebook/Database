@@ -240,7 +240,10 @@ $ sudo /etc/init.d/memcached restart
 		
 		<section id="yum">
 			<title>yum install</title>
-			<screen>
+			<section id="">
+				<title>CentOS 6.x</title>
+				<screen>
+				<![CDATA[
 # yum install memcached
 # chkconfig memcached on
 # chkconfig --list memcached
@@ -254,7 +257,57 @@ OPTIONS=""
 
 # /etc/init.d/memcached start
 Starting memcached:                                        [  OK  ]
-			</screen>
+				]]>
+				</screen>
+			</section>
+			<section id="">
+				<title>CentOS 7.x</title>
+				<screen>
+				<![CDATA[
+[root@netkiller ~]# yum install -y memcached
+[root@netkiller ~]# rpm -ql memcached.x86_64
+/etc/sysconfig/memcached
+/usr/bin/memcached
+/usr/bin/memcached-tool
+/usr/lib/systemd/system/memcached.service
+/usr/share/doc/memcached-1.4.15
+/usr/share/doc/memcached-1.4.15/AUTHORS
+/usr/share/doc/memcached-1.4.15/CONTRIBUTORS
+/usr/share/doc/memcached-1.4.15/COPYING
+/usr/share/doc/memcached-1.4.15/ChangeLog
+/usr/share/doc/memcached-1.4.15/NEWS
+/usr/share/doc/memcached-1.4.15/README.md
+/usr/share/doc/memcached-1.4.15/protocol.txt
+/usr/share/doc/memcached-1.4.15/readme.txt
+/usr/share/doc/memcached-1.4.15/threads.txt
+/usr/share/man/man1/memcached-tool.1.gz
+/usr/share/man/man1/memcached.1.gz
+
+[root@netkiller ~]# cat /etc/sysconfig/memcached
+PORT="11211"
+USER="memcached"
+MAXCONN="1024"
+CACHESIZE="64"
+OPTIONS=""
+
+[root@netkiller ~]# systemctl enable memcached
+Created symlink from /etc/systemd/system/multi-user.target.wants/memcached.service to /usr/lib/systemd/system/memcached.service.
+
+[root@netkiller ~]# systemctl start memcached
+
+[root@netkiller ~]# systemctl status memcached
+● memcached.service - Memcached
+   Loaded: loaded (/usr/lib/systemd/system/memcached.service; enabled; vendor preset: disabled)
+   Active: active (running) since Wed 2018-07-04 11:28:42 CST; 5s ago
+ Main PID: 4186 (memcached)
+   CGroup: /system.slice/memcached.service
+           └─4186 /usr/bin/memcached -u memcached -p 11211 -m 64 -c 1024
+
+Jul 04 11:28:42 netkiller systemd[1]: Started Memcached.
+Jul 04 11:28:42 netkiller systemd[1]: Starting Memcached...
+				]]>
+				</screen>
+			</section>
 		</section>
 		
 	</section>
