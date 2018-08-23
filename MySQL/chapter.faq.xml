@@ -22,9 +22,12 @@ Starting mysqld:                                           [  OK  ]
 # mysqladmin -u root flush-privileges password "newpassword"
 		]]>
 		</screen>
-		<para>CentOS 7.x</para>
-		<para>添加 skip-grant-tables=1 选项，然后重启mysql</para>
-		<screen>
+		<section>
+			<title>MySQL 5.7.x</title>
+			<para>CentOS 7.x</para>
+			<para>添加 skip-grant-tables=1 选项，然后重启mysql</para>
+			<screen>
+			<![CDATA[
 # cat /etc/my.cnf
 # For advice on how to change settings please see
 # http://dev.mysql.com/doc/refman/5.6/en/server-configuration-defaults.html
@@ -57,22 +60,23 @@ sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
 [mysqld_safe]
 log-error=/var/log/mysqld.log
 pid-file=/var/run/mysqld/mysqld.pid
-		</screen>
-		
-		<screen>
-		<![CDATA[
+			]]>
+			</screen>
+			
+			<screen>
+			<![CDATA[
 # systemctl restart mysqld
-		]]>
-		</screen>
-		<screen>
-		<![CDATA[
+			]]>
+			</screen>
+			<screen>
+			<![CDATA[
 update mysql.user set authentication_string=password('netkiller') where user='root' and Host = 'localhost';
 flush privileges;
 quit;
-		]]>
-		</screen>
-		<screen>
-		<![CDATA[
+			]]>
+			</screen>
+			<screen>
+			<![CDATA[
 # mysql
 Welcome to the MySQL monitor.  Commands end with ; or \g.
 Your MySQL connection id is 2
@@ -95,9 +99,28 @@ Query OK, 0 rows affected (0.00 sec)
 
 mysql> quit;
 Bye
-		]]>
-		</screen>	
-		<para>删除 skip-grant-tables=1 重启MySQL</para>	
+			]]>
+			</screen>	
+			<para>删除 skip-grant-tables=1 重启MySQL</para>
+		</section>
+		<section>
+			<title>MySQL 8.0</title>
+			<screen>
+			<![CDATA[
+[root@localhost log]# vim /etc/my.cnf
+
+[mysqld]
+skip-grant-table
+			]]>
+			</screen>
+			<screen>
+			<![CDATA[
+ALTER USER root@localhost identified by 'MQiEge1ikst7S_6tlXzBOmt';
+ALTER USER root@localhost PASSWORD EXPIRE NEVER;			
+			]]>
+			</screen>
+		</section>
+		
 	</section>
 
 	<section id="sql.sed">
