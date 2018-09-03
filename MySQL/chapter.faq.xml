@@ -553,4 +553,14 @@ mysql>
 		]]>
 		</screen>
 	</section>
+	<section>
+		<title>com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException: Public Key Retrieval is not allowed</title>
+		<para>问题出在现在 MySQL 8.0 版本</para>
+		<para>解决方法：在连接后面添加 allowPublicKeyRetrieval=true</para>
+		<screen>
+		<![CDATA[
+spring.datasource.url=jdbc:mysql://192.168.0.1:3306/test?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+		]]>
+		</screen>
+	</section>
 </chapter>
