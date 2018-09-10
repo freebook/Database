@@ -5,8 +5,9 @@
 	&chapter.server.install.xml;
 	<section id="my.cnf">
 		<title>my.cnf</title>
-		<section>
+		<section id="my.cnf.bind-address">
 			<title>bind-address</title>
+			<para>MySQL 通过 yum 安装后默认是监听 127.0.0.1 / ::1 如果你希望从其他IP访问3306端口，需要修改绑定地址为 0.0.0.0 </para>
 			<screen>
 bind-address = 0.0.0.0
 			</screen>
