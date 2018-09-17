@@ -279,6 +279,45 @@ cp core/target/mongo-hadoop-core_cdh3u3-1.0.0.jar /usr/lib/hadoop/lib/
 		</section>
 	</section>
 
+	<section id="oscm.mango">
+		<title>OSCM 一键安装 MongoDB 4.0.2</title>
+		<para>安装 MongoDB</para>
+		<screen>
+		<![CDATA[
+curl -s https://raw.githubusercontent.com/oscm/shell/master/database/mongodb/mongodb.org/mongodb-4.0.2.sh | bash
+		]]>
+		</screen>
+		<para>创建管理和数据库用户</para>
+		<screen>
+		<![CDATA[
+# mongo
+
+use admin;
+db.createUser(
+   {
+     user: "admin",
+     pwd: "chen",
+     roles: [ "dbAdmin", "dbOwner", "userAdmin" ]
+   }
+);
+
+use products
+db.createUser(
+   {
+     user: "accountUser",
+     pwd: "password",
+     roles: [ "readWrite", "dbAdmin" ]
+   }
+)
+		]]>
+		</screen>
+		<para>开启认证</para>
+		<screen>
+		<![CDATA[
+curl -s https://raw.githubusercontent.com/oscm/shell/master/database/mongodb/mongodb.org/security.authorization.enabled.sh | bash		
+		]]>
+		</screen>
+	</section>
 
 	<section id="replication">
 		<title>Replication</title>
