@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<section id="install">
+<chapter id="install">
 	<title>Install 安装MongoDB</title>
 	<section id="quickstart">
 		<title>Quickstart</title>
@@ -477,4 +477,4 @@ switched to db comedy
 			</example>
 		</section>
 	</section>
-</section>
+</chapter>

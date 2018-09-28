@@ -1,39 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter id="index"><?dbhtml dir="redis" ?>
+<part id="index"><?dbhtml dir="redis" ?>
 	<title>Redis</title>
 	<para>http://redis.io/</para>
-	<section id="redis">
+	<chapter id="redis">
 		<title>Redis 安装</title>
 		<section id="centos7">
 			<title>CentOS 7</title>
-			<para>&OSCM; 一键安装</para>
+			<para>&OSCM;
+				一键安装
+			</para>
 			<screen>
-curl -s https://raw.githubusercontent.com/oscm/shell/master/database/redis/redis.sh | bash
+				curl -s https://raw.githubusercontent.com/oscm/shell/master/database/redis/redis.sh | bash
 			</screen>
 		</section>
 		<section id="centos6">
 			<title>CentOS 6</title>
 			<para>安装fedora的YUM源，</para>
 			<screen>
-rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-7.noarch.rpm
+				rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-7.noarch.rpm
 			</screen>
 			<para>安装redis</para>
 			<screen>
-# yum install redis
+				# yum install redis
 
-# chkconfig redis on
+				# chkconfig redis on
 
-# service redis start
+				# service redis start
 			</screen>
 			<para>备份配置文件，</para>
 			<screen>
-# cp /etc/redis.conf /etc/redis.conf.original
+				# cp /etc/redis.conf /etc/redis.conf.original
 			</screen>
 			<section id="slaveof">
 				<title>主从同步</title>
 				<para>主从同步配置非常简单，只需在从服务器 /etc/redis.conf 文件中开启 slaveof 即可</para>
 				<screen>
-slaveof 192.168.2.1 6379
+					slaveof 192.168.2.1 6379
 				</screen>
 				<para>查看 /var/log/redis/redis.log 日志，可以看到同步情况</para>
 				<screen>
@@ -47,7 +49,7 @@ slaveof 192.168.2.1 6379
 [20274] 09 Jul 13:13:54 * MASTER <-> SLAVE sync: receiving 672 bytes from master
 [20274] 09 Jul 13:13:54 * MASTER <-> SLAVE sync: Loading DB in memory
 [20274] 09 Jul 13:13:54 * MASTER <-> SLAVE sync: Finished with success
-				]]>				
+				]]>
 				</screen>
 			</section>
 			<section>
@@ -57,7 +59,7 @@ slaveof 192.168.2.1 6379
 		<section id="ubuntu">
 			<title>Ubuntu</title>
 			<screen>
-$ sudo apt-get install redis-server
+				$ sudo apt-get install redis-server
 			</screen>
 			<screen>
 			<![CDATA[
@@ -282,58 +284,62 @@ shareobjectspoolsize 1024
 			]]>
 			</screen>
 			<screen>
-$ sudo /etc/init.d/redis-server start
+				$ sudo /etc/init.d/redis-server start
 			</screen>
 		</section>
 		<section id="source">
 			<title>源码编译安装</title>
-			<para>这里仍然使用 &OSCM; 安装，源码安装</para>
+			<para>这里仍然使用 &OSCM;
+				安装，源码安装
+			</para>
 			<screen>
-curl -s https://raw.githubusercontent.com/oscm/shell/master/database/redis/source/redis-4.0.1.sh | bash
+				curl -s https://raw.githubusercontent.com/oscm/shell/master/database/redis/source/redis-4.0.1.sh | bash
 			</screen>
 		</section>
 		<section id="test">
 			<title>Test Redis</title>
-			<para><ulink url="http://redis.io/commands"></ulink></para>
+			<para>
+				<ulink url="http://redis.io/commands"></ulink>
+			</para>
 			<screen>
-$ redis-cli info
-redis_version:1.2.6
-arch_bits:64
-multiplexing_api:epoll
-uptime_in_seconds:859
-uptime_in_days:0
-connected_clients:1
-connected_slaves:0
-used_memory:619490
-used_memory_human:604.97K
-changes_since_last_save:0
-bgsave_in_progress:0
-last_save_time:1311100746
-bgrewriteaof_in_progress:0
-total_connections_received:4
-total_commands_processed:0
-role:master
+				$ redis-cli info
+				redis_version:1.2.6
+				arch_bits:64
+				multiplexing_api:epoll
+				uptime_in_seconds:859
+				uptime_in_days:0
+				connected_clients:1
+				connected_slaves:0
+				used_memory:619490
+				used_memory_human:604.97K
+				changes_since_last_save:0
+				bgsave_in_progress:0
+				last_save_time:1311100746
+				bgrewriteaof_in_progress:0
+				total_connections_received:4
+				total_commands_processed:0
+				role:master
 
-$ redis-cli set name neo
-OK
-$ redis-cli get name
-neo
+				$ redis-cli set name neo
+				OK
+				$ redis-cli get name
+				neo
 
-$ telnet localhost 6379
-Trying ::1...
-telnet: connect to address ::1: Connection refused
-Trying 127.0.0.1...
-Connected to localhost (127.0.0.1).
-Escape character is '^]'.
-get name
-$3
-neo
-quit
-Connection closed by foreign host.
+				$ telnet localhost 6379
+				Trying ::1...
+				telnet: connect to address ::1: Connection refused
+				Trying 127.0.0.1...
+				Connected to localhost (127.0.0.1).
+				Escape character is '^]'.
+				get name
+				$3
+				neo
+				quit
+				Connection closed by foreign host.
 			</screen>
 		</section>
-	</section>
-	<section id="redis.conf">
+	</chapter>
+	<chapter id="redis.conf">
 		<title>/etc/redis.conf</title>
 		<para>参数说明, redis.conf 配置项说明如下：</para>
 		<screen>
@@ -415,9 +421,9 @@ Connection closed by foreign host.
 			<title>密码认证</title>
 			<para>打开 /etc/redis.conf 修改 requirepass 配置项</para>
 			<screen>
-# vim /etc/redis.conf
+				# vim /etc/redis.conf
 
-requirepass test123
+				requirepass test123
 			</screen>
 			<para>测试</para>
 			<screen>
@@ -484,22 +490,22 @@ requirepass test123
 			</screen>
 			<para>master/slave 模式， master 有密码, slave 怎样配置？</para>
 			<screen>
-masterauth  password
+				masterauth password
 			</screen>
 		</section>
 		<section id="maxmemory-policy">
 			<title>maxmemory-policy TTL 过期策略配置</title>
 			<screen>
-1、volatile-lru：只对设置了过期时间的key进行LRU（默认值） 
-2、allkeys-lru ： 删除lru算法的key   
-3、volatile-random：随机删除即将过期key   
-4、allkeys-random：随机删除   
-5、volatile-ttl ： 删除即将过期的   
-6、noeviction ： 永不过期，返回错误
+				1、volatile-lru：只对设置了过期时间的key进行LRU（默认值）
+				2、allkeys-lru ： 删除lru算法的key
+				3、volatile-random：随机删除即将过期key
+				4、allkeys-random：随机删除
+				5、volatile-ttl ： 删除即将过期的
+				6、noeviction ： 永不过期，返回错误
 			</screen>
 		</section>
-	</section>
-	<section id="redis-cli">
+	</chapter>
+	<chapter id="redis-cli">
 		<title>redis-cli - Command-line client to redis-server</title>
 		<section id="redis-cli.args">
 			<title>命令参数</title>
@@ -515,7 +521,7 @@ masterauth  password
 			</section>
 			<section>
 				<title>raw</title>
-				<para>--raw              Use raw formatting for replies (default when STDOUT is not a tty).</para>
+				<para>--raw Use raw formatting for replies (default when STDOUT is not a tty).</para>
 				<para>有时显示这样的数据</para>
 				<screen>
 				<![CDATA[
@@ -542,35 +548,35 @@ masterauth  password
 			<title>--latency Enter a special mode continuously sampling latency.</title>
 			<para>参数的功能是从客户端发出一条命令到客户端接受到该命令的反馈所用的最长响应时间</para>
 			<screen>
-# redis-cli --latency -h 192.168.2.1 
-min: 1, max: 210, avg: 3.64 (13453 samples)
+				# redis-cli --latency -h 192.168.2.1
+				min: 1, max: 210, avg: 3.64 (13453 samples)
 			</screen>
-		</section>		
+		</section>
 		<section id="auth">
 			<title>auth</title>
 			<para>认证密码</para>
 			<screen>
-[root@netkiller ~]# redis-cli 
-127.0.0.1:6379> keys *
-(error) NOAUTH Authentication required.
-127.0.0.1:6379> auth hsM8NKb71vjbWJrA1TYgI4
-OK
-127.0.0.1:6379> keys *
- 1) "HK50(1605)"
- 2) "GBPUSD"
- 3) "USDCHF"
- 4) "SP500(1609)"
- 5) "NZDJPY"
- 6) "AUDNZD"
- 7) "EURGBP"
- 8) "CLN6"
- 9) "BU6"
+				[root@netkiller ~]# redis-cli
+				127.0.0.1:6379> keys *
+				(error) NOAUTH Authentication required.
+				127.0.0.1:6379> auth hsM8NKb71vjbWJrA1TYgI4
+				OK
+				127.0.0.1:6379> keys *
+				1) "HK50(1605)"
+				2) "GBPUSD"
+				3) "USDCHF"
+				4) "SP500(1609)"
+				5) "NZDJPY"
+				6) "AUDNZD"
+				7) "EURGBP"
+				8) "CLN6"
+				9) "BU6"
 			</screen>
 		</section>
 		<section id="monitor">
 			<title>MONITOR</title>
 			<screen>
-$ redis-cli monitor			
+				$ redis-cli monitor
 			</screen>
 		</section>
 		<section id="info">
@@ -625,7 +631,7 @@ db0:keys=4,expires=0
 redis 127.0.0.1:6379>
 			]]>
 			</screen>
-		</section>		
+		</section>
 		<section id="save">
 			<title>save/bgsave/lastsave</title>
 			<para>save/bgsave 保存持久化将数据，lastsave 查看相关信息</para>
@@ -678,12 +684,12 @@ CONFIG SET dbfilename temp.rdb
 OK
 172.18.50.15:6379> keys name
 1) "name"			
-			]]>	
+			]]>
 			</screen>
 		</section>
 		<section id="redis.string">
 			<title>字符串操作</title>
-		
+
 			<section id="set">
 				<title>set/get/del</title>
 				<screen>
@@ -1139,7 +1145,7 @@ Perl
 3
 			]]>
 			</screen>
-			
+
 			<screen>
 			<![CDATA[
 			]]>
@@ -1154,47 +1160,47 @@ Perl
 			<para>redis 提供基本的MQ 功能，下面我们做一个演示</para>
 			<para>开启第一个终端窗口，订阅first second</para>
 			<screen>
-$ redis-cli
-redis 127.0.0.1:6379> SUBSCRIBE first second
-Reading messages... (press Ctrl-C to quit)
-1) "subscribe"
-2) "first"
-3) (integer) 1
-1) "subscribe"
-2) "second"
-3) (integer) 2
+				$ redis-cli
+				redis 127.0.0.1:6379> SUBSCRIBE first second
+				Reading messages... (press Ctrl-C to quit)
+				1) "subscribe"
+				2) "first"
+				3) (integer) 1
+				1) "subscribe"
+				2) "second"
+				3) (integer) 2
 			</screen>
 			<para>开启第二个终端窗口，分别发送first second</para>
 			<screen>
-$ redis-cli
-redis 127.0.0.1:6379>  PUBLISH second Hello
-(integer) 1
-redis 127.0.0.1:6379>  PUBLISH first Helloworld!!!
-(integer) 1
-redis 127.0.0.1:6379> quit
+				$ redis-cli
+				redis 127.0.0.1:6379> PUBLISH second Hello
+				(integer) 1
+				redis 127.0.0.1:6379> PUBLISH first Helloworld!!!
+				(integer) 1
+				redis 127.0.0.1:6379> quit
 			</screen>
 			<para>现在切换到第一个终端窗口，应该能够看到发送过来的字符串</para>
 			<screen>
-$ redis-cli
-redis 127.0.0.1:6379> SUBSCRIBE first second
-Reading messages... (press Ctrl-C to quit)
-1) "subscribe"
-2) "first"
-3) (integer) 1
-1) "subscribe"
-2) "second"
-3) (integer) 2
+				$ redis-cli
+				redis 127.0.0.1:6379> SUBSCRIBE first second
+				Reading messages... (press Ctrl-C to quit)
+				1) "subscribe"
+				2) "first"
+				3) (integer) 1
+				1) "subscribe"
+				2) "second"
+				3) (integer) 2
 
-1) "message"
-2) "second"
-3) "Hello"
+				1) "message"
+				2) "second"
+				3) "Hello"
 
-1) "message"
-2) "first"
-3) "Helloworld!!!"
+				1) "message"
+				2) "first"
+				3) "Helloworld!!!"
 			</screen>
 		</section>
-		<section id="flushdb"> 
+		<section id="flushdb">
 			<title>flushdb 清空 Redis 数据</title>
 			<screen>
 			<![CDATA[
@@ -1205,10 +1211,10 @@ OK
 			]]>
 			</screen>
 		</section>
-		
-		
-	</section>
-	<section id="redis-benchmark">
+
+
+	</chapter>
+	<chapter id="redis-benchmark">
 		<title>redis-benchmark 测试工具</title>
 		<para>redis-benchmark 基准性能测试</para>
 		<screen>
@@ -1238,68 +1244,70 @@ OK
 		</screen>
 		<para>代表256各个客户端同时请求 Redis，一 共执行 20000 次。redis-benchmark会对各类数据结构的命令进行测试，并给 出性能指标：</para>
 		<screen>
-redis-benchmark -c 256 -n 20000		
+			redis-benchmark -c 256 -n 20000
 		</screen>
-	</section>
-	<section id="cluster">
+	</chapter>
+	<chapter id="cluster">
 		<title>Redis Cluster</title>
-	</section>
-	<section id="protocol">
+	</chapter>
+	<chapter id="protocol">
 		<title>Redis 通信协议</title>
 		<section>
 			<title>切换DB</title>
 			<para>select n 切换DB， n表示数据库ID</para>
 			<screen>
-# telnet 192.168.41.160 6379
-Trying 192.168.41.160...
-Connected to 192.168.41.160.
-Escape character is '^]'.
-select 1
-+OK
+				# telnet 192.168.41.160 6379
+				Trying 192.168.41.160...
+				Connected to 192.168.41.160.
+				Escape character is '^]'.
+				select 1
+				+OK
 			</screen>
-		</section>	
+		</section>
 		<section>
 			<title>监控</title>
 			<para>telnet方式</para>
 			<screen>
-# telnet 172.18.52.13 6379
-Trying 172.18.52.163...
-Connected to 172.18.52.13.
-Escape character is '^]'.
-MONITOR
-+OK
-+1425454378.190210 "MONITOR"
-+1425454381.165317 "GET" "admin:633"
-+1425454381.165725 "SET" "admin:633" "{\"id\":\"633\",\"username\":\"7209\",\"password\":\"eea5981a4fd021b8d78f8431084ba760\",\"status\":\"N\",\"belong_user_id\":\"133\",\"level_id\":\"67\",\"create_time\":1425454381,\"session_id\":\"l1s609t9gq8nj7vc94hb1i3s25\"}"
-+1425454381.166088 "EXPIRE" "admin:633" "3600"
-+1425454387.956387 "GET" "admin:633"			
+				# telnet 172.18.52.13 6379
+				Trying 172.18.52.163...
+				Connected to 172.18.52.13.
+				Escape character is '^]'.
+				MONITOR
+				+OK
+				+1425454378.190210 "MONITOR"
+				+1425454381.165317 "GET" "admin:633"
+				+1425454381.165725 "SET" "admin:633" "{\"id\":\"633\",\"username\":\"7209\",\"password\":\"eea5981a4fd021b8d78f8431084ba760\",\"status\":\"N\",\"belong_user_id\":\"133\",\"level_id\":\"67\",\"create_time\":1425454381,\"session_id\":\"l1s609t9gq8nj7vc94hb1i3s25\"}"
+				+1425454381.166088 "EXPIRE" "admin:633" "3600"
+				+1425454387.956387 "GET" "admin:633"
 			</screen>
 			<para>使用 nc 监控状态</para>
 			<screen>
-# (echo -en "MONITOR\r\n"; sleep 10) | nc 172.18.52.13 6379
-			</screen>			
-		</section>		
-	</section>
-	<section id="phpredisadmin">
+				# (echo -en "MONITOR\r\n"; sleep 10) | nc 172.18.52.13 6379
+			</screen>
+		</section>
+	</chapter>
+	<chapter id="phpredisadmin">
 		<title>phpRedisAdmin</title>
-		<para><ulink url="https://github.com/ErikDubbelboer/phpRedisAdmin" /></para>
+		<para>
+			<ulink url="https://github.com/ErikDubbelboer/phpRedisAdmin" />
+		</para>
 		<para>Example</para>
 		<para>You can find an example database at http://dubbelboer.com/phpRedisAdmin/</para>
 		<para>第一种方法</para>
 		<screen>
-git clone https://github.com/ErikDubbelboer/phpRedisAdmin
-cd phpRedisAdmin
-git clone https://github.com/nrk/predis
+			git clone https://github.com/ErikDubbelboer/phpRedisAdmin
+			cd phpRedisAdmin
+			git clone https://github.com/nrk/predis
 		</screen>
 		<para>第二种方法</para>
 		<screen>
-git clone https://github.com/ErikDubbelboer/phpRedisAdmin.git
-cd phpRedisAdmin
-git submodule init
-git submodule update
+			git clone https://github.com/ErikDubbelboer/phpRedisAdmin.git
+			cd phpRedisAdmin
+			git submodule init
+			git submodule update
 		</screen>
-	</section>
-	<section id="devel">
+	</chapter>
+	<chapter id="devel">
 		<title>Redis 开发</title>
 		<section id="subpub">
 			<title>消息订阅与发布</title>
@@ -1328,18 +1336,18 @@ $redis->publish('channel'.$channel, $msg);
 			]]>
 			</screen>
 		</section>
-	</section>
-	<section id="twemproxy">
+	</chapter>
+	<chapter id="twemproxy">
 		<title>A fast, light-weight proxy for memcached and redis</title>
 		<para>https://github.com/twitter/twemproxy</para>
-	</section>
-	<section id="faq">
+	</chapter>
+	<chapter id="faq">
 		<title>FAQ</title>
 		<section>
 			<title>清空数据库</title>
 			<screen>
-FLUSHDB       - Removes data from your connection's CURRENT database.
-FLUSHALL      - Removes data from ALL databases.
+				FLUSHDB - Removes data from your connection's CURRENT database.
+				FLUSHALL - Removes data from ALL databases.
 			</screen>
 		</section>
 		<section>
@@ -1392,6 +1400,6 @@ OK
 			</screen>
 			<para>如果确认是 dir 权限问题，我们就通过修改redis.conf 中得dir配置解决。</para>
 		</section>
-	</section>
+	</chapter>
 
-</chapter>
+</part>

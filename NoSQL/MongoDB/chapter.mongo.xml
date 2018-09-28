@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter id="index"><?dbhtml dir="mongodb" ?>
+<part id="index"><?dbhtml dir="mongodb" ?>
 	<title>MongoDB</title>
 	<chapterinfo>
 		<keywordset>
@@ -12,7 +12,6 @@
 	&chapter.mongo.cli.xml;
 	&chapter.mongo.shell.xml;
 	&chapter.mongo.gui.xml;
-	&chapter.mapreduce.xml;
 	&chapter.faq.xml;
 	
-</chapter>
+</part>

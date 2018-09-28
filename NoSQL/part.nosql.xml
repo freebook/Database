@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<part id="index"><?dbhtml dir="nosql" ?>
+<!-- <part id="index"><?dbhtml dir="nosql" ?>
 	<title>NoSQL</title>
 	<para>http://nosql-database.org/</para>
+</part>	 -->
 <!--
 
 What is NOSQL
@@ -125,4 +126,3 @@ Upcoming simple desgin with Mongodb.
 	&chapter.nosql.xml;
 
 
-</part>
