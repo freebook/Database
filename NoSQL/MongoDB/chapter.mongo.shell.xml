@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter id="shell">
 	<title>MongoDB Shell</title>
+	<section id="shutdownServer">
+		<title>shutdownServer</title>
+		<para>关闭MongoDB数据库</para>
+		<screen>
+		<![CDATA[
+db.shutdownServer()
+		]]>
+		</screen>
+	</section>
 	<section id="show">
 		<title>show 查看命令</title>
 		<section>
 			<title>show dbs</title>
-			<para>show dbs                     show database names</para>
+			<para>show dbs show database names</para>
 			<screen>
 			<![CDATA[
 > show dbs
@@ -17,7 +26,7 @@ test	0.203125GB
 		</section>
 		<section>
 			<title>show collections</title>
-			<para>show collections             show collections in current database</para>
+			<para>show collections show collections in current database</para>
 			<screen>
 			<![CDATA[
 
@@ -37,7 +46,7 @@ system.indexes
 		</section>
 		<section>
 			<title>show users</title>
-			<para>show users                   show users in current database</para>
+			<para>show users show users in current database</para>
 			<screen>
 			<![CDATA[
 
@@ -46,7 +55,7 @@ system.indexes
 		</section>
 		<section>
 			<title>show profile</title>
-			<para>show profile                 show most recent system.profile entries with time >= 1ms</para>
+			<para>show profile show most recent system.profile entries with time >= 1ms</para>
 			<screen>
 			<![CDATA[
 > show profile
@@ -68,7 +77,7 @@ switched to db logging
 		]]>
 		</screen>
 	</section>
-	<section>
+	<section id="save">
 		<title>save</title>
 		<para>存储嵌套的对象</para>
 		<screen>
@@ -83,7 +92,7 @@ db.foo.save({'Uid':'netkiller@msn.com','phone':['13322993040','13113668890']})
 		]]>
 		</screen>
 	</section>
-	<section>
+	<section id="insert">
 		<title>insert</title>
 		<screen>
 		<![CDATA[
@@ -121,11 +130,11 @@ db.bios.insert(
 		]]>
 		</screen>
 	</section>
-	<section>
+	<section id="update">
 		<title>update</title>
 		<para>根据query条件修改，如果不存在则插入，允许修改多条记录</para>
 		<screen>
-db.foo.update({'yy':5},{'$set':{'xx':2}},upsert=true,multi=true)
+			db.foo.update({'yy':5},{'$set':{'xx':2}},upsert=true,multi=true)
 		</screen>
 	</section>
 	<section id="remove">
@@ -138,19 +147,20 @@ db.foo.remove({'uid':10})
 		</screen>
 		<para>删除所有的记录</para>
 		<screen>
-db.foo.remove()
+			db.foo.remove()
 		</screen>
 		<section>
 			<title>删除条件使用 _id </title>
 			<screen>
-db.foo.remove({ "_id" : ObjectId("56e10b66a22ef1b1408b4567")})
+				db.foo.remove({ "_id" : ObjectId("56e10b66a22ef1b1408b4567")})
+				db.getCollection('goods').remove({ "_id": ObjectId("5bbdbd197099aa06abf6fb1a")})
 			</screen>
 		</section>
 	</section>
 	<section id="mongo.collection">
 		<title>删除 collection</title>
 		<screen>
-db.collection.drop()
+			db.collection.drop()
 		</screen>
 		<section id="unset">
 			<title>删除字段</title>
@@ -161,7 +171,7 @@ db.getCollection('table').update({},{$unset:{field:1}})
 			</screen>
 		</section>
 	</section>
-	<section>
+	<section id="count">
 		<title>count()</title>
 		<screen>
 		<![CDATA[
@@ -175,33 +185,25 @@ db.getCollection('table').update({},{$unset:{field:1}})
 	
 	&chapter.mongo.query.xml;
 
-	<section id="shutdownServer">
-		<title>shutdownServer</title>
-		<para>关闭MongoDB数据库</para>
-		<screen>
-		<![CDATA[
-db.shutdownServer()
-		]]>
-		</screen>
-	</section>
+	
 
 	<section id="aggregate">
 		<title>aggregate</title>
 		<section>
 			<title>project</title>
 			<section>
-				<title>$split</title>		
+				<title>$split</title>
 				<screen>
-{
-    "_id" : ObjectId("591a710320156761bdf68a06"),
-    "_class" : "mis.domain.PyramidSelling",
+					{
+					"_id" : ObjectId("591a710320156761bdf68a06"),
+					"_class" : "mis.domain.PyramidSelling",
 
-	...
-	...
+					...
+					...
 
-    "status" : true,
-    "createdDate" : ISODate("2017-05-16T03:24:51.511Z")
-}			
+					"status" : true,
+					"createdDate" : ISODate("2017-05-16T03:24:51.511Z")
+					}
 				</screen>
 				<screen>
 				<![CDATA[
@@ -214,19 +216,19 @@ db.getCollection('pyramidSelling').aggregate([
 			<section>
 				<title>substr</title>
 				<screen>
-db.getCollection('pyramidSelling').aggregate(
-   [
-      {
-         $project: {
-            userName: 1,
-            phone: {
-               prefix: { $substr: [ "$phone", 0, 3 ] },
-               mobile: { $substr: [ "$phone", 3, 11 ] }
-            },
-         }
-      }
-   ]
-)				
+					db.getCollection('pyramidSelling').aggregate(
+					[
+					{
+					$project: {
+					userName: 1,
+					phone: {
+					prefix: { $substr: [ "$phone", 0, 3 ] },
+					mobile: { $substr: [ "$phone", 3, 11 ] }
+					},
+					}
+					}
+					]
+					)
 				</screen>
 			</section>
 		</section>
@@ -247,4 +249,78 @@ db.member.aggregate([{
 	</section>
 	 &chapter.indexes.xml;
 	 &chapter.mapreduce.xml;
+
+	<section>
+		<title>内嵌对象</title>
+		<section id="">
+			<title>Array / List 列表类型</title>
+			<screen>
+			<![CDATA[
+db.foo.save(
+{
+	'name':'neo',
+	'address':[{'city':'shenzhen','post':"518000"}, {'city':'heilongjiang','post':"135000"}],
+	'phone':["13113668800","13322993040","13266884444"]
+}
+)
+			]]>
+			</screen>
+			<screen>
+			<![CDATA[
+{
+    "_id" : ObjectId("5bbefed1b04a8c0d7395d1b5"),
+    "name" : "neo",
+    "address" : [ 
+        {
+            "city" : "shenzhen",
+            "post" : "518000"
+        }, 
+        {
+            "city" : "heilongjiang",
+            "post" : "135000"
+        }
+    ],
+    "phone" : [ 
+        "13113668800", 
+        "13322993040", 
+        "13266884444"
+    ]
+}	
+			]]>
+			</screen>
+			<para>删除数组元素</para>
+			<screen>
+			<![CDATA[
+db.getCollection('foo').update({"_id":ObjectId("5bbeff40b04a8c0d7395d1b6")},{"$pull":{"phone":"13266884444"}})		
+			]]>
+			</screen>
+			<para>删除数组中的对象</para>
+			<screen>
+			<![CDATA[
+db.getCollection('foo').update({"_id":ObjectId("5bbeff40b04a8c0d7395d1b6")},{"$pull":{"address":{"city":"heilongjiang"}}})
+			]]>
+			</screen>
+			<para>查找替换</para>
+			<screen>
+			<![CDATA[
+db.getCollection('foo').update({"address.city":"shenzhen"},{"$set":{"address.$.post":"000000"}})			
+			]]>
+			</screen>
+		</section>
+	</section>
+
+	<section id="mongodb.script">
+		<title>Javascript 脚本</title>
+		<programlisting>
+	 	<![CDATA[
+db.numbers.drop()
+
+var counter = 0
+while (counter<=1000){
+  db.numbers.save({"value":counter})
+  counter = counter + 1;
+}
+	 	]]>
+		</programlisting>
+	</section>
 </chapter>
