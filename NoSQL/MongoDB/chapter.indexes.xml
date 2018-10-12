@@ -2,7 +2,7 @@
 <section id="indexes">
 	<title>Indexes 索引</title>
 	<para>增加索引：1(ascending),-1(descending)</para>
-	<section id="indexes.get">
+	<section id="indexe.get">
 		<title>查看索引</title>
 		<screen>
 		<![CDATA[
@@ -108,7 +108,7 @@ db.getCollection('member').getIndexKeys();
 		]]>
 		</screen>
 	</section>
-	<section id="indexs.create">
+	<section id="index.create">
 		<title>创建索引</title>
 		<para>增加索引</para>
 		<screen>
@@ -125,6 +125,11 @@ db.logging.users.ensureIndex({address.city:1})
 	</section>
 	<section id="index.delete">
 		<title>删除索引</title>
+		<screen>
+		<![CDATA[
+db.getCollection('product').dropIndex("memberId")		
+		]]>
+		</screen>
 		<para>根据索引名删除索引</para>
 		<screen>
 		<![CDATA[
@@ -136,7 +141,7 @@ db.logging.users.ensureIndex({address.city:1})
 		]]>
 		</screen>
 	</section>
-	<section>
+	<section id="index.unique">
 		<title>唯一索引</title>
 		<screen>
 		<![CDATA[
@@ -155,7 +160,15 @@ db.members.createIndex( { "user_id": 1 }, { unique: true } )
 		]]>
 		</screen>
 	</section>
-	<section id="">
+	<section id="index.compound">
+		<title>复合索引</title>
+		<screen>
+		<![CDATA[
+db.getCollection('foo').ensureIndex({"address":1,"phone":1})		
+		]]>
+		</screen>
+	</section>
+	<section id="index.sparse">
 		<title>稀疏索引</title>
 		<screen>
 		<![CDATA[
