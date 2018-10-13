@@ -136,6 +136,15 @@ db.bios.insert(
 		<screen>
 			db.foo.update({'yy':5},{'$set':{'xx':2}},upsert=true,multi=true)
 		</screen>
+		<section>
+			<title>更新所有数据</title>
+			<para>update 第一个参数是条件，当不写条件时将匹配所有数据。</para>
+			<screen>
+			<![CDATA[
+db.getCollection('certificate').update({},{'$set':{'icon':'52bfbb7d92b3f41da2e4103f1990c054990be863.png'}},upsert=true,multi=true)			
+			]]>
+			</screen>
+		</section>
 	</section>
 	<section id="remove">
 		<title>remove</title>
