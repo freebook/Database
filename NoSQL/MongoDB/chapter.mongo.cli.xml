@@ -73,53 +73,61 @@ cat data.bson | mongo test
 	<section id="mongodump">
 		<title>mongodump - Backup</title>
 		<screen>
-			# mongodump -uneo -p -d test -o /tmp/
-			connected to: 127.0.0.1
-			Enter password:
-			Tue Sep 8 10:12:33.011 DATABASE: test to /tmp/test
-			Tue Sep 8 10:12:33.012 test.system.indexes to /tmp/test/system.indexes.bson
-			Tue Sep 8 10:12:33.043 12 objects
-			Tue Sep 8 10:12:33.043 test.bios to /tmp/test/bios.bson
-			Tue Sep 8 10:12:33.043 1 objects
-			Tue Sep 8 10:12:33.043 Metadata for test.bios to /tmp/test/bios.metadata.json
-			Tue Sep 8 10:12:33.043 test.system.users to /tmp/test/system.users.bson
-			Tue Sep 8 10:12:33.044 2 objects
-			Tue Sep 8 10:12:33.044 Metadata for test.system.users to /tmp/test/system.users.metadata.json
-			Tue Sep 8 10:12:33.044 test.fs.chunks to /tmp/test/fs.chunks.bson
-			Tue Sep 8 10:12:33.045 2 objects
-			Tue Sep 8 10:12:33.045 Metadata for test.fs.chunks to /tmp/test/fs.chunks.metadata.json
-			Tue Sep 8 10:12:33.045 test.fs.files to /tmp/test/fs.files.bson
-			Tue Sep 8 10:12:33.046 2 objects
-			Tue Sep 8 10:12:33.046 Metadata for test.fs.files to /tmp/test/fs.files.metadata.json
-			Tue Sep 8 10:12:33.046 test.images.chunks to /tmp/test/images.chunks.bson
-			Tue Sep 8 10:12:33.167 12 objects
-			Tue Sep 8 10:12:33.167 Metadata for test.images.chunks to /tmp/test/images.chunks.metadata.json
-			Tue Sep 8 10:12:33.167 test.images.files to /tmp/test/images.files.bson
-			Tue Sep 8 10:12:33.168 3 objects
-			Tue Sep 8 10:12:33.168 Metadata for test.images.files to /tmp/test/images.files.metadata.json
-			Tue Sep 8 10:12:33.168 test.img.chunks to /tmp/test/img.chunks.bson
-			Tue Sep 8 10:12:33.175 4 objects
-			Tue Sep 8 10:12:33.175 Metadata for test.img.chunks to /tmp/test/img.chunks.metadata.json
-			Tue Sep 8 10:12:33.175 test.img.files to /tmp/test/img.files.bson
-			Tue Sep 8 10:12:33.176 1 objects
-			Tue Sep 8 10:12:33.176 Metadata for test.img.files to /tmp/test/img.files.metadata.json
+		<![CDATA[
+# mongodump -uneo -p -d test -o /tmp/
+connected to: 127.0.0.1
+Enter password:
+Tue Sep 8 10:12:33.011 DATABASE: test to /tmp/test
+Tue Sep 8 10:12:33.012 test.system.indexes to /tmp/test/system.indexes.bson
+Tue Sep 8 10:12:33.043 12 objects
+Tue Sep 8 10:12:33.043 test.bios to /tmp/test/bios.bson
+Tue Sep 8 10:12:33.043 1 objects
+Tue Sep 8 10:12:33.043 Metadata for test.bios to /tmp/test/bios.metadata.json
+Tue Sep 8 10:12:33.043 test.system.users to /tmp/test/system.users.bson
+Tue Sep 8 10:12:33.044 2 objects
+Tue Sep 8 10:12:33.044 Metadata for test.system.users to /tmp/test/system.users.metadata.json
+Tue Sep 8 10:12:33.044 test.fs.chunks to /tmp/test/fs.chunks.bson
+Tue Sep 8 10:12:33.045 2 objects
+Tue Sep 8 10:12:33.045 Metadata for test.fs.chunks to /tmp/test/fs.chunks.metadata.json
+Tue Sep 8 10:12:33.045 test.fs.files to /tmp/test/fs.files.bson
+Tue Sep 8 10:12:33.046 2 objects
+Tue Sep 8 10:12:33.046 Metadata for test.fs.files to /tmp/test/fs.files.metadata.json
+Tue Sep 8 10:12:33.046 test.images.chunks to /tmp/test/images.chunks.bson
+Tue Sep 8 10:12:33.167 12 objects
+Tue Sep 8 10:12:33.167 Metadata for test.images.chunks to /tmp/test/images.chunks.metadata.json
+Tue Sep 8 10:12:33.167 test.images.files to /tmp/test/images.files.bson
+Tue Sep 8 10:12:33.168 3 objects
+Tue Sep 8 10:12:33.168 Metadata for test.images.files to /tmp/test/images.files.metadata.json
+Tue Sep 8 10:12:33.168 test.img.chunks to /tmp/test/img.chunks.bson
+Tue Sep 8 10:12:33.175 4 objects
+Tue Sep 8 10:12:33.175 Metadata for test.img.chunks to /tmp/test/img.chunks.metadata.json
+Tue Sep 8 10:12:33.175 test.img.files to /tmp/test/img.files.bson
+Tue Sep 8 10:12:33.176 1 objects
+Tue Sep 8 10:12:33.176 Metadata for test.img.files to /tmp/test/img.files.metadata.json
+		]]>
 		</screen>
 		<section>
 			<title>远程备份</title>
 			<para>短参数</para>
 			<screen>
-				mongodump -h mongodb.example.net -p 27017 -u neo -p password -d netkiller -c yourcollection
+			<![CDATA[
+mongodump -h mongodb.example.net -p 27017 -u neo -p password -d netkiller -c yourcollection
+			]]>
 			</screen>
 			<para>长参数</para>
 			<screen>
-				mongodump --host mongodb.example.net --port 27017 --username backup --password passwd --db mdb --collection some
+			<![CDATA[
+mongodump --host mongodb.example.net --port 27017 --username backup --password passwd --db mdb --collection some
+			]]>
 			</screen>
 		</section>
 		<section>
 			<title>本地备份</title>
 			<para>通过指定dbpath在本地导出bson文件</para>
 			<screen>
-				mongodump --dbpath /var/lib/mongodb --out /opt/backup --db test --username backup --password passwd
+			<![CDATA[
+mongodump --dbpath /var/lib/mongodb --out /opt/backup --db test --username backup --password passwd
+			]]>
 			</screen>
 		</section>
 	</section>
@@ -127,82 +135,95 @@ cat data.bson | mongo test
 		<title>mongorestore</title>
 		<para>直接从dump回复备份</para>
 		<screen>
-			[root@netkiller www]# ls
-			backup dump
+		<![CDATA[
+[root@netkiller www]# ls
+backup dump
 
-			[root@netkiller www]# mongorestore dump/
+[root@netkiller www]# mongorestore dump/
+		]]>
 		</screen>
 		<screen>
-			# mongorestore -h 127.0.0.1 -u neo -p chen /tmp/test/
-			connected to: 127.0.0.1
-			Tue Sep 8 10:18:31.360 /tmp/test/system.users.bson
-			Tue Sep 8 10:18:31.360 going into namespace [test.system.users]
-			Tue Sep 8 10:18:31.361 warning: Restoring to test.system.users without dropping. Restored data will be inserted without raising errors; check your server log
-			2 objects found
-			Tue Sep 8 10:18:31.361 Creating index: { key: { _id: 1 }, ns: "test.system.users", name: "_id_" }
-			Tue Sep 8 10:18:31.406 Creating index: { key: { user: 1, userSource: 1 }, unique: true, ns: "test.system.users", name: "user_1_userSource_1" }
-			Tue Sep 8 10:18:31.406 /tmp/test/img.chunks.bson
-			Tue Sep 8 10:18:31.406 going into namespace [test.img.chunks]
-			Tue Sep 8 10:18:31.407 warning: Restoring to test.img.chunks without dropping. Restored data will be inserted without raising errors; check your server log
-			4 objects found
-			Tue Sep 8 10:18:31.409 Creating index: { name: "_id_", key: { _id: 1 }, ns: "test.img.chunks" }
-			Tue Sep 8 10:18:31.409 Creating index: { name: "files_id_1_n_1", key: { files_id: 1, n: 1 }, unique: true, ns: "test.img.chunks" }
-			Tue Sep 8 10:18:31.409 /tmp/test/fs.files.bson
-			Tue Sep 8 10:18:31.409 going into namespace [test.fs.files]
-			Tue Sep 8 10:18:31.410 warning: Restoring to test.fs.files without dropping. Restored data will be inserted without raising errors; check your server log
-			2 objects found
-			Tue Sep 8 10:18:31.410 Creating index: { name: "_id_", key: { _id: 1 }, ns: "test.fs.files" }
-			Tue Sep 8 10:18:31.410 /tmp/test/images.chunks.bson
-			Tue Sep 8 10:18:31.410 going into namespace [test.images.chunks]
-			Tue Sep 8 10:18:31.411 warning: Restoring to test.images.chunks without dropping. Restored data will be inserted without raising errors; check your server log
-			12 objects found
-			Tue Sep 8 10:18:31.414 Creating index: { name: "_id_", key: { _id: 1 }, ns: "test.images.chunks" }
-			Tue Sep 8 10:18:31.414 Creating index: { name: "files_id_1_n_1", key: { files_id: 1, n: 1 }, unique: true, ns: "test.images.chunks" }
-			Tue Sep 8 10:18:31.414 /tmp/test/images.files.bson
-			Tue Sep 8 10:18:31.414 going into namespace [test.images.files]
-			Tue Sep 8 10:18:31.414 warning: Restoring to test.images.files without dropping. Restored data will be inserted without raising errors; check your server log
-			3 objects found
-			Tue Sep 8 10:18:31.415 Creating index: { name: "_id_", key: { _id: 1 }, ns: "test.images.files" }
-			Tue Sep 8 10:18:31.415 /tmp/test/fs.chunks.bson
-			Tue Sep 8 10:18:31.415 going into namespace [test.fs.chunks]
-			Tue Sep 8 10:18:31.415 warning: Restoring to test.fs.chunks without dropping. Restored data will be inserted without raising errors; check your server log
-			2 objects found
-			Tue Sep 8 10:18:31.416 Creating index: { name: "_id_", key: { _id: 1 }, ns: "test.fs.chunks" }
-			Tue Sep 8 10:18:31.416 Creating index: { name: "files_id_1_n_1", key: { files_id: 1, n: 1 }, unique: true, ns: "test.fs.chunks" }
-			Tue Sep 8 10:18:31.416 /tmp/test/img.files.bson
-			Tue Sep 8 10:18:31.416 going into namespace [test.img.files]
-			Tue Sep 8 10:18:31.417 warning: Restoring to test.img.files without dropping. Restored data will be inserted without raising errors; check your server log
-			1 objects found
-			Tue Sep 8 10:18:31.417 Creating index: { name: "_id_", key: { _id: 1 }, ns: "test.img.files" }
-			Tue Sep 8 10:18:31.417 /tmp/test/bios.bson
-			Tue Sep 8 10:18:31.417 going into namespace [test.bios]
-			Tue Sep 8 10:18:31.417 warning: Restoring to test.bios without dropping. Restored data will be inserted without raising errors; check your server log
-			1 objects found
-			Tue Sep 8 10:18:31.417 Creating index: { key: { _id: 1 }, ns: "test.bios", name: "_id_" }
+		<![CDATA[
+[root@netkiller www]# mongorestore -h 127.0.0.1 -u neo -p chen /tmp/test/
+connected to: 127.0.0.1
+Tue Sep 8 10:18:31.360 /tmp/test/system.users.bson
+Tue Sep 8 10:18:31.360 going into namespace [test.system.users]
+Tue Sep 8 10:18:31.361 warning: Restoring to test.system.users without dropping. Restored data will be inserted without raising errors; check your server log
+2 objects found
+Tue Sep 8 10:18:31.361 Creating index: { key: { _id: 1 }, ns: "test.system.users", name: "_id_" }
+Tue Sep 8 10:18:31.406 Creating index: { key: { user: 1, userSource: 1 }, unique: true, ns: "test.system.users", name: "user_1_userSource_1" }
+Tue Sep 8 10:18:31.406 /tmp/test/img.chunks.bson
+Tue Sep 8 10:18:31.406 going into namespace [test.img.chunks]
+Tue Sep 8 10:18:31.407 warning: Restoring to test.img.chunks without dropping. Restored data will be inserted without raising errors; check your server log
+4 objects found
+Tue Sep 8 10:18:31.409 Creating index: { name: "_id_", key: { _id: 1 }, ns: "test.img.chunks" }
+Tue Sep 8 10:18:31.409 Creating index: { name: "files_id_1_n_1", key: { files_id: 1, n: 1 }, unique: true, ns: "test.img.chunks" }
+Tue Sep 8 10:18:31.409 /tmp/test/fs.files.bson
+Tue Sep 8 10:18:31.409 going into namespace [test.fs.files]
+Tue Sep 8 10:18:31.410 warning: Restoring to test.fs.files without dropping. Restored data will be inserted without raising errors; check your server log
+2 objects found
+Tue Sep 8 10:18:31.410 Creating index: { name: "_id_", key: { _id: 1 }, ns: "test.fs.files" }
+Tue Sep 8 10:18:31.410 /tmp/test/images.chunks.bson
+Tue Sep 8 10:18:31.410 going into namespace [test.images.chunks]
+Tue Sep 8 10:18:31.411 warning: Restoring to test.images.chunks without dropping. Restored data will be inserted without raising errors; check your server log
+12 objects found
+Tue Sep 8 10:18:31.414 Creating index: { name: "_id_", key: { _id: 1 }, ns: "test.images.chunks" }
+Tue Sep 8 10:18:31.414 Creating index: { name: "files_id_1_n_1", key: { files_id: 1, n: 1 }, unique: true, ns: "test.images.chunks" }
+Tue Sep 8 10:18:31.414 /tmp/test/images.files.bson
+Tue Sep 8 10:18:31.414 going into namespace [test.images.files]
+Tue Sep 8 10:18:31.414 warning: Restoring to test.images.files without dropping. Restored data will be inserted without raising errors; check your server log
+3 objects found
+Tue Sep 8 10:18:31.415 Creating index: { name: "_id_", key: { _id: 1 }, ns: "test.images.files" }
+Tue Sep 8 10:18:31.415 /tmp/test/fs.chunks.bson
+Tue Sep 8 10:18:31.415 going into namespace [test.fs.chunks]
+Tue Sep 8 10:18:31.415 warning: Restoring to test.fs.chunks without dropping. Restored data will be inserted without raising errors; check your server log
+2 objects found
+Tue Sep 8 10:18:31.416 Creating index: { name: "_id_", key: { _id: 1 }, ns: "test.fs.chunks" }
+Tue Sep 8 10:18:31.416 Creating index: { name: "files_id_1_n_1", key: { files_id: 1, n: 1 }, unique: true, ns: "test.fs.chunks" }
+Tue Sep 8 10:18:31.416 /tmp/test/img.files.bson
+Tue Sep 8 10:18:31.416 going into namespace [test.img.files]
+Tue Sep 8 10:18:31.417 warning: Restoring to test.img.files without dropping. Restored data will be inserted without raising errors; check your server log
+1 objects found
+Tue Sep 8 10:18:31.417 Creating index: { name: "_id_", key: { _id: 1 }, ns: "test.img.files" }
+Tue Sep 8 10:18:31.417 /tmp/test/bios.bson
+Tue Sep 8 10:18:31.417 going into namespace [test.bios]
+Tue Sep 8 10:18:31.417 warning: Restoring to test.bios without dropping. Restored data will be inserted without raising errors; check your server log
+1 objects found
+Tue Sep 8 10:18:31.417 Creating index: { key: { _id: 1 }, ns: "test.bios", name: "_id_" }
+		]]>
 		</screen>
 		<para>恢复到指定数据库</para>
 		<screen>
-			# mongorestore -h 127.0.0.1 -d test123 /tmp/test
+		<![CDATA[
+# mongorestore -h 127.0.0.1 -d test123 /tmp/test
+		]]>
 		</screen>
 		<section>
 			<title>远程回复</title>
 			<screen>
-				mongorestore --host mongodb.example.net --port 27017 --username backup --password password --db test --collection some /data/backup
+			<![CDATA[
+mongorestore --host mongodb.example.net --port 27017 --username backup --password password --db test --collection some /data/backup
+			]]>
 			</screen>
 		</section>
 		<section>
 			<title>本地恢复</title>
 			<screen>
-				mongorestore --dbpath /var/lib/mongodb --journal /opt/backup
+			<![CDATA[
+mongorestore --dbpath /var/lib/mongodb --journal /opt/backu
+			]]>
 			</screen>
 		</section>
 		<section>
 			<title>filter</title>
 			<para>如果只想恢复部分数据，可以使用--filter</para>
 			<screen>
-				$ mongorestore -h 127.0.0.1 -d test123 /tmp/test --filter '{"field": 1}'
+			<![CDATA[
+$ mongorestore -h 127.0.0.1 -d test123 /tmp/test --filter '{"field": 1}'
+			]]>
 			</screen>
 		</section>
+		
 	</section>
 
 	<section id="mongostat">

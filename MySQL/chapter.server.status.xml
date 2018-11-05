@@ -863,4 +863,26 @@ MariaDB [test]> SHOW GRANTS;
 2 rows in set (0.00 sec)
 		</screen>
 	</section>
+	<section id="validate_password">
+		<title>validate_password</title>
+		<screen>
+		<![CDATA[
+SHOW VARIABLES LIKE 'validate_password.%';
+
+mysql> SHOW VARIABLES LIKE 'validate_password.%';
++--------------------------------------+--------+
+| Variable_name                        | Value  |
++--------------------------------------+--------+
+| validate_password.check_user_name    | ON     |
+| validate_password.dictionary_file    |        |
+| validate_password.length             | 8      |
+| validate_password.mixed_case_count   | 1      |
+| validate_password.number_count       | 1      |
+| validate_password.policy             | MEDIUM |
+| validate_password.special_char_count | 1      |
++--------------------------------------+--------+
+7 rows in set (0.00 sec)		
+		]]>
+		</screen>
+	</section>
 </section>

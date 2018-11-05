@@ -4,13 +4,13 @@
 	<section>
 		<title>MongoDB 3.x 启用认证后恢复数据库需指定 collection</title>
 		<screen>
-# mongorestore -u yourdb  dump/
-Enter password:
+			# mongorestore -u yourdb dump/
+			Enter password:
 
-2017-06-09T11:55:58.566+0800	Failed: error connecting to db server: server returned error on SASL authentication step: Authentication failed.
+			2017-06-09T11:55:58.566+0800 Failed: error connecting to db server: server returned error on SASL authentication step: Authentication failed.
 		</screen>
 		<screen>
-# mongorestore -u yourdb -d yourdb dump/yourdb
+			# mongorestore -u yourdb -d yourdb dump/yourdb
 		</screen>
 	</section>
 	<section>
@@ -31,6 +31,22 @@ switched to db admin
 
 > db.auth('neo','chen')
 1		
+		]]>
+		</screen>
+	</section>
+	<section>
+		<title>Failed: netkiller.assets: error reading database: command listCollections requires authentication</title>
+		<screen>
+		<![CDATA[
+[root@ecs-3705 ~]# mongorestore dump/
+2018-11-05T11:48:08.981+0800	preparing collections to restore from
+2018-11-05T11:48:08.982+0800	Failed: netkiller.assets: error reading database: command listCollections requires authentication			
+		]]>
+		</screen>
+		<para>需要认证，请使用 -u 用户名 -p 密码 -d 数据库 来恢复</para>
+		<screen>
+		<![CDATA[
+[root@netkiller ~]# mongorestore -h 127.0.0.1 -u netkiller -p netkiller -d netkiller  dump/netkiller/		
 		]]>
 		</screen>
 	</section>
