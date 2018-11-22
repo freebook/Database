@@ -514,8 +514,8 @@ requirepass test123
 				<screen>
 				<![CDATA[
 -a <password>      Password to use when connecting to the server.
-[root@netkiller conf.d]# redis-cli -a hsM8NK8b71vFQKFOS55jbWJrA1TYgI4e
 
+[root@netkiller conf.d]# redis-cli -a hsM8NK8b71vFQKFOS55jbWJrA1TYgI4e
 				]]>
 				</screen>
 			</section>
