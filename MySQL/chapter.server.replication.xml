@@ -677,6 +677,7 @@ rpl_semi_sync_slave_enabled=1
 	</section>
 	<section id="multi-source">
 		<title>multi-source replication</title>
+		<!-- https://my.oschina.net/u/2399373/blog/2878650 -->
 		<para>MySQL 5.7 以上版本才能使用</para>
 		<screen>
 		<![CDATA[
