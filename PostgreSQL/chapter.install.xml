@@ -645,5 +645,13 @@ postgres=# \?
   \lo_unlink LOBOID   	大对象运算
   		]]>
 		</screen>
+		<section>
+			<title>执行文件</title>
+			<screen>
+			<![CDATA[
+psql -U user -d your-db -f your-table.sql			
+			]]>
+			</screen>
+		</section>
 	</section>
 </chapter>

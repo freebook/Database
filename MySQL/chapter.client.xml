@@ -138,26 +138,43 @@ Bye
 	</section>
 	<section id="mysqldump">
 		<title>mysqldump - a database backup program</title>
-		<screen>
-		<![CDATA[
-mysqldump -uroot -p dbname | gzip > dbname.backup
-		]]>
-		</screen>
 		<section>
-			<title>备份数据库，无结构，只有数据</title>
-			<para>-t, --no-create-info Don't write table creation info.			</para>
+			<title>备份数据库并压缩文件</title>
 			<screen>
-mysqldump -uroot -p -t -d database
+			<![CDATA[
+mysqldump -uroot -p dbname | gzip > dbname.backup
+			]]>
 			</screen>
 		</section>
 		<section>
-			<title>备份数据库结构（不备份数据）</title>
+			<title>备份数据库/表</title>
 			<screen>
+			<![CDATA[
 mysqldump -uroot -p -d database
 mysqldump -uroot -p -d database table
+			]]>
 			</screen>
 		</section>
 		<section>
+			<title>备份到文件</title>
+			<para>-r, --result-file=name 输出文件</para>
+			<screen>
+			<![CDATA[
+mysqldump --default-character-set=utf8 -r mysql.sql -h localhost -u root -p yourdb
+			]]>
+			</screen>
+		</section>
+		<section id="no-create-info">
+			<title>备份数据库，无结构，只有数据</title>
+			<para>-t, --no-create-info Don't write table creation info.	</para>
+			<screen>
+			<![CDATA[
+mysqldump -uroot -p -t -d database
+			]]>
+			</screen>
+		</section>
+		
+		<section id="complete-insert">
 			<title>使用完整的insert插入数据</title>
 			<para>-c, --complete-insert Use complete insert statements.</para>
 			<screen>
@@ -184,12 +201,12 @@ INSERT INTO `test` VALUES (112,'jam','zheng');
 INSERT INTO `test` VALUES (113,'john','meng');
 			</screen>
 		</section>
-		<section>
+		<section id="skip-lock-tables">
 			<title>--skip-lock-tables</title>
 			<para>mysqldump 时禁止锁表</para>
 			<para>使用 --skip-lock-tables 参数，不会影响正在备份的表SELECT操作。</para>
 		</section>
-		<section>
+		<section id="skip-add-locks">
 			<title>--skip-add-locks</title>
 			<para>该参数mysqldump输出中包含下面 </para>
 			<para>默认情况</para>
@@ -198,13 +215,13 @@ LOCK TABLES `tbl_name` WRITE;
 			</screen>
 			<para>如果使用这个参数就不会输出 LOCK TABLE</para>
 		</section>
-		<section>
+		<section id="where">
 			<title>--where</title>
 			<screen>
 mysqldump -hlocalhost -umysql -ppasswd database table --where="id>128"
 			</screen>
 		</section>
-		<section>
+		<section id="skip-comments">
 			<title>注释信息--comments /--skip-comments</title>
 			<para>--comments附加注释信息，默认为打开。可以用--skip-comments取消</para>
 			<screen>
@@ -224,6 +241,24 @@ DROP TABLE IF EXISTS `demo`;
 DROP TABLE IF EXISTS `demo`;	
 ...
 ...			
+			</screen>
+		</section>
+		<section>
+			<title>不导出注释信息</title>
+			<para>--compact </para>
+			<screen>
+			<![CDATA[
+mysqldump --default-character-set=utf8  -h localhost -u root -p -t  yourdb yourtable --skip-extended-insert --compact			
+			]]>
+			</screen>
+			<para>运行后导出纯净的 INSERT 语句</para>
+		</section>
+		<section id="default-character-set">
+			<title>字符集设置</title>
+			<screen>
+			<![CDATA[
+mysqldump --default-character-set=utf8 -r mysql.sql -h 192.168.0.24 -u root -p yourdb			
+			]]>
 			</screen>
 		</section>
 	</section>

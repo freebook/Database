@@ -3,7 +3,7 @@
 	<title>MariaDB</title>
 	<para>http://mariadb.org/</para>
 	<section>
-		<title>CentOS YUM 安装 MariaDB</title>
+		<title>CentOS 6 YUM 安装 MariaDB</title>
 		<screen>
 		<![CDATA[
 cat >> /etc/yum.repos.d/MariaDB.repo <<EOF
@@ -137,7 +137,13 @@ MariaDB [mysql]>
 		<para>使用上与MySQL并无差异</para>
 	</section>
 	<section>
-		<title>MariaDB Audit Plugin</title>
+		<title>CentOS 7 安装 MariaDB</title>
 		<para></para>
+		<screen>
+		<![CDATA[
+yum install -y mariadb		
+		]]>
+		</screen>
+		
 	</section>
 </section>

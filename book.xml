@@ -22,7 +22,6 @@
 
 	
 	<!ENTITY chapter.design.rdbms.xml 		SYSTEM "chapter.design.rdbms.xml">
-	<!ENTITY chapter.design.hdbms.xml		SYSTEM "chapter.design.hdbms.xml">
 -->
 	<!ENTITY % mysql.doctype.entity.xml 	SYSTEM "MySQL/doctype.entity.xml">
 	%mysql.doctype.entity.xml;
@@ -54,6 +53,8 @@
 	<!ENTITY chapter.sqoop.xml				SYSTEM "chapter.sqoop.xml">
 	<!ENTITY chapter.phoenix.xml				SYSTEM "chapter.phoenix.xml">
 
+	<!ENTITY chapter.move.xml		SYSTEM "chapter.move.xml">
+	
 	<!ENTITY home "<![CDATA[ <ulink url='&homepage;'>&homepage;</ulink> ]]>">
 
 ]>
@@ -61,7 +62,7 @@
 	xmlns="http://docbook.org/ns/docbook" xml:lang="zh-cn">
 	<bookinfo>
 		<title>Netkiller Database 手札</title>
-		<subtitle>PostgreSQL, MySQL, Oracle ...</subtitle>
+		<subtitle>PostgreSQL, MariaDB, MySQL, Oracle ...</subtitle>
 
 		<authorgroup>
 			&book.info.author.xml;
@@ -109,6 +110,8 @@
 	&part.nosql.xml;
 	&part.postgres.xml; 
 	&part.oracle.xml;
+	
+	&chapter.move.xml;
 
 <!-- ===========================================================================
 	&book.history;

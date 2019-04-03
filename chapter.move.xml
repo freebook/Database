@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="db.move">
+	<title>数据库迁移</title>
+	<section id="">
+		<title>MySQL to PostgreSQL</title>
+		<screen>
+		<![CDATA[
+[root@localhost ~]# mysqldump --default-character-set=utf8  -h mysql.netkiller.cn -u root -p -t --skip-extended-insert --compact mydb mytable | sed 's/`//g' | psql -h pgsql.netkiller.cn -U neo -W
+Password for user lzyun: 
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+		]]>
+		</screen>
+	</section>
+</chapter>
+
