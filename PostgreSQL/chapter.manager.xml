@@ -100,63 +100,7 @@ DROP DATABASE mydb
 		<title>Table</title>
 
 	</section>
-	<section id="pg_dump">
-		<title>Backup / Restore</title>
-		<section>
-			<title>Backup</title>
-			<para>本地备份</para>
-			<screen>
-pg_dump --compress=9 --file=/backup/mydb.sql.gz mydb
-			</screen>
-			<para>Backup</para>
-			<screen>
-pg_dump -i -h localhost -p 5432 -U user -Fc -c -f "your_db.backup" your_db
-			</screen>
-		</section>
-		<section>
-			<title>Restore</title>
-			<para>Restore</para>
-			<screen>
-pg_restore -i -h localhost -p 5432 -U user -d your_db -v -c -Fc "your_db.backup"
-			</screen>
-		</section>
-		<section>
-			<title>import</title>
-			<para>导入</para>
-			<command>\i file.backup</command>
-			<screen>
-			<![CDATA[
-postgres=# \i /home/neo/woodart.backup
-			]]>
-			</screen>
-		</section>
-		<section>
-			<title>PostgreSQL for windows</title>
-			<para>local -> remote</para>
-			<screen>
-set PG_HOME="C:\Program Files\PostgreSQL\8.1\bin"
-%PG_HOME%\pg_dump.exe -i -h localhost -p 5432 -U woodart -Fc -c -f "woodart.backup" woodart
-%PG_HOME%\pg_restore.exe -i -h woodart.8800.org -p 5432 -U woodart -d woodart -v -c -Fc "woodart.backup"
-			</screen>
-		</section>
-		<section>
-			<title>大型数据库备份</title>
-			<para>split 命令可以将大型文件切成小块以适应文件系统限制的单个文件大小。</para>
-			<para>分割,每650M为一个文件，试用于光盘备份</para>
-			<screen>
-			<![CDATA[
-$ pg_dump dbname | split -b 650m - filename
-			]]>
-			</screen>
-			<para>合并，并且恢复到数据库中。</para>
-			<screen>
-			<![CDATA[
-$ createdb dbname
-$ cat filename* | psql dbname
-			]]>
-			</screen>
-		</section>
-	</section>
+
 </chapter>
 <chapter id="pg_table">
 	<title>PostgreSQL 系统表</title>

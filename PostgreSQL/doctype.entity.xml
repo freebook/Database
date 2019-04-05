@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 	<!ENTITY chapter.postgres.xml			SYSTEM "chapter.postgres.xml">
 	<!ENTITY chapter.install.xml			SYSTEM "chapter.install.xml">
+	<!ENTITY chapter.command.xml			SYSTEM "chapter.command.xml">
 	<!ENTITY chapter.manager.xml			SYSTEM "chapter.manager.xml">
 	<!ENTITY chapter.gui.xml		 		SYSTEM "chapter.gui.xml">
 	<!ENTITY chapter.sql.xml		 		SYSTEM "chapter.sql.xml">

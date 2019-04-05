@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 	&chapter.install.xml;
 	&chapter.manager.xml;
-
+	&chapter.command.xml;
 	&chapter.ddl.xml;
 	&chapter.dml.xml;
 	&chapter.sql.xml;
