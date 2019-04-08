@@ -128,26 +128,32 @@ psql -U user -d your-db -f your-table.sql
 			]]>
 			</screen>
 		</section>
-	</section>	
-		
+	</section>
+
 	<section id="pg_dump">
 		<title>Backup / Restore</title>
 		<section>
 			<title>Backup</title>
 			<para>本地备份</para>
 			<screen>
+			<![CDATA[
 pg_dump --compress=9 --file=/backup/mydb.sql.gz mydb
+			]]>
 			</screen>
 			<para>Backup</para>
 			<screen>
+			<![CDATA[
 pg_dump -i -h localhost -p 5432 -U user -Fc -c -f "your_db.backup" your_db
+			]]>
 			</screen>
 		</section>
 		<section>
 			<title>Restore</title>
 			<para>Restore</para>
 			<screen>
+			<![CDATA[
 pg_restore -i -h localhost -p 5432 -U user -d your_db -v -c -Fc "your_db.backup"
+			]]>
 			</screen>
 		</section>
 		<section>
@@ -172,9 +178,11 @@ pg_dump -h [host] -U [dbuser] -s [dbname] -n [schema] > [file path]
 			<title>PostgreSQL for windows</title>
 			<para>local -> remote</para>
 			<screen>
+			<![CDATA[
 set PG_HOME="C:\Program Files\PostgreSQL\8.1\bin"
 %PG_HOME%\pg_dump.exe -i -h localhost -p 5432 -U woodart -Fc -c -f "woodart.backup" woodart
 %PG_HOME%\pg_restore.exe -i -h woodart.8800.org -p 5432 -U woodart -d woodart -v -c -Fc "woodart.backup"
+			]]>
 			</screen>
 		</section>
 		<section>
@@ -191,6 +199,21 @@ $ pg_dump dbname | split -b 650m - filename
 			<![CDATA[
 $ createdb dbname
 $ cat filename* | psql dbname
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>schema之间迁移数据</title>
+			<para>从 schema 中导出数据</para>
+			<screen>
+			<![CDATA[	
+pg_dump -h 192.168.1.242 -U user -s database -n schema > schema.sql	
+			]]>
+			</screen>
+			<para>导入目标数据库</para>
+			<screen>
+			<![CDATA[
+psql -U user -d your-db -f schema.sql
 			]]>
 			</screen>
 		</section>
