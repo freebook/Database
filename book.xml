@@ -19,9 +19,6 @@
 	<!ENTITY book.dedication SYSTEM "book.dedication.xml">
 	<!ENTITY book.appendix SYSTEM "book.appendix.xml">
 	<!ENTITY book.history SYSTEM "book.history.xml">
-
-	
-	<!ENTITY chapter.design.rdbms.xml 		SYSTEM "chapter.design.rdbms.xml">
 -->
 	<!ENTITY % mysql.doctype.entity.xml 	SYSTEM "MySQL/doctype.entity.xml">
 	%mysql.doctype.entity.xml;
@@ -45,15 +42,16 @@
 	<!ENTITY part.database 					SYSTEM "part.database.xml">
 	<!ENTITY chapter.greensql.xml			SYSTEM "chapter.greensql.xml">
 	<!ENTITY chapter.etl.xml				SYSTEM "chapter.etl.xml">
+	<!ENTITY section.etl.kettle.xml 		SYSTEM "section.etl.kettle.xml">
 	<!ENTITY chapter.migration.xml			SYSTEM "chapter.migration.xml">
 	<!ENTITY chapter.test.xml 				SYSTEM "chapter.test.xml">
 	
 	<!ENTITY chapter.hbase.xml				SYSTEM "chapter.hbase.xml">
 	<!ENTITY chapter.hive.xml				SYSTEM "chapter.hive.xml">
 	<!ENTITY chapter.sqoop.xml				SYSTEM "chapter.sqoop.xml">
-	<!ENTITY chapter.phoenix.xml				SYSTEM "chapter.phoenix.xml">
+	<!ENTITY chapter.phoenix.xml			SYSTEM "chapter.phoenix.xml">
 
-	<!ENTITY chapter.move.xml		SYSTEM "chapter.move.xml">
+	<!ENTITY chapter.move.xml				SYSTEM "chapter.move.xml">
 	
 	<!ENTITY home "<![CDATA[ <ulink url='&homepage;'>&homepage;</ulink> ]]>">
 

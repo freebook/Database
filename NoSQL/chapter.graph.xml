@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="neo4j">
+	<title>Neo4J</title>
+	<para>图形数据库（Graph Database）</para>
+	<para>官方下载地址：https://neo4j.com/</para>
+	<section>
+		<title>安装</title>
+		<section>
+			<title>Docker 安装</title>
+			<screen>
+			<![CDATA[
+neo@MacBook-Pro ~ % docker pull neo4j
+Using default tag: latest
+latest: Pulling from library/neo4j
+bdf0201b3a05: Already exists 
+9e12771959ad: Already exists 
+ae272eb2814b: Pull complete 
+b3b521caef00: Pull complete 
+e217d913d963: Pull complete 
+d7734724a07c: Pull complete 
+bfa821f04cc2: Pull complete 
+Digest: sha256:5af76418161baa0683ff5e67be8a4332916e96f0ef6ca2f3f7879121f496c2d8
+Status: Downloaded newer image for neo4j:latest			
+			]]>
+			</screen>
+			<para>运行Neo4J</para>
+			<screen>
+			<![CDATA[
+neo@MacBook-Pro ~ % docker run -d -p 7473:7473 -p 7687:7687 -p 7474:7474 neo4j
+5648f7d5ab09adf8ad13b6df34281b6394e5ab3c5bbfc5d78be86f75fd53b0ad			
+			]]>
+			</screen>
+		</section>
+	</section>
+	<section>
+		<title>配置 Neo4J</title>
+		<para>打开浏览器：http://localhost:7474/browser/</para>
+		<para>用户名/密码初始值为：neo4j</para>
+	</section>
+</chapter>

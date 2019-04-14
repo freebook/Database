@@ -14,10 +14,7 @@ Apatar http://www.apatar.org/
 
 http://www.enhydra.org/
 	</screen>
-	<section id="kettle">
-		<title>Kettle</title>
-		<para>http://community.pentaho.com/projects/data-integration/</para>
-	</section>
+	&section.etl.kettle.xml;
 	<section id="suro">
 		<title>suro</title>
 		<para>https://github.com/Netflix/suro</para>

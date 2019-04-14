@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="kettle">
+	<title>Kettle</title>
+	<para>http://community.pentaho.com/projects/data-integration/</para>
+	<section>
+		<title>安装</title>
+		
+		<section>
+			<title>Mac 安装</title>
+			<screen>
+			<![CDATA[
+neo@MacBook-Pro ~ % brew info kettle
+kettle: stable 8.2.0.0-342
+Pentaho Data Integration software
+https://community.hitachivantara.com/docs/DOC-1009931-downloads
+Not installed
+From: https://github.com/Homebrew/homebrew-core/blob/master/Formula/kettle.rb
+==> Caveats
+To have launchd start kettle now and restart at login:
+  brew services start kettle
+Or, if you don't want/need a background service you can just run:
+  pdicarte /usr/local/etc/kettle/carte-config.xml
+==> Analytics
+install: 128 (30 days), 400 (90 days), 1,603 (365 days)
+install_on_request: 126 (30 days), 386 (90 days), 1,560 (365 days)
+build_error: 0 (30 days)			
+			]]>
+			</screen>
+			
+			<screen>
+			<![CDATA[
+brew install kettle
+			]]>
+			</screen>
+			
+		</section>
+		<section>
+			<title></title>
+			<para><ulink url="https://sourceforge.net/projects/pentaho/files/Data%20Integration/" /></para>
+		</section>
+	</section>
+</section>

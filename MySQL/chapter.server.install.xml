@@ -310,6 +310,21 @@ Query OK, 0 rows affected (0.03 sec)
 			</screen>
 		</section>
 	</section>
+	<section id="mysql.docker">
+		<title>Docker</title>
+		<screen>
+		<![CDATA[
+docker run --name mysql -d \
+    --restart always \
+    -e MYSQL_ROOT_PASSWORD=123456 \
+    -e MYSQL_DATABASE=test \
+    -e MYSQL_USER=test \
+    -e MYSQL_PASSWORD=test \
+    -p 127.0.0.1:3306:3306 \
+    mysql:latest		
+		]]>
+		</screen>
+	</section>
 	<section id="mysql-admin">
 		<title>mysql-admin</title>
 		<screen>
