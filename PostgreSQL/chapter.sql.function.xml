@@ -5,6 +5,7 @@
 		<title>generate_series</title>
 		<para>生成序列数</para>
 		<screen>
+		<![CDATA[
 test=# select generate_series(1,10) as id;
  id
 ----
@@ -19,6 +20,7 @@ test=# select generate_series(1,10) as id;
   9
  10
 (10 rows)
+		]]>
 		</screen>
 	</section>
 	<section id="datetime">
@@ -27,6 +29,7 @@ test=# select generate_series(1,10) as id;
 			<title>Date/Time Operators</title>
 			<para>日期时间的偏移计算</para>
 			<screen>
+			<![CDATA[
 select now() + interval '3 day';
 select now() - interval '3 day';
 
@@ -38,47 +41,53 @@ select now() - interval '10 minutes';
 
 select now() + interval '5 days 3 hours';
 select now() + interval '5 days' + interval '3 hours';
+			]]>
 			</screen>
 		</section>
 		<section>
 			<title>当前日期/时间</title>
+			<para>当前日期 current_date</para>
 			<screen>
-3.1.1   当前日期
-
-current_date
+			<![CDATA[
 netkiller=> select current_date;
     date
 ------------
  2003-11-28
 (1 row)
 
-netkiller=>
-
-3.1.2   当前时间
-
-current_time
+netkiller=>			
+			]]>
+			</screen>
+			<para>当前时间 current_time</para>
+			<screen>
+			<![CDATA[
 netkiller=> select current_time;
        timetz
 --------------------
  19:38:47.270235+08
 (1 row)
 
-netkiller=>
-
-3.1.3   当前日期时间
-
-current_timestamp
+netkiller=>			
+			]]>
+			</screen>
+			<para>当前日期时间 current_timestamp</para>
+			<screen>
+			<![CDATA[
 netkiller=> select current_timestamp;
           timestamptz
 -------------------------------
  2003-11-28 19:39:25.548505+08
-(1 row)
-
+(1 row)			
 netkiller=>
-3.1.4   除去时区
-
+			]]>
+			</screen>
+			<para>除去时区</para>
+			<screen>
+			<![CDATA[
 1.         current_timestamp::timestamp (0)
 2.         current_timestamp::timestamp (0) without time zone;
+
+
 netkiller=> select current_timestamp::timestamp (0);
       timestamp
 ---------------------
@@ -90,17 +99,26 @@ netkiller=> select current_timestamp::timestamp (0) without time zone;
       timestamp
 ---------------------
  2003-11-28 19:40:10
-(1 row)
+(1 row)			
+			]]>
 			</screen>
-			<para>now() / clock_timestamp() 函数</para>
+			<para>now()</para>
 			<screen>
+			<![CDATA[
 select now();			
-SELECT clock_timestamp();			
+			]]>
+			</screen>
+			<para>clock_timestamp() 函数</para>
+			<screen>
+			<![CDATA[
+SELECT clock_timestamp();
+			]]>			
 			</screen>
 		</section>
 		<section>
 			<title>时间计算</title>
 			<screen>
+			<![CDATA[
 3.1.5   计算时间差
 
 netkiller=> select to_date('2003-12-2','YYYY-MM-DD')-to_date('2003-12-1','YYYY-MM-DD');
@@ -128,22 +146,26 @@ netkiller=> select to_date('2003-12-6','yyyy-mm-dd')+20 ;
 ------------
 2003-12-26
 (1 row)
+			]]>
 			</screen>
 		</section>
 		<section>
 			<title>to_char() / to_date()</title>
 			<para>to_char()</para>
 			<screen>
+			<![CDATA[
 select count(*) as c, to_char(ctime, 'yyyy-mm') as dt from practice group by dt order by dt;
 
 select count(*) as c, to_char(ctime, 'yyyy-mm-dd') as dt from practice group by dt order by dt;
 
 select count(*) as c, to_char(ctime, 'yyyy-mm-dd hh') as dt from practice group by dt order by dt;
+			]]>
 			</screen>
 		</section>
 		<section>
 			<title>EXTRACT, date_part</title>
 			<screen>
+			<![CDATA[
 select extract (year from now());
 select extract (month from now());
 select extract (day from now());
@@ -154,8 +176,10 @@ select extract (second from now());
 select extract (week from now());
 
 SELECT extract(century FROM now());
+			]]>
 			</screen>
 			<screen>
+			<![CDATA[
 3.1.7   date_part
 
 netkiller=> select date_part('epoch', '2003-12-3 10:20:30' - timestamp '2003-12-1 02:00:00') ;
@@ -177,35 +201,64 @@ date_part
 (1 row)
 
 netkiller=>
+			]]>
 			</screen>
 		</section>
 		<section>
 			<title>date_trunc</title>
 			<para></para>
 			<screen>
+			<![CDATA[
 select count(*) as c, date_trunc('day', ctime) as dt from practice group by dt;
+			]]>
 			</screen>
 		</section>
 		<section>
 			<title>延迟执行</title>
 			<para>pg_sleep(seconds)</para>
 			<screen>
+			<![CDATA[
 SELECT pg_sleep(1.5);
+			]]>
 			</screen>
 		</section>
 		<section>
 			<title>时区</title>
 			<screen>
+			<![CDATA[
 SELECT now() AT TIME ZONE 'GMT';
-SELECT now() AT TIME ZONE 'GMT+8';			
+SELECT now() AT TIME ZONE 'GMT+8';
+			]]>			
+			</screen>
+			<para>查询时区</para>
+			<screen>
+			<![CDATA[
+show time zone; 
+US/Pacific			
+			]]>
+			</screen>
+			<para>设置时区</para>
+			<screen>
+			<![CDATA[
+set time zone 'PRC';			
+			]]>
+			</screen>
+			<para>永久生效到pgdata下的postgresql.conf配置里修改两项</para>
+			<screen>
+			<![CDATA[
+log_timezone = 'PRC'
+timezone = 'PRC'			
+			]]>
 			</screen>
 		</section>
 	</section>
-	<section>
+	<section id="pgsql.uuid">
 		<title>uuid</title>
 		<programlisting>
+		<![CDATA[
 create extension "uuid-ossp";
 create table products (product_id  uuid primary key default uuid_generate_v4());
+		]]>
 		</programlisting>
 	</section>
 	<section id="tablefunc">
@@ -213,13 +266,16 @@ create table products (product_id  uuid primary key default uuid_generate_v4());
 		<subtitle>http://www.postgresql.org/docs/9.1/static/tablefunc.html</subtitle>
 		<para>确认扩展是否已经安装</para>
 		<screen>
+		<![CDATA[
 $ ls -1 /usr/pgsql-9.3/share/extension/tablefunc*
 /usr/pgsql-9.3/share/extension/tablefunc--1.0.sql
 /usr/pgsql-9.3/share/extension/tablefunc.control
 /usr/pgsql-9.3/share/extension/tablefunc--unpackaged--1.0.sql		
+		]]>
 		</screen>
 		<para>安装扩展</para>
 		<screen>
+		<![CDATA[
 $ psql test
 psql (9.3.1)
 Type "help" for help.
@@ -227,9 +283,11 @@ Type "help" for help.
 test=# create extension tablefunc;
 CREATE EXTENSION
 test=# \q		
+		]]>
 		</screen>
 		<para>数据库结构</para>
 		<programlisting>
+		<![CDATA[
 -- Table: account
 
 -- DROP TABLE account;
@@ -259,9 +317,11 @@ CREATE INDEX account_name_idx
   ON account
   USING btree
   (name COLLATE pg_catalog."default");		
+		]]>
 		</programlisting>
 		<para>测试数据</para>
 		<programlisting>
+		<![CDATA[
 INSERT INTO account (id, name, balance, datetime) VALUES (1, 'Neo', '$0.00', '2013-10-09 10:51:10');
 INSERT INTO account (id, name, balance, datetime) VALUES (2, 'Neo', '$12.60', '2013-10-09 10:51:22');
 INSERT INTO account (id, name, balance, datetime) VALUES (3, 'Neo', '$200.00', '2013-10-09 10:11:52');
@@ -282,13 +342,17 @@ INSERT INTO account (id, name, balance, datetime) VALUES (17, 'Jerry', '$70.00',
 INSERT INTO account (id, name, balance, datetime) VALUES (18, 'Jerry', '-$30.00', '2013-10-16 13:30:01');
 INSERT INTO account (id, name, balance, datetime) VALUES (19, 'Neo', '-$30.00', '2013-10-16 13:35:01');
 INSERT INTO account (id, name, balance, datetime) VALUES (20, 'Tom', '-$30.00', '2013-10-16 13:35:01');
+		]]>
 		</programlisting>
 		<para>查询语句</para>
 		<programlisting>
-SELECT * FROM crosstab('select datetime,name,balance from account order by 1,2','select name from account group by name order by 1')  AS account(datetime timestamp, Jerry character varying, Neo character varying, Tom character varying);		
+		<![CDATA[
+SELECT * FROM crosstab('select datetime,name,balance from account order by 1,2','select name from account group by name order by 1')  AS account(datetime timestamp, Jerry character varying, Neo character varying, Tom character varying);
+		]]>		
 		</programlisting>
 		<para>终端输出</para>
 		<screen>
+		<![CDATA[
       datetime       |  jerry   |   neo   |   tom
 ---------------------+----------+---------+---------
  2013-10-09 10:11:52 |          | $200.00 |
@@ -310,6 +374,7 @@ SELECT * FROM crosstab('select datetime,name,balance from account order by 1,2',
  2013-10-16 13:30:01 | -$30.00  |         |
  2013-10-16 13:35:01 |          | -$30.00 | -$30.00
 (18 rows)
+		]]>
 		</screen>
 	</section>
 </section>
