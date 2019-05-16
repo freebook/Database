@@ -8,33 +8,45 @@
 			<title>create</title>
 			<para>Creating a UTF-8 database</para>
 			<screen>
+			<![CDATA[
 CREATE DATABASE db_name DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+			]]>
 			</screen>
 			<para>Create a UTF-8 database with binary UTF-8 collation.</para>
 			<programlisting>
+			<![CDATA[
 CREATE DATABASE dbname CHARACTER SET utf8 COLLATE utf8_bin;
+			]]>
 			</programlisting>
 		</section>
 		<section>
 			<title>drop</title>
 			<screen>
+			<![CDATA[
 DROP DATABASE db_name;
+			]]>
 			</screen>
 		</section>
 		<section>
 			<title>Alter</title>
 			<programlisting>
+			<![CDATA[
 ALTER DATABASE dbname DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+			]]>
 			</programlisting>
 		</section>
 		<section>
 			<title>Rename</title>
 			<screen>
+			<![CDATA[
 RENAME {DATABASE | SCHEMA} db_name TO new_db_name;
+			]]>
 			</screen>
 			<para>before 5.0 version</para>
 			<screen>
+			<![CDATA[
 [neo@development ~]$ mysqldump -uroot -pchen db_old | mysql -uroot -pchen db_new
+			]]>
 			</screen>
 		</section>
 		<section>
@@ -69,6 +81,7 @@ mysql> show create database dbname;
 				<title>SET 集合类型</title>
 				<para>SET 集合类型，此类型适合用于多项选择场景，例如保存表单中的checkbox。</para>
 				<screen>
+				<![CDATA[
 CREATE TABLE `QA` (
 	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`question` VARCHAR(255) NOT NULL COMMENT '问题描述',
@@ -78,9 +91,11 @@ CREATE TABLE `QA` (
 COMMENT='Multiple Choice'
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;
+				]]>
 				</screen>
 				<para>插入数据</para>
 				<screen>
+				<![CDATA[
 INSERT INTO `QA` (`id`, `question`, `answer`) VALUES
 	(1, 'Netkiller 系列手札始于那一年？ A.2000年，B.2008年，C.2010年，D.2016年', 'A'),
 	(2, 'Netkiller 系列手札有哪些? A.《Netkiller Scals 手札》, B.《Netkiller Java 手札》, C.《Netkiller Linux 手札》, D.《Netkiller EMC 手札》', 'B,C'),
@@ -92,6 +107,7 @@ INSERT INTO `QA` (`id`, `question`, `answer`) VALUES
 	...
 	...
 	(5000, 'XXXXXXXXXX', 'A,B,C,D');
+				]]>
 				</screen>
 				<para>查询 SET 结果集，MySQL为SET配备了FIND_IN_SET函数</para>
 				<programlisting>
@@ -133,30 +149,38 @@ create table admin_user_history select * from admin_user;
 			<title>modifiy table</title>
 			<para>modifiy table</para>
 			<screen>
+			<![CDATA[
 ALTER TABLE ecs_users add user_picture varchar(255);
+			]]>
 			</screen>
 		</section>
 		<section id="temporary">
 			<title>TEMPORARY Table</title>
 			<para>临时表将在你连接期间存在。一旦断开时将自动删除表并释放所用的空间。你在连接期间删除该表也同样释放空间。</para>
 			<screen>
+			<![CDATA[
 CREATE TEMPORARY TABLE tmp_table (
 	key VARCHAR(10) NOT NULL,
 	value INTEGER NOT NULL
 )
+			]]>
 			</screen>
 			<para>声明临时表是一个HEAP表，允许你指定在内存中创建它</para>
 			<screen>
+			<![CDATA[
 CREATE TEMPORARY TABLE tmp_mem_table (
 	key VARCHAR(10) NOT NULL,
 	value INTEGER NOT NULL
 ) TYPE = HEAP
+			]]>
 			</screen>
 		</section>
 		<section id="collate">
 			<title>Collate</title>
 			<programlisting>
+			<![CDATA[
 ALTER TABLE `tmp_cats`  COLLATE='utf8_general_ci',  CONVERT TO CHARSET utf8;
+			]]>
 			</programlisting>
 		</section>
 		<section id="character">
@@ -174,6 +198,7 @@ alter table <table_name> convert to charset utf8mb4;
 				<title>AUTO_INCREMENT</title>
 				<para>定义 AUTO_INCREMENT 起始值</para>
 				<programlisting>
+				<![CDATA[
 CREATE TABLE `bank_account` (
 	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增唯一ID',
 	`name` VARCHAR(50) NOT NULL DEFAULT '0' COMMENT '帐号名称(Name on account)',
@@ -183,11 +208,14 @@ COMMENT='银行帐号'
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB
 AUTO_INCREMENT=2;				
+				]]>
 				</programlisting>
 				<para>设置 AUTO_INCREMENT</para>
 				<programlisting>
+				<![CDATA[
 ALTER TABLE `accounts`
-	AUTO_INCREMENT=792257;				
+	AUTO_INCREMENT=792257;
+				]]>
 				</programlisting>
 			</section>
 			<section id="ON.UPDATE">
@@ -197,7 +225,7 @@ ALTER TABLE `accounts`
 alter table cms.article ADD  COLUMN `mtime` TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更改时间';				
 				]]>
 				</screen>
-				
+
 				<para>更新时间</para>
 				<para>`mtime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更改时间',</para>
 				<screen>
@@ -220,9 +248,9 @@ ENGINE=InnoDB
 AUTO_INCREMENT=2;
 				]]>
 				</screen>
-				
+
 			</section>
-			
+
 			<section id="data.directory">
 				<title>表存储位置(DATA DIRECTORY)</title>
 				<programlisting>
@@ -244,18 +272,41 @@ CREATE TABLE IF NOT EXISTS `tab_name` (
 				<title>PRIMARY KEY</title>
 				<para>一般主键定义</para>
 				<screen>
+				<![CDATA[
 PRIMARY KEY (`id`),
+				]]>
 				</screen>
 				<para>复合主键</para>
 				<screen>
+				<![CDATA[
 PRIMARY KEY (`id`, `user_id`),
+				]]>
 				</screen>
 			</section>
 
 		</section>
+		<section id="auto_increment">
+			<title>AUTO_INCREMENT 定义初始值</title>
+			<screen>
+			<![CDATA[
+DROP TABLE IF EXISTS users;
+CREATE TABLE user(
+    id   	INT   NOT NULL AUTO_INCREMENT
+PRIMARY KEY(id)
+)ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8;			
+			]]>
+			</screen>
+			<para>修改 auto_incremenrt 起始值</para>
+			<screen>
+			<![CDATA[
+alter table tab1 auto_incremenrt=n			
+			]]>
+			</screen>
+		</section>
 		<section id="comment">
 			<title>COMMENT</title>
 			<screen>
+			<![CDATA[
 ALTER TABLE `neo`.`stuff` COMMENT = '用户表' ;
 ALTER TABLE `neo`.`stuff` CHANGE COLUMN `name` `name` VARCHAR(50) NULL DEFAULT NULL COMMENT '姓名'  ;
 ALTER TABLE `neo`.`stuff` CHANGE COLUMN `password` `password` VARCHAR(50) NULL DEFAULT NULL COMMENT '用户密码' ;
@@ -270,6 +321,7 @@ CREATE TABLE `stuff` (
 ) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1 COMMENT=''用户表''
 /*!50100 PARTITION BY HASH (year(created))
 PARTITIONS 10 */
+			]]>
 			</screen>
 		</section>
 		&chapter.ddl.engine.xml;
@@ -294,13 +346,17 @@ SHOW INDEX FROM tbl_name\G
 		<section>
 			<title>CREATE INDEX</title>
 			<programlisting>
+			<![CDATA[
 CREATE INDEX index_name
 ON table_name (column_name)
+			]]>
 			</programlisting>
 			<para>CREATE UNIQUE INDEX</para>
 			<programlisting>
+			<![CDATA[
 CREATE UNIQUE INDEX index_name
 ON table_name (column_name)
+			]]>
 			</programlisting>
 		</section>
 		<section>
@@ -325,15 +381,26 @@ alter index IND_PK rebuild;
 		<title>外键(Foreign Key)</title>
 		<orderedlist>
 			<title>ON DELETE, ON UPDATE 事件触发限制，可选参数： RESTRICT | CASCADE | SET NULL | NO ACTION</title>
-			<listitem><para>RESTRICT（限制外表中的外键改动）</para></listitem>
-			<listitem><para>CASCADE（跟随外键改动）</para></listitem>
-			<listitem><para>SET NULL（设空值）</para></listitem>
-			<listitem><para>SET DEFAULT（设默认值）</para></listitem>
-			<listitem><para>NO ACTION（无动作，默认的）</para></listitem>
+			<listitem>
+				<para>RESTRICT（限制外表中的外键改动）</para>
+			</listitem>
+			<listitem>
+				<para>CASCADE（跟随外键改动）</para>
+			</listitem>
+			<listitem>
+				<para>SET NULL（设空值）</para>
+			</listitem>
+			<listitem>
+				<para>SET DEFAULT（设默认值）</para>
+			</listitem>
+			<listitem>
+				<para>NO ACTION（无动作，默认的）</para>
+			</listitem>
 		</orderedlist>
 		<section>
 			<title>FOREIGN KEY (RESTRICT)</title>
 			<screen>
+			<![CDATA[
 CREATE TABLE `bank_account_group_has_bank_account` (
 	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`bank_account_group_id` INT(10) UNSIGNED NOT NULL DEFAULT '0',
@@ -348,24 +415,29 @@ COMMENT='bank_account_group 与 bank_account 的 N:M 关系'
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB
 AUTO_INCREMENT=35;
+			]]>
 			</screen>
 		</section>
 	</section>
 	<section id="view">
 		<title>视图(View)</title>
 		<screen>
+		<![CDATA[
 CREATE VIEW view_name AS
 SELECT column_name(s)
 FROM table_name
 WHERE condition
+		]]>
 		</screen>
 		<para>update view</para>
 		<programlisting>
+		<![CDATA[
 SQL CREATE OR REPLACE VIEW Syntax
 CREATE OR REPLACE VIEW view_name AS
 SELECT column_name(s)
 FROM table_name
 WHERE condition
+		]]>
 		</programlisting>
 	</section>
 	&chapter.ddl.procedure.xml;

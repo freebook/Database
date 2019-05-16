@@ -287,14 +287,40 @@ shareobjectspoolsize 1024
 				$ sudo /etc/init.d/redis-server start
 			</screen>
 		</section>
+		<section>
+			<title>Mac 安装 Redis</title>
+			<screen>
+			<![CDATA[
+neo@MacBook-Pro ~ % brew install redis			
+			]]>
+			</screen>
+			<para>Redis  被安装在 /usr/local/Cellar/redis/5.0.4 目录下</para>
+			<para>启动 Redis</para>
+			<screen>
+			<![CDATA[
+brew services start redis		
+			]]>
+			</screen>
+			<para>前台运行，这种方式用于调试</para>
+			<screen>
+			<![CDATA[
+redis-server /usr/local/etc/redis.conf			
+			]]>
+			</screen>
+		</section>
 		<section id="source">
 			<title>源码编译安装</title>
 			<para>这里仍然使用 &OSCM;
 				安装，源码安装
 			</para>
 			<screen>
-				curl -s https://raw.githubusercontent.com/oscm/shell/master/database/redis/source/redis-4.0.1.sh | bash
+			<![CDATA[
+curl -s https://raw.githubusercontent.com/oscm/shell/master/database/redis/source/redis-5.0.4.sh | bash
+			]]>
 			</screen>
+		</section>
+		<section>
+			<title></title>
 		</section>
 		<section id="test">
 			<title>Test Redis</title>
@@ -302,40 +328,42 @@ shareobjectspoolsize 1024
 				<ulink url="http://redis.io/commands"></ulink>
 			</para>
 			<screen>
-				$ redis-cli info
-				redis_version:1.2.6
-				arch_bits:64
-				multiplexing_api:epoll
-				uptime_in_seconds:859
-				uptime_in_days:0
-				connected_clients:1
-				connected_slaves:0
-				used_memory:619490
-				used_memory_human:604.97K
-				changes_since_last_save:0
-				bgsave_in_progress:0
-				last_save_time:1311100746
-				bgrewriteaof_in_progress:0
-				total_connections_received:4
-				total_commands_processed:0
-				role:master
+			<![CDATA[
+$ redis-cli info
+redis_version:1.2.6
+arch_bits:64
+multiplexing_api:epoll
+uptime_in_seconds:859
+uptime_in_days:0
+connected_clients:1
+connected_slaves:0
+used_memory:619490
+used_memory_human:604.97K
+changes_since_last_save:0
+bgsave_in_progress:0
+last_save_time:1311100746
+bgrewriteaof_in_progress:0
+total_connections_received:4
+total_commands_processed:0
+role:master
 
-				$ redis-cli set name neo
-				OK
-				$ redis-cli get name
-				neo
+$ redis-cli set name neo
+OK
+$ redis-cli get name
+neo
 
-				$ telnet localhost 6379
-				Trying ::1...
-				telnet: connect to address ::1: Connection refused
-				Trying 127.0.0.1...
-				Connected to localhost (127.0.0.1).
-				Escape character is '^]'.
-				get name
-				$3
-				neo
-				quit
-				Connection closed by foreign host.
+$ telnet localhost 6379
+Trying ::1...
+telnet: connect to address ::1: Connection refused
+Trying 127.0.0.1...
+Connected to localhost (127.0.0.1).
+Escape character is '^]'.
+get name
+$3
+neo
+quit
+Connection closed by foreign host.
+			]]>
 			</screen>
 		</section>
 	</chapter>
