@@ -9,7 +9,7 @@
 	<!ENTITY BG7NYT "&Neo;">
 	<!ENTITY Netkiller "<emphasis><trademark>Netkiller</trademark></emphasis>">
 
-	<!ENTITY % common.doctype.entity.xml 	SYSTEM "../common/doctype.entity.xml">
+	<!ENTITY % common.doctype.entity.xml 	SYSTEM "common/doctype.entity.xml">
 	%common.doctype.entity.xml;
 	
 	<!ENTITY book.info.abstract.xml 		SYSTEM "book.info.abstract.xml">
@@ -60,7 +60,7 @@
 	xmlns="http://docbook.org/ns/docbook" xml:lang="zh-cn">
 	<bookinfo>
 		<title>Netkiller Database 手札</title>
-		<subtitle>PostgreSQL, MariaDB, MySQL, Oracle ...</subtitle>
+		<subtitle>PostgreSQL, MariaDB, MySQL, Oracle, Redis, MongoDB, Elasticsearch ...</subtitle>
 
 		<authorgroup>
 			&book.info.author.xml;
