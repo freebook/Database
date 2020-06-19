@@ -18,8 +18,7 @@
 	%doctype.entity.xml;
 
 ]>
-<book xml:base="http://netkiller.sourceforge.net/linux/www"
-	xmlns="http://docbook.org/ns/docbook" xml:lang="zh-cn">
+<book xml:base="http://netkiller.sourceforge.net/linux/www" xmlns="http://docbook.org/ns/docbook" xml:lang="zh-cn">
 	<info>
 		<title>Netkiller MySQL 手札</title>
 		<subtitle>MySQL, MariaDB, Percona ...</subtitle>
@@ -37,8 +36,18 @@
 		<isbn>ISBN#</isbn>
 		<edition>User's Guide version 1.0 for Linux</edition>
 		<pubdate>$Date: 2013-04-10 15:03:49 +0800 (Wed, 10 Apr 2013) $</pubdate>
-		<releaseinfo>文档始创于<date>2010-11-18</date></releaseinfo>
-
+		<releaseinfo>
+			文档始创于
+			<date>2010-11-18</date>
+		</releaseinfo>
+		<cover>
+			<para role="tagline">Netkiller MySQL 手札</para>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/cover.png" />
+				</imageobject>
+			</mediaobject>
+		</cover>
 		&book.info.legalnotice.xml;
 		&book.info.abstract.xml;
 
@@ -47,8 +56,8 @@
 	&book.preface.xml;
 	&book.dedication.xml;
 
-<!-- =========================================================================== -->
+	<!-- =========================================================================== -->
 	&chapter.mysql.xml;
-<!-- =========================================================================== -->
+	<!-- =========================================================================== -->
 
 </book>

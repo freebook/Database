@@ -11,7 +11,12 @@ HTMLHELP_DIR=~/htmlhelp/$(DOCBOOK)/htmlhelp
 
 all: html htmlhelp
 
-html:
+git:
+	@git pull
+	@git submodule init
+	@git submodule update
+
+html: git
 	@mkdir -p ${HTML_DIR}
 	@find ${HTML_DIR} -type f -iname "*.html" -exec rm -rf {} \;
 	@rsync -au ../common/docbook.css $(HTML_DIR)/
