@@ -4,7 +4,7 @@
 	<para>http://www.elasticsearch.org/</para>
 	<section id="install">
 		<title>安装 Elasticsearch</title>
-		<section id="">
+		<section>
 			<title>6.x 安装</title>
 			<para>安装 6.x 仓库</para>
 			<screen>
@@ -22,7 +22,7 @@ yum install elasticsearch
 		<section id="single">
 			<title>单机模式 (适用于开发环境) 5.x </title>
 			<para>使用 Netkiller OSCM 一键安装 Elasticsearch 5.6.0</para>
-			<screen>
+			<screen><![CDATA[
 # Java
 curl -s https://raw.githubusercontent.com/oscm/shell/master/lang/java/openjdk/java-1.8.0-openjdk.sh | bash
 
@@ -38,30 +38,30 @@ curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elasticsearch
 # elasticsearch-analysis-ik
 
 curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elasticsearch/5.5/elasticsearch-analysis-ik-5.6.0.sh | bash
-			</screen>
+			]]></screen>
 			<para>通常 elasticsearch-analysis-ik 的版本会比 elasticsearch 慢一个版本，所以请使用下面命令查看版本是否一致，如果不一致可以修改 plugin-descriptor.properties 配置文件，使其一致。</para>
-			<screen>
+			<screen><![CDATA[
 root@netkiller /usr/share/elasticsearch/plugins/ik % grep ^version plugin-descriptor.properties
 version=5.5.1
-			</screen>
+			]]></screen>
 			<para>启动后使用 jps 命令检查进城是否工作正常</para>
-			<screen>
+			<screen><![CDATA[
 root@netkiller /var/log/elasticsearch % jps | grep Elasticsearch
 9706 Elasticsearch
 
 root@netkiller /var/log/elasticsearch % ss -lnt | grep 9200
 LISTEN     0      128    127.0.0.1:9200                     *:*
-			</screen>
+			]]></screen>
 		</section>
 		<section id="cluster">
 			<title>Elasticsearch Cluster 5.x</title>
 			<para>集群模式需要两个以上的节点，通常是一个 master 节点，多个 data 节点</para>
 			<para>首先在所有节点上安装 elasticsearch，然后配置各节点的配置文件，对于 5.5.1 不需要配置决定哪些节点属于 master 节点 或者 data 节点。</para>
-			<screen>
+			<screen><![CDATA[
 curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elasticsearch/elasticsearch-5.x.sh | bash			
-			</screen>
+			]]></screen>
 			<para>配置文件</para>
-			<screen>
+			<screen><![CDATA[
 cluster.name: elasticsearch-cluster # 配置集群名称,所有服务器服务器保持一致
 
 node.name: node-1 # 每个节点唯一标识，每个节点只需改动这里，一次递增 node-1, node-2, node-3 ...
@@ -74,9 +74,9 @@ discovery.zen.minimum_master_nodes: 3 # 可以作为master的节点总数，有�
 
 http.cors.enabled: true
 http.cors.allow-origin: "*"
-			</screen>
+			]]></screen>
 			<para>查看节点状态，使用curl工具: curl 'http://localhost:9200/_nodes/process?pretty'</para>
-			<screen>
+			<screen><![CDATA[
 root@netkiller /var/log/elasticsearch % curl 'http://localhost:9200/_nodes/process?pretty'
 {
   "_nodes" : {
@@ -124,38 +124,37 @@ root@netkiller /var/log/elasticsearch % curl 'http://localhost:9200/_nodes/proce
     }
   }
 }
-			</screen>
+			]]></screen>
 			<para>启动节点后回生成 cluster.name 为文件名的日志文件。</para>
 			<para>谁先启动谁讲成为master</para>
-			<screen>
+			<screen><![CDATA[
 [2017-08-11T17:42:46,018][INFO ][o.e.c.s.ClusterService   ] [node-1] new_master {node-1}{-lnKCmBXRpiwExLns0jc9g}{rZcJDIynSzq2Td3yP2kN5A}{10.104.3.2}{10.104.3.2:9300}, added {{node-2}{WVsgYi2HT8GWnZU1kUwFwA}{X13ShUpAQa2zA1Mgcsm3bQ}{10.186.7.221}{10.186.7.221:9300},}, reason: zen-disco-elected-as-master ([1] nodes joined)[{node-2}{WVsgYi2HT8GWnZU1kUwFwA}{X13ShUpAQa2zA1Mgcsm3bQ}{10.186.7.221}{10.186.7.221:9300}]			
-			</screen>
+			]]></screen>
 			<para>如果master出现故障，其他节点会接管</para>
-			<screen>
+			<screen><![CDATA[
 [2017-08-11T17:44:52,797][INFO ][o.e.c.s.ClusterService   ] [node-2] master {new {node-2}{WVsgYi2HT8GWnZU1kUwFwA}{vl8kQx8sQdGVVohrNQnZOQ}{10.186.7.221}{10.186.7.221:9300}}, removed {{node-1}{-lnKCmBXRpiwExLns0jc9g}{rZcJDIynSzq2Td3yP2kN5A}{10.104.3.2}{10.104.3.2:9300},}, added {{node-1}{-lnKCmBXRpiwExLns0jc9g}{odnoG9kpQpeX1ltx5KYTSw}{10.104.3.2}{10.104.3.2:9300},}, reason: zen-disco-elected-as-master ([1] nodes joined)[{node-1}{-lnKCmBXRpiwExLns0jc9g}{odnoG9kpQpeX1ltx5KYTSw}{10.104.3.2}{10.104.3.2:9300}]
 [2017-08-11T17:44:53,184][INFO ][o.e.c.r.DelayedAllocationService] [node-2] scheduling reroute for delayed shards in [59.5s] (11 delayed shards)
 [2017-08-11T17:44:53,929][INFO ][o.e.c.r.a.AllocationService] [node-2] Cluster health status changed from [RED] to [YELLOW] (reason: [shards started [[information][0]] ...]).		
-			</screen>
+			]]></screen>
 			<para>master 节点恢复上线会提示</para>
-			<screen>
+			<screen><![CDATA[
 [2017-08-11T17:44:52,855][INFO ][o.e.c.s.ClusterService   ] [node-1] detected_master {node-2}{WVsgYi2HT8GWnZU1kUwFwA}{vl8kQx8sQdGVVohrNQnZOQ}{10.186.7.221}{10.186.7.221:9300}, added {{node-2}{WVsgYi2HT8GWnZU1kUwFwA}{vl8kQx8sQdGVVohrNQnZOQ}{10.186.7.221}{10.186.7.221:9300},}, reason: zen-disco-receive(from master [master {node-2}{WVsgYi2HT8GWnZU1kUwFwA}{vl8kQx8sQdGVVohrNQnZOQ}{10.186.7.221}{10.186.7.221:9300} committed version [44]])
-			</screen>
-		</section>
-		<section id="loadbalance">
-			<title>负载均衡配置</title>
-			<para>首先安装 nginx, 这里使用 Netkiller OSCM 一键安装脚本完成。</para>
-			<screen>
+			]]></screen>
+			<section id="loadbalance">
+				<title>负载均衡配置</title>
+				<para>首先安装 nginx, 这里使用 Netkiller OSCM 一键安装脚本完成。</para>
+				<screen><![CDATA[
 # curl -s https://raw.githubusercontent.com/oscm/shell/master/web/nginx/stable/nginx.sh | bash
-			</screen>
-			<para>因为 elasticsearch 没有用户认证机制我们通常在内网访问他。如果对外提供服务需要增加用户认证。</para>
-			<para></para>
-			<screen>
+			]]></screen>
+				<para>因为 elasticsearch 没有用户认证机制我们通常在内网访问他。如果对外提供服务需要增加用户认证。</para>
+				<para></para>
+				<screen>
 			<![CDATA[
 # printf "neo:$(openssl passwd -crypt s3cr3t)n" > /etc/nginx/passwords 			
 			]]>
-			</screen>
-			<para>创建 nginx 配置文件 /etc/nginx/conf.d/elasticsearch.conf</para>
-			<screen>
+				</screen>
+				<para>创建 nginx 配置文件 /etc/nginx/conf.d/elasticsearch.conf</para>
+				<screen><![CDATA[
 upstream elasticsearch {
 	server 172.16.0.10:9200;
 	server 172.16.0.20:9200;
@@ -201,16 +200,16 @@ server {
 	}
 
 }
-			</screen>
-			<para>反复使用下面方法请求，最终你会发现 total_opened 会达到你的nginx 配置数量</para>
-			<screen>
+			]]></screen>
+				<para>反复使用下面方法请求，最终你会发现 total_opened 会达到你的nginx 配置数量</para>
+				<screen><![CDATA[
 $ curl 'http://test:test@localhost:9200/_nodes/stats/http?pretty' | grep total_opened
 # "total_opened" : 15			
-			</screen>
-			<para>上面的例子适用于绝大多数场景。</para>
-			<example>
-				<title>Elasticsearch master / slave</title>
-				<screen>
+			]]></screen>
+				<para>上面的例子适用于绝大多数场景。</para>
+				<example>
+					<title>Elasticsearch master / slave</title>
+					<screen>
 				<![CDATA[
 upstream elasticsearch {
 	server 172.16.0.10:9200;
@@ -254,10 +253,10 @@ server {
 
 }
 				]]>
-				</screen>
-			</example>
-			<para>通过 limit_except 可以控制访问权限，例如删除操作。</para>
-			<screen>
+					</screen>
+				</example>
+				<para>通过 limit_except 可以控制访问权限，例如删除操作。</para>
+				<screen>
 			<![CDATA[
 limit_except PUT {
 	allow 192.168.1.1;
@@ -268,14 +267,20 @@ limit_except DELETE {
 	deny all;
 }
 			]]>
-			</screen>
+				</screen>
+			</section>
 		</section>
+		
 		<section id="version">
 			<title>安装指定版本的 Elasticsearch</title>
 			<para>使用 yum 安装默认为最新版本，我们常常会遇到一个问题 elasticsearch-analysis-ik 的版本晚于 Elasticsearch。如果使用 yum 安装 Elasticsearch 可能 elasticsearch-analysis-ik 插件不支持这个版本，有些版本的 elasticsearch-analysis-ik 可以修改插件配置文件中的版本号，使其与elasticsearch版本相同，可以欺骗 elasticsearch 跳过版本不一致异常。</para>
-			<para>最佳的解决方案是去 <ulink url="https://github.com/medcl/elasticsearch-analysis-ik" >elasticsearch-analysis-ik github</ulink> 找到兼容的版本，安装我们安装 elasticsearch-analysis-ik 的版本需求来指定安装 elasticsearch</para>
+			<para>
+				最佳的解决方案是去
+				<ulink url="https://github.com/medcl/elasticsearch-analysis-ik">elasticsearch-analysis-ik github</ulink>
+				找到兼容的版本，安装我们安装 elasticsearch-analysis-ik 的版本需求来指定安装 elasticsearch
+			</para>
 			<para></para>
-			<screen>
+			<screen><![CDATA[
 Versions
 
 IK version	ES version
@@ -295,17 +300,17 @@ master	5.x -> master
 1.2.5	0.90.x
 1.1.3	0.20.x
 1.0.0	0.16.2 -> 0.19.0			
-			</screen>
+			]]></screen>
 			<para>最新版是 elasticsearch 5.6.1 但分词插件 elasticsearch-analysis-ik 仅能支持到 elasticsearch 版本是 5.6.0 </para>
-			<screen>
+			<screen><![CDATA[
 root@netkiller /var/log % yum --showduplicates list elasticsearch | expand | tail
 Repository epel is listed more than once in the configuration  
 elasticsearch.noarch                 5.5.3-1                  elasticsearch-5.x     
 elasticsearch.noarch                 5.6.0-1                  elasticsearch-5.x   
 elasticsearch.noarch                 5.6.1-1                  elasticsearch-5.x 
-			</screen>
+			]]></screen>
 			<para>安装 5.6.0</para>
-			<screen>
+			<screen><![CDATA[
 # yum install elasticsearch-5.6.0-1
 
 Loaded plugins: fastestmirror, langpacks
@@ -331,13 +336,13 @@ Install  1 Package
 Total download size: 32 M
 Installed size: 36 M
 Is this ok [y/d/N]: y
-			</screen>
+			]]></screen>
 
 		</section>
 		<section id="plugin">
 			<title>Plugin</title>
 			<para>Elasticsearch 提供了插件管理命令 elasticsearch-plugin</para>
-			<screen>
+			<screen><![CDATA[
 root@netkiller ~ % /usr/share/elasticsearch/bin/elasticsearch-plugin -h
 A tool for managing installed elasticsearch plugins
 
@@ -355,17 +360,17 @@ Option         Description
 -h, --help     show help          
 -s, --silent   show minimal output
 -v, --verbose  show verbose output			
-			</screen>
+			]]></screen>
 			<section id="elasticsearch-analysis-ik">
 				<title>elasticsearch-analysis-ik</title>
 				<para>安装插件</para>
-				<screen>
+				<screen><![CDATA[
 root@netkiller ~ % /usr/share/elasticsearch/bin/elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v5.5.1/elasticsearch-analysis-ik-5.5.1.zip
 -> Downloading https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v5.5.1/elasticsearch-analysis-ik-5.5.1.zip
 [=================================================] 100%   
 -> Installed analysis-ik
-				</screen>
-				<screen>
+				]]></screen>
+				<screen><![CDATA[
 curl -XPOST http://localhost:9200/index/fulltext/_mapping -d'
 {
         "properties": {
@@ -377,7 +382,7 @@ curl -XPOST http://localhost:9200/index/fulltext/_mapping -d'
         }
     
 }'			
-				</screen>
+				]]></screen>
 			</section>
 			<section id="elasticsearch-analysis-pinyin">
 				<title>elasticsearch-analysis-pinyin</title>
@@ -385,8 +390,8 @@ curl -XPOST http://localhost:9200/index/fulltext/_mapping -d'
 			</section>
 		</section>
 	</section>
-	
-	
+
+
 	<section id="document">
 		<title>文档API</title>
 		<section id="quickstart">
@@ -395,9 +400,9 @@ curl -XPOST http://localhost:9200/index/fulltext/_mapping -d'
 			<screen>
 			<![CDATA[
 GET /<_index>/<_type>/<_id>		
-			]]>		
+			]]>
 			</screen>
-			<screen>
+			<screen><![CDATA[
 # curl -XPUT 'http://localhost:9200/website/profile/1' -d '{
 	"name" : "neo",
 	"nickname" : "netkiller",
@@ -437,23 +442,23 @@ GET /<_index>/<_type>/<_id>
   },
   "created" : true
 }
-			</screen>
+			]]></screen>
 			<para>后面会详细讲解 PUT与GET的使用方法以及相关参数</para>
 		</section>
 		<section id="put">
 			<title>写入 PUT/POST</title>
 			<para>通过 PUT 写入数据</para>
-			<screen>
+			<screen><![CDATA[
 [root@localhost ~]# curl -XPUT 'http://localhost:9200/twitter/tweet/1' -d '{
 >     "user" : "kimchy",
 >     "post_date" : "2009-11-15T14:12:12",
 >     "message" : "trying out Elasticsearch"
 > }'
 {"_index":"twitter","_type":"tweet","_id":"1","_version":1,"_shards":{"total":2,"successful":1,"failed":0},"created":true}			
-			</screen>
-			
+			]]></screen>
+
 			<para>使用 UUID 替代 _id, 注意使用UUID 必须使用 POST方式提交，不能使用 PUT。</para>
-			<screen>
+			<screen><![CDATA[
 curl -XPOST 'http://localhost:9200/website/news/?pretty' -d '{
   "title": "My first news entry",
   "text":  "Just trying this out..."
@@ -472,32 +477,32 @@ curl -XPOST 'http://localhost:9200/website/news/?pretty' -d '{
 }
 
 curl -XGET 'http://localhost:9200/website/news/AVY0RJrvJRTrBLpmYzBH?pretty'
-			</screen>
+			]]></screen>
 			<para>提交后会输出 "_id" : "AVY0RJrvJRTrBLpmYzBH"，查询时将此放到放到URL中即可。</para>
-			
+
 		</section>
-		
+
 		<section id="get">
 			<title>获取 GET</title>
 			<para>通过 GET 读取数据</para>
-			<screen>
+			<screen><![CDATA[
 [root@localhost ~]# curl -XGET 'http://localhost:9200/twitter/tweet/1'
 {"_index":"twitter","_type":"tweet","_id":"1","_version":1,"found":true,"_source":{
     "user" : "kimchy",
     "post_date" : "2009-11-15T14:12:12",
     "message" : "trying out Elasticsearch"
 }}
-			</screen>
+			]]></screen>
 			<section>
 				<title>_source</title>
 				<para>只返回 _source 数据，去掉元数据</para>
-				<screen>
+				<screen><![CDATA[
 # curl -XGET 'http://localhost:9200/website/news1/AVY0Q4SqdtH0Up0t-WB2/_source?pretty'
 {
   "title" : "My first news entry",
   "text" : "Just trying this out..."
 }
-				</screen>
+				]]></screen>
 				<para>选择字段 _source=title，超过一个字段使用逗号分隔_source=title,text。</para>
 				<screen>
 				<![CDATA[
@@ -532,7 +537,7 @@ curl -XGET 'http://localhost:9200/website/news/AVY0RJrvJRTrBLpmYzBH?pretty'
 		</section>
 		<section id="head">
 			<title>检查记录是否存在</title>
-			<screen>
+			<screen><![CDATA[
 [root@localhost elasticsearch]# curl -i -XHEAD http://localhost:9200/website/blog/1
 HTTP/1.1 200 OK
 Content-Type: text/plain; charset=UTF-8
@@ -542,30 +547,30 @@ Content-Length: 0
 HTTP/1.1 404 Not Found
 Content-Type: text/plain; charset=UTF-8
 Content-Length: 0
-			</screen>
+			]]></screen>
 			<para>HTTP/1.1 200 OK 表示已经找到你要的数据</para>
 			<para>HTTP/1.1 404 Not Found 表示数据不存在</para>
 		</section>
 		<section id="delete">
 			<title>删除 Delete</title>
 			<para>删除 _index</para>
-			<screen>
+			<screen><![CDATA[
 curl -XDELETE http://localhost:9200/information/?pretty
-			</screen>
+			]]></screen>
 			<para>删除 _mapping</para>
-			<screen>
+			<screen><![CDATA[
 curl -XDELETE http://localhost:9200/information/news/_mapping?pretty			
-			</screen>
+			]]></screen>
 			<para>删除对象</para>
-			<screen>
+			<screen><![CDATA[
 curl -XDELETE http://localhost:9200/information/news/1?pretty			
-			</screen>
+			]]></screen>
 		</section>
 		<section id="param">
 			<title>参数</title>
 			<section>
 				<title>pretty 格式化 json</title>
-				<screen>
+				<screen><![CDATA[
 # curl -XGET 'http://localhost:9200/twitter/tweet/1?pretty'
 {
   "_index" : "twitter",
@@ -579,57 +584,58 @@ curl -XDELETE http://localhost:9200/information/news/1?pretty
     "message" : "trying out Elasticsearch"
   }
 }			
-				</screen>
+				]]></screen>
 			</section>
 		</section>
 	</section>
 	<section id="search">
 		<title>搜索</title>
 		<para>搜索所有内容</para>
-		<screen>
+		<screen><![CDATA[
 # curl -XGET 'http://localhost:9200/_search?pretty'	
 # curl -XGET 'http://localhost:9200/_all/_search?pretty'			
-		</screen>
+		]]></screen>
 		<para>指定 _index 搜索</para>
-		<screen>
+		<screen><![CDATA[
 # curl -XGET 'http://localhost:9200/website/_search?pretty'
 # curl -XGET 'http://localhost:9200/website/news/_search?pretty'
-		</screen>
+		]]></screen>
 		<para>指定 _type 搜索</para>
-		<screen>
+		<screen><![CDATA[
 # curl -XGET 'http://localhost:9200/website,twitter/_search?pretty'
 # curl -XGET 'http://localhost:9200/website/news,blog/_search?pretty'
 # curl -XGET 'http://localhost:9200/website,twitter/news,blog/_search?pretty'
-		</screen>
+		]]></screen>
 		<para>所有 _index 包含指定 _type 搜索</para>
-		<screen>
+		<screen><![CDATA[
 # curl -XGET 'http://localhost:9200/_all/news,blog/_search?pretty'
-		</screen>
-		
-		
+		]]></screen>
+
+
 		<section id="query">
 			<title>URL 搜索</title>
 			<para>字符串搜索</para>
 			<screen>
 			<![CDATA[
 # curl -XGET 'http://localhost:9200/_all/_search?q=neo&pretty'
-			]]>			
+			]]>
 			</screen>
 			<para>同时满足两个条件</para>
-			<screen>
+			<screen><![CDATA[
 +name:neo +age:30
-			</screen>
+			]]></screen>
 			<para>查找name为mary 或者 john的数据</para>
-			<screen>
+			<screen><![CDATA[
 +name:(mary john)
-			</screen>
+			]]></screen>
 			<para>查询姓名是neo或者jam并且年龄小于30岁同时1980-09-10之后出生的</para>
 			<screen>
 			<![CDATA[
 +name:(neo jam) +age:<30 +date:>1980-09-10
 			]]>
 			</screen>
-		</section><section id="search.page">
+		</section>
+		<section id="search.page">
 			<title>分页</title>
 			<para>该功能与SQL的LIMIT关键字结果一样，Elasticsearch接受size和from两个参数参数：</para>
 			<para>size: 返回结果集数量，默认10，用法与SQL中的 Limit相同</para>
@@ -643,13 +649,13 @@ curl -XDELETE http://localhost:9200/information/news/1?pretty
 			]]>
 			</screen>
 		</section>
-		
+
 	</section>
 	<section id="dsl">
 		<title>Query DSL</title>
 		<section id="match">
 			<title>match 匹配</title>
-			<screen>
+			<screen><![CDATA[
 curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
 {
 	"query" : {
@@ -659,13 +665,13 @@ curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
 	}
 }
 '
-			</screen>
-			
+			]]></screen>
+
 		</section>
 		<section id="multi_match">
 			<title>multi_match 多字段匹配</title>
 			<para>multi_match 实现多字段查询</para>
-			<screen>
+			<screen><![CDATA[
 curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
 {
 	"query": {
@@ -687,9 +693,9 @@ curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
 	
 }
 '
-			</screen>	
-		</section>	
-		
+			]]></screen>
+		</section>
+
 		<section id="bool">
 			<title>Query bool 布尔条件</title>
 			<para>Elasticsearch 提供三个布尔条件</para>
@@ -722,12 +728,12 @@ curl -XPOST http://test:123456@so.netkiller.cn/information/article/_search?prett
 }'
 				]]>
 				</screen>
-				
+
 			</section>
 			<section>
 				<title>should</title>
 				<para>查询必须满足标title or author 两个条件</para>
-				<screen>
+				<screen><![CDATA[
 GET /_search
 {
   "query": {
@@ -739,9 +745,9 @@ GET /_search
     }
   }
 }
-				</screen>
+				]]></screen>
 				<para>可以嵌套使用</para>
-				<screen>
+				<screen><![CDATA[
 GET /_search
 {
   "query": {
@@ -759,7 +765,7 @@ GET /_search
     }
   }
 }				
-				</screen>
+				]]></screen>
 			</section>
 			<section>
 				<title>must_not</title>
@@ -768,7 +774,7 @@ GET /_search
 		<section id="filter">
 			<title>filter 过滤</title>
 			<para>query 相当于 SQL 中的 LIKE 匹配， filter 更像是 where 条件。下面的例子查询 site_id = 23 的数据并且 tags 包含 “头条” 关键字</para>
-			<screen>
+			<screen><![CDATA[
 curl -XGET 'http://test:123456@so.netkiller.cn/information/article/_search?pretty' -d '
 {
   "query": {
@@ -786,12 +792,12 @@ curl -XGET 'http://test:123456@so.netkiller.cn/information/article/_search?prett
     }
   }
 }'
-			</screen>
+			]]></screen>
 		</section>
 		<section id="sort">
 			<title>sort 排序</title>
-		
-			<screen>
+
+			<screen><![CDATA[
 curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
 {
 	"query" : {
@@ -801,11 +807,11 @@ curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
 		"ctime": {"order": "desc", "mode":  "min"}
 	}
 }
-'			</screen>
+'			]]></screen>
 		</section>
 		<section id="_source">
 			<title>_source</title>
-			<screen>
+			<screen><![CDATA[
 curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
 {
 	"query" : {
@@ -828,7 +834,7 @@ curl -XGET 'http://localhost:9200/information/news/_search?pretty' -d '
 	}
 }
 '	
-			</screen>
+			]]></screen>
 		</section>
 		<section id="highlight">
 			<title>highlight 高亮处理</title>
@@ -872,22 +878,22 @@ root@netkiller /var/log/elasticsearch % curl -XGET localhost:9200/
 		
 		]]>
 		</screen>
-		
+
 		<section id="health">
 			<title>节点健康状态</title>
-			<screen>
+			<screen><![CDATA[
 root@netkiller ~ % curl 'http://localhost:9200/_cat/health?v' 
 epoch      timestamp cluster        status node.total node.data shards pri relo init unassign pending_tasks max_task_wait_time active_shards_percent
 1502445967 18:06:07  my-application yellow          2         2     17  11    0    0        5             0                  -                 77.3%			
-			</screen>
-			<screen>
+			]]></screen>
+			<screen><![CDATA[
 root@netkiller ~ % curl 'http://localhost:9200/_cluster/health'  
 {"cluster_name":"my-application","status":"yellow","timed_out":false,"number_of_nodes":2,"number_of_data_nodes":2,"active_primary_shards":11,"active_shards":17,"relocating_shards":0,"initializing_shards":0,"unassigned_shards":5,"delayed_unassigned_shards":0,"number_of_pending_tasks":0,"number_of_in_flight_fetch":0,"task_max_waiting_in_queue_millis":0,"active_shards_percent_as_number":77.27272727272727} 			
-			</screen>
+			]]></screen>
 		</section>
 		<section id="nodes">
 			<title>节点http状态</title>
-			<screen>
+			<screen><![CDATA[
 root@netkiller ~ % curl 'localhost:9200/_nodes/stats/http?pretty'
 {
   "_nodes" : {
@@ -932,20 +938,20 @@ root@netkiller ~ % curl 'localhost:9200/_nodes/stats/http?pretty'
   }
 }
 			
-			</screen>
+			]]></screen>
 		</section>
 		<section id="master">
 			<title>查看master节点</title>
-			<screen>
+			<screen><![CDATA[
 root@netkiller ~ % curl 'http://localhost:9200/_cat/nodes?v'      
 ip           heap.percent ram.percent cpu load_1m load_5m load_15m node.role master name
 10.104.3.2             31          98  50    0.20    0.55     0.61 mdi       -      node-1
 10.186.7.221           25          99   0    0.00    0.01     0.05 mdi       *      node-2
-			</screen>
+			]]></screen>
 		</section>
 		<section id="shards">
 			<title>查看索引的节点分布</title>
-			<screen>
+			<screen><![CDATA[
 root@netkiller ~ % curl 'http://localhost:9200/_cat/shards?v'
 index        shard prirep state      docs   store ip           node
 logstash-api 1     p      STARTED     103   342kb 10.186.7.221 node-2
@@ -970,55 +976,56 @@ information  2     p      STARTED      11   160kb 10.104.3.2   node-1
 information  2     r      UNASSIGNED                           
 information  0     p      STARTED       9 202.8kb 10.104.3.2   node-1
 information  0     r      UNASSIGNED                           
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>索引的开启与关闭</title>
-			<screen>
+			<screen><![CDATA[
 POST /{index}/_close		关闭索引
 POST /{index}/_open		打开索引                                                                                                                                                                      
-			</screen>
+			]]></screen>
 			<section>
 				<title>_open</title>
-				<screen>
+				<screen><![CDATA[
 root@netkiller /var/log/elasticsearch % curl 'http://localhost:9200/_cat/indices?v'   
 health status index           uuid                   pri rep docs.count docs.deleted store.size pri.store.size
        close  information     oygxIi-dR1eB9NoIZtJrxQ                                                          
 green  open   logstash-spring 9xXtt_L0QvKHibXFH5gjJQ   5   1       4622            0     62.9mb         31.4mb
 green  open   .kibana         9jBBaOomTO2EakZlZqnE-g   1   1         10            0     36.6kb         18.3kb				
-				</screen>
-				<screen>
+				]]></screen>
+				<screen><![CDATA[
 root@netkiller /var/log/elasticsearch % curl -XPOST 'http://localhost:9200/information/_open'
 {"acknowledged":true}#  				
-				</screen>
-				<screen>
+				]]></screen>
+				<screen><![CDATA[
 root@netkiller /var/log/elasticsearch % curl 'http://localhost:9200/_cat/indices?v'         
 health status index           uuid                   pri rep docs.count docs.deleted store.size pri.store.size
 green  open   information     oygxIi-dR1eB9NoIZtJrxQ   5   1       2417            5     34.5mb         17.3mb
 green  open   logstash-spring 9xXtt_L0QvKHibXFH5gjJQ   5   1       4622            0     62.9mb         31.4mb
 green  open   .kibana         9jBBaOomTO2EakZlZqnE-g   1   1         10            0     36.6kb         18.3kb					
-				</screen>
+				]]></screen>
 			</section>
 			<section>
 				<title>_close</title>
-				<screen>
+				<screen><![CDATA[
 root@netkiller /var/log/elasticsearch % curl -XPOST 'http://localhost:9200/information/_close'
 {"acknowledged":true}#  				
-				</screen>
+				]]></screen>
 			</section>
 		</section>
-	</section><section id="elasticsearch-analysis-ik">
+	</section>
+	<section id="elasticsearch-analysis-ik">
 		<title>中文分词插件管理</title>
 		<section>
 			<title>通过 elasticsearch-plugin 命令安装分词插件</title>
-			<screen>
+			<screen><![CDATA[
 root@netkiller ~ % /usr/share/elasticsearch/bin/elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v5.5.1/elasticsearch-analysis-ik-5.5.1.zip
 -> Downloading https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v5.5.1/elasticsearch-analysis-ik-5.5.1.zip
 [=================================================] 100%   
 -> Installed analysis-ik
-			</screen>
+			]]></screen>
 			<para>创建 mapping</para>
-			<screen>
+			<screen><![CDATA[
 root@netkiller ~ % curl -XPUT http://localhost:9200/information
 			
 root@netkiller ~ % curl -XPOST http://localhost:9200/information/article/_mapping -d'
@@ -1057,27 +1064,27 @@ root@netkiller ~ % curl "http://localhost:9200/information/article/_mapping?pret
   }
 }
 
-			</screen>
+			]]></screen>
 		</section>
 		<section id="plugin.install">
 			<title>手工安装插件</title>
-			<screen>
+			<screen><![CDATA[
 curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elasticsearch/elasticsearch-analysis-ik-5.5.0.sh | bash
-			</screen>
+			]]></screen>
 		</section>
 		<section id="plugin.index">
 			<title>创建索引</title>
-			<screen>
+			<screen><![CDATA[
 curl -XPUT http://localhost:9200/information
-			</screen>
+			]]></screen>
 		</section>
 		<section id="plugin.delete">
 			<title>删除索引</title>
 			<para>如果索引已经存在请删除后重新创建索引</para>
-			<screen>
+			<screen><![CDATA[
 curl -XDELETE http://localhost:9200/information/news/_mapping?pretty
 curl -XDELETE http://localhost:9200/information/?pretty			
-			</screen>
+			]]></screen>
 		</section>
 		<section id="plugin.config">
 			<title>配置索引分词插件</title>
@@ -1147,19 +1154,19 @@ curl -XPOST http://localhost:9200/information/news/_search  -d'
 				</screen>
 			</section>
 		</section>
-		
+
 	</section>
 	<section id="index">
 		<title>索引管理</title>
 		<section id="index.indices">
 			<title>查看索引</title>
-			<screen>
+			<screen><![CDATA[
 root@netkiller ~ % curl 'http://localhost:9200/_cat/indices?v'         
 health status index        uuid                   pri rep docs.count docs.deleted store.size pri.store.size
 yellow open   information  oygxIi-dR1eB9NoIZtJrxQ   5   1         45           42      731kb          731kb
 green  open   .kibana      9jBBaOomTO2EakZlZqnE-g   1   1          5            1     62.5kb         31.2kb
 green  open   logstash-api WHXZhn3vRWiuVbhR8rGoEg   5   1        565            0      3.8mb          1.9mb			
-			</screen>
+			]]></screen>
 		</section>
 		<section id="index.delete">
 			<title>删除索引</title>
@@ -1174,11 +1181,11 @@ green  open   logstash-api WHXZhn3vRWiuVbhR8rGoEg   5   1        565            
 		<title>映射</title>
 		<section id="mapping.get">
 			<title>查看 _mapping</title>
-			<screen>
+			<screen><![CDATA[
 curl -XGET http://localhost:9200/information/news/_mapping?pretty		
-			</screen>
+			]]></screen>
 			<para>数据结构如下</para>
-			<screen>
+			<screen><![CDATA[
 {
   "information" : {
     "mappings" : {
@@ -1219,17 +1226,17 @@ curl -XGET http://localhost:9200/information/news/_mapping?pretty
     }
   }
 }
-			</screen>	
+			]]></screen>
 		</section>
 		<section id="mapping.delete">
 			<title>删除 _mapping </title>
-			<screen>
+			<screen><![CDATA[
 curl -XDELETE http://localhost:9200/information/news/_mapping?pretty		
-			</screen>
+			]]></screen>
 		</section>
 		<section id="mapping.post">
 			<title>创建 _mapping</title>
-			<screen>
+			<screen><![CDATA[
 curl -XPOST http://localhost:9200/information/news/_mapping?pretty -d'
 {
     "news": {
@@ -1252,7 +1259,7 @@ curl -XPOST http://localhost:9200/information/news/_mapping?pretty -d'
         }
     }
 }'
-			</screen>
+			]]></screen>
 		</section>
 		<section id="mapping.update">
 			<title>更新 mapping</title>
@@ -1535,7 +1542,7 @@ curl -XDELETE http://localhost:9200/information_v1
 		<section>
 			<title>查看索引别名</title>
 			<para>没有设置任何别名将返回下面的数据结构</para>
-			<screen>
+			<screen><![CDATA[
 # curl -XGET http://localhost:9200/_aliases?pretty
 {
   "information_v1" : {
@@ -1545,9 +1552,9 @@ curl -XDELETE http://localhost:9200/information_v1
     "aliases" : { }
   }
 }
-			</screen>
+			]]></screen>
 			<para>information 是 information_v1 的别名</para>
-			<screen>
+			<screen><![CDATA[
 # curl -XGET http://localhost:9200/_aliases?pretty
 {
   "information_v1" : {
@@ -1559,11 +1566,11 @@ curl -XDELETE http://localhost:9200/information_v1
     "aliases" : { }
   }
 }
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>创建索引别名</title>
-			<screen>
+			<screen><![CDATA[
 curl -XPUT http://localhost:9200/information_v1
 curl -XPOST http://localhost:9200/information_v1/news/_mapping?pretty -d'
 {
@@ -1608,8 +1615,8 @@ curl -XPOST http://localhost:9200/information_v1/news/_mapping?pretty -d'
         }
     }
 }'	
-			</screen>
-			<screen>
+			]]></screen>
+			<screen><![CDATA[
 curl -XPOST http://localhost:9200/_aliases -d '
 {
     "actions": [
@@ -1623,9 +1630,9 @@ curl -XPOST http://localhost:9200/_aliases -d '
 
 {"acknowledged":true}
 
-			</screen>
+			]]></screen>
 			<para>查看结果</para>
-			<screen>
+			<screen><![CDATA[
 # curl -XGET http://localhost:9200/_aliases?pretty
 {
   "information_v1" : {
@@ -1694,7 +1701,7 @@ curl -XPOST http://localhost:9200/_aliases -d '
   }
 }
 			
-			</screen>
+			]]></screen>
 		</section>
 
 		<section>
@@ -1716,7 +1723,7 @@ curl -XPOST http://localhost:9200/_aliases -d '
 }
 '
 			]]>
-			</screen>			
+			</screen>
 		</section>
 		<section>
 			<title>删除别名</title>
@@ -1738,7 +1745,7 @@ curl -XPOST http://localhost:9200/_aliases -d '
 
 	<section id="example">
 		<title>Example</title>
-	
+
 		<section>
 			<title>新闻资讯应用案例</title>
 			<screen>
@@ -1923,10 +1930,10 @@ curl "http://localhost:9200/information/article/_mapping?pretty"
 		<section id="logstash.install">
 			<title>安装 logstash</title>
 			<para>安装 JDBC 驱动 和 Logstash </para>
-			<screen>
+			<screen><![CDATA[
 curl -s https://raw.githubusercontent.com/oscm/shell/master/database/mysql/5.7/mysql-connector-java.sh	 | bash			
 curl -s https://raw.githubusercontent.com/oscm/shell/master/search/logstash/logstash-5.x.sh | bash
-			</screen>
+			]]></screen>
 			<para>mysql 驱动文件位置在 /usr/share/java/mysql-connector-java.jar </para>
 		</section>
 		<section id="logstash.config">
@@ -2102,9 +2109,9 @@ input {
 				]]>
 				</screen>
 				<para>tracking_column_type => "numeric" 可以声明 id 字段的数据类型, 如果不指定将会默认为日期</para>
-				<screen>
+				<screen><![CDATA[
 [2017-07-31T11:08:00,193][INFO ][logstash.inputs.jdbc     ] (0.020000s) select * from article where id > '2017-07-31 02:47:00'
-				</screen>
+				]]></screen>
 				<para>如果复制不对称可以加入 clean_run => true 配置项，清楚数据</para>
 			</section>
 			<section>
@@ -2162,16 +2169,16 @@ input {
 			</section>
 			<section>
 				<title>控制返回JDBC数据量</title>
-				<screen>
+				<screen><![CDATA[
 	jdbc_fetch_size => 1000  #jdbc获取数据的数量大小
 	jdbc_page_size => 1000 #jdbc一页的大小，
 	jdbc_paging_enabled => true  #和jdbc_page_size组合，将statement的查询分解成多个查询,相当于: SELECT * FROM table LIMIT 1000 OFFSET 4000 				
-				</screen>
+				]]></screen>
 			</section>
 			<section>
 				<title>输出到不同的 Elasticsearch 中</title>
 				<para>通过 if [type]=="news" 执行不同的区块，实现将不同的type输出到指定的 index 中。</para>
-				<screen>
+				<screen><![CDATA[
 output {
 	if [type]=="news" {
 	  elasticsearch {
@@ -2189,6 +2196,7 @@ output {
 	  }
 	}
 }		
+				]]>
 				</screen>
 			</section>
 			<section>
@@ -2357,7 +2365,7 @@ END
 			</screen>
 			<para>接下来我们需要写一个简单地 Shell 每分钟运行一次，从 elasticsearch_trash 数据表中取出数据，然后使用 curl 命令调用 elasticsearch restful 接口，删除被收回的数据。 </para>
 		</section>
-		
+
 		<section id="logstash.mapping">
 			<title>修改 Mapping</title>
 			<paraf>需求 Elasticsearch 时间格式 从ISO 8601 到 yyyy-MM-dd HH:mm:ss。首先停止 logstash</paraf>
@@ -2476,9 +2484,9 @@ rm -rf /var/log/logstash/*
 systemctl start logstash			
 			]]>
 			</screen>
-			
+
 		</section>
-		
+
 	</section>
 	<section>
 		<title>ElasticHD</title>
@@ -2490,7 +2498,7 @@ systemctl start logstash
 		<title>FAQ</title>
 		<section>
 			<title>Plugin [analysis-ik] is incompatible with Elasticsearch [2.3.5]. Was designed for version [2.3.4]</title>
-			<screen>
+			<screen><![CDATA[
 			<![CDATA[
 [2016-08-20 19:18:40,930][INFO ][node                     ] [Morg] version[2.3.5], pid[31494], build[90f439f/2016-07-27T10:36:52Z]
 [2016-08-20 19:18:40,930][INFO ][node                     ] [Morg] initializing ...
@@ -2508,40 +2516,40 @@ java.lang.IllegalArgumentException: Plugin [analysis-ik] is incompatible with El
 			]]>
 			</screen>
 			<para>解决方案</para>
-			<screen>
+			<screen><![CDATA[
 cd /usr/share/elasticsearch/plugins/ik
 vim plugin-descriptor.properties
 
 elasticsearch.version=2.3.4
 改为
 elasticsearch.version=2.3.5
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>plugin [analysis-ik] is incompatible with version [5.6.1]; was designed for version [5.5.2]</title>
 			<para>解决方案</para>
-			<screen>
+			<screen><![CDATA[
 root@netkiller /var/log/elasticsearch % /usr/share/elasticsearch/bin/elasticsearch-plugin list
 analysis-ik
 WARNING: plugin [analysis-ik] is incompatible with version [5.6.1]; was designed for version [5.5.2]			
-			</screen>
-			<screen>
+			]]></screen>
+			<screen><![CDATA[
 root@netkiller /var/log/elasticsearch % /usr/share/elasticsearch/bin/elasticsearch-plugin remove analysis-ik --purge
 -> removing [analysis-ik]...
-			</screen>
+			]]></screen>
 			<para>手工安装 5.6.0 然后</para>
-			<screen>
+			<screen><![CDATA[
 vim /usr/share/elasticsearch/plugins/analysis-ik/plugin-descriptor.properties 
 
 elasticsearch.version=5.5.2
 改为
 elasticsearch.version=5.6.1
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>mapper_parsing_exception: failed to parse [ctime]</title>
 			<para>date 各位为YYYY-MM-ddTHH:mm:ss，注意中间的字幕T</para>
-			<screen>
+			<screen><![CDATA[
 {"type":"date","format":"YYYY-MM-dd'T'HH:mm:ss.SSSZ"}
 
 curl -XPOST "http://localhost:9200/netkiller/news/" -d'
@@ -2549,15 +2557,15 @@ curl -XPOST "http://localhost:9200/netkiller/news/" -d'
     "content": "Hello World!",
     "CreateDate": "2009-11-15T12:12:12"
 }'
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>配置 JAVA_HOME</title>
 			<para>编辑 /etc/sysconfig/elasticsearch 配置文件</para>
-			<screen>
+			<screen><![CDATA[
 # Elasticsearch Java path
 JAVA_HOME=/srv/java
-			</screen>
+			]]></screen>
 		</section>
 	</section>
 </chapter>
