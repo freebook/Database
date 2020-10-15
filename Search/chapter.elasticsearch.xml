@@ -270,7 +270,122 @@ limit_except DELETE {
 				</screen>
 			</section>
 		</section>
-		
+		<section>
+			<title>docker-compose 安装</title>
+			<screen>
+			<![CDATA[
+version: '3.8'
+services:
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.2
+    container_name: es01
+    environment:
+      - node.name=es01
+      - cluster.name=elasticsearch-cluster
+      - bootstrap.memory_lock=true
+      - discovery.zen.ping.unicast.hosts=es01,es02,es03
+      - discovery.zen.minimum_master_nodes=2
+      - discovery.zen.ping_timeout=5s
+      - node.master=true
+      - node.data=true
+      - node.ingest=false
+      - ES_JAVA_OPTS=-Xms256m -Xmx256m
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      - 9300:9300
+    networks:
+      - elastic
+  es02:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.2
+    container_name: es02
+    environment:
+      - node.name=es02
+      - cluster.name=elasticsearch-cluster
+      - bootstrap.memory_lock=true
+      - discovery.zen.ping.unicast.hosts=es01,es02,es03
+      - discovery.zen.minimum_master_nodes=2
+      - discovery.zen.ping_timeout=5s
+      - node.master=true
+      - node.data=true
+      - node.ingest=false
+      - ES_JAVA_OPTS=-Xms256m -Xmx256m
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data02:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+    depends_on:
+      - es01  
+  es03:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.2
+    container_name: es03
+    environment:
+      - node.name=es03
+      - cluster.name=elasticsearch-cluster
+      - bootstrap.memory_lock=true
+      - discovery.zen.ping.unicast.hosts=es01,es02,es03
+      - discovery.zen.minimum_master_nodes=2
+      - discovery.zen.ping_timeout=5s
+      - node.master=true
+      - node.data=true
+      - node.ingest=true
+      - ES_JAVA_OPTS=-Xms256m -Xmx256m
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data03:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+    depends_on:
+      - es01
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.9.2
+    container_name: kibana
+    environment:
+      # SERVER_NAME: kibana.example.org
+      ELASTICSEARCH_HOSTS: http://es01:9200
+    ports:
+      - 5601:5601
+    networks:
+      - elastic
+    depends_on:
+      - es01
+volumes:
+  data01:
+    driver: local
+  data02:
+    driver: local
+  data03:
+    driver: local
+
+networks:
+  elastic:
+    driver: bridge   			
+			]]>
+			</screen>
+			<para>查看节点信息</para>
+			<screen>
+			<![CDATA[
+neo@MacBook-Pro-Neo ~/workspace/docker % curl "http://localhost:9200/_cat/nodes?v&pretty"
+ip         heap.percent ram.percent cpu load_1m load_5m load_15m node.role master name
+172.19.0.4           48          86  35    4.86    2.90     1.84 dilmrt    *      es03
+172.19.0.3           67          86  35    4.86    2.90     1.84 dlmrt     -      es02
+172.19.0.2           45          86  35    4.86    2.90     1.84 dlmrt     -      es01			
+			]]>
+			</screen>
+		</section>
+
 		<section id="version">
 			<title>安装指定版本的 Elasticsearch</title>
 			<para>使用 yum 安装默认为最新版本，我们常常会遇到一个问题 elasticsearch-analysis-ik 的版本晚于 Elasticsearch。如果使用 yum 安装 Elasticsearch 可能 elasticsearch-analysis-ik 插件不支持这个版本，有些版本的 elasticsearch-analysis-ik 可以修改插件配置文件中的版本号，使其与elasticsearch版本相同，可以欺骗 elasticsearch 跳过版本不一致异常。</para>
@@ -389,8 +504,29 @@ curl -XPOST http://localhost:9200/index/fulltext/_mapping -d'
 				<para>https://github.com/medcl/elasticsearch-analysis-pinyin</para>
 			</section>
 		</section>
+		<section>
+			<title>发现配置</title>
+			<para>多播配置下，节点向集群发送多播请求，其他节点收到请求后会做出响应。配置参数如下：</para>
+			<screen>
+			<![CDATA[
+discovery.zen.ping.multicast.group:224.2.2.4  	组地址
+discovery.zen.ping.multicast.port：54328  		端口
+discovery.zen.ping.multicast.ttl:3 				广播消息ttl
+discovery.zen.ping.multicast.address:null		绑定的地址，null表示绑定所有可用的网络接口
+discovery.zen.ping.multicast.enabled:true 		多播自动发现禁用开关
+			]]>
+			</screen>
+			<para>单播配置下，节点向指定的主机发送单播请求，配置如下：</para>
+			<screen>
+			<![CDATA[
+# discovery.zen.ping.unicast.hosts:host1:port1,host2:port2
+discovery.zen.ping.unicast.hosts=es01,es02,es03
+discovery.zen.minimum_master_nodes=2
+discovery.zen.ping_timeout=5s
+			]]>
+			</screen>
+		</section>
 	</section>
-
 
 	<section id="document">
 		<title>文档API</title>
