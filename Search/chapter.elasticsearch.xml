@@ -385,7 +385,156 @@ ip         heap.percent ram.percent cpu load_1m load_5m load_15m node.role maste
 			]]>
 			</screen>
 		</section>
+		<section>
+			<title>Kubernetes</title>
+			<screen>
+			<![CDATA[
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elasticsearch-logging-config
+  namespace: kube-public
+  labels:
+    app: elasticsearch-logging
+data:
+  limits.conf: |-
+    elasticsearch soft memlock unlimited
+    elasticsearch hard memlock unlimited
+    elasticsearch hard nofile 65536
+    elasticsearch soft nofile 65536
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch-logging
+  namespace: kube-public
+  labels:
+    app: elasticsearch-logging
+spec:
+  serviceName: elasticsearch-logging
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elasticsearch-logging
+  template:
+    metadata:
+      labels:
+        app: elasticsearch-logging
+    spec:
+      initContainers:
+      - name: elasticsearch-logging-init
+        image: alpine:latest
+        imagePullPolicy: IfNotPresent
+        command: ["/sbin/sysctl", "-w", "vm.max_map_count=262144"]
+        securityContext:
+          privileged: true
+      containers:
+      - name: elasticsearch-logging
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.9.2
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            cpu: 200m
+            # memory: "1Gi"
+          requests:
+            cpu: 200m
+            # memory: "1Gi"
+        env:
+        - name: "NAMESPACE"
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: node.name
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: "cluster.name"
+          value: "elasticsearch-cluster"
+        - name: "bootstrap.memory_lock"
+          # value: "true"
+          value: "false"
+        - name: "discovery.seed_hosts"
+          value: "elasticsearch-logging-0,elasticsearch-logging-1,elasticsearch-logging-2"
+        - name: "cluster.initial_master_nodes"
+          value: "elasticsearch-logging-0"
+        - name: "discovery.find_peers_interval"
+          value: "5s"
 
+        - name: "gateway.expected_nodes"
+          value: "2"
+        - name: "gateway.expected_master_nodes"
+          value: "1"
+
+        - name: "http.cors.enabled"
+          value: "true"
+        - name: "http.cors.allow-origin"
+          value: "*"
+
+        - name: "ES_JAVA_OPTS"
+          value: "-Xms1g -Xmx1g"
+        - name: RLIMIT_MEMLOCK
+          value: "unlimited"
+        ports:
+        - containerPort: 9200
+          name: restful
+          protocol: TCP
+        - containerPort: 9300
+          name: transport
+          protocol: TCP
+        # readinessProbe:
+        #     httpGet:
+        #       scheme: HTTP
+        #       path: /_cluster/health?local=true
+        #       port: 9200
+        #     initialDelaySeconds: 5  
+        # livenessProbe:
+        #   tcpSocket:
+        #     port: transport
+        #   initialDelaySeconds: 20
+        #   periodSeconds: 10
+        volumeMounts:
+        - name: elasticsearch-config
+          mountPath: /etc/security/limits.conf
+          subPath: limits.conf
+        - name: elasticsearch-data
+          mountPath: /data
+      volumes:
+      - name: elasticsearch-data
+        emptyDir: {}
+        # hostPath:
+          # path: /data
+      - name: elasticsearch-config
+        configMap:
+          name: elasticsearch-logging-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-logging
+  namespace: kube-public
+  labels:
+    k8s-app: elasticsearch-logging
+    kubernetes.io/cluster-service: "true"
+    kubernetes.io/name: "Elasticsearch"
+spec:
+  selector:
+    app: elasticsearch-logging
+  type: NodePort
+  # type: ClusterIP
+  # clusterIP: None
+  ports:
+  - name: restful
+    port: 9200
+    protocol: TCP
+    targetPort: restful
+    nodePort: 30092
+  - name: transport
+    port: 9300
+    targetPort: transport
+			
+			]]>
+			</screen>
+		</section>
 		<section id="version">
 			<title>安装指定版本的 Elasticsearch</title>
 			<para>使用 yum 安装默认为最新版本，我们常常会遇到一个问题 elasticsearch-analysis-ik 的版本晚于 Elasticsearch。如果使用 yum 安装 Elasticsearch 可能 elasticsearch-analysis-ik 插件不支持这个版本，有些版本的 elasticsearch-analysis-ik 可以修改插件配置文件中的版本号，使其与elasticsearch版本相同，可以欺骗 elasticsearch 跳过版本不一致异常。</para>
@@ -505,9 +654,35 @@ curl -XPOST http://localhost:9200/index/fulltext/_mapping -d'
 			</section>
 		</section>
 		<section>
+			<title>Elastic Cloud on Kubernetes</title>
+			
+		</section>
+
+		<section>
 			<title>发现配置</title>
-			<para>多播配置下，节点向集群发送多播请求，其他节点收到请求后会做出响应。配置参数如下：</para>
+			<para>https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-discovery-settings.html</para>
 			<screen>
+			<![CDATA[
+cluster.initial_master_nodes 集群初始化的提供的master候选地址，第一次启动时将从该列表中获取master
+
+discovery.seed_hosts 配置该节点会与哪些候选地址进行通信，hostname,ip ,ip+port
+discovery.seed_providers 指定种子地址提供的方式，默认settings，也支持其他Discovery Plugins，包括EC2 Discovery，Azure Classic discovery，GCE discovery（ Google Compute Engine discovery ）
+
+discovery.seed_providers: file 当指定的时候，可以在该指定文件中填写ip，方便单独维护。
+discovery.find_peers_interval 未发现主节点的重试时间，默认1s
+
+discovery.seed_resolver.timeout 种子提供地址的超时时间
+discovery.seed_resolver.max_concurrent_resolvers 并发查找的数量
+
+由以下配置提供未填写端口时的端口范围。
+transport.profiles.default.port
+transport.port			
+			]]>
+			</screen>
+			<section>
+				<title>即将废弃</title>
+				<para>多播配置下，节点向集群发送多播请求，其他节点收到请求后会做出响应。配置参数如下：</para>
+				<screen>
 			<![CDATA[
 discovery.zen.ping.multicast.group:224.2.2.4  	组地址
 discovery.zen.ping.multicast.port：54328  		端口
@@ -515,16 +690,17 @@ discovery.zen.ping.multicast.ttl:3 				广播消息ttl
 discovery.zen.ping.multicast.address:null		绑定的地址，null表示绑定所有可用的网络接口
 discovery.zen.ping.multicast.enabled:true 		多播自动发现禁用开关
 			]]>
-			</screen>
-			<para>单播配置下，节点向指定的主机发送单播请求，配置如下：</para>
-			<screen>
+				</screen>
+				<para>单播配置下，节点向指定的主机发送单播请求，配置如下：</para>
+				<screen>
 			<![CDATA[
 # discovery.zen.ping.unicast.hosts:host1:port1,host2:port2
 discovery.zen.ping.unicast.hosts=es01,es02,es03
 discovery.zen.minimum_master_nodes=2
 discovery.zen.ping_timeout=5s
 			]]>
-			</screen>
+				</screen>
+			</section>
 		</section>
 	</section>
 
@@ -2702,6 +2878,15 @@ curl -XPOST "http://localhost:9200/netkiller/news/" -d'
 # Elasticsearch Java path
 JAVA_HOME=/srv/java
 			]]></screen>
+		</section>
+		<section>
+			<title>memory locking requested for elasticsearch process but memory is not locked</title>
+			<screen>
+			<![CDATA[
+ERROR: [1] bootstrap checks failed
+[1]: memory locking requested for elasticsearch process but memory is not locked			
+			]]>
+			</screen>
 		</section>
 	</section>
 </chapter>
