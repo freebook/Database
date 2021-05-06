@@ -239,6 +239,27 @@ INSERT INTO `test`.`account` (`user`, `point`) VALUES ('neo', -20);
 select sum(point) as point from account where user='neo';
 		</programlisting>
 	</section>
+	<section>
+		<title>共享锁</title>
+		<para>先加上共享锁，此时也会对mytable表加上IS锁</para>
+		<programlisting>
+		<![CDATA[
+begin;
+select * from mytable where id=1 for share; 		
+		]]>
+		</programlisting>
+		<para>观察IS锁</para>
+		<programlisting>
+		<![CDATA[
+select * from performance_schema.data_locks;	
+		]]>
+		</programlisting>
+		<programlisting>
+		<![CDATA[
+		
+		]]>
+		</programlisting>
+	</section>
 	<section id="savepoint">
 		<title>SAVEPOINT</title>
 		<programlisting>
