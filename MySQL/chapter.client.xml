@@ -754,5 +754,14 @@ mysqldumpslow -s r -t 20 ubuntu-slow.log
 		]]>
 		</programlisting>
 	</section>
+	<section id="">
+		<title></title>
+		<para><ulink url="https://www.mycli.net"/></para>
+		<screen>
+		<![CDATA[
+$ brew update && brew install mycli		
+		]]>
+		</screen>
+	</section>
 	&chapter.mysql.log.xml;
 </chapter>
