@@ -1,23 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- $Id: chapter.mysql.manager.xml 656 2013-08-05 09:41:22Z netkiller $ -->
 <chapter id="index"><?dbhtml dir="administration"?>
-	<title>Database Administration</title>
+	<title>数据库管理（Database Administration)</title>
 	<section id="user">
-		<title>User Account Management</title>
+		<title>用户管理（User Account Management）</title>
 		<section>
-			<title>Create User</title>
-			<programlisting>
+			<title>创建用户</title>
+			<screen>
+			<![CDATA[
 CREATE USER user [IDENTIFIED BY [PASSWORD] 'password']
     [, user [IDENTIFIED BY [PASSWORD] 'password']] ...
-			</programlisting>
+			]]>
+			</screen>
 			<screen>
+<![CDATA[
 CREATE USER 'test'@'xxx.xxx.xxx.xxx' IDENTIFIED BY  'your_password';
-			</screen>
+			]]></screen>
 			<screen>
+<![CDATA[
 CREATE USER 'root'@'192.168.1.%' IDENTIFIED BY 'password';
-			</screen>
+			]]></screen>
 			<para>add a new user by grant</para>
-			<programlisting>
+			<screen>
 			<![CDATA[
 GRANT ALL PRIVILEGES ON opencart.* TO 'neo'@'localhost' IDENTIFIED BY 'chen' WITH GRANT OPTION;
 
@@ -25,7 +29,7 @@ GRANT ALL PRIVILEGES ON *.* TO 'neo'@'localhost' IDENTIFIED BY 'chen' WITH GRANT
 
 FLUSH PRIVILEGES;
 			]]>
-			</programlisting>
+			</screen>
 			<para>MySQL 8.0</para>
 			<screen>
 			<![CDATA[
@@ -39,11 +43,12 @@ Query OK, 0 rows affected (0.11 sec)
 			</screen>
 		</section>
 		<section>
-			<title>Drop User</title>
+			<title>删除用户</title>
 			<screen>
+<![CDATA[
 DROP USER user [, user] ...
-			</screen>
-			<programlisting>
+			]]></screen>
+			<screen>
 			<![CDATA[
 mysql> drop user 'root'@'%';
 Query OK, 0 rows affected (0.02 sec)
@@ -54,38 +59,53 @@ Query OK, 0 rows affected (0.00 sec)
 mysql> drop user admin@'127.0.0.1';
 Query OK, 0 rows affected (0.00 sec)
 			]]>
-			</programlisting>
-		</section>
-		<section>
-			<title>Rename User</title>
-			<screen>
-RENAME USER old_user TO new_user [, old_user TO new_user] ...
 			</screen>
 		</section>
 		<section>
-			<title>SET PASSWORD</title>
+			<title>修改用户名</title>
+			<screen>
+<![CDATA[
+RENAME USER old_user TO new_user [, old_user TO new_user] ...
+			]]></screen>
+		</section>
+		<section>
+			<title>修改密码</title>
 			<para>mysql 5.7 之前的版本</para>
 			<screen>
+<![CDATA[
 SET PASSWORD FOR 'bob'@'%.loc.gov' = PASSWORD('newpass');
 
 SET PASSWORD FOR 'root'@'%' = PASSWORD('co2uqAMAho1aSOS62146Xoci6ogu4I');
-			</screen>
-			<para>MySQL 5.7</para>
+			]]></screen>
+			<para>MySQL 5.7 之后</para>
 			<screen>
+<![CDATA[
 ALTER USER 'root'@'localhost' IDENTIFIED BY 'your_password';		
+			]]></screen>
+			<para></para>
+			<screen>
+			<![CDATA[
+mysql> ALTER user 'root'@'%' IDENTIFIED BY 'test';
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> FLUSH PRIVILEGES;
+Query OK, 0 rows affected (0.00 sec)			
+			]]>
 			</screen>
 		</section>
 	</section>
 	<section id="privilege">
 		<title>Access Privilege System</title>
 		<screen>
+<![CDATA[
 global privileges
 OR (database privileges AND host privileges)
 OR table privileges
 OR column privileges
 OR routine privileges
-		</screen>
+		]]></screen>
 		<screen>
+<![CDATA[
 Table 12.1. Permissible Privileges for GRANT and REVOKE
 
 Privilege	Meaning
@@ -121,7 +141,7 @@ SUPER	Enable use of other administrative operations such as CHANGE MASTER TO, KI
 TRIGGER	Enable trigger operations
 UPDATE	Enable use of UPDATE
 USAGE	Synonym for “no privileges”
-		</screen>
+		]]></screen>
 		<ulink url="http://dev.mysql.com/doc/refman/5.5/en/grant.html#grant-table-privileges" />
 		<para>REPLICATION CLIENT 与 REPLICATION SLAVE区别，前者只能使用SHOW MASTER STATUS和SHOW SLAVE STATUS命令监控复制状态，后者才能从主库复制binlog.</para>
 		<section>
@@ -197,32 +217,38 @@ mysql> show privileges;
 			<title>Grant privileges </title>
 			<para>Global privileges </para>
 			<screen>
+<![CDATA[
 GRANT ALL ON *.* TO 'someuser'@'somehost';
 GRANT SELECT, INSERT ON *.* TO 'someuser'@'somehost';
-			</screen>
+			]]></screen>
 			<para>Database privileges </para>
 			<screen>
+<![CDATA[
 GRANT ALL ON mydb.* TO 'someuser'@'somehost';
 GRANT SELECT, INSERT ON mydb.* TO 'someuser'@'somehost';
-			</screen>
+			]]></screen>
 			<para>Table privileges </para>
 			<screen>
+<![CDATA[
 GRANT ALL ON mydb.mytbl TO 'someuser'@'somehost';
 GRANT SELECT, INSERT ON mydb.mytbl TO 'someuser'@'somehost';
-			</screen>
+			]]></screen>
 			<para>Column privileges </para>
 			<screen>
+<![CDATA[
 GRANT SELECT (col1), INSERT (col1,col2) ON mydb.mytbl TO 'someuser'@'somehost';
-			</screen>
+			]]></screen>
 			<para>Routine privileges </para>
 			<screen>
+<![CDATA[
 GRANT CREATE ROUTINE ON mydb.* TO 'someuser'@'somehost';
 GRANT EXECUTE ON PROCEDURE mydb.myproc TO 'someuser'@'somehost';
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>Revoke privileges</title>
 			<screen>
+<![CDATA[
 REVOKE
     priv_type [(column_list)]
       [, priv_type [(column_list)]] ...
@@ -231,11 +257,11 @@ REVOKE
 
 REVOKE ALL PRIVILEGES, GRANT OPTION
     FROM user [, user] ...
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>Show Privileges</title>
-			<programlisting>
+			<screen>
 			<![CDATA[
 mysql> select * from user where user = 'neo'\G
 *************************** 1. row ***************************
@@ -282,35 +308,38 @@ Create_tmp_table_priv: Y
 
 mysql>
 			]]>
-			</programlisting>
+			</screen>
 		</section>
 		<section>
 			<title>MAX_QUERIES_PER_HOUR/MAX_UPDATES_PER_HOUR</title>
-			<programlisting>
+			<screen>
 			<![CDATA[
 GRANT USAGE ON *.* TO ...
   WITH MAX_QUERIES_PER_HOUR 500 MAX_UPDATES_PER_HOUR 100;
 			]]>
-			</programlisting>
+			</screen>
 		</section>
 		<section>
 			<title>Table Privileges</title>
 			<para>授权tmp用户只能访问tabname表</para>
-			<programlisting>
+			<screen>
+<![CDATA[
 GRANT ALL PRIVILEGES ON tmp.tabname TO 'tmp'@'%' IDENTIFIED BY 'chen' WITH GRANT OPTION;
-			</programlisting>
-			<para>如果用户已经存在仅仅是分配权限可以使用下面方法</para>			
-			<programlisting>
+			]]></screen>
+			<para>如果用户已经存在仅仅是分配权限可以使用下面方法</para>
+			<screen>
+<![CDATA[
 GRANT ALL ON mydb.mytbl TO 'someuser'@'somehost';
 GRANT SELECT, INSERT ON mydb.mytbl TO 'someuser'@'somehost';			
-			</programlisting>
+			]]></screen>
 		</section>
 		<section>
 			<title>Column Privileges</title>
 			<para>mydb.mytbl 表 col1字段允许查询，col1,col2允许插入</para>
-			<programlisting>
+			<screen>
+<![CDATA[
 GRANT SELECT (col1), INSERT (col1,col2) ON mydb.mytbl TO 'someuser'@'somehost';			
-			</programlisting>
+			]]></screen>
 		</section>
 	</section>
 	<section id="maintenance">
@@ -318,34 +347,40 @@ GRANT SELECT (col1), INSERT (col1,col2) ON mydb.mytbl TO 'someuser'@'somehost';
 		<section>
 			<title>CHECK 检查表</title>
 			<screen>
+<![CDATA[
+<![CDATA[
 CHECK TABLE `dbname`.`actions`;
 CHECK TABLE `dbname`.`actions` QUICK FAST MEDIUM EXTENDED CHANGED;
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>ANALYZE 分析表</title>
 			<screen>
+<![CDATA[
 ANALYZE TABLE `dbname`.`actions`;
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>CHECKSUM</title>
 			<screen>
+<![CDATA[
 CHECKSUM TABLE `dbname`.`actions` QUICK;
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>OPTIMIZE 优化表</title>
 			<screen>
+<![CDATA[
 OPTIMIZE TABLE `dbname`.`actions`;
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>REPAIR 修复</title>
 			<screen>
+<![CDATA[
 REPAIR TABLE `dbname`.`members`;
 SHOW TABLE STATUS LIKE 'members';
-			</screen>
+			]]></screen>
 		</section>
 	</section>
 	<section id="INFORMATION_SCHEMA">
@@ -366,7 +401,7 @@ WHERE
 		</section>
 		<section id="">
 			<title>列出所有触发器</title>
-			<programlisting>
+			<screen>
 			<![CDATA[
 select trigger_schema, trigger_name, action_statement from information_schema.triggers
 
@@ -374,7 +409,7 @@ select * from information_schema.triggers where information_schema.triggers.trig
 			
 select * from information_schema.triggers where information_schema.triggers.trigger_name like '%trigger_name%' and information_schema.triggers.trigger_schema like '%data_base_name%';			
 			]]>
-			</programlisting>			
+			</screen>
 		</section>
 	</section>
 	&chapter.backup.xml;

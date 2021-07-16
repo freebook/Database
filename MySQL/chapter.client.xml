@@ -754,7 +754,7 @@ mysqldumpslow -s r -t 20 ubuntu-slow.log
 		]]>
 		</programlisting>
 	</section>
-	<section id="">
+	<section id="mycli">
 		<title></title>
 		<para><ulink url="https://www.mycli.net"/></para>
 		<screen>

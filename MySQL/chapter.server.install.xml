@@ -3,12 +3,182 @@
 <section id="mysql.install">
 	<title>MySQL Installation</title>
 	<para>http://downloads.mysql.com/archives.php</para>
-	<section id="mysql.ubuntu">
+	<section id="mysql.centos">
+		<title>CentOS</title>
+		<section>
+			<title>CentOS 8 Stream + dnf 安装 Mysql</title>
+			<screen>
+			<![CDATA[
+[root@localhost ~]# dnf install -y mysql-server mysql mysql-test
+[root@localhost ~]# systemctl enable mysqld
+Created symlink /etc/systemd/system/multi-user.target.wants/mysqld.service → /usr/lib/systemd/system/mysqld.service.	
+			]]>
+			</screen>
+			<para>配分配置文件</para>
+			<screen>
+			<![CDATA[
+cp /etc/my.cnf{,.original}
+cp /etc/my.cnf.d/mysql-server.cnf /etc/mysql-server.cnf.original
+cat >> /etc/my.cnf.d/mysql-server.cnf <<EOF
+
+# Add by Neo
+character-set-server=utf8mb4
+collation-server=utf8mb4_general_ci
+explicit_defaults_for_timestamp=true
+lower_case_table_names=1
+EOF
+			]]>
+			</screen>
+			<para>设置文件打开数据</para>
+			<screen>
+			<![CDATA[
+cat >> /etc/security/limits.d/20-nofile.conf <<EOF
+mysql soft nofile 65535
+mysql hard nofile 65535
+EOF
+
+cat >> /etc/systemd/system/mysqld.service.d/override.conf  <<EOF
+[Service]
+LimitNOFILE=65000
+EOF
+			]]>
+			</screen>
+			<para>启动数据库</para>
+			<screen>
+			<![CDATA[
+[root@localhost ~]# systemctl start mysqld			
+			]]>
+			</screen>
+			<para>创建用户</para>
+			<screen>
+			<![CDATA[
+mysql> CREATE USER 'root'@'%' IDENTIFIED BY 'test';
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> GRANT ALL ON *.* TO 'root'@'%' WITH GRANT OPTION;	
+Query OK, 0 rows affected (0.03 sec)
+			]]>
+			</screen>
+			<example>
+				<title>MySQL 8 创建root账号</title>
+				<screen>
+				<![CDATA[
+[root@localhost ~]# mysql
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 8
+Server version: 8.0.21 Source distribution
+
+Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> CREATE USER 'root'@'%' IDENTIFIED BY 'test';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> GRANT ALL ON *.* TO 'root'@'%';
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> FLUSH PRIVILEGES;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql>
+				]]>
+				</screen>				
+			</example>
+		</section>
+		<section>
+			<title>CentOS 6.2 + MySQL 5.5.25 (RPM)</title>
+			<para>准备下面的软件包</para>
+			<screen>
+<![CDATA[
+# ls -1
+MySQL-client-5.5.25-1.el6.x86_64.rpm
+MySQL-devel-5.5.25-1.el6.x86_64.rpm
+MySQL-server-5.5.25-1.el6.x86_64.rpm
+MySQL-shared-5.5.25-1.el6.x86_64.rpm
+MySQL-shared-compat-5.5.25-1.el6.x86_64.rpm
+			]]></screen>
+			<para>使用 yum 本地安装 rpm, yum 可以帮你解决依赖于冲突 </para>
+			<screen>
+<![CDATA[
+# yum localinstall MySQL-*
+			]]></screen>
+			<screen>
+<![CDATA[
+# /etc/init.d/mysql start
+Starting MySQL... SUCCESS!
+
+# /usr/bin/mysqladmin -u root password 'tUG26WSslP30bkbwtMhn'
+			]]></screen>
+		</section>
+		<section>
+			<title>MySQL 8.0</title>
+			<para>安装</para>
+			<screen>
+			<![CDATA[
+curl -s https://raw.githubusercontent.com/oscm/shell/master/database/mysql/8.0/server.sh | bash
+			]]>
+			</screen>
+			<para>启动</para>
+			<screen>
+			<![CDATA[
+systemctl enable mysql
+systemctl start mysql
+			]]>
+			</screen>
+			<para>必须修改密码后才能使用</para>
+			<screen>
+			<![CDATA[
+[root@netkiller ~]# grep "A temporary password" /var/log/mysqld.log
+2018-04-03T02:24:16.935070Z 1 [Note] A temporary password is generated for root@localhost: kMA*d<e#Q3EC
+2018-04-20T03:36:31.935143Z 5 [Note] [MY-010454] [Server] A temporary password is generated for root@localhost: MqatK=hae5F#
+
+[root@netkiller ~]# mysqladmin -u root -p'MqatK=hae5F#' password
+mysqladmin: [Warning] Using a password on the command line interface can be insecure.
+New password:
+Confirm new password:
+Warning: Since password will be sent to server in plain text, use ssl connection to ensure password safety.
+
+[root@netkiller ~]# mysql -uroot -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 10
+Server version: 8.0.11 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2018, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql>
+
+			]]>
+			</screen>
+			<para>创建用户</para>
+			<screen>
+			<![CDATA[
+mysql> CREATE USER 'root'@'%' IDENTIFIED BY 'MQiEge1ikst7S_6tlXzBOmt_4b';
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> GRANT ALL ON *.* TO 'root'@'%';
+Query OK, 0 rows affected (0.03 sec)
+			]]>
+			</screen>
+		</section>
+	</section><section id="mysql.ubuntu">
 		<title>Installation by apt under debian/ubuntu</title>
 		<para>安装环境 ubuntu 17.10</para>
 		<screen>
+<![CDATA[
 			sudo apt install mysql-server mysql-client
-		</screen>
+		]]></screen>
 		<para>New password for the MySQL "root" user</para>
 		<screen>
 		<![CDATA[
@@ -60,12 +230,12 @@ FLUSH PRIVILEGES;
 		]]>
 		</screen>
 		<para>配置监听IP地址，默认数据库只能从 127.0.0.1访问</para>
-		<screen>
+		<screen><![CDATA[
 			neo@netkiller /etc/mysql/mysql.conf.d % vim
 			/etc/mysql/mysql.conf.d/mysqld.cnf
 
 			bind-address = 0.0.0.0
-		</screen>
+		]]></screen>
 		<section id="mysql-5.5.21">
 			<title>mysql-5.5.21-debian6.0-i686.deb</title>
 			<screen>
@@ -128,7 +298,7 @@ make && make install
 		</screen>
 		<para>/usr/local/$MYSQL_DIR/bin/mysql_install_db</para>
 		<para>other option</para>
-		<screen>
+		<screen><![CDATA[
 			--without-isam
 			--without-innodb
 			--without-ndbcluster
@@ -138,7 +308,7 @@ make && make install
 			--without-example
 			--without-comment
 			--localstatedir=/usr/local/mysql/data
-		</screen>
+		]]></screen>
 	</section>
 	<section id="mysql.binary">
 		<title>MySQL binary distribution</title>
@@ -201,7 +371,7 @@ Please report any problems with the ./bin/mysqlbug script!
 		]]>
 		</screen>
 		<para>set root's password</para>
-		<screen>
+		<screen><![CDATA[
 			[root@test mysql]# cp support-files/mysql.server
 			/etc/init.d/mysqld
 			[root@test mysql]# /etc/init.d/mysqld start
@@ -211,7 +381,7 @@ Please report any problems with the ./bin/mysqlbug script!
 			password 'chen'
 			[root@test mysql]# ./bin/mysqladmin -u root -h
 			db.example.com password 'chen'
-		</screen>
+		]]></screen>
 		<para>test</para>
 		<screen>
 		<![CDATA[
@@ -226,90 +396,8 @@ mysql>
 		]]>
 		</screen>
 	</section>
+
 	
-	<section id="mysql.centos">
-		<title>CentOS</title>
-		<section>
-			<title>CentOS 6.2 + MySQL 5.5.25 (RPM)</title>
-			<para>准备下面的软件包</para>
-			<screen>
-# ls -1
-MySQL-client-5.5.25-1.el6.x86_64.rpm
-MySQL-devel-5.5.25-1.el6.x86_64.rpm
-MySQL-server-5.5.25-1.el6.x86_64.rpm
-MySQL-shared-5.5.25-1.el6.x86_64.rpm
-MySQL-shared-compat-5.5.25-1.el6.x86_64.rpm
-			</screen>
-			<para>使用 yum 本地安装 rpm, yum 可以帮你解决依赖于冲突 </para>
-			<screen>
-# yum localinstall MySQL-*
-			</screen>
-			<screen>
-# /etc/init.d/mysql start
-Starting MySQL... SUCCESS!
-
-# /usr/bin/mysqladmin -u root password 'tUG26WSslP30bkbwtMhn'
-			</screen>
-		</section>
-		<section>
-			<title>MySQL 8.0</title>
-			<para>安装</para>
-			<screen>
-			<![CDATA[
-curl -s https://raw.githubusercontent.com/oscm/shell/master/database/mysql/8.0/server.sh | bash
-			]]>
-			</screen>
-			<para>启动</para>
-			<screen>
-			<![CDATA[
-systemctl enable mysql
-systemctl start mysql
-			]]>
-			</screen>
-			<para>必须修改密码后才能使用</para>
-			<screen>
-			<![CDATA[
-[root@netkiller ~]# grep "A temporary password" /var/log/mysqld.log
-2018-04-03T02:24:16.935070Z 1 [Note] A temporary password is generated for root@localhost: kMA*d<e#Q3EC
-2018-04-20T03:36:31.935143Z 5 [Note] [MY-010454] [Server] A temporary password is generated for root@localhost: MqatK=hae5F#
-
-[root@netkiller ~]# mysqladmin -u root -p'MqatK=hae5F#' password
-mysqladmin: [Warning] Using a password on the command line interface can be insecure.
-New password:
-Confirm new password:
-Warning: Since password will be sent to server in plain text, use ssl connection to ensure password safety.
-
-[root@netkiller ~]# mysql -uroot -p
-Enter password:
-Welcome to the MySQL monitor.  Commands end with ; or \g.
-Your MySQL connection id is 10
-Server version: 8.0.11 MySQL Community Server - GPL
-
-Copyright (c) 2000, 2018, Oracle and/or its affiliates. All rights reserved.
-
-Oracle is a registered trademark of Oracle Corporation and/or its
-affiliates. Other names may be trademarks of their respective
-owners.
-
-Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
-
-mysql>
-
-			]]>
-			</screen>
-			<para>创建用户</para>
-			<screen>
-			<![CDATA[
-mysql> CREATE USER 'root'@'%' IDENTIFIED BY 'MQiEge1ikst7S_6tlXzBOmt_4b';
-Query OK, 0 rows affected (0.05 sec)
-
-mysql> GRANT ALL ON *.* TO 'root'@'%';
-Query OK, 0 rows affected (0.03 sec)
-
-			]]>
-			</screen>
-		</section>
-	</section>
 	<section id="mysql.docker">
 		<title>Docker</title>
 		<screen>
@@ -328,16 +416,19 @@ docker run --name mysql -d \
 	<section id="mysql-admin">
 		<title>mysql-admin</title>
 		<screen>
+<![CDATA[
 $ sudo apt-get install mysql-admin
-		</screen>
+		]]></screen>
 		<para>运行mysql-admin</para>
 		<screen>
+<![CDATA[
 /usr/bin/mysql-admin
-		</screen>
+		]]></screen>
 		<para>运行 mysql-query-browser </para>
 		<screen>
+<![CDATA[
 mysql-query-browser --query="SELECT * FROM users"
-		</screen>
+		]]></screen>
 	</section>
 	<section id="mysql.yum">
 		<title>Installing MySQL on Linux Using the MySQL Yum Repository</title>
@@ -345,22 +436,26 @@ mysql-query-browser --query="SELECT * FROM users"
 			<title>MySQL 5.6</title>
 			<para>http://dev.mysql.com/doc/mysql-repo-excerpt/5.6/en/linux-installation-yum-repo.html</para>
 			<screen>
+<![CDATA[
 yum localinstall http://dev.mysql.com/get/mysql-community-release-el6-5.noarch.rpm
-			</screen>
+			]]></screen>
 			<para>安装MySQL Server</para>
 			<screen>
+<![CDATA[
 yum install mysql-server
 chkconfig mysqld on
 service mysqld start		
-			</screen>
+			]]></screen>
 			<para>修改root密码</para>
 			<screen>
+<![CDATA[
 mysqladmin -u root password 'new-password'		
-			</screen>
+			]]></screen>
 			<para>安全设置向导</para>
 			<screen>
+<![CDATA[
 /usr/bin/mysql_secure_installation		
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>MySQL 5.7</title>
@@ -405,26 +500,30 @@ EOF
 			</screen>
 			<para>MySQL 5.7 会随机分配一个密码给用户</para>
 			<screen>
+<![CDATA[
 grep "A temporary password" /var/log/mysqld.log
-			</screen>
+			]]></screen>
 			<para>登陆后修改密码</para>
 			<screen>
+<![CDATA[
 ALTER USER root@localhost identified by 'MQiEge1ikst7S_6tlXzBOmt_4b';
 ALTER USER root@localhost PASSWORD EXPIRE NEVER;
-			</screen>
+			]]></screen>
 		</section>
 	</section>
-	
+
 	<section id="firewall">
 		<title>Firewall</title>
 		<para>iptables</para>
 		<screen>
+<![CDATA[
 iptables -A INPUT -i eth0 -p tcp -s xxx.xxx.xxx.xxx --dport 3306 -j ACCEPT
-		</screen>
+		]]></screen>
 	</section>
 	<section id="limit">
 		<title>Limit 状态</title>
 		<screen>
+<![CDATA[
 $ sudo cat /proc/`pidof mysqld`/limits
 Limit                     Soft Limit           Hard Limit           Units     
 Max cpu time              unlimited            unlimited            seconds   
@@ -443,7 +542,7 @@ Max msgqueue size         819200               819200               bytes
 Max nice priority         0                    0                    
 Max realtime priority     0                    0                    
 Max realtime timeout      unlimited            unlimited            us   		
-		</screen>
+		]]></screen>
 	</section>
 	<section id="mysql.btrfs">
 		<title>使用 Btrfs 文件系统存储mysql数据</title>
@@ -476,12 +575,14 @@ systemctl start mysqld
 	<section id="mac">
 		<title>Mac OS</title>
 		<screen>
+<![CDATA[
 brew install mysql
-		</screen>
+		]]></screen>
 		<para>启动</para>
 		<screen>
+<![CDATA[
 brew services start mysql
-		</screen>
+		]]></screen>
 	</section>
 </section>
 
