@@ -9,22 +9,74 @@
 			<title>bind-address</title>
 			<para>MySQL 通过 yum 安装后默认是监听 127.0.0.1 / ::1 如果你希望从其他IP访问3306端口，需要修改绑定地址为 0.0.0.0 </para>
 			<screen>
+			<![CDATA[
+bind-address=127.0.0.1			
+			]]>
+			</screen>
+			<para>0.0.0.0:3306</para>
+			<screen>
+			<![CDATA[
 bind-address = 0.0.0.0
+			]]>
+			</screen>
+			<para>指定IP地址</para>
+			<screen>
+			<![CDATA[
+[root@localhost ~]# ip addr show
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: enp2s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 00:e0:70:81:9e:48 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.30.10/24 brd 192.168.30.255 scope global noprefixroute enp2s0
+       valid_lft forever preferred_lft forever
+    inet 192.168.30.11/24 brd 192.168.30.255 scope global secondary noprefixroute enp2s0
+       valid_lft forever preferred_lft forever
+    inet 192.168.30.12/24 brd 192.168.30.255 scope global secondary noprefixroute enp2s0
+       valid_lft forever preferred_lft forever
+    inet 192.168.30.13/24 brd 192.168.30.255 scope global secondary noprefixroute enp2s0
+       valid_lft forever preferred_lft forever
+    inet 192.168.30.14/24 brd 192.168.30.255 scope global secondary noprefixroute enp2s0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::2e0:70ff:fe81:9e48/64 scope link noprefixroute 
+       valid_lft forever preferred_lft forever
+3: wlp1s0: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 40:9f:38:b6:e0:55 brd ff:ff:ff:ff:ff:ff
+4: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default 
+    link/ether 02:42:f0:6f:b3:4b brd ff:ff:ff:ff:ff:ff
+    inet 172.17.0.1/16 brd 172.17.255.255 scope global docker0
+       valid_lft forever preferred_lft forever
+45: br-a32fa1ca1437: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default 
+    link/ether 02:42:d7:ae:ea:5d brd ff:ff:ff:ff:ff:ff
+    inet 172.18.0.1/16 brd 172.18.255.255 scope global br-a32fa1ca1437
+       valid_lft forever preferred_lft forever			
+			]]>
+			</screen>
+			<para>上面服务器上配置多个IP地址</para>
+			<screen>
+			<![CDATA[
+bind-address=192.168.30.10			
+			]]>
 			</screen>
 		</section>
 		<section>
 			<title>禁用TCP/IP链接</title>
 			<para>与bind-address互斥，skip-networking 开启，只能通过UNIX SOCKET链接，而不能使用IP地址链接</para>
 			<screen>
+<![CDATA[
 [mysqld]
 skip-networking
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>配置字符集</title>
 			<subtitle>Configuring Database Character Encoding</subtitle>
 			<para></para>
 			<screen>
+<![CDATA[
 mysql> SHOW VARIABLES LIKE 'character_set_%';
 +--------------------------+----------------------------+
 | Variable_name            | Value                      |
@@ -39,7 +91,7 @@ mysql> SHOW VARIABLES LIKE 'character_set_%';
 | character_sets_dir       | /usr/share/mysql/charsets/ |
 +--------------------------+----------------------------+
 8 rows in set (0.00 sec)
-			</screen>
+			]]></screen>
 			<para>Server Character Set and Collation</para>
 			<screen>
 			<![CDATA[
@@ -51,6 +103,7 @@ shell> mysqld --character-set-server=latin1 \
 
 			<para>$ vim /etc/mysql/my.cnf</para>
 			<screen>
+<![CDATA[
 [mysqld]
 character-set-server=utf8
 collation_server=utf8_general_ci
@@ -58,11 +111,12 @@ init_connect='SET NAMES utf8'
 
 [client]
 character_set_client=utf8
-			</screen>
+			]]></screen>
 
 			<screen>
+<![CDATA[
 mysql --default-character-set=utf8 -u root -p
-			</screen>
+			]]></screen>
 
 			<screen>
 			<![CDATA[
@@ -86,22 +140,25 @@ mysql> show variables like 'character%';
 		<section>
 			<title>最大链接数 max_connections</title>
 			<screen>
+<![CDATA[
 [mysqld]
 max_connections=250
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>默认引擎 storage-engine</title>
 			<screen>
+<![CDATA[
 [mysqld]
 default-storage-engine=INNODB
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>max_allowed_packet</title>
 			<screen>
+<![CDATA[
 max_allowed_packet=8M
-			</screen>
+			]]></screen>
 		</section>
 
 		<section>
@@ -109,13 +166,15 @@ max_allowed_packet=8M
 			<para>跳过域名解析</para>
 			<!-- skip-external-locking -->
 			<screen>
+<![CDATA[
 # vim /etc/mysql/my.cnf
 
 [mysqld]
 skip-name-resolve
-			</screen>
+			]]></screen>
 			<para>MySQL 登录缓慢，大量用户排队等待</para>
 			<screen>
+<![CDATA[
 mysql> SHOW FULL PROCESSLIST;
 +-----+----------------------+------------------------+------+---------+------+-------+-----------------------+
 | Id  | User                 | Host                   | db   | Command | Time | State | Info                  |
@@ -218,20 +277,21 @@ mysql> SHOW FULL PROCESSLIST;
 +-----+----------------------+------------------------+------+---------+------+-------+-----------------------+
 44 rows in set (0.00 sec)
 
-			</screen>
+			]]></screen>
 			<para>解决方案 my.cnf 配置文件中加入skip-name-resolve</para>
 		</section>
 
 		<section>
 			<title>timeout</title>
 			<screen>
+<![CDATA[
 [mysqld]
 wait_timeout=30
 interactive_timeout=30
-			</screen>
+			]]></screen>
 			<para>如果你没有修改过MySQL的配置，缺省情况下，wait_timeout的初始值是28800。</para>
 			<para>wait_timeout过大有弊端，其体现就是MySQL里大量的SLEEP进程无法及时释放，拖累系统性能，不过也不能把这个指设置的过小，否则你可能会遭遇到“MySQL has gone away”之类的问题，通常来说，我觉得把wait_timeout设置为10是个不错的选择，但某些情况下可能也会出问题，比如说有一个CRON脚本，其中两次SQL查询的间隔时间大于10秒的话，那么这个设置就有问题了：</para>
-			<para>(1)interactive_timeout 参数含义：服务器关闭交互式连接前等待活动的秒数。	参数默认值：28800秒（8小时）</para>
+			<para>(1)interactive_timeout 参数含义：服务器关闭交互式连接前等待活动的秒数。 参数默认值：28800秒（8小时）</para>
 			<para>(2)wait_timeout 参数含义：服务器关闭非交互连接之前等待活动的秒数。</para>
 		</section>
 		<section id="replication">
@@ -240,77 +300,90 @@ interactive_timeout=30
 				<title>用于主库的选项 Master</title>
 				<para>定义 log-bin 文件名</para>
 				<screen>
+<![CDATA[
 log-bin=mysql-bin
-				</screen>
+				]]></screen>
 				<para>binlog 保留时间, 过期天数设置</para>
 				<screen>
+<![CDATA[
 expire-logs-days = 30
-				</screen>
+				]]></screen>
 				<para></para>
 				<screen>
+<![CDATA[
 binlog-do-db=需要复制的数据库名
 binlog-ignore-db=不需要复制的数据库					
-				</screen>
+				]]></screen>
 			</section>
 			<section>
 				<title>用于从库的选项 Slave </title>
 				<screen>
+<![CDATA[
 replicate-do-db= 指定需要复制的数据库
 replicate-ignore-db= 忽略复制的数据库
-				</screen>
+				]]></screen>
 			</section>
 			<section>
 				<title>逃过错误</title>
 				<para>主从复制经常遇到 Last_Errno: 1062 可以使用下面配置跳过</para>
 				<screen>
+<![CDATA[
 slave_skip_errors=1062				
-				</screen>
+				]]></screen>
 			</section>
 		</section>
 		<section>
 			<title>与 InnoDB 有关的配置项</title>
 			<screen>
+<![CDATA[
 innodb_file_per_table
-			</screen>
+			]]></screen>
 			<para>配置后重启mysql运行下面命令将ibdata1拆分到tbl_name.ibd</para>
 			<screen>
+<![CDATA[
 OPTIMIZE TABLE tbl_name;
-			</screen>
+			]]></screen>
 			<para>ls /var/lib/mysql/中查看 tbl_name.ibd文件</para>
 			<para>临时开启</para>
 			<screen>
+<![CDATA[
 SET @@global.innodb_file_per_table = 1;
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>EVENT 设置</title>
 			<para>开启EVENT定时任务</para>
 			<screen>
+<![CDATA[
 event_scheduler=on			
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>日志</title>
 			<para>操作日志</para>
 			<screen>
+<![CDATA[
 log = mysql.log			
-			</screen>
+			]]></screen>
 			<para>慢查询日志</para>
 			<screen>
+<![CDATA[
 log-slow-queries = slow.log
 long_query_time = 5			
-			</screen>
+			]]></screen>
 			<para>错误日志</para>
 			<screen>
+<![CDATA[
 [mysqld_safe]
 log-error=/var/log/mysqld.log			
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>MySQL 5.7 my.cnf 实例</title>
 			<example>
 				<title>my.cnf</title>
 				<screen>
+<![CDATA[
 [root@netkiller ~]# cat /etc/my.cnf
 # For advice on how to change settings please see
 # http://dev.mysql.com/doc/refman/5.7/en/server-configuration-defaults.html
@@ -343,11 +416,12 @@ pid-file=/var/run/mysqld/mysqld.pid
 !includedir /etc/my.cnf.d
 
 
-				</screen>
+				]]></screen>
 			</example>
 			<example>
 				<title>my.cnf</title>
 				<screen>
+<![CDATA[
 [root@netkiller ~]# cat /etc/my.cnf.d/default.cnf 
 [mysqld]
 skip-name-resolve
@@ -374,14 +448,14 @@ sql_mode = STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_B
 [client]
 default-character-set=utf8
 #character_set_client=utf8				
-				</screen>
+				]]></screen>
 			</example>
 		</section>
 		<section>
 			<title>Example for my.cnf</title>
 			<example>
 				<title>my.cnf</title>
-			<screen>
+				<screen>
 			<![CDATA[
 # Example MySQL config file for very large systems.
 #
@@ -509,7 +583,7 @@ write_buffer = 2M
 [mysqlhotcopy]
 interactive-timeout
 			]]>
-			</screen>
+				</screen>
 			</example>
 		</section>
 	</section>

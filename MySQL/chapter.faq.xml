@@ -557,6 +557,36 @@ DELIMITER ;
 		]]>
 		</programlisting>
 	</section>
+	<section id="ERROR.3024">
+		<title>ERROR 3024 (HY000): Query execution was interrupted, maximum statement execution time exceeded</title>
+		<screen>
+		<![CDATA[
+mysql> select * from cert;
+ERROR 3024 (HY000): Query execution was interrupted, maximum statement execution time exceeded
+mysql> SET GLOBAL max_execution_time=10;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select * from cert;
+Empty set (0.08 sec)
+
+mysql> show variables like 'max_execution_time';
++--------------------+-------+
+| Variable_name      | Value |
++--------------------+-------+
+| max_execution_time | 10    |
++--------------------+-------+
+1 row in set (0.01 sec)
+
+mysql> select /*+ max_execution_time(3000)*/ count(*) from cert;
++----------+
+| count(*) |
++----------+
+|        0 |
++----------+
+1 row in set (0.29 sec)
+		]]>
+		</screen>
+	</section>
 	<section id="caching_sha2_password.so">
 		<title>Authentication plugin 'caching_sha2_password' cannot be loaded: /usr/lib64/mysql/plugin/caching_sha2_password.so: cannot open shared object file: No such fileor directory</title>
 		<para>这个故障出现在 MySQL 8.0 上，用户使用 mysql client 5.7 链接 MySQL 8.0 提示如下</para>

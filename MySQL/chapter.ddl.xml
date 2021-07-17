@@ -28,12 +28,17 @@ DROP DATABASE db_name;
 			</screen>
 		</section>
 		<section>
-			<title>Alter</title>
+			<title>修改数据库</title>
 			<programlisting>
 			<![CDATA[
 ALTER DATABASE dbname DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 			]]>
 			</programlisting>
+			<screen>
+			<![CDATA[
+			
+			]]>
+			</screen>、
 		</section>
 		<section>
 			<title>Rename</title>
