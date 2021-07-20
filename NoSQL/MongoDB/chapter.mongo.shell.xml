@@ -264,8 +264,8 @@ db.member.aggregate([{
 			</screen>
 		</section>
 	</section>
-	 &chapter.indexes.xml;
-	 &chapter.mapreduce.xml;
+	 &chapter.mongo.indexes.xml;
+	 &chapter.mongo.mapreduce.xml;
 
 	<section>
 		<title>内嵌对象</title>

@@ -1,39 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter id="install">
 	<title>Install 安装MongoDB</title>
-	<section id="quickstart">
-		<title>Quickstart</title>
-		<section id="mongodb.bin">
-			<title>二进制tar包安装</title>
-			<para>Install MongoDB</para>
-			<screen>
+	<section>
+		<title>CentOS 8 Stream</title>
+		<screen>
+		<![CDATA[
+#!/bin/sh
+
+cat << 'EOF' >> /etc/yum.repos.d/mongodb-org-5.0.repo
+[mongodb-org-5.0]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/5.0/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-5.0.asc
+EOF
+
+dnf install -y mongodb-org-server
+dnf install -y mongodb-org-shell
+dnf install -y mongodb-org-tools
+
+cp /etc/mongod.conf{,.original}
+
+
+cat << 'EOF' >>  /etc/security/limits.d/20-nofile.conf 
+mongod soft nofile 65000
+mongod hard nofile 65000
+EOF
+
+systemctl is-enabled mongod
+systemctl start mongod		
+		]]>
+		</screen>
+	</section>
+	<section id="mongodb.bin">
+		<title>二进制tar包安装</title>
+		<para>Install MongoDB</para>
+		<screen><![CDATA[
 wget http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-1.5.5.tgz
 
 debian:/srv# tar zxf mongodb-linux-x86_64-1.5.5.tgz
 debian:/srv# ln -s mongodb-linux-x86_64-1.5.5 mongodb
-			</screen>
-			<para>Create a data directory</para>
-			<para>By default MongoDB will store data in /data/db, but it won't automatically create that directory. To create it, do:</para>
-			<screen>
+			]]></screen>
+		<para>Create a data directory</para>
+		<para>By default MongoDB will store data in /data/db, but it won't automatically create that directory. To create it, do:</para>
+		<screen><![CDATA[
 $ sudo mkdir -p /data/db/
 $ sudo chown `id -u` /data/db
-			</screen>
-			<para>You can also tell MongoDB to use a different data directory, with the --dbpath option.</para>
-			<para>Run and connect to the server</para>
-			<para>First, start the MongoDB server in one terminal:</para>
-			<screen>
+			]]></screen>
+		<para>You can also tell MongoDB to use a different data directory, with the --dbpath option.</para>
+		<para>Run and connect to the server</para>
+		<para>First, start the MongoDB server in one terminal:</para>
+		<screen><![CDATA[
 $ ./mongodb/bin/mongod
-			</screen>
-			<para>In a separate terminal, start the shell, which will connect to localhost by default:</para>
-			<screen>
+			]]></screen>
+		<para>In a separate terminal, start the shell, which will connect to localhost by default:</para>
+		<screen><![CDATA[
 $ ./mongodb/bin/mongo
 > db.foo.save( { a : 1 } )
 > db.foo.find()
-			</screen>
-			<para>Congratulations, you've just saved and retrieved your first document with MongoDB!</para>
-			<example>
-				<title>MongoDB Test</title>
-				<screen>
+			]]></screen>
+		<para>Congratulations, you've just saved and retrieved your first document with MongoDB!</para>
+		<example>
+			<title>MongoDB Test</title>
+			<screen>
 				<![CDATA[
 debian:/srv/mongodb/bin# ./mongo
 MongoDB shell version: 1.5.5
@@ -79,29 +109,29 @@ Thu Jul 22 16:54:50 allocating new datafile /data/db/neo.1, filling with zeroes.
 { "_id" : ObjectId("4c48083874050cbf6c9a0ef8"), "a" : 1 }
 
 				]]>
-				</screen>
-			</example>
-			<para>Starting Mongo</para>
-			<para>Running as a Daemon</para>
-			<screen>
+			</screen>
+		</example>
+		<para>Starting Mongo</para>
+		<para>Running as a Daemon</para>
+		<screen><![CDATA[
  $ ./mongod --fork --logpath /var/log/mongodb.log --logappend
-			</screen>
-		</section>
-		<section id="mongodb.ubuntu">
-			<title>Ubuntu MongoDB</title>
-			<para></para>
-			<screen>
+			]]></screen>
+	</section>
+	<section id="mongodb.ubuntu">
+		<title>Ubuntu MongoDB</title>
+		<para></para>
+		<screen><![CDATA[
 $ sudo apt-get install mongodb-server mongodb-clients
-			</screen>
-			<screen>
+			]]></screen>
+		<screen><![CDATA[
 $ /etc/init.d/mongodb
 Usage: /etc/init.d/mongodb {start|stop|force-stop|restart|force-reload|status}
-			</screen>
-		</section>
-		<section id="mongodb.centos">
-			<title>CentOS MongoDB</title>
-			<para>CentOS 默认 MongoDB 是 2.6.12</para>
-			<screen>
+			]]></screen>
+	</section>
+	<section id="mongodb.centos">
+		<title>CentOS 7 MongoDB</title>
+		<para>CentOS 默认 MongoDB 是 2.6.12</para>
+		<screen><![CDATA[
 [root@iZ623h9icu8Z ~]# yum info mongodb
 Loaded plugins: langpacks
 Repodata is over 2 weeks old. Install yum-cron? Or run: yum makecache fast
@@ -132,31 +162,31 @@ Description : Mongo (from "humongous") is a high-performance, open source, schem
             : fast and highly scalable) and traditional RDBMS systems (which are deep in
             : functionality).
 			
-			</screen>
-			<screen>
+			]]></screen>
+		<screen><![CDATA[
 # yum install mongodb-server
 
 # chkconfig mongod on
 
 # service mongod start
-			</screen>
-			<para>单独安装客户端</para>
-			<screen>
+			]]></screen>
+		<para>单独安装客户端</para>
+		<screen><![CDATA[
 # yum install mongodb
-			</screen>
-		</section>
-		<section id="official">
-			<title>从官网安装最新版本的 MongoDB 3.4</title>
-			<para>官网的rpm包是如下</para>
-			<screen>
+			]]></screen>
+	</section>
+	<section id="official">
+		<title>从官网安装最新版本的 MongoDB 3.4</title>
+		<para>官网的rpm包是如下</para>
+		<screen><![CDATA[
 [root@netkiller ~]# yum search mongodb | grep "\-org"
 mongodb-org.x86_64 : MongoDB open source document-oriented database system
 mongodb-org-mongos.x86_64 : MongoDB sharded cluster query router
 mongodb-org-server.x86_64 : MongoDB database server
 mongodb-org-shell.x86_64 : MongoDB shell client
 mongodb-org-tools.x86_64 : MongoDB tools			
-			</screen>
-			<screen>
+			]]></screen>
+		<screen>
 			<![CDATA[
 #!/bin/sh
 cat << 'EOF' >> /etc/yum.repos.d/mongodb-org-3.4.repo
@@ -168,10 +198,10 @@ enabled=1
 gpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc
 EOF
 			]]>
-			</screen>
-			<section>
-				<title>Server</title>
-				<screen>
+		</screen>
+		<section>
+			<title>Server</title>
+			<screen>
 				<![CDATA[
 yum install -y mongodb-org-server
 
@@ -180,15 +210,15 @@ cp /etc/mongod.conf{,.original}
 systemctl is-enabled mongod
 systemctl start mongod
 				]]>
-				</screen>
-			</section>
-			<section>
-				<title>Client</title>
-				<screen>
+			</screen>
+		</section>
+		<section>
+			<title>Client</title>
+			<screen><![CDATA[
 yum install -y mongodb-org-shell				
-				</screen>
-				<para></para>
-				<screen>
+				]]></screen>
+			<para></para>
+			<screen>
 				<![CDATA[
 [root@netkiller ~]# mongo
 
@@ -220,11 +250,11 @@ local  0.000GB
 > exit
 bye
 				]]>
-				</screen>
-			</section>
-			<section>
-				<title>工具</title>
-				<screen>
+			</screen>
+		</section>
+		<section>
+			<title>工具</title>
+			<screen><![CDATA[
 # yum install mongodb-org-tools
 
 # rpm -ql mongodb-org-tools.x86_64 0:3.4.1-1.el7
@@ -249,35 +279,35 @@ bye
 /usr/share/man/man1/mongostat.1
 /usr/share/man/man1/mongotop.1
 
-				</screen>
-			</section>
+				]]></screen>
 		</section>
-		<section id="hadoop">
-			<title>MongoDB + Hadoop</title>
-			<para>Hadoop Connector</para>
-			<para>http://docs.mongodb.org/ecosystem/tutorial/getting-started-with-hadoop/</para>
+	</section>
+	<section id="hadoop">
+		<title>MongoDB + Hadoop</title>
+		<para>Hadoop Connector</para>
+		<para>http://docs.mongodb.org/ecosystem/tutorial/getting-started-with-hadoop/</para>
 
-			<screen>
+		<screen><![CDATA[
 git clone https://github.com/mongodb/mongo-hadoop.git
 git checkout release-1.0
-			</screen>
-			<screen>
+			]]></screen>
+		<screen><![CDATA[
 # vim build.sbt
 hadoopRelease in ThisBuild := "cdh4"
-			</screen>
-			<screen>
+			]]></screen>
+		<screen><![CDATA[
 ./sbt package
-			</screen>
-			<screen>
+			]]></screen>
+		<screen>
 			<![CDATA[
 wget --no-check-certificate https://github.com/downloads/mongodb/mongo-java-driver/mongo-2.7.3.jar
 cp mongo-2.7.3.jar /usr/lib/hadoop/lib/
 cp core/target/mongo-hadoop-core_cdh3u3-1.0.0.jar /usr/lib/hadoop/lib/
 			]]>
-			</screen>
-			<para>待续......</para>
-		</section>
+		</screen>
+		<para>待续......</para>
 	</section>
+
 
 	<section id="oscm.mango">
 		<title>OSCM 一键安装 MongoDB 4.0.2</title>
@@ -322,7 +352,7 @@ curl -s https://raw.githubusercontent.com/oscm/shell/master/database/mongodb/mon
 	<section id="replication">
 		<title>Replication</title>
 		<para>很多教程上面采用手工配置主从复制，我不建议你这样启动，请采用修改/etc/mongod.conf配置文件的方案。</para>
-		<screen>
+		<screen><![CDATA[
 创建主：
 
 mongod –port 27017 –dbpath /var/lib/mongodb –master
@@ -334,7 +364,7 @@ mongod –port 27017 –dbpath /var/lib/mongodb –slave –source master_ip_add
 
 		<section>
 			<title>Master</title>
-			<screen>
+			<screen><![CDATA[
 sed -i "s/#master = true/master = true/" /etc/mongod.conf
 
 systemctl restart  mongod
@@ -342,7 +372,7 @@ systemctl restart  mongod
 		</section>
 		<section>
 			<title>Slave</title>
-			<screen>
+			<screen><![CDATA[
 sed -i "s/#slave = true/slave = true/" /etc/mongod.conf
 sed -i "s/#source = arg/source = mongodb.master.example.com/" /etc/mongod.conf
 
@@ -376,9 +406,9 @@ WriteResult({ "nInserted" : 1 })
 { "_id" : ObjectId("5646e881a11081d5998bf70c"), "name" : "neo", "address" : { "city" : "shenzhen", "post" : 518000 }, "phone" : [ 13113668890, 13322993040 ] }
 >
 			]]>
-			</screen>
-			<para>进入 Slave</para>
-			<screen>
+		</screen>
+		<para>进入 Slave</para>
+		<screen>
 			<![CDATA[
 [root@localhost ~]# mongo
 MongoDB shell version: 2.6.11
@@ -398,20 +428,22 @@ Server has startup warnings:
 { "_id" : ObjectId("5646e881a11081d5998bf70c"), "name" : "neo", "address" : { "city" : "shenzhen", "post" : 518000 }, "phone" : [ 13113668890, 13322993040 ] }
 >
 			]]>
-			</screen>
-		</section>
+		</screen>
 	</section>
+
 	<section id="drivers">
 		<title>Drivers</title>
 		<section>
 			<title>Using MongoDB in PHP</title>
 			<para>Installing the PHP Driver</para>
-			<screen>
+			<screen><![CDATA[
 sudo pecl install mongo
+			]]>
 			</screen>
 			<para>Open your php.ini file and add to it:</para>
-			<screen>
+			<screen><![CDATA[
 extension=mongo.so
+			]]>
 			</screen>
 			<example>
 				<title>Using MongoDB in PHP</title>
@@ -450,7 +482,7 @@ $m->close();
 				]]>
 				</screen>
 				<para></para>
-				<screen>
+				<screen><![CDATA[
 [root@subversion html]# php mongo.php
 Calvin and Hobbes
 XKCD

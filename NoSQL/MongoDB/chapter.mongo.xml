@@ -7,11 +7,11 @@
 		</keywordset>
 	</chapterinfo>
 	<para>http://www.mongodb.org/</para>
-	&chapter.setup.xml;
-	&chapter.administrator.xml;
+	&chapter.mongo.setup.xml;
+	&chapter.mongo.administrator.xml;
 	&chapter.mongo.cli.xml;
 	&chapter.mongo.shell.xml;
 	&chapter.mongo.gui.xml;
-	&chapter.faq.xml;
+	&chapter.mongo.faq.xml;
 	
 </part>
