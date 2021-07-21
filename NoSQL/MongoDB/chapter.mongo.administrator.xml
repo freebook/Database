@@ -3,32 +3,28 @@
 	<title>MongoDB 管理</title>
 	<section id="security">
 		<title>Security and Authentication</title>
-		<para>开启认证</para>
 		<screen>
-# vim /etc/mongodb.conf
-auth = true
-		</screen>
-		<para>重载配置文件</para>
-		<screen>
-# /etc/init.d/mongod reload
-Stopping mongod:                                           [  OK  ]
-Starting mongod:                                           [  OK  ]
+		<![CDATA[
+sed -i "32s/#security:/security:/" /etc/mongod.conf
+sed -i "33 i \ \ authorization: enabled" /etc/mongod.conf		
+		]]>
 		</screen>
 		<section>
 			<title>超级管理员</title>
 			<subtitle>Database Administration Roles</subtitle>
 			<screen>
 			<![CDATA[
-use admin;
+use admin
 db.createUser(
-   {
-     user: "admin",
-     pwd: "WkAFdmfVQpP1oAEkz4YVlMCDxkG36TAi",
-     roles: [ "dbAdmin", "dbOwner", "userAdmin" ]
-   }
-);
+  {
+    user: "admin",
+    pwd: passwordPrompt(), // or cleartext password
+    roles: [ { role: "userAdminAnyDatabase", db: "admin" }, "readWriteAnyDatabase" ]
+  }
+)			
 			]]>
 			</screen>
+
 		</section>
 		<section>
 			<title>数据库访问用户</title>
@@ -106,12 +102,6 @@ ture
 
 > db.getUsers();
 [ ]
-			]]>			
-			</screen>
-			<para>早期版本</para>
-			<screen>
-			<![CDATA[
-db.system.users.remove( { user: username } )
 			]]>
 			</screen>
 		</section>
@@ -128,5 +118,41 @@ db.updateUser( "monitor",
 			]]>
 			</screen>
 		</section>
+	</section>
+	<section>
+		<title>4.0早期旧版本</title>
+		<para>开启认证</para>
+		<screen>
+		<![CDATA[
+# vim /etc/mongodb.conf
+auth = true
+		]]>
+		</screen>
+		<para>重载配置文件</para>
+		<screen>
+		<![CDATA[
+# /etc/init.d/mongod reload
+Stopping mongod:                                           [  OK  ]
+Starting mongod:                                           [  OK  ]
+		]]>
+		</screen>
+		<screen>
+			<![CDATA[
+use admin;
+db.createUser(
+   {
+     user: "admin",
+     pwd: "WkAFdmfVQpP1oAEkz4YVlMCDxkG36TAi",
+     roles: [ "dbAdmin", "dbOwner", "userAdmin" ]
+   }
+);
+			]]>
+		</screen>
+		<para>早期版本删除用户</para>
+		<screen>
+			<![CDATA[
+db.system.users.remove( { user: username } )
+			]]>
+		</screen>
 	</section>
 </chapter>

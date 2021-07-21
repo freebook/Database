@@ -33,6 +33,20 @@ systemctl start mongod
 		]]>
 		</screen>
 	</section>
+	<section>
+		<title>MacOS 安装 MongoDB</title>
+		<screen>
+		<![CDATA[
+brew install mongodb
+		]]>
+		</screen>
+		<para>启动</para>
+		<screen>
+		<![CDATA[
+brew services start mongodb		
+		]]>
+		</screen>
+	</section>
 	<section id="mongodb.bin">
 		<title>二进制tar包安装</title>
 		<para>Install MongoDB</para>
