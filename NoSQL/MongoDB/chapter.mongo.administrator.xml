@@ -24,7 +24,18 @@ db.createUser(
 )			
 			]]>
 			</screen>
-
+			<para></para>
+			<screen>
+			<![CDATA[
+db.createUser(
+  {
+    user: "eos",
+    pwd: "eos", // or cleartext password
+    roles: [ { role: "userAdmin", db: "eos" }, "readWrite" ]
+  }
+)			
+			]]>
+			</screen>
 		</section>
 		<section>
 			<title>数据库访问用户</title>

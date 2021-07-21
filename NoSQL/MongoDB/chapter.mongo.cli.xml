@@ -41,17 +41,17 @@ Server has startup warnings:
 >
 			]]>
 			</screen>
-			<screen>
-				# mongo 127.0.0.1:27017/admin --eval "db.stats()"
-			</screen>
+			<screen><![CDATA[
+# mongo 127.0.0.1:27017/admin --eval "db.stats()"
+			]]></screen>
 		</section>
 		<section id="help">
 			<title>help</title>
 			<para>help</para>
-			<screen>
-				db.help() help on DB methods
-				db.foo.help() help on collection methods
-			</screen>
+			<screen><![CDATA[
+db.help() help on DB methods
+db.foo.help() help on collection methods
+			]]></screen>
 		</section>
 		<section>
 			<title>登陆认证</title>
@@ -72,7 +72,16 @@ cat data.bson | mongo test
 	</section>
 	<section id="mongodump">
 		<title>mongodump - Backup</title>
-		<screen>
+		<section>
+			<title>本地备份</title>
+			<para>如果没有开启用户认证</para>
+			<screen>
+		<![CDATA[
+root@ubuntu:~/neo# mongodump -d eos --gzip		
+		]]>
+			</screen>
+			<para>开启用户认证</para>
+			<screen>
 		<![CDATA[
 # mongodump -uneo -p -d test -o /tmp/
 connected to: 127.0.0.1
@@ -105,7 +114,14 @@ Tue Sep 8 10:12:33.175 test.img.files to /tmp/test/img.files.bson
 Tue Sep 8 10:12:33.176 1 objects
 Tue Sep 8 10:12:33.176 Metadata for test.img.files to /tmp/test/img.files.metadata.json
 		]]>
-		</screen>
+			</screen>
+			<para>通过指定dbpath在本地导出bson文件</para>
+			<screen>
+			<![CDATA[
+mongodump --dbpath /var/lib/mongodb --out /opt/backup --db test --username backup --password passwd
+			]]>
+			</screen>
+		</section>
 		<section>
 			<title>远程备份</title>
 			<para>短参数</para>
@@ -121,28 +137,36 @@ mongodump --host mongodb.example.net --port 27017 --username backup --password p
 			]]>
 			</screen>
 		</section>
-		<section>
-			<title>本地备份</title>
-			<para>通过指定dbpath在本地导出bson文件</para>
-			<screen>
-			<![CDATA[
-mongodump --dbpath /var/lib/mongodb --out /opt/backup --db test --username backup --password passwd
-			]]>
-			</screen>
-		</section>
+		
 	</section>
 	<section id="mongorestore">
 		<title>mongorestore</title>
-		<para>直接从dump回复备份</para>
-		<screen>
+		<section>
+			<title>本地恢复</title>
+			<para>直接从dump恢复备份</para>
+			<screen>
 		<![CDATA[
 [root@netkiller www]# ls
 backup dump
 
 [root@netkiller www]# mongorestore dump/
 		]]>
-		</screen>
-		<screen>
+			</screen>
+			<screen>
+			<![CDATA[
+mongorestore --dbpath /var/lib/mongodb --journal /opt/backu
+			]]>
+			</screen>
+			<para>用户认账</para>
+			<screen>
+			<![CDATA[
+[root@netkiller ~]# mongorestore -ueos -peos --authenticationDatabase=eos --gzip dump/			
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>远程恢复</title>
+			<screen>
 		<![CDATA[
 [root@netkiller www]# mongorestore -h 127.0.0.1 -u neo -p chen /tmp/test/
 connected to: 127.0.0.1
@@ -191,29 +215,20 @@ Tue Sep 8 10:18:31.417 warning: Restoring to test.bios without dropping. Restore
 1 objects found
 Tue Sep 8 10:18:31.417 Creating index: { key: { _id: 1 }, ns: "test.bios", name: "_id_" }
 		]]>
-		</screen>
-		<para>恢复到指定数据库</para>
-		<screen>
+			</screen>
+			<para>恢复到指定数据库</para>
+			<screen>
 		<![CDATA[
 # mongorestore -h 127.0.0.1 -d test123 /tmp/test
 		]]>
-		</screen>
-		<section>
-			<title>远程回复</title>
+			</screen>
 			<screen>
 			<![CDATA[
 mongorestore --host mongodb.example.net --port 27017 --username backup --password password --db test --collection some /data/backup
 			]]>
 			</screen>
 		</section>
-		<section>
-			<title>本地恢复</title>
-			<screen>
-			<![CDATA[
-mongorestore --dbpath /var/lib/mongodb --journal /opt/backu
-			]]>
-			</screen>
-		</section>
+		
 		<section>
 			<title>filter</title>
 			<para>如果只想恢复部分数据，可以使用--filter</para>
@@ -223,77 +238,75 @@ $ mongorestore -h 127.0.0.1 -d test123 /tmp/test --filter '{"field": 1}'
 			]]>
 			</screen>
 		</section>
-		
+
 	</section>
 
 	<section id="mongostat">
 		<title>mongostat</title>
-		<screen>
-			# mongostat
-			connected to: 127.0.0.1
-			insert query update delete getmore command flushes mapped vsize res faults locked db idx miss % qr|qw ar|aw netIn netOut conn time
-			*0 *0 *0 *0 0 1|0 0 848m 1.92g 162m 0 wechat:0.0% 0 0|0 0|0 62b 4k 1 10:38:53
-			*0 *0 *0 *0 0 1|0 0 848m 1.92g 162m 0 wechat:0.0% 0 0|0 0|0 62b 4k 1 10:38:54
-			*0 *0 *0 *0 0 1|0 0 848m 1.92g 162m 0 wechat:0.0% 0 0|0 0|0 62b 4k 1 10:38:55
-			*0 *0 *0 *0 0 1|0 0 848m 1.92g 162m 0 wechat:0.0% 0 0|0 0|0 62b 4k 1 10:38:56
-			*0 *0 *0 *0 0 1|0 0 848m 1.92g 162m 0 wechat:0.0% 0 0|0 0|0 62b 4k 1 10:38:57
-		</screen>
+		<screen><![CDATA[
+# mongostat
+connected to: 127.0.0.1
+insert query update delete getmore command flushes mapped vsize res faults locked db idx miss % qr|qw ar|aw netIn netOut conn time
+*0 *0 *0 *0 0 1|0 0 848m 1.92g 162m 0 wechat:0.0% 0 0|0 0|0 62b 4k 1 10:38:53
+*0 *0 *0 *0 0 1|0 0 848m 1.92g 162m 0 wechat:0.0% 0 0|0 0|0 62b 4k 1 10:38:54
+*0 *0 *0 *0 0 1|0 0 848m 1.92g 162m 0 wechat:0.0% 0 0|0 0|0 62b 4k 1 10:38:55
+*0 *0 *0 *0 0 1|0 0 848m 1.92g 162m 0 wechat:0.0% 0 0|0 0|0 62b 4k 1 10:38:56
+*0 *0 *0 *0 0 1|0 0 848m 1.92g 162m 0 wechat:0.0% 0 0|0 0|0 62b 4k 1 10:38:57
+		]]></screen>
 	</section>
 
 	<section id="mongotop">
 		<title>mongotop</title>
-		<screen>
-			# mongotop
-			connected to: 127.0.0.1
+		<screen><![CDATA[
+# mongotop
+connected to: 127.0.0.1
 
-			ns total read write 2015-09-08T02:23:46
-			passport.system.users 0ms 0ms 0ms
-			passport.system.namespaces 0ms 0ms 0ms
-			passport.system.indexes 0ms 0ms 0ms
-			member.system.users 0ms 0ms 0ms
-			member.system.namespaces 0ms 0ms 0ms
-			member.system.indexes 0ms 0ms 0ms
-		</screen>
+ns total read write 2015-09-08T02:23:46
+passport.system.users 0ms 0ms 0ms
+passport.system.namespaces 0ms 0ms 0ms
+passport.system.indexes 0ms 0ms 0ms
+member.system.users 0ms 0ms 0ms
+member.system.namespaces 0ms 0ms 0ms
+member.system.indexes 0ms 0ms 0ms
+		]]></screen>
 	</section>
 	<section id="mongofiles">
 		<title>mongofiles - Browse and modify a GridFS filesystem.</title>
 		<section>
 			<title>list 浏览文件</title>
-			<screen>
-				# mongofiles list
-				connected to: 127.0.0.1
-				/etc/passwd 2176
-				/tmp/test1.php 192
-			</screen>
-			<screen>
+			<screen><![CDATA[
+# mongofiles list
+connected to: 127.0.0.1
+/etc/passwd 2176
+/tmp/test1.php 192
+			]]></screen>
 
-			</screen>
 		</section>
 		<section>
 			<title>put 上传文件</title>
-			<screen>
-				# mongofiles put /bin/ls
-				connected to: 127.0.0.1
-				added file: { _id: ObjectId('55ee4c68bd053b7418404c53'), filename: "/bin/ls", chunkSize: 261120, uploadDate: new Date(1441680488106), md5: "ca226dd605e91b72e0d2060a6357c28f", length: 109208 }
-				done!
+			<screen><![CDATA[
+# mongofiles put /bin/ls
+connected to: 127.0.0.1
+added file: { _id: ObjectId('55ee4c68bd053b7418404c53'), filename: "/bin/ls", chunkSize: 261120, uploadDate: new Date(1441680488106), md5: "ca226dd605e91b72e0d2060a6357c28f", length: 109208 }
+done!
 
-				# mongofiles list
-				connected to: 127.0.0.1
-				/etc/passwd 2176
-				/tmp/test1.php 192
-				/bin/ls 109208
-			</screen>
+# mongofiles list
+connected to: 127.0.0.1
+/etc/passwd 2176
+/tmp/test1.php 192
+/bin/ls 109208
+			]]></screen>
 			<para>上传指定数据库</para>
-			<screen>
-				# mongofiles put -d images -c img /etc/fstab
-				connected to: 127.0.0.1
-				added file: { _id: ObjectId('55ee4d5416377f58d0a9e714'), filename: "/etc/fstab", chunkSize: 261120, uploadDate: new Date(1441680724579), md5: "381185dc0c4807b88406b452b4acc2e8", length: 1067 }
-				done!
+			<screen><![CDATA[
+# mongofiles put -d images -c img /etc/fstab
+connected to: 127.0.0.1
+added file: { _id: ObjectId('55ee4d5416377f58d0a9e714'), filename: "/etc/fstab", chunkSize: 261120, uploadDate: new Date(1441680724579), md5: "381185dc0c4807b88406b452b4acc2e8", length: 1067 }
+done!
 
-				# mongofiles list -d images -c img
-				connected to: 127.0.0.1
-				/etc/fstab 1067
-			</screen>
+# mongofiles list -d images -c img
+connected to: 127.0.0.1
+/etc/fstab 1067
+			]]></screen>
 			<tip>
 				<title>collection 参数有 bug 需要注意。</title>
 
@@ -332,38 +345,38 @@ system.indexes
 		<section>
 			<title>get 下载</title>
 			<para>如果 /tmp/test123 存在则会覆盖</para>
-			<screen>
-				# mongofiles get /tmp/test123
-				connected to: 127.0.0.1
-				done write to: /tmp/test123
-			</screen>
+			<screen><![CDATA[
+# mongofiles get /tmp/test123
+connected to: 127.0.0.1
+done write to: /tmp/test123
+			]]></screen>
 			<para>-l 指定路径，相当于另存。</para>
-			<screen>
-				# mongofiles get /tmp/test123 -l /tmp/aabbcc
-				connected to: 127.0.0.1
-				done write to: /tmp/aabbcc
-			</screen>
+			<screen><![CDATA[
+# mongofiles get /tmp/test123 -l /tmp/aabbcc
+connected to: 127.0.0.1
+done write to: /tmp/aabbcc
+			]]></screen>
 		</section>
 		<section>
 			<title>delete 删除</title>
-			<screen>
-				# mongofiles list
-				connected to: 127.0.0.1
-				/etc/passwd 2176
-				/tmp/test1.php 192
-				/bin/ls 109208
-				/tmp/test123 6
+			<screen><![CDATA[
+# mongofiles list
+connected to: 127.0.0.1
+/etc/passwd 2176
+/tmp/test1.php 192
+/bin/ls 109208
+/tmp/test123 6
 
-				# mongofiles delete /tmp/test123
-				connected to: 127.0.0.1
-				done!
+# mongofiles delete /tmp/test123
+connected to: 127.0.0.1
+done!
 
-				# mongofiles list
-				connected to: 127.0.0.1
-				/etc/passwd 2176
-				/tmp/test1.php 192
-				/bin/ls 109208
-			</screen>
+# mongofiles list
+connected to: 127.0.0.1
+/etc/passwd 2176
+/tmp/test1.php 192
+/bin/ls 109208
+			]]></screen>
 		</section>
 	</section>
 </chapter>

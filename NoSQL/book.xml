@@ -11,7 +11,7 @@
 	<!ENTITY Netkiller "<emphasis><trademark>Netkiller</trademark></emphasis>">
 	<!ENTITY OSCM "<ulink url='https://github.com/oscm/shell'>Netkiller OSCM</ulink>">
 
-	<!ENTITY % common.doctype.entity.xml 		SYSTEM "../../common/doctype.entity.xml">
+	<!ENTITY % common.doctype.entity.xml 		SYSTEM "../common/doctype.entity.xml">
 	%common.doctype.entity.xml;
 	
 	<!ENTITY book.info.abstract.xml 	SYSTEM "../book.info.abstract.xml">
@@ -28,7 +28,7 @@
 	xmlns="http://docbook.org/ns/docbook" xml:lang="zh-cn">
 	<info>
 		<title>Netkiller NoSQL 手札</title>
-		<subtitle>MongoDB, Cassandra, Redis, CouchBase, Hypertable...</subtitle>
+		<subtitle>MongoDB, Redis, CouchBase, Cassandra, Hypertable...</subtitle>
 
 		&book.info.author.xml;
 
