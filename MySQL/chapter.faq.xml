@@ -638,4 +638,19 @@ spring.datasource.url=jdbc:mysql://192.168.0.1:3306/test?useUnicode=true&charact
 		]]>
 		</screen>
 	</section>
+	<section>
+		<title>mysqldump: Couldn't execute 'SELECT COLUMN_NAME,</title>
+		<para>问题出现在 MySQL 8.0 备份 MySQL 5.7 数据库时。</para>
+		<screen>
+		<![CDATA[
+mysqldump: Couldn't execute 'SELECT COLUMN_NAME, JSON_EXTRACT(HISTOGRAM, '$."number-of-buckets-specified"')                FROM information_schema.COLUMN_STATISTICS                WHERE SCHEMA_NAME = 'testra' AND TABLE_NAME = 'branch';': Unknown table 'column_statistics' in information_schema (1109)		
+		]]>
+		</screen>
+		<para>解决办法，使用 --column-statistics=0 选项</para>
+		<screen>
+		<![CDATA[
+mysqldump -hdb.netkiller.cn -uroot -ptest neo --column-statistics=0
+		]]>
+		</screen>
+	</section>
 </chapter>
