@@ -653,4 +653,37 @@ mysqldump -hdb.netkiller.cn -uroot -ptest neo --column-statistics=0
 		]]>
 		</screen>
 	</section>
+	<section id="only_full_group_by">
+		<title>this is incompatible with sql_mode=only_full_group_by</title>
+		<screen>
+		<![CDATA[
+Expression #2 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'test.table.username' which
+is not functionally dependent on columns in GROUP BY clause;
+this is incompatible with sql_mode=only_full_group_by		
+		]]>
+		</screen>
+		<para>问题出在 MySQL 5.7 向 MySQL 8.0 迁移。</para>
+		<para>查询 sql_mode 设置</para>
+		<screen>
+		<![CDATA[
+select @@global.sql_mode;		
+'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'
+		]]>
+		</screen>
+		<para>临时解决方案，去掉 ONLY_FULL_GROUP_BY 即可</para>
+		<screen>
+		<![CDATA[
+set @@GLOBAL.sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO, NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+set @@SESSION.sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO, NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';		
+		]]>
+		</screen>
+		<itemizedlist>
+			<title>彻底解决，有三种解决方案：</title>
+			<listitem>第一种，将 MySQL 的版本降回到 5.7</listitem>
+			<listitem>第二种，关闭 only_full_group_by 检查</listitem>
+			<listitem>第三种，修改sql使其遵守only_full_group_by语法规则</listitem>
+		</itemizedlist>
+		<para>采用哪个方案？打工人的方案，就是解决眼前问题，如果你对项目负责，最好采用第三种方案。</para>
+		<para>我的职业生涯遇到无数次，因版本太低同时发现重大漏洞，厂商已经不在维护该版本，此时一边是黑客攻击，一边你又无法短时间内升级到新版本，公司又不能接受停服，你会怎么应对？我用了很多非常规手段，给开发团队争取了一周的时间，升级系统。</para>
+	</section>
 </chapter>
