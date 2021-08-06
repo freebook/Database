@@ -1,35 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- $Id: chapter.mysql.log.xml 545 2013-03-27 09:30:42Z netkiller $ -->
-<section id="log">
-	<title>mysql log</title>
-	<para>/etc/my.cnf 配置文件</para>
+<section>
+	<title>MySQL慢查询日志（Slow Query Log）</title>
+	<para>参数说明如下：</para>
 	<screen>
-在服务器上的/etc/my.cnf中的[client]加入
-tee =/tmp/mysql_history.log即可.
+	<![CDATA[
+slow_query_log：			慢查询开启状态
+slow_query_log_file：	慢查询日志存放的位置（默认设置为 MySQL 的数据存放目录）
+long_query_time：		查询超过多少秒才记录
+	]]>
 	</screen>
-	<para>查看log设置</para>
-	<screen>
-show VARIABLES like '%log%';
-	</screen>
-	<para>命令行</para>
-	<screen>
-mysql -uroot --tee=/tmp/mysql_history.log
-	</screen>
+	<section>
+		<title>MySQL 8.x</title>
+		<para>慢查询日志状态</para>
+		<screen>
+		<![CDATA[
+mysql> show variables like '%slow_query_log%';
++---------------------+-----------------------------------+
+| Variable_name       | Value                             |
++---------------------+-----------------------------------+
+| slow_query_log      | ON                                |
+| slow_query_log_file | /var/lib/mysql/netkiller-slow.log |
++---------------------+-----------------------------------+
+2 rows in set (0.00 sec)		
+		]]>
+		</screen>
+		<screen>
+		<![CDATA[
+set global log_output='TABLE'; 	-- 开启慢日志,纪录到 mysql.slow_log 表
+set global long_query_time=10; 	-- 设置超过10秒的查询为慢查询
+set global slow_query_log='ON';	-- 打开慢日志记录	
+		]]>
+		</screen>
+		<para>查询慢的 sql 日志</para>
+		<screen>
+		<![CDATA[
+select convert(sql_text using utf8) sql_text from mysql.slow_log	
+		]]>
+		</screen>
+		<para>关闭慢查询日志</para>
+		<screen>
+		<![CDATA[
+set global slow_query_log='OFF'; -- 排查完毕后记得关闭日志		
+		]]>
+		</screen>
+	</section>
+	<section>
+		<title>MySQL 5.x</title>
 
-	<screen>
-mysql> tee mysql_history.log
-Logging to file 'mysql_history.log '
 
-或者
-mysql> \T mysql_history.log
-Logging to file 'mysql_history.log '
-	</screen>
+		<section>
+			<title>查看设置</title>
 
-	<screen>
-mysql> notee
-Outfile disabled.
-或者
-mysql> \t
-Outfile disabled.
-	</screen>
+			<screen>
+	<![CDATA[
+mysql> SHOW VARIABLES LIKE 'slow_query%';
++---------------------+-----------------------------------+
+| Variable_name       | Value                             |
++---------------------+-----------------------------------+
+| slow_query_log      | OFF                               |
+| slow_query_log_file | /var/lib/mysql/netkiller-slow.log |
++---------------------+-----------------------------------+
+2 rows in set (0.00 sec)
+
+mysql> 	
+	]]>
+			</screen>
+			<para></para>
+			<screen>
+	<![CDATA[
+mysql> SHOW VARIABLES LIKE 'long_query_time';
++-----------------+-----------+
+| Variable_name   | Value     |
++-----------------+-----------+
+| long_query_time | 10.000000 |
++-----------------+-----------+
+1 row in set (0.01 sec)	
+	]]>
+			</screen>
+		</section>
+		<section>
+			<title>开启慢查询日志</title>
+			<screen>
+		<![CDATA[
+mysql> SET GLOBAL slow_query_log=ON;
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> SET GLOBAL long_query_time=0.001;
+Query OK, 0 rows affected (0.00 sec)		
+		]]>
+			</screen>
+		</section>
+		<section>
+			<title>配置慢查询日志</title>
+			<screen>
+		<![CDATA[
+[mysqld]
+log-slow-queries 		= /var/lib/mysql/netkiller-slow.log
+long_query_time 		= 10
+		]]>
+			</screen>
+		</section>
+		<section>
+			<title>删除慢查询日志</title>
+			<para>执行命令后将清空旧慢查询日志，写入新日志</para>
+			<screen>
+		<![CDATA[
+mysqladmin -uroot -p flush-logs		
+		]]>
+			</screen>
+		</section>
+	</section>
 </section>

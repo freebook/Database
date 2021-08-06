@@ -174,28 +174,44 @@ Query OK, 0 rows affected (0.03 sec)
 			]]>
 			</screen>
 		</section>
+	</section><section id="mysql.docker">
+		<title>Docker</title>
+		<screen>
+		<![CDATA[
+docker run --name mysql -d \
+    --restart always \
+    -e MYSQL_ROOT_PASSWORD=123456 \
+    -e MYSQL_DATABASE=test \
+    -e MYSQL_USER=test \
+    -e MYSQL_PASSWORD=test \
+    -p 127.0.0.1:3306:3306 \
+    mysql:latest		
+		]]>
+		</screen>
 	</section><section id="mysql.ubuntu">
-		<title>Installation by apt under debian/ubuntu</title>
+		<title>Ubuntu/Debian</title>
+		<subtitle>Installation by apt under debian/ubuntu</subtitle>
 		<para>安装环境 ubuntu 17.10</para>
 		<screen>
-<![CDATA[
+		<![CDATA[
 			sudo apt install mysql-server mysql-client
-		]]></screen>
+		]]>
+		</screen>
 		<para>New password for the MySQL "root" user</para>
 		<screen>
 		<![CDATA[
-         ┌──────────────────────┤ Configuring mysql-server-5.7 ├─────────────────────┐
-         │ While not mandatory, it is highly recommended that you set a password for the MySQL administrative "root" user.  │
-         │                                                                                                                  │
-         │ If that field is left blank, the password will not be changed.                                                   │
-         │                                                                                                                  │
-         │ New password for the MySQL "root" user:                                                                          │
-         │                                                                                                                  │
-         │ ****____________________________________________________________________________________________________________ │
-         │                                                                                                                  │
-         │                                                      <Ok>                                                        │
-         │                                                                                                                  │
-         └─────────────────────────────────────────────────────────────┘
+┌──────────────────────┤ Configuring mysql-server-5.7 ├─────────────────────┐
+│ While not mandatory, it is highly recommended that you set a password for the MySQL administrative "root" user.  │
+│                                                                                                                  │
+│ If that field is left blank, the password will not be changed.                                                   │
+│                                                                                                                  │
+│ New password for the MySQL "root" user:                                                                          │
+│                                                                                                                  │
+│ ****____________________________________________________________________________________________________________ │
+│                                                                                                                  │
+│                                                      <Ok>                                                        │
+│                                                                                                                  │
+└─────────────────────────────────────────────────────────────┘
 		]]>
 		</screen>
 		<para>Repeat password for the MySQL "root" user</para>
@@ -241,7 +257,7 @@ FLUSH PRIVILEGES;
 		<section id="mysql-5.5.21">
 			<title>mysql-5.5.21-debian6.0-i686.deb</title>
 			<screen>
-		<![CDATA[
+			<![CDATA[
 sudo apt-get install libaio1
 
 
@@ -267,12 +283,13 @@ shell> bin/mysqld_safe --user=mysql &
 
 # Next command is optional
 sudo cp support-files/mysql.server /etc/init.d/mysql
-		]]>
+			]]>
 			</screen>
 		</section>
 	</section>
 	<section id="mysql.source">
-		<title>Installation by source code</title>
+		<title>源码安装</title>
+		<subtitle>Installation by source code</subtitle>
 		<screen>
 		<![CDATA[
 ./configure \
@@ -313,7 +330,8 @@ make && make install
 		]]></screen>
 	</section>
 	<section id="mysql.binary">
-		<title>MySQL binary distribution</title>
+		<title>二进制版本</title>
+		<subtitle>MySQL binary distribution</subtitle>
 		<screen>
 		<![CDATA[
 shell> groupadd mysql
@@ -397,40 +415,6 @@ Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 mysql>
 		]]>
 		</screen>
-	</section>
-
-	
-	<section id="mysql.docker">
-		<title>Docker</title>
-		<screen>
-		<![CDATA[
-docker run --name mysql -d \
-    --restart always \
-    -e MYSQL_ROOT_PASSWORD=123456 \
-    -e MYSQL_DATABASE=test \
-    -e MYSQL_USER=test \
-    -e MYSQL_PASSWORD=test \
-    -p 127.0.0.1:3306:3306 \
-    mysql:latest		
-		]]>
-		</screen>
-	</section>
-	<section id="mysql-admin">
-		<title>mysql-admin</title>
-		<screen>
-<![CDATA[
-$ sudo apt-get install mysql-admin
-		]]></screen>
-		<para>运行mysql-admin</para>
-		<screen>
-<![CDATA[
-/usr/bin/mysql-admin
-		]]></screen>
-		<para>运行 mysql-query-browser </para>
-		<screen>
-<![CDATA[
-mysql-query-browser --query="SELECT * FROM users"
-		]]></screen>
 	</section>
 	<section id="mysql.yum">
 		<title>Installing MySQL on Linux Using the MySQL Yum Repository</title>
@@ -518,75 +502,26 @@ ALTER USER root@localhost PASSWORD EXPIRE NEVER;
 		<title>Firewall</title>
 		<para>iptables</para>
 		<screen>
-<![CDATA[
-iptables -A INPUT -i eth0 -p tcp -s xxx.xxx.xxx.xxx --dport 3306 -j ACCEPT
-		]]></screen>
-	</section>
-	<section id="limit">
-		<title>Limit 状态</title>
-		<screen>
-<![CDATA[
-$ sudo cat /proc/`pidof mysqld`/limits
-Limit                     Soft Limit           Hard Limit           Units     
-Max cpu time              unlimited            unlimited            seconds   
-Max file size             unlimited            unlimited            bytes     
-Max data size             unlimited            unlimited            bytes     
-Max stack size            10485760             unlimited            bytes     
-Max core file size        0                    unlimited            bytes     
-Max resident set          unlimited            unlimited            bytes     
-Max processes             62662                62662                processes 
-Max open files            20480                20480                files     
-Max locked memory         65536                65536                bytes     
-Max address space         unlimited            unlimited            bytes     
-Max file locks            unlimited            unlimited            locks     
-Max pending signals       62662                62662                signals   
-Max msgqueue size         819200               819200               bytes     
-Max nice priority         0                    0                    
-Max realtime priority     0                    0                    
-Max realtime timeout      unlimited            unlimited            us   		
-		]]></screen>
-	</section>
-	<section id="mysql.btrfs">
-		<title>使用 Btrfs 文件系统存储mysql数据</title>
-		<screen>
 		<![CDATA[
-#!/bin/sh
-systemctl stop mysqld
-
-btrfs subvolume create /srv/@mysql
-btrfs subvolume list /srv/
-
-UUID=$(blkid | grep btrfs | sed -e 's/.*UUID="\([^"]*\)".*/\1/')
-# UUID=786f570d-fe5c-4d5f-832a-c1b0963dd4e6 /srv btrfs defaults 1 1
-cat << EOF >> /etc/fstab
-UUID=${UUID} /var/lib/mysql  btrfs   noatime,nodiratime,subvol=@mysql 0 2
-EOF
-
-mkdir /tmp/mysql
-mv /var/lib/mysql/* /tmp/mysql/
-
-mount /var/lib/mysql/
-chown mysql:mysql /var/lib/mysql
-
-mv /tmp/mysql/* /var/lib/mysql/
-
-systemctl start mysqld
+iptables -A INPUT -i eth0 -p tcp -s xxx.xxx.xxx.xxx --dport 3306 -j ACCEPT
 		]]>
 		</screen>
 	</section>
+	
 	<section id="mac">
 		<title>Mac OS</title>
 		<screen>
-<![CDATA[
+		<![CDATA[
 brew install mysql
-		]]></screen>
+		]]>
+		</screen>
 		<para>启动</para>
 		<screen>
-<![CDATA[
+		<![CDATA[
 brew services start mysql
-		]]></screen>
+		]]>
+		</screen>
 	</section>
-</section>
-
 	&chapter.mariadb.xml;
 	&chapter.percona.xml;
+</section>

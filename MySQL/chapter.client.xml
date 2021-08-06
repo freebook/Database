@@ -4,22 +4,22 @@
 	<title>Client and Utility Programs</title>
 	<info>
 		<keywordset>
-		    <keyword>mysql</keyword>
-		    <keyword>mysqldump</keyword>
-		    <keyword>mysqladmin</keyword>
-		    <keyword>mysqlcheck</keyword>
-		    <keyword>mysqldumpslow</keyword>
-		    <keyword></keyword>
-		    <keyword></keyword>
-		    <keyword></keyword>
-		    <keyword></keyword>
+			<keyword>mysql</keyword>
+			<keyword>mysqldump</keyword>
+			<keyword>mysqladmin</keyword>
+			<keyword>mysqlcheck</keyword>
+			<keyword>mysqldumpslow</keyword>
+			<keyword></keyword>
+			<keyword></keyword>
+			<keyword></keyword>
+			<keyword></keyword>
 		</keywordset>
 	</info>
 	<section id="mysql">
 		<title>mysql - the MySQL command-line tool</title>
 		<section>
 			<title>~/.my.cnf</title>
-			<screen>
+			<screen><![CDATA[
 # mysql_secure_installation config file
 [mysql]
 
@@ -35,7 +35,7 @@ quick
 [mysqladmin]
 
 [mysqlhotcopy]
-			</screen>
+			]]></screen>
 		</section>
 		<section id="mysql.tee">
 			<title>屏幕输出到文件</title>
@@ -49,7 +49,7 @@ mysql>exit
 		</section>
 		<section>
 			<title>终端编码</title>
-			<screen>
+			<screen><![CDATA[
 mysql> show variables like 'char%';
 +--------------------------+----------------------------+
 | Variable_name            | Value                      |
@@ -64,9 +64,9 @@ mysql> show variables like 'char%';
 | character_sets_dir       | /usr/share/mysql/charsets/ |
 +--------------------------+----------------------------+
 8 rows in set (0.00 sec)
-			</screen>
+			]]></screen>
 			<para>设置终端编码 set names utf8;</para>
-			<screen>
+			<screen><![CDATA[
 mysql> select * from category;
 +----+------+-------------+--------+-----------+-----------+
 | id | name | description | status | parent_id | path      |
@@ -94,13 +94,13 @@ mysql> select * from category;
 +----+-----------+-----------------------+--------+-----------+-----------+
 5 rows in set (0.00 sec)
 
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>Unix Socket</title>
-			<screen>
+			<screen><![CDATA[
 mysql -uroot -p -S /tmp/mysql.sock
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>重定向巧用</title>
@@ -117,7 +117,7 @@ EOF
 		<section>
 			<title>--sigint-ignore 忽略 Ctrl + C</title>
 			<para>使用该选项方式用户中途通过 Ctrl + C 推出,只能通过 quit 退出</para>
-			<screen>
+			<screen><![CDATA[
 $ mysql --sigint-ignore
 Welcome to the MySQL monitor.  Commands end with ; or \g.
 Your MySQL connection id is 71
@@ -133,6 +133,48 @@ Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 
 mysql> quit
 Bye
+			]]></screen>
+		</section>
+		<section id="log">
+			<title>mysql log</title>
+			<para>/etc/my.cnf 配置文件</para>
+			<screen>
+			<![CDATA[
+在服务器上的/etc/my.cnf中的[client]加入
+tee =/tmp/mysql_history.log即可.
+			]]>
+			</screen>
+			<para>查看log设置</para>
+			<screen>
+			<![CDATA[
+show VARIABLES like '%log%';
+			]]>
+			</screen>
+			<para>命令行</para>
+			<screen>
+			<![CDATA[
+mysql -uroot --tee=/tmp/mysql_history.log
+			]]>
+			</screen>
+			<screen>
+			<![CDATA[
+mysql> tee mysql_history.log
+Logging to file 'mysql_history.log '
+
+或者
+mysql> \T mysql_history.log
+Logging to file 'mysql_history.log '
+			]]>
+			</screen>
+
+			<screen>
+			<![CDATA[
+mysql> notee
+Outfile disabled.
+或者
+mysql> \t
+Outfile disabled.
+			]]>
 			</screen>
 		</section>
 	</section>
@@ -173,33 +215,33 @@ mysqldump -uroot -p -t -d database
 			]]>
 			</screen>
 		</section>
-		
+
 		<section id="complete-insert">
 			<title>使用完整的insert插入数据</title>
 			<para>-c, --complete-insert Use complete insert statements.</para>
-			<screen>
+			<screen><![CDATA[
 $ mysqldump -hlocalhost -uroot -t neo test
 
 INSERT INTO `test` VALUES (98,'neo','chen'),(112,'jam','zheng'),(113,'john','meng');
 
 $ mysqldump -hlocalhost -uroot -c -t neo test
 INSERT INTO `test` (`userid`, `username`, `password`) VALUES (98,'neo','chen'),(112,'jam','zheng'),(113,'john','meng');
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>--extended-insert / --skip-extended-insert</title>
 			<para>--extended-insert 默认开启</para>
-			<screen>
+			<screen><![CDATA[
 INSERT INTO `test` VALUES (98,'neo','chen'),(112,'jam','zheng'),(113,'john','meng');
-			</screen>
+			]]></screen>
 			<para>每条记录使用一次insert</para>
-			<screen>
+			<screen><![CDATA[
 $ mysqldump -hlocalhost -uroot --skip-extended-insert -t neo test |more
 INSERT INTO `test` VALUES (98,'neo','chen');
 INSERT INTO `test` VALUES (111,'neo','chen');
 INSERT INTO `test` VALUES (112,'jam','zheng');
 INSERT INTO `test` VALUES (113,'john','meng');
-			</screen>
+			]]></screen>
 		</section>
 		<section id="skip-lock-tables">
 			<title>--skip-lock-tables</title>
@@ -210,21 +252,21 @@ INSERT INTO `test` VALUES (113,'john','meng');
 			<title>--skip-add-locks</title>
 			<para>该参数mysqldump输出中包含下面 </para>
 			<para>默认情况</para>
-			<screen>
+			<screen><![CDATA[
 LOCK TABLES `tbl_name` WRITE;
-			</screen>
+			]]></screen>
 			<para>如果使用这个参数就不会输出 LOCK TABLE</para>
 		</section>
 		<section id="where">
 			<title>--where</title>
-			<screen>
+			<screen><![CDATA[
 mysqldump -hlocalhost -umysql -ppasswd database table --where="id>128"
-			</screen>
+			]]></screen>
 		</section>
 		<section id="skip-comments">
 			<title>注释信息--comments /--skip-comments</title>
 			<para>--comments附加注释信息，默认为打开。可以用--skip-comments取消</para>
-			<screen>
+			<screen><![CDATA[
 --
 -- Table structure for table `demo`
 --
@@ -235,13 +277,13 @@ DROP TABLE IF EXISTS `demo`;
 ...
 
 -- Dump completed on 2014-02-13 13:31:05		
-			</screen>
+			]]></screen>
 			<para>使用 --skip-comments后</para>
-			<screen>
+			<screen><![CDATA[
 DROP TABLE IF EXISTS `demo`;	
 ...
 ...			
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>不导出注释信息</title>
@@ -266,27 +308,27 @@ mysqldump --default-character-set=utf8 -r mysql.sql -h 192.168.0.24 -u root -p y
 		<title>mysqladmin - client for administering a MySQL server</title>
 		<section>
 			<title>reload</title>
-			<screen>
+			<screen><![CDATA[
 mysqladmin --user=root --password reload
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>更改密码</title>
-			<screen>
+			<screen><![CDATA[
 sudo mysqladmin -u root -p password '你的新密码'
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>status</title>
 			<para>每个10秒输出一次mysql的状态信息</para>
-			<screen>
+			<screen><![CDATA[
 mysqladmin -i 10 extended status
-			</screen>
-			<screen>
+			]]></screen>
+			<screen><![CDATA[
 mysqladmin -h 172.16.0.1 -u monitor -ppasswd status
 Uptime: 195824  Threads: 21  Questions: 57744081  Slow queries: 516230  Opens: 13202607  Flush tables: 1  Open tables: 160  Queries per second avg: 294.877
-			</screen>
-			<screen>
+			]]></screen>
+			<screen><![CDATA[
  mysqladmin -h 172.16.0.1 -u monitor -ppasswd  extended-status
 +-----------------------------------+-------------+
 | Variable_name                     | Value       |
@@ -584,11 +626,11 @@ Uptime: 195824  Threads: 21  Questions: 57744081  Slow queries: 516230  Opens: 1
 | Uptime_since_flush_status         | 195854      |
 +-----------------------------------+-------------+
 
-		</screen>
+		]]></screen>
 		</section>
 		<section>
 			<title>process list</title>
-			<screen>
+			<screen><![CDATA[
 [root@development ~]# mysqladmin -u root -p -h 127.0.0.1 processlist
 Enter password:
 +-------+--------+----------------------+--------+---------+------+-------+------------------+
@@ -598,10 +640,10 @@ Enter password:
 | 23878 | dbuser | www.testdb.com:53639 | testdb | Sleep   | 7    |       |                  |
 | 23881 | root   | localhost:57243      |        | Query   | 0    |       | show processlist |
 +-------+--------+----------------------+--------+---------+------+-------+------------------+
-			</screen>
-			<screen>
+			]]></screen>
+			<screen><![CDATA[
 mysql -u root -pneo -S /tmp/mysql.sock -e "show full processlist;"|grep -v Sleep
-			</screen>
+			]]></screen>
 		</section>
 	</section>
 	<section id="myisamchk">
@@ -613,36 +655,36 @@ myisamchk */*.MYI >/dev/null ＃检查哪些表需要修复
 		]]>
 		</screen>
 		<para>修复用以下命令一个个修复：</para>
-		<screen>
+		<screen><![CDATA[
 myisamchk -r table.MYI
-		</screen>
+		]]></screen>
 		<para>更省事的做法：</para>
-		<screen>
+		<screen><![CDATA[
 myisamchk -r /var/lib/mysql/*.MYI
-		</screen>
+		]]></screen>
 		<para>myisamchk可用crontab定時最佳化table</para>
-		<screen>
+		<screen><![CDATA[
 0 * * 0 /usr/bin/myisamchk -s /var/lib/mysql/*/*.MYI
-		</screen>
+		]]></screen>
 	</section>
 	<section id="mysqlcheck">
 		<title>mysqlcheck — A Table Maintenance and Repair Program</title>
 		<para>即可最佳化所有db </para>
-		<screen>
+		<screen><![CDATA[
 mysqlcheck -a -c -o -r --all-databases　-uroot -p
 -a = Analyse given tables.
 -c = Check table for errors
 -o = Optimise table
 -r = Can fix almost anything except unique keys that aren't unique
-		</screen>
-		<screen>
+		]]></screen>
+		<screen><![CDATA[
 mysqlcheck -A -o -r -p
-		</screen>
+		]]></screen>
 	</section>
 
 	<section id="mysqlslap">
 		<title>mysqlslap - load emulation client</title>
-		<screen>
+		<screen><![CDATA[
 –auto-generate-sql, -a
 自动生成测试表和数据
 
@@ -687,18 +729,18 @@ mysqlcheck -A -o -r -p
 
 –only-print
 只打印测试语句而不实际执行
-		</screen>
-		<screen>
+		]]></screen>
+		<screen><![CDATA[
 mysqlslap -u root -p -h localhost -c 10,50,100,200 -i 1 \
 --engine=myisam --auto-generate-sql-load-type=mixed --number-of-queries=50000 \
 --number-char-cols=5 --number-int-cols=5 --auto-generate-sql
-		</screen>
-		<screen>
+		]]></screen>
+		<screen><![CDATA[
 mysqlslap --defaults-file=/etc/my.cnf --concurrency=50,100,200 --iterations=1 \
 --number-int-cols=4 --number-char-cols=4 --auto-generate-sql --auto-generate-sql-add-autoincrement \
 --auto-generate-sql-load-type=mixed --engine=myisam,innodb --number-of-queries=200 --debug-info \
 -uroot -p -S/tmp/mysql.sock
-		</screen>
+		]]></screen>
 	</section>
 	<section id="mysqldumpslow">
 		<title>mysqldumpslow - Parse and summarize the MySQL slow query log.</title>
@@ -713,7 +755,7 @@ log-slow-queries =
 		<para>long_query_time 是指执行超过10秒的sql会被记录下来。</para>
 		<para>log-slow-queries设置把日志文件的位置，如果没有给出文件名值， 默认未主机名，后缀为-slow.log。如果给出了文件名，但不是绝对路径名，文件则写入数据目录。</para>
 		<para>cat /etc/mysql/my.cnf</para>
-		<screen>
+		<screen><![CDATA[
 [mysqld]
 set-variable=long_query_time=1
 log-slow-queries=/var/log/mysql/log-slow-queries.log
@@ -723,10 +765,10 @@ You must create the file manually and change owners this way:
 
 touch /var/log/mysql/log-slow-queries.log
 chown mysql.mysql -R /var/log/mysql/log-slow-queries.log
-		</screen>
-		<screen>
+		]]></screen>
+		<screen><![CDATA[
 $ mysqldumpslow /var/log/mysql/log-slow-queries.log
-		</screen>
+		]]></screen>
 		<orderedlist>
 			<title>mysqldumpslow 参数</title>
 			<listitem>
@@ -747,7 +789,8 @@ $ mysqldumpslow /var/log/mysql/log-slow-queries.log
 mysqldumpslow -s c -t 20 ubuntu-slow.log
 		]]>
 		</programlisting>
-		<para> </para>
+		<para>
+		</para>
 		<programlisting>
 		<![CDATA[
 mysqldumpslow -s r -t 20 ubuntu-slow.log
@@ -756,7 +799,9 @@ mysqldumpslow -s r -t 20 ubuntu-slow.log
 	</section>
 	<section id="mycli">
 		<title></title>
-		<para><ulink url="https://www.mycli.net"/></para>
+		<para>
+			<ulink url="https://www.mycli.net" />
+		</para>
 		<screen>
 		<![CDATA[
 $ brew update && brew install mycli		
@@ -764,4 +809,21 @@ $ brew update && brew install mycli
 		</screen>
 	</section>
 	&chapter.mysql.log.xml;
+	<section id="mysql-admin">
+		<title>mysql-admin</title>
+		<screen>
+<![CDATA[
+$ sudo apt-get install mysql-admin
+		]]></screen>
+		<para>运行mysql-admin</para>
+		<screen>
+<![CDATA[
+/usr/bin/mysql-admin
+		]]></screen>
+		<para>运行 mysql-query-browser </para>
+		<screen>
+<![CDATA[
+mysql-query-browser --query="SELECT * FROM users"
+		]]></screen>
+	</section>
 </chapter>

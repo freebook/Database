@@ -686,4 +686,28 @@ set @@SESSION.sql_mode='STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_F
 		<para>采用哪个方案？打工人的方案，就是解决眼前问题，如果你对项目负责，最好采用第三种方案。</para>
 		<para>我的职业生涯遇到无数次，因版本太低同时发现重大漏洞，厂商已经不在维护该版本，此时一边是黑客攻击，一边你又无法短时间内升级到新版本，公司又不能接受停服，你会怎么应对？我用了很多非常规手段，给开发团队争取了一周的时间，升级系统。</para>
 	</section>
+	<section id="mysqldump.Warning">
+		<title>mysqldump: [Warning] Using a password on the command line interface can be insecure.</title>
+		<screen>
+		<![CDATA[
+mysqldump: [Warning] Using a password on the command line interface can be insecure.		
+		]]>
+		</screen>
+		<para></para>
+		<screen>
+		<![CDATA[
+vim ~/.my.cnf 
+
+[mysqldump]
+user=root
+password=123456
+		]]>
+		</screen>
+		<screen>
+		<![CDATA[
+[root@netkiller neo]# mysqldump -h 192.168.30.40 neo
+[root@netkiller neo]# mysqldump --defaults-extra-file=~/.my.cnf netkiller > netkiller.sql		
+		]]>
+		</screen>
+	</section>
 </chapter>

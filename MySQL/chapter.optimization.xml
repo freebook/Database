@@ -2,6 +2,59 @@
 <!-- $Id: chapter.optimization.xml 572 2013-04-24 05:37:11Z netkiller $ -->
 <chapter id="index"><?dbhtml dir="optimization"?>
 	<title>Optimization</title>
+	<section id="limit">
+		<title>Limit 状态</title>
+		<screen>
+		<![CDATA[
+$ sudo cat /proc/`pidof mysqld`/limits
+Limit                     Soft Limit           Hard Limit           Units     
+Max cpu time              unlimited            unlimited            seconds   
+Max file size             unlimited            unlimited            bytes     
+Max data size             unlimited            unlimited            bytes     
+Max stack size            10485760             unlimited            bytes     
+Max core file size        0                    unlimited            bytes     
+Max resident set          unlimited            unlimited            bytes     
+Max processes             62662                62662                processes 
+Max open files            20480                20480                files     
+Max locked memory         65536                65536                bytes     
+Max address space         unlimited            unlimited            bytes     
+Max file locks            unlimited            unlimited            locks     
+Max pending signals       62662                62662                signals   
+Max msgqueue size         819200               819200               bytes     
+Max nice priority         0                    0                    
+Max realtime priority     0                    0                    
+Max realtime timeout      unlimited            unlimited            us   		
+		]]>
+		</screen>
+	</section>
+	<section id="mysql.btrfs">
+		<title>使用 Btrfs 文件系统存储mysql数据</title>
+		<screen>
+		<![CDATA[
+#!/bin/sh
+systemctl stop mysqld
+
+btrfs subvolume create /srv/@mysql
+btrfs subvolume list /srv/
+
+UUID=$(blkid | grep btrfs | sed -e 's/.*UUID="\([^"]*\)".*/\1/')
+# UUID=786f570d-fe5c-4d5f-832a-c1b0963dd4e6 /srv btrfs defaults 1 1
+cat << EOF >> /etc/fstab
+UUID=${UUID} /var/lib/mysql  btrfs   noatime,nodiratime,subvol=@mysql 0 2
+EOF
+
+mkdir /tmp/mysql
+mv /var/lib/mysql/* /tmp/mysql/
+
+mount /var/lib/mysql/
+chown mysql:mysql /var/lib/mysql
+
+mv /tmp/mysql/* /var/lib/mysql/
+
+systemctl start mysqld
+		]]>
+		</screen>
+	</section>
 	<section>
 		<title>打开表的数量</title>
 		<screen>
@@ -35,7 +88,9 @@ MySQL> set query_cache_type=off;
 		</programlisting>
 		<para>查看缓存状态</para>
 		<programlisting>
-show variables like 'have_query_cache';
+		<![CDATA[
+show variables like 'have_query_cache';		
+		]]>
 		</programlisting>
 		<para>查询缓存的大小</para>
 		<programlisting>
@@ -84,6 +139,7 @@ MySQL> show status like 'qcache_f%';
 		<section>
 			<title>Query Cache SELECT Options</title>
 			<programlisting>
+			<![CDATA[			
 Two query cache-related options may be specified in SELECT statements:
 
 SQL_CACHE
@@ -101,7 +157,7 @@ SELECT SQL_NO_CACHE id, name FROM customer;
 
 
 SELECT /*! SQL_NO_CACHE */ stuff FROM table
-
+			]]>
 			</programlisting>
 			<example>
 				<title>SQL_CACHE 测试</title>
@@ -122,8 +178,9 @@ show status like 'qcache_q%';
 MySQL> show status like 'qcache_q%';
 				]]>
 				</programlisting>
+				<para>其中各个参数的意义如下：</para>
 				<screen>
-其中各个参数的意义如下：
+				<![CDATA[
 Qcache_free_blocks：缓存中相邻内存块的个数。数目大说明可能有碎片。FLUSH QUERY CACHE会对缓存中的碎片进行整理，从而得到一个空闲块。
 Qcache_free_memory：缓存中的空闲内存。
 Qcache_hits：每次查询在缓存中命中时就增大
@@ -131,7 +188,8 @@ Qcache_inserts：每次插入一个查询时就增大。命中次数除以插入
 Qcache_lowmem_prunes：缓存出现内存不足并且必须要进行清理以便为更多查询提供空间的次数。这个数字最好长时间来看;如果这个 数字在不断增长，就表示可能碎片非常严重，或者内存很少。(上面的 free_blocks和free_memory可以告诉您属于哪种情况)
 Qcache_not_cached：不适合进行缓存的查询的数量，通常是由于这些查询不是 SELECT 语句或者用了now()之类的函数。
 Qcache_queries_in_cache：当前缓存的查询(和响应)的数量。
-Qcache_total_blocks：缓存中块的数量。				
+Qcache_total_blocks：缓存中块的数量。
+				]]>
 				</screen>
 			</example>
 		</section>
@@ -140,11 +198,13 @@ Qcache_total_blocks：缓存中块的数量。
 		<title>where 优化 </title>
 		<para>where 条件的顺序影响查询速度</para>
 		<screen>
+		<![CDATA[		
 EXPLAIN select *,from_unixtime(sendtime) from sms where id='461539' and content like '13%';
 /* 0 rows affected, 1 rows found. Duration for 1 query: 0.218 sec. */
 
 EXPLAIN select *,from_unixtime(sendtime) from sms where content like '13%' and id='461539';
 /* 0 rows affected, 1 rows found. Duration for 1 query: 0.717 sec. */
+		]]>
 		</screen>
 	</section>
 	<section id="show.profile">
@@ -152,16 +212,20 @@ EXPLAIN select *,from_unixtime(sendtime) from sms where content like '13%' and i
 		<example>
 			<title>SHOW PROFILE Syntax</title>
 			<screen>
+			<![CDATA[
 set profiling = 1; select * from mytab; show profile for query 1;
+			]]>
 			</screen>
 		</example>
-		
+
 	</section>
 	<section>
 		<title>PROCEDURE ANALYSE()</title>
 		<para>数据列优化</para>
 		<screen>
-SELECT ... FROM ... WHERE ... PROCEDURE ANALYSE([max_elements,[max_memory]])		
+		<![CDATA[
+SELECT ... FROM ... WHERE ... PROCEDURE ANALYSE([max_elements,[max_memory]])
+		]]>
 		</screen>
 	</section>
 </chapter>

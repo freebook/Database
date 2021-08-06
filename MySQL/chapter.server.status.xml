@@ -1,10 +1,594 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<section id="my.cnf">
+	<title>my.cnf</title>
+	<section id="my.cnf.bind-address">
+		<title>bind-address</title>
+		<para>MySQL 通过 yum 安装后默认是监听 127.0.0.1 / ::1 如果你希望从其他IP访问3306端口，需要修改绑定地址为 0.0.0.0 </para>
+		<screen>
+			<![CDATA[
+bind-address=127.0.0.1			
+			]]>
+		</screen>
+		<para>0.0.0.0:3306</para>
+		<screen>
+			<![CDATA[
+bind-address = 0.0.0.0
+			]]>
+		</screen>
+		<para>指定IP地址</para>
+		<screen>
+			<![CDATA[
+[root@localhost ~]# ip addr show
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: enp2s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 00:e0:70:81:9e:48 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.30.10/24 brd 192.168.30.255 scope global noprefixroute enp2s0
+       valid_lft forever preferred_lft forever
+    inet 192.168.30.11/24 brd 192.168.30.255 scope global secondary noprefixroute enp2s0
+       valid_lft forever preferred_lft forever
+    inet 192.168.30.12/24 brd 192.168.30.255 scope global secondary noprefixroute enp2s0
+       valid_lft forever preferred_lft forever
+    inet 192.168.30.13/24 brd 192.168.30.255 scope global secondary noprefixroute enp2s0
+       valid_lft forever preferred_lft forever
+    inet 192.168.30.14/24 brd 192.168.30.255 scope global secondary noprefixroute enp2s0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::2e0:70ff:fe81:9e48/64 scope link noprefixroute 
+       valid_lft forever preferred_lft forever
+3: wlp1s0: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 40:9f:38:b6:e0:55 brd ff:ff:ff:ff:ff:ff
+4: docker0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default 
+    link/ether 02:42:f0:6f:b3:4b brd ff:ff:ff:ff:ff:ff
+    inet 172.17.0.1/16 brd 172.17.255.255 scope global docker0
+       valid_lft forever preferred_lft forever
+45: br-a32fa1ca1437: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc noqueue state DOWN group default 
+    link/ether 02:42:d7:ae:ea:5d brd ff:ff:ff:ff:ff:ff
+    inet 172.18.0.1/16 brd 172.18.255.255 scope global br-a32fa1ca1437
+       valid_lft forever preferred_lft forever			
+			]]>
+		</screen>
+		<para>上面服务器上配置多个IP地址</para>
+		<screen>
+			<![CDATA[
+bind-address=192.168.30.10			
+			]]>
+		</screen>
+	</section>
+	<section>
+		<title>禁用TCP/IP链接</title>
+		<para>与bind-address互斥，skip-networking 开启，只能通过UNIX SOCKET链接，而不能使用IP地址链接</para>
+		<screen>
+<![CDATA[
+[mysqld]
+skip-networking
+			]]></screen>
+	</section>
+	<section>
+		<title>配置字符集</title>
+		<subtitle>Configuring Database Character Encoding</subtitle>
+		<para></para>
+		<screen>
+<![CDATA[
+mysql> SHOW VARIABLES LIKE 'character_set_%';
++--------------------------+----------------------------+
+| Variable_name            | Value                      |
++--------------------------+----------------------------+
+| character_set_client     | latin1                     |
+| character_set_connection | latin1                     |
+| character_set_database   | utf8                       |
+| character_set_filesystem | binary                     |
+| character_set_results    | latin1                     |
+| character_set_server     | latin1                     |
+| character_set_system     | utf8                       |
+| character_sets_dir       | /usr/share/mysql/charsets/ |
++--------------------------+----------------------------+
+8 rows in set (0.00 sec)
+			]]></screen>
+		<para>Server Character Set and Collation</para>
+		<screen>
+			<![CDATA[
+shell> mysqld --character-set-server=latin1
+shell> mysqld --character-set-server=latin1 \
+           --collation-server=latin1_swedish_ci
+			]]>
+		</screen>
+
+		<para>$ vim /etc/mysql/my.cnf</para>
+		<screen>
+<![CDATA[
+[mysqld]
+character-set-server=utf8
+collation_server=utf8_general_ci
+init_connect='SET NAMES utf8'
+
+[client]
+character_set_client=utf8
+			]]></screen>
+
+		<screen>
+<![CDATA[
+mysql --default-character-set=utf8 -u root -p
+			]]></screen>
+
+		<screen>
+			<![CDATA[
+mysql> show variables like 'character%';
++--------------------------+----------------------------+
+| Variable_name            | Value                      |
++--------------------------+----------------------------+
+| character_set_client     | utf8                       |
+| character_set_connection | utf8                       |
+| character_set_database   | utf8                       |
+| character_set_filesystem | binary                     |
+| character_set_results    | utf8                       |
+| character_set_server     | utf8                       |
+| character_set_system     | utf8                       |
+| character_sets_dir       | /usr/share/mysql/charsets/ |
++--------------------------+----------------------------+
+8 rows in set (0.00 sec)
+			]]>
+		</screen>
+	</section>
+	<section>
+		<title>最大链接数 max_connections</title>
+		<screen>
+<![CDATA[
+[mysqld]
+max_connections=250
+			]]></screen>
+	</section>
+	<section>
+		<title>默认引擎 storage-engine</title>
+		<screen>
+<![CDATA[
+[mysqld]
+default-storage-engine=INNODB
+			]]></screen>
+	</section>
+	<section>
+		<title>max_allowed_packet</title>
+		<screen>
+<![CDATA[
+max_allowed_packet=8M
+			]]></screen>
+	</section>
+
+	<section>
+		<title>skip-name-resolve</title>
+		<para>跳过域名解析</para>
+		<!-- skip-external-locking -->
+		<screen>
+<![CDATA[
+# vim /etc/mysql/my.cnf
+
+[mysqld]
+skip-name-resolve
+			]]></screen>
+		<para>MySQL 登录缓慢，大量用户排队等待</para>
+		<screen>
+<![CDATA[
+mysql> SHOW FULL PROCESSLIST;
++-----+----------------------+------------------------+------+---------+------+-------+-----------------------+
+| Id  | User                 | Host                   | db   | Command | Time | State | Info                  |
++-----+----------------------+------------------------+------+---------+------+-------+-----------------------+
+| 718 | unauthenticated user | 192.168.3.124:42075    | NULL | Connect | NULL | login | NULL                  |
+| 719 | unauthenticated user | 192.168.3.124:42073    | NULL | Connect | NULL | login | NULL                  |
+| 720 | unauthenticated user | 192.168.3.124:42074    | NULL | Connect | NULL | login | NULL                  |
+| 721 | unauthenticated user | 192.168.3.124:42077    | NULL | Connect | NULL | login | NULL                  |
+| 722 | unauthenticated user | 192.168.3.124:42076    | NULL | Connect | NULL | login | NULL                  |
+| 723 | unauthenticated user | 192.168.3.124:42079    | NULL | Connect | NULL | login | NULL                  |
+| 724 | unauthenticated user | 192.168.3.124:42078    | NULL | Connect | NULL | login | NULL                  |
+| 725 | unauthenticated user | 192.168.3.124:42081    | NULL | Connect | NULL | login | NULL                  |
+| 726 | unauthenticated user | 192.168.3.124:42080    | NULL | Connect | NULL | login | NULL                  |
+| 727 | unauthenticated user | 192.168.3.124:42082    | NULL | Connect | NULL | login | NULL                  |
+| 728 | unauthenticated user | 192.168.3.124:42083    | NULL | Connect | NULL | login | NULL                  |
+| 729 | unauthenticated user | 192.168.3.124:42085    | NULL | Connect | NULL | login | NULL                  |
+| 730 | unauthenticated user | 192.168.3.124:42084    | NULL | Connect | NULL | login | NULL                  |
+| 731 | unauthenticated user | 192.168.3.124:42086    | NULL | Connect | NULL | login | NULL                  |
+| 732 | unauthenticated user | 192.168.3.124:42087    | NULL | Connect | NULL | login | NULL                  |
+| 733 | unauthenticated user | 192.168.3.124:42088    | NULL | Connect | NULL | login | NULL                  |
+| 734 | unauthenticated user | 192.168.3.124:42089    | NULL | Connect | NULL | login | NULL                  |
+| 735 | unauthenticated user | 192.168.3.124:42090    | NULL | Connect | NULL | login | NULL                  |
+| 736 | unauthenticated user | 192.168.3.124:42091    | NULL | Connect | NULL | login | NULL                  |
+| 737 | unauthenticated user | 192.168.3.124:42092    | NULL | Connect | NULL | login | NULL                  |
+| 738 | unauthenticated user | 192.168.3.124:42093    | NULL | Connect | NULL | login | NULL                  |
+| 739 | unauthenticated user | 192.168.3.124:42094    | NULL | Connect | NULL | login | NULL                  |
+| 740 | unauthenticated user | 192.168.3.124:42095    | NULL | Connect | NULL | login | NULL                  |
+| 741 | unauthenticated user | 192.168.3.124:42096    | NULL | Connect | NULL | login | NULL                  |
+| 742 | unauthenticated user | 192.168.3.124:42097    | NULL | Connect | NULL | login | NULL                  |
+| 743 | unauthenticated user | 192.168.3.124:42098    | NULL | Connect | NULL | login | NULL                  |
+| 744 | unauthenticated user | 192.168.3.124:42099    | NULL | Connect | NULL | login | NULL                  |
+| 745 | unauthenticated user | 192.168.3.124:42100    | NULL | Connect | NULL | login | NULL                  |
+| 746 | unauthenticated user | 192.168.3.124:42101    | NULL | Connect | NULL | login | NULL                  |
+| 747 | unauthenticated user | 192.168.3.124:42102    | NULL | Connect | NULL | login | NULL                  |
+| 748 | unauthenticated user | 192.168.3.124:42103    | NULL | Connect | NULL | login | NULL                  |
+| 749 | unauthenticated user | 192.168.3.124:42104    | NULL | Connect | NULL | login | NULL                  |
+| 750 | unauthenticated user | 192.168.3.124:42068    | NULL | Connect | NULL | login | NULL                  |
+| 751 | unauthenticated user | 192.168.3.124:42064    | NULL | Connect | NULL | login | NULL                  |
+| 752 | unauthenticated user | 192.168.3.124:42071    | NULL | Connect | NULL | login | NULL                  |
+| 753 | unauthenticated user | 192.168.3.124:42072    | NULL | Connect | NULL | login | NULL                  |
+| 754 | unauthenticated user | 192.168.3.124:42067    | NULL | Connect | NULL | login | NULL                  |
+| 755 | unauthenticated user | 192.168.3.124:42070    | NULL | Connect | NULL | login | NULL                  |
+| 756 | unauthenticated user | 192.168.3.124:42069    | NULL | Connect | NULL | login | NULL                  |
+| 757 | unauthenticated user | 192.168.3.124:42065    | NULL | Connect | NULL | login | NULL                  |
+| 758 | unauthenticated user | 192.168.3.124:42112    | NULL | Connect | NULL | login | NULL                  |
+| 759 | unauthenticated user | 192.168.3.50:4872      | NULL | Connect | NULL | login | NULL                  |
+| 761 | unauthenticated user | 192.168.3.40:36363     | NULL | Connect | NULL | login | NULL                  |
+| 762 | neo                  | www.example.com:56200  | NULL | Query   |    0 | NULL  | SHOW FULL PROCESSLIST |
++-----+----------------------+------------------------+------+---------+------+-------+-----------------------+
+44 rows in set (0.00 sec)
+
+mysql> SHOW FULL PROCESSLIST;
++-----+----------------------+------------------------+------+---------+------+-------+-----------------------+
+| Id  | User                 | Host                   | db   | Command | Time | State | Info                  |
++-----+----------------------+------------------------+------+---------+------+-------+-----------------------+
+| 718 | unauthenticated user | 192.168.3.124:42075    | NULL | Connect | NULL | login | NULL                  |
+| 719 | unauthenticated user | 192.168.3.124:42073    | NULL | Connect | NULL | login | NULL                  |
+| 720 | unauthenticated user | 192.168.3.124:42074    | NULL | Connect | NULL | login | NULL                  |
+| 721 | unauthenticated user | 192.168.3.124:42077    | NULL | Connect | NULL | login | NULL                  |
+| 722 | unauthenticated user | 192.168.3.124:42076    | NULL | Connect | NULL | login | NULL                  |
+| 723 | unauthenticated user | 192.168.3.124:42079    | NULL | Connect | NULL | login | NULL                  |
+| 724 | unauthenticated user | 192.168.3.124:42078    | NULL | Connect | NULL | login | NULL                  |
+| 725 | unauthenticated user | 192.168.3.124:42081    | NULL | Connect | NULL | login | NULL                  |
+| 726 | unauthenticated user | 192.168.3.124:42080    | NULL | Connect | NULL | login | NULL                  |
+| 727 | unauthenticated user | 192.168.3.124:42082    | NULL | Connect | NULL | login | NULL                  |
+| 728 | unauthenticated user | 192.168.3.124:42083    | NULL | Connect | NULL | login | NULL                  |
+| 729 | unauthenticated user | 192.168.3.124:42085    | NULL | Connect | NULL | login | NULL                  |
+| 730 | unauthenticated user | 192.168.3.124:42084    | NULL | Connect | NULL | login | NULL                  |
+| 731 | unauthenticated user | 192.168.3.124:42086    | NULL | Connect | NULL | login | NULL                  |
+| 732 | unauthenticated user | 192.168.3.124:42087    | NULL | Connect | NULL | login | NULL                  |
+| 733 | unauthenticated user | 192.168.3.124:42088    | NULL | Connect | NULL | login | NULL                  |
+| 734 | unauthenticated user | 192.168.3.124:42089    | NULL | Connect | NULL | login | NULL                  |
+| 735 | unauthenticated user | 192.168.3.124:42090    | NULL | Connect | NULL | login | NULL                  |
+| 736 | unauthenticated user | 192.168.3.124:42091    | NULL | Connect | NULL | login | NULL                  |
+| 737 | unauthenticated user | 192.168.3.124:42092    | NULL | Connect | NULL | login | NULL                  |
+| 738 | unauthenticated user | 192.168.3.124:42093    | NULL | Connect | NULL | login | NULL                  |
+| 739 | unauthenticated user | 192.168.3.124:42094    | NULL | Connect | NULL | login | NULL                  |
+| 740 | unauthenticated user | 192.168.3.124:42095    | NULL | Connect | NULL | login | NULL                  |
+| 741 | unauthenticated user | 192.168.3.124:42096    | NULL | Connect | NULL | login | NULL                  |
+| 742 | unauthenticated user | 192.168.3.124:42097    | NULL | Connect | NULL | login | NULL                  |
+| 743 | unauthenticated user | 192.168.3.124:42098    | NULL | Connect | NULL | login | NULL                  |
+| 744 | unauthenticated user | 192.168.3.124:42099    | NULL | Connect | NULL | login | NULL                  |
+| 745 | unauthenticated user | 192.168.3.124:42100    | NULL | Connect | NULL | login | NULL                  |
+| 746 | unauthenticated user | 192.168.3.124:42101    | NULL | Connect | NULL | login | NULL                  |
+| 747 | unauthenticated user | 192.168.3.124:42102    | NULL | Connect | NULL | login | NULL                  |
+| 748 | unauthenticated user | 192.168.3.124:42103    | NULL | Connect | NULL | login | NULL                  |
+| 749 | unauthenticated user | 192.168.3.124:42104    | NULL | Connect | NULL | login | NULL                  |
+| 750 | unauthenticated user | 192.168.3.124:42068    | NULL | Connect | NULL | login | NULL                  |
+| 751 | unauthenticated user | 192.168.3.124:42064    | NULL | Connect | NULL | login | NULL                  |
+| 752 | unauthenticated user | 192.168.3.124:42071    | NULL | Connect | NULL | login | NULL                  |
+| 753 | unauthenticated user | 192.168.3.124:42072    | NULL | Connect | NULL | login | NULL                  |
+| 754 | unauthenticated user | 192.168.3.124:42067    | NULL | Connect | NULL | login | NULL                  |
+| 755 | unauthenticated user | 192.168.3.124:42070    | NULL | Connect | NULL | login | NULL                  |
+| 756 | unauthenticated user | 192.168.3.124:42069    | NULL | Connect | NULL | login | NULL                  |
+| 757 | unauthenticated user | 192.168.3.124:42065    | NULL | Connect | NULL | login | NULL                  |
+| 758 | unauthenticated user | 192.168.3.124:42112    | NULL | Connect | NULL | login | NULL                  |
+| 759 | unauthenticated user | 192.168.3.50:4872      | NULL | Connect | NULL | login | NULL                  |
+| 761 | unauthenticated user | 192.168.3.40:36363     | NULL | Connect | NULL | login | NULL                  |
+| 762 | neo                  | www.example.com:56200  | NULL | Query   |    0 | NULL  | SHOW FULL PROCESSLIST |
++-----+----------------------+------------------------+------+---------+------+-------+-----------------------+
+44 rows in set (0.00 sec)
+
+			]]></screen>
+		<para>解决方案 my.cnf 配置文件中加入skip-name-resolve</para>
+	</section>
+
+	<section>
+		<title>timeout</title>
+		<screen>
+<![CDATA[
+[mysqld]
+wait_timeout=30
+interactive_timeout=30
+			]]></screen>
+		<para>如果你没有修改过MySQL的配置，缺省情况下，wait_timeout的初始值是28800。</para>
+		<para>wait_timeout过大有弊端，其体现就是MySQL里大量的SLEEP进程无法及时释放，拖累系统性能，不过也不能把这个指设置的过小，否则你可能会遭遇到“MySQL has gone away”之类的问题，通常来说，我觉得把wait_timeout设置为10是个不错的选择，但某些情况下可能也会出问题，比如说有一个CRON脚本，其中两次SQL查询的间隔时间大于10秒的话，那么这个设置就有问题了：</para>
+		<para>(1)interactive_timeout 参数含义：服务器关闭交互式连接前等待活动的秒数。 参数默认值：28800秒（8小时）</para>
+		<para>(2)wait_timeout 参数含义：服务器关闭非交互连接之前等待活动的秒数。</para>
+	</section>
+	<section id="replication">
+		<title>与复制有关的参数</title>
+		<section>
+			<title>用于主库的选项 Master</title>
+			<para>定义 log-bin 文件名</para>
+			<screen>
+<![CDATA[
+log-bin=mysql-bin
+				]]></screen>
+			<para>binlog 保留时间, 过期天数设置</para>
+			<screen>
+<![CDATA[
+expire-logs-days = 30
+				]]></screen>
+			<para></para>
+			<screen>
+<![CDATA[
+binlog-do-db=需要复制的数据库名
+binlog-ignore-db=不需要复制的数据库					
+				]]></screen>
+		</section>
+		<section>
+			<title>用于从库的选项 Slave </title>
+			<screen>
+<![CDATA[
+replicate-do-db= 指定需要复制的数据库
+replicate-ignore-db= 忽略复制的数据库
+				]]></screen>
+		</section>
+		<section>
+			<title>逃过错误</title>
+			<para>主从复制经常遇到 Last_Errno: 1062 可以使用下面配置跳过</para>
+			<screen>
+<![CDATA[
+slave_skip_errors=1062				
+				]]></screen>
+		</section>
+	</section>
+	<section>
+		<title>与 InnoDB 有关的配置项</title>
+		<screen>
+<![CDATA[
+innodb_file_per_table
+			]]></screen>
+		<para>配置后重启mysql运行下面命令将ibdata1拆分到tbl_name.ibd</para>
+		<screen>
+<![CDATA[
+OPTIMIZE TABLE tbl_name;
+			]]></screen>
+		<para>ls /var/lib/mysql/中查看 tbl_name.ibd文件</para>
+		<para>临时开启</para>
+		<screen>
+<![CDATA[
+SET @@global.innodb_file_per_table = 1;
+			]]></screen>
+	</section>
+	<section>
+		<title>EVENT 设置</title>
+		<para>开启EVENT定时任务</para>
+		<screen>
+<![CDATA[
+event_scheduler=on			
+			]]></screen>
+	</section>
+	<section>
+		<title>日志</title>
+		<para>操作日志</para>
+		<screen>
+<![CDATA[
+log = mysql.log			
+			]]></screen>
+		<para>慢查询日志</para>
+		<screen>
+<![CDATA[
+log-slow-queries = slow.log
+long_query_time = 5			
+			]]></screen>
+		<para>错误日志</para>
+		<screen>
+<![CDATA[
+[mysqld_safe]
+log-error=/var/log/mysqld.log			
+			]]></screen>
+	</section>
+	<section>
+		<title>MySQL 5.7 my.cnf 实例</title>
+		<example>
+			<title>my.cnf</title>
+			<screen>
+<![CDATA[
+[root@netkiller ~]# cat /etc/my.cnf
+# For advice on how to change settings please see
+# http://dev.mysql.com/doc/refman/5.7/en/server-configuration-defaults.html
+
+[mysqld]
+#
+# Remove leading # and set to the amount of RAM for the most important data
+# cache in MySQL. Start at 70% of total RAM for dedicated server, else 10%.
+# innodb_buffer_pool_size = 128M
+#
+# Remove leading # to turn on a very important data integrity option: logging
+# changes to the binary log between backups.
+# log_bin
+#
+# Remove leading # to set options mainly useful for reporting servers.
+# The server defaults are faster for transactions and fast SELECTs.
+# Adjust sizes as needed, experiment to find the optimal values.
+# join_buffer_size = 128M
+# sort_buffer_size = 2M
+# read_rnd_buffer_size = 2M
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+
+# Disabling symbolic-links is recommended to prevent assorted security risks
+symbolic-links=0
+
+log-error=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid
+
+!includedir /etc/my.cnf.d
+
+
+				]]></screen>
+		</example>
+		<example>
+			<title>my.cnf</title>
+			<screen>
+<![CDATA[
+[root@netkiller ~]# cat /etc/my.cnf.d/default.cnf 
+[mysqld]
+skip-name-resolve
+max_connections=4096
+default-storage-engine=INNODB
+
+#wait_timeout=300
+#interactive_timeout=300
+
+character-set-server=utf8
+collation_server=utf8_general_ci
+init_connect='SET NAMES utf8'
+
+explicit_defaults_for_timestamp=true
+
+query_cache_type=1
+query_cache_size=512M
+table-open-cache=2000
+
+#validate-password=OFF
+
+sql_mode = STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+
+[client]
+default-character-set=utf8
+#character_set_client=utf8				
+				]]></screen>
+		</example>
+	</section>
+	<section>
+		<title>Example for my.cnf</title>
+		<example>
+			<title>my.cnf</title>
+			<screen>
+			<![CDATA[
+# Example MySQL config file for very large systems.
+#
+# This is for a large system with memory of 1G-2G where the system runs mainly
+# MySQL.
+#
+# In this file, you can use all long options that a program supports.
+# If you want to know which options a program supports, run the program
+# with the "--help" option.
+
+# The following options will be passed to all MySQL clients
+[client]
+#password	= your_password
+port		= 3306
+socket		= /var/lib/mysql/mysql.sock
+
+# Here follows entries for some specific programs
+character-set-server=utf8
+
+# The MySQL server
+[mysqld]
+port		= 3306
+socket		= /var/lib/mysql/mysql.sock
+skip-external-locking
+key_buffer_size = 384M
+max_allowed_packet = 1M
+table_open_cache = 512
+sort_buffer_size = 2M
+read_buffer_size = 2M
+read_rnd_buffer_size = 8M
+myisam_sort_buffer_size = 64M
+thread_cache_size = 8
+query_cache_size = 32M
+# Try number of CPU's*2 for thread_concurrency
+thread_concurrency = 8
+
+#skip-networking
+
+# Replication Master Server (default)
+# binary logging is required for replication
+log-bin=mysql-bin
+
+# required unique id between 1 and 2^32 - 1
+# defaults to 1 if master-host is not set
+# but will not function as a master if omitted
+server-id	= 1
+
+# Replication Slave (comment out master section to use this)
+#
+#
+# required unique id between 2 and 2^32 - 1
+# (and different from the master)
+# defaults to 2 if master-host is set
+# but will not function as a slave if omitted
+#server-id       = 2
+#
+# The replication master for this slave - required
+#master-host     =   <hostname>
+#
+# The username the slave will use for authentication when connecting
+# to the master - required
+#master-user     =   <username>
+#
+# The password the slave will authenticate with when connecting to
+# the master - required
+#master-password =   <password>
+#
+# The port the master is listening on.
+# optional - defaults to 3306
+#master-port     =  <port>
+#
+# binary logging - not required for slaves, but recommended
+#log-bin=mysql-bin
+#
+# binary logging format - mixed recommended
+#binlog_format=mixed
+
+# Uncomment the following if you are using InnoDB tables
+#innodb_data_home_dir = /var/lib/mysql
+#innodb_data_file_path = ibdata1:2000M;ibdata2:10M:autoextend
+#innodb_log_group_home_dir = /var/lib/mysql
+# You can set .._buffer_pool_size up to 50 - 80 %
+# of RAM but beware of setting memory usage too high
+#innodb_buffer_pool_size = 384M
+#innodb_additional_mem_pool_size = 20M
+# Set .._log_file_size to 25 % of buffer pool size
+#innodb_log_file_size = 100M
+#innodb_log_buffer_size = 8M
+#innodb_flush_log_at_trx_commit = 1
+#innodb_lock_wait_timeout = 50
+
+# Here follows entries for some specific programs
+skip-name-resolve
+default-storage-engine	= INNODB
+
+character-set-server=utf8
+collation_server=utf8_general_ci
+init_connect='SET NAMES utf8'
+
+max_connections			= 4096
+max_connect_errors		= 10
+
+pid-file				= mysql.pid
+log 					= mysql.log
+log-error 				= mysql_error.log
+
+log-slow-queries 		= slow.log
+long_query_time 		= 10
+
+[mysqldump]
+quick
+max_allowed_packet = 16M
+
+[mysql]
+no-auto-rehash
+# Remove the next comment character if you are not familiar with SQL
+#safe-updates
+
+[myisamchk]
+key_buffer_size = 256M
+sort_buffer_size = 256M
+read_buffer = 2M
+write_buffer = 2M
+
+[mysqlhotcopy]
+interactive-timeout
+			]]>
+			</screen>
+		</example>
+	</section>
+</section>
 <section id="variables">
 	<title>variables</title>
-	<screen>
+	<screen><![CDATA[
 show variables;
 show global variables;
-	</screen>
+	]]></screen>
 	<section id="time_zone">
 		<title>time_zone</title>
 		<programlisting>
@@ -17,29 +601,29 @@ SELECT @@global.time_zone, @@session.time_zone;
 		<title>sql_mode</title>
 		<section>
 			<title>设置 sql_mode</title>
-			<screen>
+			<screen><![CDATA[
 SET GLOBAL sql_mode = 'NO_ENGINE_SUBSTITUTION';
-SET SESSION sql_mode = 'NO_ENGINE_SUBSTITUTION';			
-			</screen>
+SET SESSION sql_mode = 'NO_ENGINE_SUBSTITUTION';
+			]]></screen>
 		</section>
 		<section>
 			<title>查看 sql_mode</title>
-			<screen>
+			<screen><![CDATA[
 SELECT @@GLOBAL.sql_mode;
 SELECT @@SESSION.sql_mode;
-			</screen>
+			]]></screen>
 		</section>
 		<section>
-			<title>兼容早起 MySQL 版本</title>
+			<title>兼容早期 MySQL 版本</title>
 			<para>导入数据库遇到这样的问题</para>
-			<screen>
+			<screen><![CDATA[
 [root@netkiller]/tmp# cat cms.sql| mysql -uroot -p cms
-			</screen>
+			]]></screen>
 			<para>ERROR 1067 (42000) at line 2194: Invalid default value for 'created_date'</para>
 			<para>将下面代码加入到 cms.sql 头部可以解决</para>
-			<screen>
+			<screen><![CDATA[
 set @@global.sql_mode='NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>5.7.16</title>
@@ -180,7 +764,7 @@ mysql -uroot -h 192.168.0.10 -p --default-character-set=latin1
 	<section id="datadir">
 		<title>datadir</title>
 		<screen>
- SHOW VARIABLES LIKE 'datadir';
+			SHOW VARIABLES LIKE 'datadir';
 		</screen>
 		<screen>
 		<![CDATA[
@@ -226,663 +810,17 @@ mysql> show variables like '%storage_engine%';
 	</section>
 	<section id="timeout">
 		<title>timeout</title>
-		<screen>
+		<screen><![CDATA[
 show variables like "%timeout%";
-		</screen>
+		]]></screen>
 	</section>
 	<section id="max_connections">
 		<title>max_connections</title>
-		<screen>
+		<screen><![CDATA[
 show variables like "max_connections";
-		</screen>
-		<screen>
+		]]></screen>
+		<screen><![CDATA[
 set global max_connections = 200;
-		</screen>
-	</section>
-</section>
-<section id="status">
-	<title>SHOW COMMAND</title>
-	<section id="version">
-		<title>查看版本</title>
-		<para>Server</para>
-		<screen>
-mysql> select version();
-+-----------+
-| version() |
-+-----------+
-| 5.0.77    |
-+-----------+
-1 row in set (0.00 sec)
-		</screen>
-		<screen>
-mysql> status;
---------------
-mysql  Ver 14.12 Distrib 5.0.77, for redhat-linux-gnu (x86_64) using readline 5.1
-
-Connection id:          1533
-Current database:
-Current user:           root@localhost
-SSL:                    Not in use
-Current pager:          stdout
-Using outfile:          ''
-Using delimiter:        ;
-Server version:         5.0.77 Source distribution
-Protocol version:       10
-Connection:             Localhost via UNIX socket
-Server characterset:    latin1
-Db     characterset:    latin1
-Client characterset:    latin1
-Conn.  characterset:    latin1
-UNIX socket:            /var/lib/mysql/mysql.sock
-Uptime:                 1 day 21 hours 40 min 52 sec
-
-Threads: 1  Questions: 22172  Slow queries: 0  Opens: 3130  Flush tables: 1  Open tables: 64  Queries per second avg: 0.135
---------------
-
-		</screen>
-		<para>Client</para>
-		<screen>
-[root@development ~]# mysql -V
-mysql  Ver 14.12 Distrib 5.0.77, for redhat-linux-gnu (x86_64) using readline 5.1
-		</screen>
-	</section>
-
-	<section id="show.status">
-		<title>status</title>
-		<programlisting>
-		<![CDATA[
-mysql> show status;
-mysql> show global status;
-		]]>
-		</programlisting>
-
-		<section id="show.status">
-			<title>show status</title>
-			<screen>
-			</screen>
-			<screen>
-数据库性能状态
-(1)QPS(每秒Query量)
-QPS = Questions(or Queries) / seconds
-mysql > show /*50000 global */ status like 'Question';
-
-(2)TPS(每秒事务量)
-TPS = (Com_commit + Com_rollback) / seconds
-mysql > show status like 'Com_commit';
-mysql > show status like 'Com_rollback';
-
-(3)key Buffer 命中率
-key_buffer_read_hits = (1-key_reads / key_read_requests) * 100%
-key_buffer_write_hits = (1-key_writes / key_write_requests) * 100%
-
-mysql> show status like 'Key%';
-
-(4)InnoDB Buffer命中率
-innodb_buffer_read_hits = (1 - innodb_buffer_pool_reads / innodb_buffer_pool_read_requests) * 100%
-
-mysql> show status like 'innodb_buffer_pool_read%';
-
-(5)Query Cache命中率
-Query_cache_hits = (Qcahce_hits / (Qcache_hits + Qcache_inserts )) * 100%;
-
-mysql> show status like 'Qcache%';
-(6)Table Cache状态量
-mysql> show status like 'open%';
-
-(7)Thread Cache 命中率
-Thread_cache_hits = (1 - Threads_created / connections ) * 100%
-
-mysql> show status like 'Thread%';
-
-mysql> show status like 'Connections';
-
-(8)锁定状态
-mysql> show status like '%lock%';
-
-(9)复制延时量
-mysql > show slave status
-
-(10) Tmp Table 状况(临时表状况)
-mysql > show status like 'Create_tmp%';
-(11) Binlog Cache 使用状况
-mysql > show status like 'Binlog_cache%';
-
-(12) Innodb_log_waits 量
-mysql > show status like 'innodb_log_waits';
-			</screen>
-		</section>
-		<section>
-			<title>show master status</title>
-			<screen>
-			<![CDATA[
-mysql> show master status;
-+---------------------+-----------+--------------+------------------+
-| File                | Position  | Binlog_Do_DB | Binlog_Ignore_DB |
-+---------------------+-----------+--------------+------------------+
-| DBMaster-bin.000018 | 409468882 | example      |                  |
-+---------------------+-----------+--------------+------------------+
-1 row in set (0.00 sec)
-
-mysql>
-			]]>
-			</screen>
-		</section>
-		<section>
-			<title>show slave status</title>
-			<screen>
-			<![CDATA[
-mysql> show slave status/G
-
-得到的列表会有类似下面的数据：
-
-File: mysql-bin.000001
-Position: 1374
-Binlog_Do_DB: test
-Binlog_Ignore_DB: mysql
-
-Slave_IO_State: Waiting for master to send event
-Slave_IO_Running: Yes
-Slave_SQL_Running: Yes
-			]]>
-			</screen>
-		</section>
-		<section>
-			<title>show plugins</title>
-			<screen>
-			<![CDATA[
-mysql> SHOW PLUGINS;
-+------------+----------+----------------+---------+---------+
-| Name       | Status   | Type           | Library | License |
-+------------+----------+----------------+---------+---------+
-| binlog     | ACTIVE   | STORAGE ENGINE | NULL    | GPL     |
-| partition  | ACTIVE   | STORAGE ENGINE | NULL    | GPL     |
-| ARCHIVE    | ACTIVE   | STORAGE ENGINE | NULL    | GPL     |
-| BLACKHOLE  | ACTIVE   | STORAGE ENGINE | NULL    | GPL     |
-| CSV        | ACTIVE   | STORAGE ENGINE | NULL    | GPL     |
-| FEDERATED  | DISABLED | STORAGE ENGINE | NULL    | GPL     |
-| MEMORY     | ACTIVE   | STORAGE ENGINE | NULL    | GPL     |
-| InnoDB     | ACTIVE   | STORAGE ENGINE | NULL    | GPL     |
-| MyISAM     | ACTIVE   | STORAGE ENGINE | NULL    | GPL     |
-| MRG_MYISAM | ACTIVE   | STORAGE ENGINE | NULL    | GPL     |
-+------------+----------+----------------+---------+---------+
-10 rows in set (0.00 sec)
-			]]>
-			</screen>
-		</section>
-	</section>
-	<section id="show.processlist">
-		<title>show processlist</title>
-		<screen>
-show full processlist;
-		</screen>
-		<screen>
-命令： show processlist;
-如果是root帐号，你能看到所有用户的当前连接。如果是其它普通帐号，只能看到自己占用的连接。
-show processlist;只列出前100条，如果想全列出请使用show full processlist;
-mysql> show processlist;
-
-命令： show status;
-
-Aborted_clients 由于客户没有正确关闭连接已经死掉，已经放弃的连接数量。
-Aborted_connects 尝试已经失败的MySQL服务器的连接的次数。
-Connections 试图连接MySQL服务器的次数。
-Created_tmp_tables 当执行语句时，已经被创造了的隐含临时表的数量。
-Delayed_insert_threads 正在使用的延迟插入处理器线程的数量。
-Delayed_writes 用INSERT DELAYED写入的行数。
-Delayed_errors 用INSERT DELAYED写入的发生某些错误(可能重复键值)的行数。
-Flush_commands 执行FLUSH命令的次数。
-Handler_delete 请求从一张表中删除行的次数。
-Handler_read_first 请求读入表中第一行的次数。
-Handler_read_key 请求数字基于键读行。
-Handler_read_next 请求读入基于一个键的一行的次数。
-Handler_read_rnd 请求读入基于一个固定位置的一行的次数。
-Handler_update 请求更新表中一行的次数。
-Handler_write 请求向表中插入一行的次数。
-Key_blocks_used 用于关键字缓存的块的数量。
-Key_read_requests 请求从缓存读入一个键值的次数。
-Key_reads 从磁盘物理读入一个键值的次数。
-Key_write_requests 请求将一个关键字块写入缓存次数。
-Key_writes 将一个键值块物理写入磁盘的次数。
-Max_used_connections 同时使用的连接的最大数目。
-Not_flushed_key_blocks 在键缓存中已经改变但是还没被清空到磁盘上的键块。
-Not_flushed_delayed_rows 在INSERT DELAY队列中等待写入的行的数量。
-Open_tables 打开表的数量。
-Open_files 打开文件的数量。
-Open_streams 打开流的数量(主要用于日志记载）
-Opened_tables 已经打开的表的数量。
-Questions 发往服务器的查询的数量。
-Slow_queries 要花超过long_query_time时间的查询数量。
-Threads_connected 当前打开的连接的数量。
-Threads_running 不在睡眠的线程数量。
-Uptime 服务器工作了多少秒。
-		</screen>
-	</section>
-	
-	
-	<section id="binary">
-		<title>binary 日志</title>
-		<screen>
-		<![CDATA[
-mysql> show binary logs;
-+------------------+-----------+
-| Log_name         | File_size |
-+------------------+-----------+
-| mysql-bin.000001 |     19544 |
-| mysql-bin.000002 |    974751 |
-| mysql-bin.000003 |       107 |
-| mysql-bin.000004 |   3976040 |
-| mysql-bin.000005 |       126 |
-| mysql-bin.000006 |    350063 |
-| mysql-bin.000007 |      6826 |
-| mysql-bin.000008 |   3879494 |
-| mysql-bin.000009 |       126 |
-| mysql-bin.000010 |       494 |
-| mysql-bin.000011 |  17286686 |
-| mysql-bin.000012 |  15003942 |
-| mysql-bin.000013 |   1709321 |
-+------------------+-----------+
-13 rows in set (0.00 sec)
-		]]>
-		</screen>
-	</section>
-	<section id="threads">
-		<title>线程的使用情况</title>
-		<screen>
-		<![CDATA[
-mysql> SHOW STATUS LIKE 'threads%';
-+-------------------+-------+
-| Variable_name     | Value |
-+-------------------+-------+
-| Threads_cached    | 0     |
-| Threads_connected | 1     |
-| Threads_created   | 1     |
-| Threads_running   | 1     |
-+-------------------+-------+
-4 rows in set (0.01 sec)		
-		]]>
-		</screen>
-	</section>
-	<section id="databases">
-		<title>DATABASES</title>
-		<screen>
-SHOW DATABASES;
-		</screen>
-	</section>
-	<section id="table">
-		<title>TABLE</title>
-		<screen>
-SHOW TABLE STATUS FROM `dbname`;
-		</screen>
-	</section>
-	<section id="created_tmp">
-		<title>临时表</title>
-		<screen>
-		<![CDATA[
-mysql> SHOW STATUS LIKE 'created_tmp%';
-+-------------------------+-------+
-| Variable_name           | Value |
-+-------------------------+-------+
-| Created_tmp_disk_tables | 0     |
-| Created_tmp_files       | 5     |
-| Created_tmp_tables      | 0     |
-+-------------------------+-------+
-3 rows in set (0.00 sec)
-		]]>
-		</screen>
-	</section>
-	<section id="sort">
-		<title>排序统计信息</title>
-		<screen>
-		<![CDATA[
-mysql> SHOW STATUS LIKE "sort%";
-+-------------------+-------+
-| Variable_name     | Value |
-+-------------------+-------+
-| Sort_merge_passes | 0     |
-| Sort_range        | 0     |
-| Sort_rows         | 0     |
-| Sort_scan         | 0     |
-+-------------------+-------+
-4 rows in set (0.00 sec)		
-		]]>
-		</screen>
-	</section>
-	<section id="key_read">
-		<title>Key 状态</title>
-		<screen>
-		<![CDATA[
-mysql> show status like '%key_read%';
-+-------------------+-------+
-| Variable_name     | Value |
-+-------------------+-------+
-| Key_read_requests | 6     |
-| Key_reads         | 3     |
-+-------------------+-------+
-2 rows in set (0.00 sec)		
-		]]>
-		</screen>
-	</section>
-	<section id="function">
-		<title>FUNCTION</title>
-		<screen>
-SHOW FUNCTION STATUS WHERE `Db`='dbname';
-		</screen>
-	</section>
-	<section id="procedure">
-		<title>PROCEDURE</title>
-		<screen>
-SHOW PROCEDURE STATUS WHERE `Db`='dbname';
-		</screen>
-	</section>
-	<section id="triggers">
-		<title>TRIGGERS</title>
-		<screen>
-SHOW TRIGGERS FROM `dbname`;
-		</screen>
-		<programlisting>
-		<![CDATA[
-mysql> SHOW TRIGGERS LIKE '%trigger_name%'\G
-Empty set (0.00 sec)
-
-mysql> SHOW TRIGGERS LIKE '%demo%'\G
-*************************** 1. row ***************************
-             Trigger: demo_AFTER_INSERT
-               Event: INSERT
-               Table: demo
-           Statement: BEGIN
-	set @rev = "";
-	SELECT 
-    OUT2FILE('/tmp/demo.log',
-            CONCAT_WS(',',
-                    NEW.id,
-                    NEW.name,
-                    NEW.sex,
-                    NEW.address))
-INTO @rev;
-END
-              Timing: AFTER
-             Created: 2017-11-23 11:47:58.10
-            sql_mode: ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
-             Definer: root@%
-character_set_client: utf8
-collation_connection: utf8_general_ci
-  Database Collation: utf8_general_ci
-1 row in set (0.00 sec)
-		
-		]]>
-		</programlisting>
-	</section>
-	<section id="events">
-		<title>EVENTS</title>
-		<screen>
-SHOW EVENTS FROM `dbname`;
-		</screen>
-	</section>
-	<section id="engines">
-		<title>引擎(ENGINES)</title>
-		<screen>
-		<![CDATA[
-mysql> SHOW ENGINES;
-+--------------------+---------+----------------------------------------------------------------+--------------+------+------------+
-| Engine             | Support | Comment                                                        | Transactions | XA   | Savepoints |
-+--------------------+---------+----------------------------------------------------------------+--------------+------+------------+
-| CSV                | YES     | CSV storage engine                                             | NO           | NO   | NO         |
-| MRG_MYISAM         | YES     | Collection of identical MyISAM tables                          | NO           | NO   | NO         |
-| PERFORMANCE_SCHEMA | YES     | Performance Schema                                             | NO           | NO   | NO         |
-| BLACKHOLE          | YES     | /dev/null storage engine (anything you write to it disappears) | NO           | NO   | NO         |
-| MEMORY             | YES     | Hash based, stored in memory, useful for temporary tables      | NO           | NO   | NO         |
-| FEDERATED          | NO      | Federated MySQL storage engine                                 | NULL         | NULL | NULL       |
-| ARCHIVE            | YES     | Archive storage engine                                         | NO           | NO   | NO         |
-| MyISAM             | YES     | MyISAM storage engine                                          | NO           | NO   | NO         |
-| InnoDB             | DEFAULT | Supports transactions, row-level locking, and foreign keys     | YES          | YES  | YES        |
-+--------------------+---------+----------------------------------------------------------------+--------------+------+------------+
-9 rows in set (0.00 sec)
-
-		]]>
-		</screen>
-	</section>
-	<section id="collation">
-		<title>字符集(Collation)</title>
-		<screen>
-		<![CDATA[
-mysql> SHOW COLLATION;
-+--------------------------+----------+-----+---------+----------+---------+
-| Collation                | Charset  | Id  | Default | Compiled | Sortlen |
-+--------------------------+----------+-----+---------+----------+---------+
-| big5_chinese_ci          | big5     |   1 | Yes     | Yes      |       1 |
-| big5_bin                 | big5     |  84 |         | Yes      |       1 |
-| dec8_swedish_ci          | dec8     |   3 | Yes     | Yes      |       1 |
-| dec8_bin                 | dec8     |  69 |         | Yes      |       1 |
-| cp850_general_ci         | cp850    |   4 | Yes     | Yes      |       1 |
-| cp850_bin                | cp850    |  80 |         | Yes      |       1 |
-| hp8_english_ci           | hp8      |   6 | Yes     | Yes      |       1 |
-| hp8_bin                  | hp8      |  72 |         | Yes      |       1 |
-| koi8r_general_ci         | koi8r    |   7 | Yes     | Yes      |       1 |
-| koi8r_bin                | koi8r    |  74 |         | Yes      |       1 |
-| latin1_german1_ci        | latin1   |   5 |         | Yes      |       1 |
-| latin1_swedish_ci        | latin1   |   8 | Yes     | Yes      |       1 |
-| latin1_danish_ci         | latin1   |  15 |         | Yes      |       1 |
-| latin1_german2_ci        | latin1   |  31 |         | Yes      |       2 |
-| latin1_bin               | latin1   |  47 |         | Yes      |       1 |
-| latin1_general_ci        | latin1   |  48 |         | Yes      |       1 |
-| latin1_general_cs        | latin1   |  49 |         | Yes      |       1 |
-| latin1_spanish_ci        | latin1   |  94 |         | Yes      |       1 |
-| latin2_czech_cs          | latin2   |   2 |         | Yes      |       4 |
-| latin2_general_ci        | latin2   |   9 | Yes     | Yes      |       1 |
-| latin2_hungarian_ci      | latin2   |  21 |         | Yes      |       1 |
-| latin2_croatian_ci       | latin2   |  27 |         | Yes      |       1 |
-| latin2_bin               | latin2   |  77 |         | Yes      |       1 |
-| swe7_swedish_ci          | swe7     |  10 | Yes     | Yes      |       1 |
-| swe7_bin                 | swe7     |  82 |         | Yes      |       1 |
-| ascii_general_ci         | ascii    |  11 | Yes     | Yes      |       1 |
-| ascii_bin                | ascii    |  65 |         | Yes      |       1 |
-| ujis_japanese_ci         | ujis     |  12 | Yes     | Yes      |       1 |
-| ujis_bin                 | ujis     |  91 |         | Yes      |       1 |
-| sjis_japanese_ci         | sjis     |  13 | Yes     | Yes      |       1 |
-| sjis_bin                 | sjis     |  88 |         | Yes      |       1 |
-| hebrew_general_ci        | hebrew   |  16 | Yes     | Yes      |       1 |
-| hebrew_bin               | hebrew   |  71 |         | Yes      |       1 |
-| tis620_thai_ci           | tis620   |  18 | Yes     | Yes      |       4 |
-| tis620_bin               | tis620   |  89 |         | Yes      |       1 |
-| euckr_korean_ci          | euckr    |  19 | Yes     | Yes      |       1 |
-| euckr_bin                | euckr    |  85 |         | Yes      |       1 |
-| koi8u_general_ci         | koi8u    |  22 | Yes     | Yes      |       1 |
-| koi8u_bin                | koi8u    |  75 |         | Yes      |       1 |
-| gb2312_chinese_ci        | gb2312   |  24 | Yes     | Yes      |       1 |
-| gb2312_bin               | gb2312   |  86 |         | Yes      |       1 |
-| greek_general_ci         | greek    |  25 | Yes     | Yes      |       1 |
-| greek_bin                | greek    |  70 |         | Yes      |       1 |
-| cp1250_general_ci        | cp1250   |  26 | Yes     | Yes      |       1 |
-| cp1250_czech_cs          | cp1250   |  34 |         | Yes      |       2 |
-| cp1250_croatian_ci       | cp1250   |  44 |         | Yes      |       1 |
-| cp1250_bin               | cp1250   |  66 |         | Yes      |       1 |
-| cp1250_polish_ci         | cp1250   |  99 |         | Yes      |       1 |
-| gbk_chinese_ci           | gbk      |  28 | Yes     | Yes      |       1 |
-| gbk_bin                  | gbk      |  87 |         | Yes      |       1 |
-| latin5_turkish_ci        | latin5   |  30 | Yes     | Yes      |       1 |
-| latin5_bin               | latin5   |  78 |         | Yes      |       1 |
-| armscii8_general_ci      | armscii8 |  32 | Yes     | Yes      |       1 |
-| armscii8_bin             | armscii8 |  64 |         | Yes      |       1 |
-| utf8_general_ci          | utf8     |  33 | Yes     | Yes      |       1 |
-| utf8_bin                 | utf8     |  83 |         | Yes      |       1 |
-| utf8_unicode_ci          | utf8     | 192 |         | Yes      |       8 |
-| utf8_icelandic_ci        | utf8     | 193 |         | Yes      |       8 |
-| utf8_latvian_ci          | utf8     | 194 |         | Yes      |       8 |
-| utf8_romanian_ci         | utf8     | 195 |         | Yes      |       8 |
-| utf8_slovenian_ci        | utf8     | 196 |         | Yes      |       8 |
-| utf8_polish_ci           | utf8     | 197 |         | Yes      |       8 |
-| utf8_estonian_ci         | utf8     | 198 |         | Yes      |       8 |
-| utf8_spanish_ci          | utf8     | 199 |         | Yes      |       8 |
-| utf8_swedish_ci          | utf8     | 200 |         | Yes      |       8 |
-| utf8_turkish_ci          | utf8     | 201 |         | Yes      |       8 |
-| utf8_czech_ci            | utf8     | 202 |         | Yes      |       8 |
-| utf8_danish_ci           | utf8     | 203 |         | Yes      |       8 |
-| utf8_lithuanian_ci       | utf8     | 204 |         | Yes      |       8 |
-| utf8_slovak_ci           | utf8     | 205 |         | Yes      |       8 |
-| utf8_spanish2_ci         | utf8     | 206 |         | Yes      |       8 |
-| utf8_roman_ci            | utf8     | 207 |         | Yes      |       8 |
-| utf8_persian_ci          | utf8     | 208 |         | Yes      |       8 |
-| utf8_esperanto_ci        | utf8     | 209 |         | Yes      |       8 |
-| utf8_hungarian_ci        | utf8     | 210 |         | Yes      |       8 |
-| utf8_sinhala_ci          | utf8     | 211 |         | Yes      |       8 |
-| utf8_general_mysql500_ci | utf8     | 223 |         | Yes      |       1 |
-| ucs2_general_ci          | ucs2     |  35 | Yes     | Yes      |       1 |
-| ucs2_bin                 | ucs2     |  90 |         | Yes      |       1 |
-| ucs2_unicode_ci          | ucs2     | 128 |         | Yes      |       8 |
-| ucs2_icelandic_ci        | ucs2     | 129 |         | Yes      |       8 |
-| ucs2_latvian_ci          | ucs2     | 130 |         | Yes      |       8 |
-| ucs2_romanian_ci         | ucs2     | 131 |         | Yes      |       8 |
-| ucs2_slovenian_ci        | ucs2     | 132 |         | Yes      |       8 |
-| ucs2_polish_ci           | ucs2     | 133 |         | Yes      |       8 |
-| ucs2_estonian_ci         | ucs2     | 134 |         | Yes      |       8 |
-| ucs2_spanish_ci          | ucs2     | 135 |         | Yes      |       8 |
-| ucs2_swedish_ci          | ucs2     | 136 |         | Yes      |       8 |
-| ucs2_turkish_ci          | ucs2     | 137 |         | Yes      |       8 |
-| ucs2_czech_ci            | ucs2     | 138 |         | Yes      |       8 |
-| ucs2_danish_ci           | ucs2     | 139 |         | Yes      |       8 |
-| ucs2_lithuanian_ci       | ucs2     | 140 |         | Yes      |       8 |
-| ucs2_slovak_ci           | ucs2     | 141 |         | Yes      |       8 |
-| ucs2_spanish2_ci         | ucs2     | 142 |         | Yes      |       8 |
-| ucs2_roman_ci            | ucs2     | 143 |         | Yes      |       8 |
-| ucs2_persian_ci          | ucs2     | 144 |         | Yes      |       8 |
-| ucs2_esperanto_ci        | ucs2     | 145 |         | Yes      |       8 |
-| ucs2_hungarian_ci        | ucs2     | 146 |         | Yes      |       8 |
-| ucs2_sinhala_ci          | ucs2     | 147 |         | Yes      |       8 |
-| ucs2_general_mysql500_ci | ucs2     | 159 |         | Yes      |       1 |
-| cp866_general_ci         | cp866    |  36 | Yes     | Yes      |       1 |
-| cp866_bin                | cp866    |  68 |         | Yes      |       1 |
-| keybcs2_general_ci       | keybcs2  |  37 | Yes     | Yes      |       1 |
-| keybcs2_bin              | keybcs2  |  73 |         | Yes      |       1 |
-| macce_general_ci         | macce    |  38 | Yes     | Yes      |       1 |
-| macce_bin                | macce    |  43 |         | Yes      |       1 |
-| macroman_general_ci      | macroman |  39 | Yes     | Yes      |       1 |
-| macroman_bin             | macroman |  53 |         | Yes      |       1 |
-| cp852_general_ci         | cp852    |  40 | Yes     | Yes      |       1 |
-| cp852_bin                | cp852    |  81 |         | Yes      |       1 |
-| latin7_estonian_cs       | latin7   |  20 |         | Yes      |       1 |
-| latin7_general_ci        | latin7   |  41 | Yes     | Yes      |       1 |
-| latin7_general_cs        | latin7   |  42 |         | Yes      |       1 |
-| latin7_bin               | latin7   |  79 |         | Yes      |       1 |
-| utf8mb4_general_ci       | utf8mb4  |  45 | Yes     | Yes      |       1 |
-| utf8mb4_bin              | utf8mb4  |  46 |         | Yes      |       1 |
-| utf8mb4_unicode_ci       | utf8mb4  | 224 |         | Yes      |       8 |
-| utf8mb4_icelandic_ci     | utf8mb4  | 225 |         | Yes      |       8 |
-| utf8mb4_latvian_ci       | utf8mb4  | 226 |         | Yes      |       8 |
-| utf8mb4_romanian_ci      | utf8mb4  | 227 |         | Yes      |       8 |
-| utf8mb4_slovenian_ci     | utf8mb4  | 228 |         | Yes      |       8 |
-| utf8mb4_polish_ci        | utf8mb4  | 229 |         | Yes      |       8 |
-| utf8mb4_estonian_ci      | utf8mb4  | 230 |         | Yes      |       8 |
-| utf8mb4_spanish_ci       | utf8mb4  | 231 |         | Yes      |       8 |
-| utf8mb4_swedish_ci       | utf8mb4  | 232 |         | Yes      |       8 |
-| utf8mb4_turkish_ci       | utf8mb4  | 233 |         | Yes      |       8 |
-| utf8mb4_czech_ci         | utf8mb4  | 234 |         | Yes      |       8 |
-| utf8mb4_danish_ci        | utf8mb4  | 235 |         | Yes      |       8 |
-| utf8mb4_lithuanian_ci    | utf8mb4  | 236 |         | Yes      |       8 |
-| utf8mb4_slovak_ci        | utf8mb4  | 237 |         | Yes      |       8 |
-| utf8mb4_spanish2_ci      | utf8mb4  | 238 |         | Yes      |       8 |
-| utf8mb4_roman_ci         | utf8mb4  | 239 |         | Yes      |       8 |
-| utf8mb4_persian_ci       | utf8mb4  | 240 |         | Yes      |       8 |
-| utf8mb4_esperanto_ci     | utf8mb4  | 241 |         | Yes      |       8 |
-| utf8mb4_hungarian_ci     | utf8mb4  | 242 |         | Yes      |       8 |
-| utf8mb4_sinhala_ci       | utf8mb4  | 243 |         | Yes      |       8 |
-| cp1251_bulgarian_ci      | cp1251   |  14 |         | Yes      |       1 |
-| cp1251_ukrainian_ci      | cp1251   |  23 |         | Yes      |       1 |
-| cp1251_bin               | cp1251   |  50 |         | Yes      |       1 |
-| cp1251_general_ci        | cp1251   |  51 | Yes     | Yes      |       1 |
-| cp1251_general_cs        | cp1251   |  52 |         | Yes      |       1 |
-| utf16_general_ci         | utf16    |  54 | Yes     | Yes      |       1 |
-| utf16_bin                | utf16    |  55 |         | Yes      |       1 |
-| utf16_unicode_ci         | utf16    | 101 |         | Yes      |       8 |
-| utf16_icelandic_ci       | utf16    | 102 |         | Yes      |       8 |
-| utf16_latvian_ci         | utf16    | 103 |         | Yes      |       8 |
-| utf16_romanian_ci        | utf16    | 104 |         | Yes      |       8 |
-| utf16_slovenian_ci       | utf16    | 105 |         | Yes      |       8 |
-| utf16_polish_ci          | utf16    | 106 |         | Yes      |       8 |
-| utf16_estonian_ci        | utf16    | 107 |         | Yes      |       8 |
-| utf16_spanish_ci         | utf16    | 108 |         | Yes      |       8 |
-| utf16_swedish_ci         | utf16    | 109 |         | Yes      |       8 |
-| utf16_turkish_ci         | utf16    | 110 |         | Yes      |       8 |
-| utf16_czech_ci           | utf16    | 111 |         | Yes      |       8 |
-| utf16_danish_ci          | utf16    | 112 |         | Yes      |       8 |
-| utf16_lithuanian_ci      | utf16    | 113 |         | Yes      |       8 |
-| utf16_slovak_ci          | utf16    | 114 |         | Yes      |       8 |
-| utf16_spanish2_ci        | utf16    | 115 |         | Yes      |       8 |
-| utf16_roman_ci           | utf16    | 116 |         | Yes      |       8 |
-| utf16_persian_ci         | utf16    | 117 |         | Yes      |       8 |
-| utf16_esperanto_ci       | utf16    | 118 |         | Yes      |       8 |
-| utf16_hungarian_ci       | utf16    | 119 |         | Yes      |       8 |
-| utf16_sinhala_ci         | utf16    | 120 |         | Yes      |       8 |
-| cp1256_general_ci        | cp1256   |  57 | Yes     | Yes      |       1 |
-| cp1256_bin               | cp1256   |  67 |         | Yes      |       1 |
-| cp1257_lithuanian_ci     | cp1257   |  29 |         | Yes      |       1 |
-| cp1257_bin               | cp1257   |  58 |         | Yes      |       1 |
-| cp1257_general_ci        | cp1257   |  59 | Yes     | Yes      |       1 |
-| utf32_general_ci         | utf32    |  60 | Yes     | Yes      |       1 |
-| utf32_bin                | utf32    |  61 |         | Yes      |       1 |
-| utf32_unicode_ci         | utf32    | 160 |         | Yes      |       8 |
-| utf32_icelandic_ci       | utf32    | 161 |         | Yes      |       8 |
-| utf32_latvian_ci         | utf32    | 162 |         | Yes      |       8 |
-| utf32_romanian_ci        | utf32    | 163 |         | Yes      |       8 |
-| utf32_slovenian_ci       | utf32    | 164 |         | Yes      |       8 |
-| utf32_polish_ci          | utf32    | 165 |         | Yes      |       8 |
-| utf32_estonian_ci        | utf32    | 166 |         | Yes      |       8 |
-| utf32_spanish_ci         | utf32    | 167 |         | Yes      |       8 |
-| utf32_swedish_ci         | utf32    | 168 |         | Yes      |       8 |
-| utf32_turkish_ci         | utf32    | 169 |         | Yes      |       8 |
-| utf32_czech_ci           | utf32    | 170 |         | Yes      |       8 |
-| utf32_danish_ci          | utf32    | 171 |         | Yes      |       8 |
-| utf32_lithuanian_ci      | utf32    | 172 |         | Yes      |       8 |
-| utf32_slovak_ci          | utf32    | 173 |         | Yes      |       8 |
-| utf32_spanish2_ci        | utf32    | 174 |         | Yes      |       8 |
-| utf32_roman_ci           | utf32    | 175 |         | Yes      |       8 |
-| utf32_persian_ci         | utf32    | 176 |         | Yes      |       8 |
-| utf32_esperanto_ci       | utf32    | 177 |         | Yes      |       8 |
-| utf32_hungarian_ci       | utf32    | 178 |         | Yes      |       8 |
-| utf32_sinhala_ci         | utf32    | 179 |         | Yes      |       8 |
-| binary                   | binary   |  63 | Yes     | Yes      |       1 |
-| geostd8_general_ci       | geostd8  |  92 | Yes     | Yes      |       1 |
-| geostd8_bin              | geostd8  |  93 |         | Yes      |       1 |
-| cp932_japanese_ci        | cp932    |  95 | Yes     | Yes      |       1 |
-| cp932_bin                | cp932    |  96 |         | Yes      |       1 |
-| eucjpms_japanese_ci      | eucjpms  |  97 | Yes     | Yes      |       1 |
-| eucjpms_bin              | eucjpms  |  98 |         | Yes      |       1 |
-+--------------------------+----------+-----+---------+----------+---------+
-		]]>
-		</screen>
-	</section>
-	<section id="show.grants">
-		<title>SHOW GRANTS</title>
-		<screen>
-MariaDB [test]> SHOW GRANTS;
-+----------------------------------------------------------------------------------------------------------------------------------------+
-| Grants for root@localhost                                                                                                              |
-+----------------------------------------------------------------------------------------------------------------------------------------+
-| GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' IDENTIFIED BY PASSWORD '*C6325DAF39AE6CC34E960D3C65F1398FE467E1D0' WITH GRANT OPTION |
-| GRANT PROXY ON ''@'' TO 'root'@'localhost' WITH GRANT OPTION                                                                           |
-+----------------------------------------------------------------------------------------------------------------------------------------+
-2 rows in set (0.00 sec)
-		</screen>
-	</section>
-	<section id="validate_password">
-		<title>validate_password</title>
-		<screen>
-		<![CDATA[
-SHOW VARIABLES LIKE 'validate_password.%';
-
-mysql> SHOW VARIABLES LIKE 'validate_password.%';
-+--------------------------------------+--------+
-| Variable_name                        | Value  |
-+--------------------------------------+--------+
-| validate_password.check_user_name    | ON     |
-| validate_password.dictionary_file    |        |
-| validate_password.length             | 8      |
-| validate_password.mixed_case_count   | 1      |
-| validate_password.number_count       | 1      |
-| validate_password.policy             | MEDIUM |
-| validate_password.special_char_count | 1      |
-+--------------------------------------+--------+
-7 rows in set (0.00 sec)		
-		]]>
-		</screen>
+		]]></screen>
 	</section>
 </section>
