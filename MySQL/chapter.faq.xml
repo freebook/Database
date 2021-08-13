@@ -587,6 +587,30 @@ mysql> select /*+ max_execution_time(3000)*/ count(*) from cert;
 		]]>
 		</screen>
 	</section>
+	<section id="ERROR.1273">
+		<title>ERROR 1273 (HY000) at line 3364: Unknown collation: 'utf8mb4_0900_ai_ci'</title>
+		<para>找出指定字符集的表</para>
+		<programlisting>
+		<![CDATA[
+select TABLE_SCHEMA,TABLE_NAME,TABLE_COLLATION from information_schema.tables where table_collation = 'utf8mb4_0900_ai_ci' and table_schema = 'your_schema';		
+		]]>
+		</programlisting>
+		<programlisting>
+		<![CDATA[
+SELECT
+	CONCAT(
+		'ALTER TABLE ',
+		TABLE_NAME,
+		' CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;'
+	)
+FROM
+	information_schema.`TABLES`
+WHERE
+	TABLE_SCHEMA = 'DATABASE_NAME';
+		]]>
+		</programlisting>
+	</section>
+	
 	<section id="caching_sha2_password.so">
 		<title>Authentication plugin 'caching_sha2_password' cannot be loaded: /usr/lib64/mysql/plugin/caching_sha2_password.so: cannot open shared object file: No such fileor directory</title>
 		<para>这个故障出现在 MySQL 8.0 上，用户使用 mysql client 5.7 链接 MySQL 8.0 提示如下</para>

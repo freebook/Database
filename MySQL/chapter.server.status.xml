@@ -823,4 +823,16 @@ show variables like "max_connections";
 set global max_connections = 200;
 		]]></screen>
 	</section>
+	<section id="variables.autocommit">
+		<title>自动提交 autocommit</title>
+		<screen>
+		<![CDATA[
+select @@autocommit;
+		
+show variables like "autocommit";
+
+set autocommit='off'		
+		]]>
+		</screen>
+	</section>
 </section>

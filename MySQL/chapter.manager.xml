@@ -342,6 +342,30 @@ GRANT SELECT (col1), INSERT (col1,col2) ON mydb.mytbl TO 'someuser'@'somehost';
 			]]></screen>
 		</section>
 	</section>
+	<section>
+		<title>字符集转换</title>
+		<para>找出指定字符集的表</para>
+		<programlisting>
+		<![CDATA[
+select TABLE_SCHEMA,TABLE_NAME,TABLE_COLLATION from information_schema.tables where table_collation = 'utf8mb4_0900_ai_ci' and table_schema = 'your_schema';		
+		]]>
+		</programlisting>
+		<programlisting>
+		<![CDATA[
+SELECT
+	CONCAT(
+		'ALTER TABLE ',
+		TABLE_NAME,
+		' CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;'
+	)
+FROM
+	information_schema.`TABLES`
+WHERE
+	TABLE_SCHEMA = 'DATABASE_NAME';
+		]]>
+		</programlisting>
+		
+	</section>
 	<section id="show">
 		<title>SHOW COMMAND</title>
 		<section id="version">
