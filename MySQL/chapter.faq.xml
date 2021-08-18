@@ -62,7 +62,7 @@ log-error=/var/log/mysqld.log
 pid-file=/var/run/mysqld/mysqld.pid
 			]]>
 			</screen>
-			
+
 			<screen>
 			<![CDATA[
 # systemctl restart mysqld
@@ -100,7 +100,7 @@ Query OK, 0 rows affected (0.00 sec)
 mysql> quit;
 Bye
 			]]>
-			</screen>	
+			</screen>
 			<para>删除 skip-grant-tables=1 重启MySQL</para>
 		</section>
 		<section>
@@ -120,7 +120,7 @@ ALTER USER root@localhost PASSWORD EXPIRE NEVER;
 			]]>
 			</screen>
 		</section>
-		
+
 	</section>
 
 	<section id="sql.sed">
@@ -163,7 +163,7 @@ OS error code   6:  No such device or address
 		<section id="error.code">
 			<title>ERROR 1153 (08S01) at line 3168: Got a packet bigger than 'max_allowed_packet' bytes</title>
 			<screen>
-max_allowed_packet=500M
+				max_allowed_packet=500M
 			</screen>
 		</section>
 		<section>
@@ -175,10 +175,10 @@ mysql> flush hosts;
 			]]>
 			</screen>
 			<screen>
-set global max_connect_errors=1000;
+				set global max_connect_errors=1000;
 			</screen>
 			<screen>
-max_connect_errors=10000
+				max_connect_errors=10000
 			</screen>
 		</section>
 	</section>
@@ -195,116 +195,172 @@ max_connect_errors=10000
 		</para>
 		<para>拼装kill命令后输入到kill.sql, source 将从kill.sql读取sql命令并执行。</para>
 		<screen>
-SELECT concat('KILL ',id,';') FROM information_schema.processlist WHERE user='root' INTO OUTFILE '/tmp/kill.sql';
+			SELECT concat('KILL ',id,';') FROM information_schema.processlist WHERE user='root' INTO OUTFILE '/tmp/kill.sql';
 
-source /tmp/kill.sql;
+			source /tmp/kill.sql;
 		</screen>
 		<screen>
-mysqladmin -uroot -p processlist | grep Sleep |awk '{if (length($2) > 1) print "Kill "$2}'|xargs mysqladmin -uroot kill
+			mysqladmin -uroot -p processlist | grep Sleep |awk '{if (length($2) > 1) print "Kill "$2}'|xargs mysqladmin -uroot kill
 		</screen>
 	</section>
-	<section id="error.1503">
-		<title>ERROR 1503 (HY000): A PRIMARY KEY must include all columns in the table's partitioning function</title>
-		<ulink url="http://dev.mysql.com/doc/refman/5.1/en/partitioning-limitations-partitioning-keys-unique-keys.html" />
-	</section>
-	<section id="error.1820">
-		<title>ERROR 1820 (HY000): You must reset your password using ALTER USER statement before executing this statement.</title>
-		<para>这个错误来自 MySQL 5.7，首次登陆MySQL 5.7 必须修改密码</para>
-		<screen>
-ALTER USER 'root'@'localhost' IDENTIFIED BY 'your_password';		
-		</screen>
-	</section>
-	<section id="error.1819">
-		<title>ERROR 1819 (HY000): Your password does not satisfy the current policy requirements</title>
-		<para>MySQL 5.7 密码强度，必须含有0-9，a-z,A-Z以及“-”或“_”</para>
-		<para>https://dev.mysql.com/doc/refman/5.7/en/validate-password-options-variables.html</para>
-		<para>禁用密码安全策略（早起5.7版本可用，新版已经废弃这个选项）</para>
-		<screen>
-#  cat /etc/my.cnf | grep validate-password
-validate-password=OFF
-		</screen>
-		<para>新的方式修改策略与密码长度</para>
-		<screen>
-		<![CDATA[
-mysql> set global validate_password_policy=0;
-mysql> set global validate_password_length=4;
-mysql> grant all privileges on test.* to 'test'@localhost  identified by 'chen';
-		]]>
-		</screen>
-	</section>
+
+
+
 	<section id="auto_increment">
 		<title>重新整理AUTO_INCREMENT字段</title>
 		<para>AUTO_INCREMENT 并非按照我们意愿，顺序排列，经常会跳过一些数字，例如当插入失败的时候，再次插入会使用新的值。有时会造成浪费，我们可以使用下面SQL重新编排AUTO_INCREMENT序列。</para>
 		<screen>
-SET @newid=0;
-UPDATE mytable SET id = (SELECT @newid:=@newid+ 1);
+			SET @newid=0;
+			UPDATE mytable SET id = (SELECT @newid:=@newid+ 1);
 		</screen>
 		<para>使用max()查看最大值，然后使用 alter修改起始位置。</para>
 		<screen>
-select max(id) from mytable;
-ALTER TABLE mytable AUTO_INCREMENT = 1000;		
+			select max(id) from mytable;
+			ALTER TABLE mytable AUTO_INCREMENT = 1000;
 		</screen>
 		<para>注意外键，需要 ON UPDATE CASCADE 支持，否则无法更新。CONSTRAINT `FK_group_has_contact_contact` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,</para>
 		<screen>
-CREATE TABLE `contact` (
-	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '唯一ID',
-	`name` VARCHAR(50) NOT NULL COMMENT '姓名',
-	`mobile` VARBINARY(32) NULL DEFAULT NULL COMMENT '手机号码',
-	`email` VARBINARY(50) NULL DEFAULT NULL COMMENT '电子邮件',
-	`mobile_digest` VARCHAR(32) NULL DEFAULT NULL COMMENT '摘要',
-	`email_digest` VARCHAR(32) NULL DEFAULT NULL COMMENT '邮件摘要',
-	`birthday` DATE NULL DEFAULT NULL COMMENT '生日',
-	`description` VARCHAR(255) NULL DEFAULT NULL COMMENT '备注描述',
-	`status` ENUM('Subscription','Unsubscribe') NOT NULL DEFAULT 'Subscription' COMMENT '订阅状态',
-	`ctime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-	`mtime` TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
-	PRIMARY KEY (`id`),
-	UNIQUE INDEX `digest` (`mobile_digest`, `email_digest`)
-)
-COMMENT='会员手机短信与电子邮件映射表'
-COLLATE='utf8_general_ci'
-ENGINE=InnoDB
-AUTO_INCREMENT=43642;
+			CREATE TABLE `contact` (
+			`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '唯一ID',
+			`name` VARCHAR(50) NOT NULL COMMENT '姓名',
+			`mobile` VARBINARY(32) NULL DEFAULT NULL COMMENT '手机号码',
+			`email` VARBINARY(50) NULL DEFAULT NULL COMMENT '电子邮件',
+			`mobile_digest` VARCHAR(32) NULL DEFAULT NULL COMMENT '摘要',
+			`email_digest` VARCHAR(32) NULL DEFAULT NULL COMMENT '邮件摘要',
+			`birthday` DATE NULL DEFAULT NULL COMMENT '生日',
+			`description` VARCHAR(255) NULL DEFAULT NULL COMMENT '备注描述',
+			`status`
+			ENUM('Subscription','Unsubscribe') NOT NULL DEFAULT 'Subscription' COMMENT '订阅状态',
+			`ctime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+			`mtime` TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+			PRIMARY KEY (`id`),
+			UNIQUE INDEX `digest` (`mobile_digest`, `email_digest`)
+			)
+			COMMENT='会员手机短信与电子邮件映射表'
+			COLLATE='utf8_general_ci'
+			ENGINE=InnoDB
+			AUTO_INCREMENT=43642;
 
-CREATE TABLE `group` (
-	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-	`name` VARCHAR(50) NOT NULL,
-	`description` VARCHAR(512) NOT NULL,
-	`ctime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	PRIMARY KEY (`id`),
-	UNIQUE INDEX `name` (`name`)
-)
-COMMENT='短信分组'
-COLLATE='utf8_general_ci'
-ENGINE=InnoDB
-AUTO_INCREMENT=8;
+			CREATE TABLE `group` (
+			`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+			`name` VARCHAR(50) NOT NULL,
+			`description` VARCHAR(512)
+			NOT NULL,
+			`ctime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (`id`),
+			UNIQUE INDEX `name` (`name`)
+			)
+			COMMENT='短信分组'
+			COLLATE='utf8_general_ci'
+			ENGINE=InnoDB
+			AUTO_INCREMENT=8;
 
-CREATE TABLE `group_has_contact` (
-	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-	`group_id` INT(10) UNSIGNED NOT NULL,
-	`contact_id` INT(10) UNSIGNED NOT NULL,
-	`ctime` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-	PRIMARY KEY (`id`),
-	UNIQUE INDEX `group_contact` (`group_id`, `contact_id`),
-	INDEX `FK_group_has_contact_contact` (`contact_id`),
-	CONSTRAINT `FK_group_has_contact_contact` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,
-	CONSTRAINT `FK_group_has_contact_group` FOREIGN KEY (`group_id`) REFERENCES `group` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
-)
-COMMENT='N:M'
-COLLATE='utf8_general_ci'
-ENGINE=InnoDB
-AUTO_INCREMENT=55764;
+			CREATE TABLE `group_has_contact` (
+			`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+			`group_id` INT(10) UNSIGNED NOT NULL,
+			`contact_id` INT(10) UNSIGNED NOT NULL,
+			`ctime` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (`id`),
+			UNIQUE INDEX `group_contact` (`group_id`, `contact_id`),
+			INDEX `FK_group_has_contact_contact`
+			(`contact_id`),
+			CONSTRAINT `FK_group_has_contact_contact` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+			CONSTRAINT `FK_group_has_contact_group` FOREIGN KEY (`group_id`) REFERENCES `group` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
+			)
+			COMMENT='N:M'
+			COLLATE='utf8_general_ci'
+			ENGINE=InnoDB
+			AUTO_INCREMENT=55764;
 		</screen>
 	</section>
 	<section id="latin1toutf8">
 		<title>转换 latin1 到 UTF-8</title>
 		<screen>
-UPDATE category SET 
-    name=convert(cast(convert(name using  latin1) as binary) using utf8),
-    description=convert(cast(convert(description using  latin1) as binary) using utf8)
+			UPDATE category SET
+			name=convert(cast(convert(name using latin1) as binary) using utf8),
+			description=convert(cast(convert(description using latin1) as binary) using utf8)
 		</screen>
 	</section>
-	<section id="error.1055">
+
+	<section id="max_open_files">
+		<title>[Warning] Changed limits: max_open_files: 5000 (requested 20480)</title>
+		<screen>
+		<![CDATA[
+2018-01-08T01:34:44.515973Z 0 [Warning] Changed limits: max_open_files: 5000 (requested 10240)
+2018-01-08T01:34:44.516402Z 0 [Warning] Changed limits: table_open_cache: 1471 (requested 2000)		
+		]]>
+		</screen>
+		<para>提出出现在 CentOS 7 ulimit 配置没有问题的情况下mysql日志提示 Warning</para>
+		<screen>
+			# ulimit -Sa | grep "open files"
+			open files (-n) 40960
+		</screen>
+		<screen>
+			[root@netkiller ~]# cat /proc/`pidof mysqld`/limits
+			Limit Soft Limit Hard Limit Units
+			Max cpu time unlimited unlimited seconds
+			Max file size unlimited unlimited bytes
+			Max data size unlimited unlimited bytes
+			Max stack size 8388608 unlimited bytes
+			Max core file size 0 unlimited bytes
+			Max resident set unlimited unlimited bytes
+			Max processes 63494 63494 processes
+			Max open files 5000 5000 files
+			Max locked memory 65536 65536 bytes
+			Max address space unlimited unlimited bytes
+			Max file locks unlimited unlimited locks
+			Max pending signals 63494 63494 signals
+			Max msgqueue size 819200 819200 bytes
+			Max nice priority 0 0
+			Max realtime priority 0 0
+			Max realtime timeout unlimited unlimited us
+
+		</screen>
+		<para>动态改变</para>
+		<screen>
+			[root@netkiller ~]# egrep '^(Limit|Max open files)' /proc/`pidof mysqld`/limits
+			Limit Soft Limit Hard Limit Units
+			Max open files 5000 5000 files
+		</screen>
+		<para>问题的出现出现原因是systemctl启动脚本覆盖了ulimit配置</para>
+		<screen>
+			# cat /usr/lib/systemd/system/mysqld.service | grep -A2 open_files_limit
+			# Sets open_files_limit
+			LimitNOFILE = 5000
+		</screen>
+		<para>解决方法，直接修改上面的数值，不建议修改mysqld.service，这样会影响你下次升级。请采用下面的方案完美解决：</para>
+		<screen>
+		<![CDATA[
+mkdir /usr/lib/systemd/system/mysqld.service.d
+
+cat >> /usr/lib/systemd/system/mysqld.service.d/override.conf <<EOF
+[Service]
+LimitNOFILE=40960
+EOF
+		]]>
+		</screen>
+		<para>重启 MySQL</para>
+		<screen>
+			systemctl daemon-reload
+			systemctl restart mysqld
+		</screen>
+		<para>检查是否生效</para>
+		<screen>
+		<![CDATA[
+mysql> show variables like 'open_files_limit';
++------------------+-------+
+| Variable_name    | Value |
++------------------+-------+
+| open_files_limit | 65535 |
++------------------+-------+
+1 row in set (0.01 sec)		
+		]]>
+		</screen>
+	</section>
+
+
+
+	<section id="ERROR.1055">
 		<title>this is incompatible with sql_mode=only_full_group_by</title>
 		<para>ERROR 1055 (42000): Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'mydb.contact.id' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by</para>
 		<screen>
@@ -363,82 +419,38 @@ SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));
 		]]>
 		</screen>
 	</section>
-	<section id="max_open_files">
-		<title>[Warning] Changed limits: max_open_files: 5000 (requested 20480)</title>
+	<section id="ERROR.1071">
+		<title>ERROR 1071 (42000) at line 25: Specified key was too long; max key length is 767 bytes</title>
+		<para>这个保存通常出现在高版本数据库向低版本数据导入数据，活着云主机例如阿里云。</para>
 		<screen>
 		<![CDATA[
-2018-01-08T01:34:44.515973Z 0 [Warning] Changed limits: max_open_files: 5000 (requested 10240)
-2018-01-08T01:34:44.516402Z 0 [Warning] Changed limits: table_open_cache: 1471 (requested 2000)		
+mysql> show variables like '%innodb_large_prefix%';
++---------------------+-------+
+| Variable_name       | Value |
++---------------------+-------+
+| innodb_large_prefix | OFF   |
++---------------------+-------+
+1 row in set (0.00 sec)		
 		]]>
 		</screen>
-		<para>提出出现在 CentOS 7 ulimit 配置没有问题的情况下mysql日志提示 Warning</para>
-		<screen>
-# ulimit -Sa | grep "open files"
-open files                      (-n) 40960		
-		</screen>
-		<screen>
-[root@netkiller ~]# cat /proc/`pidof mysqld`/limits
-Limit                     Soft Limit           Hard Limit           Units     
-Max cpu time              unlimited            unlimited            seconds   
-Max file size             unlimited            unlimited            bytes     
-Max data size             unlimited            unlimited            bytes     
-Max stack size            8388608              unlimited            bytes     
-Max core file size        0                    unlimited            bytes     
-Max resident set          unlimited            unlimited            bytes     
-Max processes             63494                63494                processes 
-Max open files            5000                 5000                 files     
-Max locked memory         65536                65536                bytes     
-Max address space         unlimited            unlimited            bytes     
-Max file locks            unlimited            unlimited            locks     
-Max pending signals       63494                63494                signals   
-Max msgqueue size         819200               819200               bytes     
-Max nice priority         0                    0                    
-Max realtime priority     0                    0                    
-Max realtime timeout      unlimited            unlimited            us        
-		
-		</screen>
-		<para>动态改变</para>
-		<screen>
-[root@netkiller ~]# egrep '^(Limit|Max open files)' /proc/`pidof mysqld`/limits
-Limit                     Soft Limit           Hard Limit           Units     
-Max open files            5000                 5000                 files  
-		</screen>
-		<para>问题的出现出现原因是systemctl启动脚本覆盖了ulimit配置</para>
-		<screen>
-# cat /usr/lib/systemd/system/mysqld.service | grep -A2 open_files_limit
-# Sets open_files_limit
-LimitNOFILE = 5000
-		</screen>
-		<para>解决方法，直接修改上面的数值，不建议修改mysqld.service，这样会影响你下次升级。请采用下面的方案完美解决：</para>
+		<para>解决方案</para>
 		<screen>
 		<![CDATA[
-mkdir /usr/lib/systemd/system/mysqld.service.d
-
-cat >> /usr/lib/systemd/system/mysqld.service.d/override.conf <<EOF
-[Service]
-LimitNOFILE=40960
-EOF
-		]]>
-		</screen>
-		<para>重启 MySQL</para>
-		<screen>
-systemctl daemon-reload
-systemctl restart mysqld
-		</screen>
-		<para>检查是否生效</para>
-		<screen>
-		<![CDATA[
-mysql> show variables like 'open_files_limit';
-+------------------+-------+
-| Variable_name    | Value |
-+------------------+-------+
-| open_files_limit | 65535 |
-+------------------+-------+
-1 row in set (0.01 sec)		
+innodb_large_prefix=ON		
 		]]>
 		</screen>
 	</section>
-	<section id="Error.1146">
+	<section id="ERROR.1086">
+		<title>ERROR 1086 (HY000): File '/var/lib/mysql-files/order.txt' already exists	</title>
+		<para>SELECT * FROM tabname INTO OUTFILE 不支持覆盖操作，这是MySQL从安全角度考虑的。</para>
+		<screen>
+		<![CDATA[
+mysql> SELECT * FROM `order` INTO OUTFILE '/var/lib/mysql-files/order.txt';
+ERROR 1086 (HY000): File '/var/lib/mysql-files/order.txt' already exists		
+		]]>
+		</screen>
+	</section>
+	<section id="ERROR.1146">
 		<title>Error Code: 1146. Table 'test.CACHE_UPDATE' doesn't exist	</title>
 		<para>问题分析，首先确认表是存在的，但是无法读取。可以判定是 lower_case_table_names=1 选项的问题，开启后表以小写方式打开。</para>
 		<screen>
@@ -481,17 +493,30 @@ mysql> SELECT CURRENT_SERIAL FROM CACHE_UPDATE WHERE ID=1;
 1 row in set (0.00 sec)
 		]]>
 		</screen>
-		
+
 	</section>
-	<section id="ERROR.1364">
-		<title>ERROR 1364: 1364: Field 'id' doesn't have a default value</title>
-		<screen>
+	<section id="ERROR.1273">
+		<title>ERROR 1273 (HY000) at line 3364: Unknown collation: 'utf8mb4_0900_ai_ci'</title>
+		<para>找出指定字符集的表</para>
+		<programlisting>
 		<![CDATA[
-set @@SESSION.sql_mode='NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
-SELECT @@GLOBAL.sql_mode;
-UPDATE `cms`.`content` SET `source`='test' WHERE `content_id`='1099';		
+select TABLE_SCHEMA,TABLE_NAME,TABLE_COLLATION from information_schema.tables where table_collation = 'utf8mb4_0900_ai_ci' and table_schema = 'your_schema';		
 		]]>
-		</screen>
+		</programlisting>
+		<programlisting>
+		<![CDATA[
+SELECT
+	CONCAT(
+		'ALTER TABLE ',
+		TABLE_NAME,
+		' CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;'
+	)
+FROM
+	information_schema.`TABLES`
+WHERE
+	TABLE_SCHEMA = 'DATABASE_NAME';
+		]]>
+		</programlisting>
 	</section>
 	<section id="ERROR.1290">
 		<title>ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot execute this statement</title>
@@ -522,13 +547,13 @@ root@netkiller ~ % cat /var/lib/mysql-files/order.txt
 		</programlisting>
 		<para>在 my.cnf 中 加入 secure-file-priv=/tmp 可以修改为你需要的目录。</para>
 	</section>
-	<section id="ERROR.1086">
-		<title>ERROR 1086 (HY000): File '/var/lib/mysql-files/order.txt' already exists	</title>
-		<para>SELECT * FROM tabname INTO OUTFILE 不支持覆盖操作，这是MySQL从安全角度考虑的。</para>
+	<section id="ERROR.1364">
+		<title>ERROR 1364: 1364: Field 'id' doesn't have a default value</title>
 		<screen>
 		<![CDATA[
-mysql> SELECT * FROM `order` INTO OUTFILE '/var/lib/mysql-files/order.txt';
-ERROR 1086 (HY000): File '/var/lib/mysql-files/order.txt' already exists		
+set @@SESSION.sql_mode='NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+SELECT @@GLOBAL.sql_mode;
+UPDATE `cms`.`content` SET `source`='test' WHERE `content_id`='1099';		
 		]]>
 		</screen>
 	</section>
@@ -556,6 +581,35 @@ END$$
 DELIMITER ;		
 		]]>
 		</programlisting>
+	</section>
+	<section id="ERROR.1503">
+		<title>ERROR 1503 (HY000): A PRIMARY KEY must include all columns in the table's partitioning function</title>
+		<ulink url="http://dev.mysql.com/doc/refman/5.1/en/partitioning-limitations-partitioning-keys-unique-keys.html" />
+	</section>
+	<section id="ERROR.1820">
+		<title>ERROR 1820 (HY000): You must reset your password using ALTER USER statement before executing this statement.</title>
+		<para>这个错误来自 MySQL 5.7，首次登陆MySQL 5.7 必须修改密码</para>
+		<screen>
+			ALTER USER 'root'@'localhost' IDENTIFIED BY 'your_password';
+		</screen>
+	</section>
+	<section id="ERROR.1819">
+		<title>ERROR 1819 (HY000): Your password does not satisfy the current policy requirements</title>
+		<para>MySQL 5.7 密码强度，必须含有0-9，a-z,A-Z以及“-”或“_”</para>
+		<para>https://dev.mysql.com/doc/refman/5.7/en/validate-password-options-variables.html</para>
+		<para>禁用密码安全策略（早起5.7版本可用，新版已经废弃这个选项）</para>
+		<screen>
+			# cat /etc/my.cnf | grep validate-password
+			validate-password=OFF
+		</screen>
+		<para>新的方式修改策略与密码长度</para>
+		<screen>
+		<![CDATA[
+mysql> set global validate_password_policy=0;
+mysql> set global validate_password_length=4;
+mysql> grant all privileges on test.* to 'test'@localhost  identified by 'chen';
+		]]>
+		</screen>
 	</section>
 	<section id="ERROR.3024">
 		<title>ERROR 3024 (HY000): Query execution was interrupted, maximum statement execution time exceeded</title>
@@ -587,30 +641,8 @@ mysql> select /*+ max_execution_time(3000)*/ count(*) from cert;
 		]]>
 		</screen>
 	</section>
-	<section id="ERROR.1273">
-		<title>ERROR 1273 (HY000) at line 3364: Unknown collation: 'utf8mb4_0900_ai_ci'</title>
-		<para>找出指定字符集的表</para>
-		<programlisting>
-		<![CDATA[
-select TABLE_SCHEMA,TABLE_NAME,TABLE_COLLATION from information_schema.tables where table_collation = 'utf8mb4_0900_ai_ci' and table_schema = 'your_schema';		
-		]]>
-		</programlisting>
-		<programlisting>
-		<![CDATA[
-SELECT
-	CONCAT(
-		'ALTER TABLE ',
-		TABLE_NAME,
-		' CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;'
-	)
-FROM
-	information_schema.`TABLES`
-WHERE
-	TABLE_SCHEMA = 'DATABASE_NAME';
-		]]>
-		</programlisting>
-	</section>
-	
+
+
 	<section id="caching_sha2_password.so">
 		<title>Authentication plugin 'caching_sha2_password' cannot be loaded: /usr/lib64/mysql/plugin/caching_sha2_password.so: cannot open shared object file: No such fileor directory</title>
 		<para>这个故障出现在 MySQL 8.0 上，用户使用 mysql client 5.7 链接 MySQL 8.0 提示如下</para>
