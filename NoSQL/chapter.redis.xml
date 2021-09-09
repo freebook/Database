@@ -623,6 +623,7 @@ masterauth password
 				</screen>
 			</section>
 		</section>
+
 		<section id="latency">
 			<title>--latency Enter a special mode continuously sampling latency.</title>
 			<para>参数的功能是从客户端发出一条命令到客户端接受到该命令的反馈所用的最长响应时间</para>
@@ -1290,8 +1291,6 @@ OK
 			]]>
 			</screen>
 		</section>
-
-
 	</chapter>
 	<chapter id="redis-benchmark">
 		<title>redis-benchmark 测试工具</title>
@@ -1390,27 +1389,7 @@ MONITOR
 			]]></screen>
 		</section>
 	</chapter>
-	<chapter id="phpredisadmin">
-		<title>phpRedisAdmin</title>
-		<para>
-			<ulink url="https://github.com/ErikDubbelboer/phpRedisAdmin" />
-		</para>
-		<para>Example</para>
-		<para>You can find an example database at http://dubbelboer.com/phpRedisAdmin/</para>
-		<para>第一种方法</para>
-		<screen><![CDATA[
-git clone https://github.com/ErikDubbelboer/phpRedisAdmin
-cd phpRedisAdmin
-git clone https://github.com/nrk/predis
-		]]></screen>
-		<para>第二种方法</para>
-		<screen><![CDATA[
-git clone https://github.com/ErikDubbelboer/phpRedisAdmin.git
-cd phpRedisAdmin
-git submodule init
-git submodule update
-		]]></screen>
-	</chapter>
+
 	<chapter id="devel">
 		<title>Redis 开发</title>
 		<section id="subpub">
@@ -1441,10 +1420,55 @@ $redis->publish('channel'.$channel, $msg);
 			</screen>
 		</section>
 	</chapter>
-	<chapter id="twemproxy">
-		<title>A fast, light-weight proxy for memcached and redis</title>
-		<para>https://github.com/twitter/twemproxy</para>
+	<chapter>
+		<title>工具</title>
+		<section>
+			<title>导出 / 导入</title>
+			<screen>
+			<![CDATA[
+npm install redis-dump -g
+			]]>
+			</screen>
+			<para>导出 redis 数据</para>
+			<screen>
+			<![CDATA[
+redis-dump -h 127.0.0.1 -a "密码" -d '指定数据库' > db0.json
+			]]>
+			</screen>
+			<para>导入 redis 数据</para>
+			<screen>
+			<![CDATA[
+cat db0.json | redis-cli -h 127.0.0.1 -p 6379 -n '指定数据库'  -a "密码"
+			]]>
+			</screen>
+		</section>
+		<section id="phpredisadmin">
+			<title>phpRedisAdmin</title>
+			<para>
+				<ulink url="https://github.com/ErikDubbelboer/phpRedisAdmin" />
+			</para>
+			<para>Example</para>
+			<para>You can find an example database at http://dubbelboer.com/phpRedisAdmin/</para>
+			<para>第一种方法</para>
+			<screen><![CDATA[
+git clone https://github.com/ErikDubbelboer/phpRedisAdmin
+cd phpRedisAdmin
+git clone https://github.com/nrk/predis
+		]]></screen>
+			<para>第二种方法</para>
+			<screen><![CDATA[
+git clone https://github.com/ErikDubbelboer/phpRedisAdmin.git
+cd phpRedisAdmin
+git submodule init
+git submodule update
+		]]></screen>
+		</section>
+		<section id="twemproxy">
+			<title>A fast, light-weight proxy for memcached and redis</title>
+			<para>https://github.com/twitter/twemproxy</para>
+		</section>
 	</chapter>
+
 	<chapter id="faq">
 		<title>FAQ</title>
 		<section>
