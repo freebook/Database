@@ -632,6 +632,21 @@ masterauth password
 min: 1, max: 210, avg: 3.64 (13453 samples)
 			]]></screen>
 		</section>
+		<section>
+			<title>清空指定数据库</title>
+			<screen>
+			<![CDATA[
+[root@netkiller neo]# redis-cli -h 192.168.30.5 -n 6 set name neo
+OK
+[root@netkiller neo]# redis-cli -h 192.168.30.5 -n 6 get name
+"neo"
+[root@netkiller neo]# redis-cli -h 192.168.30.5 -n 6 flushdb
+OK
+[root@netkiller neo]# redis-cli -h 192.168.30.5 -n 6 get name
+(nil)			
+			]]>
+			</screen>
+		</section>
 		<section id="auth">
 			<title>auth</title>
 			<para>认证密码</para>
