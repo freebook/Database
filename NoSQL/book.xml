@@ -36,7 +36,14 @@
 			<year>2010-2021</year>
 			<holder>Netkiller(Neo Chan). All rights reserved.</holder>
 		</copyright>
-
+		<cover>
+			<para role="tagline">Netkiller NoSQL 手札</para>
+			<mediaobject>
+				<imageobject>
+					<imagedata fileref="images/cover.png" />
+				</imageobject>
+			</mediaobject>
+		</cover>
 		<publisher>
 			<publishername>Neo</publishername>
 		</publisher>
