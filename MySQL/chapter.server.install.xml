@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- $Id: chapter.server.install.xml 438 2012-07-20 11:20:16Z netkiller $ -->
 <section id="mysql.install">
-	<title>MySQL Installation</title>
+	<title>MySQL 安装</title>
+	<subtitle>MySQL Installation</subtitle>
 	<para>http://downloads.mysql.com/archives.php</para>
 	<section id="mysql.centos">
 		<title>CentOS</title>

@@ -519,7 +519,64 @@ Bye
 [www@testing ~]$ zcat netkiller.2021-08-19.sql.gz | mysql netkiller
 		]]>
 		</screen>
-	</section><section id="ERROR.3024">
+	</section>
+	<section id="ERROR.2002">
+		<title>ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock'</title>
+		<para>错误提示</para>
+		<screen>
+		<![CDATA[
+[root@stage stage]# mysql
+ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock'		
+		]]>
+		</screen>
+		<para>这种情况一般检查 my.cnf 中的 socket 配置项，看看 socket 被配置到了什么目录</para>
+		<para>配置文件增加 socket 指向正确路径</para>
+		<screen>
+		<![CDATA[
+[client]
+socket=/your/path/mysql/mysql.sock
+		]]>
+		</screen>
+		<para>通过参数指定</para>
+		<screen>
+		<![CDATA[
+mysql -uroot -p --socket=/your/path/mysql/mysql.sock
+		]]>
+		</screen>
+		<para>Docker 默认是 /var/run/mysqld/mysqld.sock 我们将其改为 /var/lib/mysql/mysql.sock</para>
+		<screen>
+		<![CDATA[
+services:
+  mysql:
+    command:
+    - --socket=/var/lib/mysql/mysql.sock
+    - --default-authentication-plugin=mysql_native_password
+    - --character-set-server=utf8mb4
+    - --collation-server=utf8mb4_general_ci
+    - --explicit_defaults_for_timestamp=true
+    - --lower_case_table_names=1
+    - --max_execution_time=0
+    container_name: mysql
+    depends_on: []
+    environment:
+    - TZ=Asia/Shanghai
+    - MYSQL_ROOT_PASSWORD=passw0rd
+    - MYSQL_DATABASE=netkiller
+    - MYSQL_USER=netkiller
+    - MYSQL_PASSWORD=netkiller
+    hostname: db.netkiller.com
+    image: mysql:5.7
+    ports:
+    - 3306:3306
+    restart: always
+    volumes:
+    - /var/lib/mysql:/var/lib/mysql
+    - /opt/netkiller.com/api.netkiller.cn/mysql/conf.d/server.cnf:/etc/mysql/conf.d/server.cnf
+    - /opt/netkiller.com/api.netkiller.cn/mysql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d		
+		]]>
+		</screen>
+	</section>
+	<section id="ERROR.3024">
 		<title>ERROR 3024 (HY000): Query execution was interrupted, maximum statement execution time exceeded</title>
 		<screen>
 		<![CDATA[
@@ -730,5 +787,5 @@ mysql>
 		]]>
 		</screen>
 	</section>
-	
+
 </chapter>
