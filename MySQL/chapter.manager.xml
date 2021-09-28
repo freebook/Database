@@ -498,6 +498,101 @@ mysqladmin -uroot -p processlist | grep Sleep |awk '{if (length($2) > 1) print "
 		]]>
 		</screen>
 	</section>
+	<section id="time_zone">
+		<title>MySQL 时区管理</title>
+		<para>出现时区的问题，首先我们要检查操作系统的时区</para>
+		<screen>
+		<![CDATA[
+[root@testing ~]# date
+Tue Sep 28 10:33:03 CST 2021
+
+[root@testing ~]# date -R
+Tue, 28 Sep 2021 10:33:06 +0800
+
+[root@testing ~]# date +"%Z %z"
+CST +0800		
+		]]>
+		</screen>
+		<para>CST 表示“中国标准时间” +0800</para>
+		<para>然后在查询数据库时区设置</para>
+		<screen>
+		<![CDATA[
+mysql> show variables like "%time_zone";
++------------------+--------+
+| Variable_name    | Value  |
++------------------+--------+
+| system_time_zone | CST    |
+| time_zone        | SYSTEM |
++------------------+--------+
+2 rows in set (0.00 sec)		
+		]]>
+		</screen>
+		<para>system_time_zone 当前时区是 CST，time_zone 表示数据库使用操作系统的时区设置。</para>
+		<para>临时修改时区 set time_zone='+8:00'; 设置当前时区，set global time_zone = '+8:00'; 设置全局时区。</para>
+		<screen>
+		<![CDATA[
+#设置全局时区，即时生效，作用于所有session
+mysql> set global time_zone='+8:00';
+Query OK, 0 rows affected (0.00 sec)
+
+		]]>
+		</screen>
+		<para>永久修改时区，编辑 /etc/my.cnf 配置文件，在[mysqld]的下面添加或者修改如下内容</para>
+		<screen>
+		<![CDATA[
+default-time_zone = '+8:00'		
+		]]>
+		</screen>
+		<para>最后检查时间设置</para>
+		<screen>
+		<![CDATA[
+mysql> select now(), UTC_TIMESTAMP;
++---------------------+---------------------+
+| now()               | UTC_TIMESTAMP       |
++---------------------+---------------------+
+| 2021-09-28 10:51:45 | 2021-09-28 02:51:45 |
++---------------------+---------------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT TIMEDIFF(NOW(), UTC_TIMESTAMP); 
++--------------------------------+
+| TIMEDIFF(NOW(), UTC_TIMESTAMP) |
++--------------------------------+
+| 08:00:00                       |
++--------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select timediff(now(),convert_tz(now(),@@session.time_zone,'+00:00')); 
++----------------------------------------------------------------+
+| timediff(now(),convert_tz(now(),@@session.time_zone,'+00:00')) |
++----------------------------------------------------------------+
+| 08:00:00                                                       |
++----------------------------------------------------------------+
+1 row in set (0.00 sec)		
+
+mysql> select curtime(); 
++-----------+
+| curtime() |
++-----------+
+| 10:52:40  |
++-----------+
+1 row in set (0.00 sec)
+		]]>
+		</screen>
+		<para>JDBC 时区设置</para>
+		<screen>
+		<![CDATA[
+# serverTimezone=UTC 
+jdbc.url=jdbc:mysql://localhost:3306/demo?serverTimezone=UTC&characterEncoding=utf-8 
+
+# serverTimezone=GMT%2B8
+jdbc.url=jdbc:mysql://localhost:3306/demo?serverTimezone=GMT%2B8&characterEncoding=utf-8 
+ 
+# serverTimezone=Asia/Shanghai
+jdbc.url=jdbc:mysql://localhost:3306/demo?serverTimezone=Asia/Shanghai&characterEncoding=utf-8 		
+		]]>
+		</screen>
+	</section>
 	<section id="show">
 		<title>SHOW COMMAND</title>
 		<section id="version">
