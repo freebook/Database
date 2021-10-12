@@ -124,7 +124,18 @@ mongodump --dbpath /var/lib/mongodb --out /opt/backup --db test --username backu
 		</section>
 		<section>
 			<title>远程备份</title>
-			<para>短参数</para>
+			<screen>
+			<![CDATA[
+[root@gitlab ~]# mongodump mongodb://192.168.3.12/eos			
+			]]>
+			</screen>
+			<para>用户认证</para>
+			<screen>
+			<![CDATA[
+[root@gitlab ~]# mongodump mongodb://eos:eos@192.168.30.10/eos?authSource=eos
+			]]>
+			</screen>
+			<para>旧版本用法</para>
 			<screen>
 			<![CDATA[
 mongodump -h mongodb.example.net -p 27017 -u neo -p password -d netkiller -c yourcollection
@@ -137,7 +148,6 @@ mongodump --host mongodb.example.net --port 27017 --username backup --password p
 			]]>
 			</screen>
 		</section>
-		
 	</section>
 	<section id="mongorestore">
 		<title>mongorestore</title>
