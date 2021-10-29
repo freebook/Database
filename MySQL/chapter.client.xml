@@ -797,6 +797,14 @@ mysqldumpslow -s r -t 20 ubuntu-slow.log
 		]]>
 		</programlisting>
 	</section>
+	<section id="mysql-shell">
+		<title>mysql-shell</title>
+		<screen>
+		<![CDATA[
+dnf install https://cdn.mysql.com/archives/mysql-shell/mysql-shell-8.0.26-1.el8.x86_64.rpm		
+		]]>
+		</screen>
+	</section>
 	<section id="mycli">
 		<title></title>
 		<para>
