@@ -77,6 +77,33 @@ switched to db logging
 		]]>
 		</screen>
 	</section>
+	<section id="mongo.collection">
+		<title>Collection 管理</title>
+		<section>
+			<title>创建 Collection</title>
+			<screen>
+			<![CDATA[
+db.createCollection("mycollection")			
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>删除 collection</title>
+			<screen>
+			<![CDATA[
+db.collection.drop()			
+			]]>
+			</screen>			
+		</section>
+		<section id="unset">
+			<title>删除字段</title>
+			<screen>
+			<![CDATA[
+db.getCollection('table').update({},{$unset:{field:1}})			
+			]]>
+			</screen>
+		</section>
+	</section>
 	<section id="save">
 		<title>save</title>
 		<para>存储嵌套的对象</para>
@@ -164,30 +191,21 @@ db.foo.remove({'uid':10})
 		</screen>
 		<para>删除所有的记录</para>
 		<screen>
-			db.foo.remove()
+		<![CDATA[
+db.foo.remove()		
+		]]>
 		</screen>
 		<section>
 			<title>删除条件使用 _id </title>
 			<screen>
-				db.foo.remove({ "_id" : ObjectId("56e10b66a22ef1b1408b4567")})
-				db.getCollection('goods').remove({ "_id": ObjectId("5bbdbd197099aa06abf6fb1a")})
-			</screen>
-		</section>
-	</section>
-	<section id="mongo.collection">
-		<title>删除 collection</title>
-		<screen>
-			db.collection.drop()
-		</screen>
-		<section id="unset">
-			<title>删除字段</title>
-			<screen>
 			<![CDATA[
-db.getCollection('table').update({},{$unset:{field:1}})			
+db.foo.remove({ "_id" : ObjectId("56e10b66a22ef1b1408b4567")})
+db.getCollection('goods').remove({ "_id": ObjectId("5bbdbd197099aa06abf6fb1a")})
 			]]>
 			</screen>
 		</section>
 	</section>
+	
 	<section id="count">
 		<title>count()</title>
 		<screen>
@@ -202,8 +220,6 @@ db.getCollection('table').update({},{$unset:{field:1}})
 	
 	&chapter.mongo.query.xml;
 
-	
-
 	<section id="aggregate">
 		<title>aggregate</title>
 		<section>
@@ -211,16 +227,18 @@ db.getCollection('table').update({},{$unset:{field:1}})
 			<section>
 				<title>$split</title>
 				<screen>
-					{
-					"_id" : ObjectId("591a710320156761bdf68a06"),
-					"_class" : "mis.domain.PyramidSelling",
-
-					...
-					...
-
-					"status" : true,
-					"createdDate" : ISODate("2017-05-16T03:24:51.511Z")
-					}
+				<![CDATA[
+{
+	"_id" : ObjectId("591a710320156761bdf68a06"),
+	"_class" : "mis.domain.PyramidSelling",
+	
+	...
+	...
+	
+	"status" : true,
+	"createdDate" : ISODate("2017-05-16T03:24:51.511Z")
+}
+				]]>	
 				</screen>
 				<screen>
 				<![CDATA[
@@ -233,19 +251,21 @@ db.getCollection('pyramidSelling').aggregate([
 			<section>
 				<title>substr</title>
 				<screen>
-					db.getCollection('pyramidSelling').aggregate(
-					[
-					{
-					$project: {
-					userName: 1,
-					phone: {
-					prefix: { $substr: [ "$phone", 0, 3 ] },
-					mobile: { $substr: [ "$phone", 3, 11 ] }
-					},
-					}
-					}
-					]
-					)
+				<![CDATA[
+db.getCollection('pyramidSelling').aggregate(
+[
+	{
+	$project: {
+		userName: 1,
+			phone: {
+				prefix: { $substr: [ "$phone", 0, 3 ] },
+				mobile: { $substr: [ "$phone", 3, 11 ] }
+			},
+		}
+	}
+]
+)
+				]]>
 				</screen>
 			</section>
 		</section>
