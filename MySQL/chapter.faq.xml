@@ -402,6 +402,17 @@ mysql> SELECT CURRENT_SERIAL FROM CACHE_UPDATE WHERE ID=1;
 		</screen>
 
 	</section>
+	<section>
+		<title>Error Code: 1175. You are using safe update mode and you tried to update a table without a WHERE that uses a KEY column.</title>
+		<para>Error Code: 1175. You are using safe update mode and you tried to update a table without a WHERE that uses a KEY column.  To disable safe mode, toggle the option in Preferences -> SQL Editor and reconnect.</para>
+		<para>解决方案</para>
+		<screen>
+		<![CDATA[
+SET SQL_SAFE_UPDATES = 0;
+delete from tables;
+		]]>
+		</screen>
+	</section>
 	<section id="ERROR.1273">
 		<title>ERROR 1273 (HY000) at line 3364: Unknown collation: 'utf8mb4_0900_ai_ci'</title>
 		<para>找出指定字符集的表</para>
