@@ -180,6 +180,16 @@ db.getCollection('shippingAddress').update({'memberId':'00000000'},{'$set':{'def
 			]]>
 			</screen>
 		</section>
+		<section>
+			<title>updateMany 更新集合中的所有数据</title>
+			<screen>
+			<![CDATA[
+db.getCollection("sfzito_qcc").updateMany( { }, { $set: { 
+	"totalInvoiceAmount": NumberInt("24000") 
+}})			
+			]]>
+			</screen>
+		</section>
 	</section>
 	<section id="remove">
 		<title>remove</title>
