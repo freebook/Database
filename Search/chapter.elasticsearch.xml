@@ -535,6 +535,74 @@ spec:
 			]]>
 			</screen>
 		</section>
+		<section>
+			<title>netkiller-devops 编排 elasticsearch</title>
+			<para>创建 docker.py 文件</para>
+			<screen>
+			<![CDATA[
+#!/usr/bin/env python3
+from netkiller.docker import *
+			
+volume = Volumes('elasticsearch')
+			
+elasticsearch = Services('elasticsearch')
+elasticsearch.container_name('elasticsearch').environment([
+	'discovery.type=single-node',
+	'ES_JAVA_OPTS=-Xms512m -Xmx2048m'
+])
+elasticsearch.image('docker.elastic.co/elasticsearch/elasticsearch:7.15.0').ports(['9200:9200','9300:9300']).volumes(['elasticsearch:/usr/share/elasticsearch/data'])
+
+experiment = Composes('experiment')
+experiment.version('3.9')
+experiment.volumes(volume)
+experiment.services(elasticsearch)
+
+if __name__ == '__main__':
+	try:
+		docker = Docker()
+		docker.sysctl([{'vm.max_map_count':'262144'}])
+		docker.environment(experiment)
+		docker.main()
+	except KeyboardInterrupt:
+		print ("Crtl+C Pressed. Shutting down.")
+			]]>
+			</screen>
+			<para></para>
+			<screen>
+			<![CDATA[
+[root@localhost ~]# python3 docker.py -e experiment -l
+experiment :
+     fluentd
+     redis
+     mongo
+     mysql
+     elasticsearch
+     
+[root@localhost ~]# python3 docker.py -e experiment up elasticsearch
+Starting elasticsearch ... done
+
+[root@localhost ~]# python3 docker.py -e experiment ps elasticsearch
+    Name                   Command               State                                         Ports                                       
+-------------------------------------------------------------------------------------------------------------------------------------------
+elasticsearch   /bin/tini -- /usr/local/bi ...   Up      0.0.0.0:9200->9200/tcp,:::9200->9200/tcp, 0.0.0.0:9300->9300/tcp,:::9300->9300/tcp			
+			]]>
+			</screen>
+			<para>测试</para>
+			<screen>
+			<![CDATA[
+[root@localhost ~]# curl -s -X GET "localhost:9200/_cat/nodes?v=true&pretty"
+ip         heap.percent ram.percent cpu load_1m load_5m load_15m node.role   master name
+172.21.0.2           16          99   5    1.68    0.60     0.26 cdfhilmrstw *      aeedaff1ac15			
+			]]>
+			</screen>
+			<para>停止</para>
+			<screen>
+			<![CDATA[
+[root@localhost ~]# python3 docker.py -e experiment stop elasticsearch
+Stopping elasticsearch ... done			
+			]]>
+			</screen>
+		</section>
 		<section id="version">
 			<title>安装指定版本的 Elasticsearch</title>
 			<para>使用 yum 安装默认为最新版本，我们常常会遇到一个问题 elasticsearch-analysis-ik 的版本晚于 Elasticsearch。如果使用 yum 安装 Elasticsearch 可能 elasticsearch-analysis-ik 插件不支持这个版本，有些版本的 elasticsearch-analysis-ik 可以修改插件配置文件中的版本号，使其与elasticsearch版本相同，可以欺骗 elasticsearch 跳过版本不一致异常。</para>
