@@ -402,7 +402,7 @@ mysql> SELECT CURRENT_SERIAL FROM CACHE_UPDATE WHERE ID=1;
 		</screen>
 
 	</section>
-	<section>
+	<section id="ERROR.1175">
 		<title>Error Code: 1175. You are using safe update mode and you tried to update a table without a WHERE that uses a KEY column.</title>
 		<para>Error Code: 1175. You are using safe update mode and you tried to update a table without a WHERE that uses a KEY column.  To disable safe mode, toggle the option in Preferences -> SQL Editor and reconnect.</para>
 		<para>解决方案</para>
@@ -619,6 +619,90 @@ services:
     - /opt/netkiller.com/api.netkiller.cn/mysql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d		
 		]]>
 		</screen>
+	</section>
+	<section id="ERROR.2013">
+		<title>ERROR 2013 (HY000): Lost connection to MySQL server during query</title>
+		<screen>
+		<![CDATA[
+mysql> SELECT count(*) FROM netkiller.chain_info;
+ERROR 2013 (HY000): Lost connection to MySQL server during query
+No connection. Trying to reconnect...
+ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/var/lib/mysql/mysql.sock' (111)
+ERROR: 
+Can't connect to the server
+
+mysql> 		
+		]]>
+		</screen>
+		<para></para>
+		<screen>
+		<![CDATA[
+2021-11-19T09:25:15.833160Z 0 [ERROR] [MY-011906] [InnoDB] Database page corruption on disk or a failed file read of page [page id: space=1662, page number=1245]. You may have to recover from a backup.
+ len 16384; hex 7f5d9c6e000004dd000004db000004de000000043ab8e71f45bf00000000000000000000067e000b3f37802c3af101593dab00050000007035102f2e294c23641dc117ee11b40b88055300637f5d9c6e3ab8e71f; asc:   ;
+InnoDB: End of page dump
+InnoDB: Page may be an index page where index id is 2840
+2021-11-19T09:25:15.885824Z 0 [ERROR] [MY-013183] [InnoDB] Assertion failure: buf0lru.cc:2026:bpage->buf_fix_count == 0 thread 140289099208448
+InnoDB: We intentionally generate a memory trap.
+InnoDB: Submit a detailed bug report to http://bugs.mysql.com.
+InnoDB: If you get repeated assertion failures or crashes, even
+InnoDB: immediately after the mysqld startup, there may be
+InnoDB: corruption in the InnoDB tablespace. Please refer to
+InnoDB: http://dev.mysql.com/doc/refman/8.0/en/forcing-innodb-recovery.html
+InnoDB: about forcing recovery.
+09:25:15 UTC - mysqld got signal 6 ;
+Most likely, you have hit a bug, but this error can also be caused by malfunctioning hardware.
+Thread pointer: 0x0
+Attempting backtrace. You can use the following information to find out
+where mysqld died. If you see no messages after this, something went
+terribly wrong...
+stack_bottom = 0 thread_stack 0x46000
+/usr/libexec/mysqld(my_print_stacktrace(unsigned char const*, unsigned long)+0x41) [0x561905a584e1]
+/usr/libexec/mysqld(handle_fatal_signal+0x313) [0x5619048651d3]
+/lib64/libpthread.so.0(+0x12c20) [0x7f97af67ac20]
+/lib64/libc.so.6(gsignal+0x10f) [0x7f97acb0949f]
+/lib64/libc.so.6(abort+0x127) [0x7f97acaf3db5]
+/usr/libexec/mysqld(+0xddf6ab) [0x5619045886ab]
+/usr/libexec/mysqld(+0x2616098) [0x561905dbf098]
+/usr/libexec/mysqld(buf_LRU_free_one_page(buf_page_t*, bool, bool)+0x1e) [0x561905dc159e]
+/usr/libexec/mysqld(buf_read_page_handle_error(buf_page_t*)+0x130) [0x561905d9f1b0]
+/usr/libexec/mysqld(buf_page_io_complete(buf_page_t*, bool)+0xc83) [0x561905da0dc3]
+/usr/libexec/mysqld(fil_aio_wait(unsigned long)+0x153) [0x561905e70f73]
+/usr/libexec/mysqld(+0x25321d8) [0x561905cdb1d8]
+/usr/libexec/mysqld(std::thread::_State_impl<std::thread::_Invoker<std::tuple<Runnable, void (*)(unsigned long), unsigned long> > >::_M_run()+0xaa) [0x561905cdb9aa]
+/lib64/libstdc++.so.6(+0xc2ba3) [0x7f97ad4f3ba3]
+/lib64/libpthread.so.0(+0x817a) [0x7f97af67017a]
+/lib64/libc.so.6(clone+0x43) [0x7f97acbceee3]
+The manual page at http://dev.mysql.com/doc/mysql/en/crashing.html contains
+information that should help you find out what is causing the crash.
+		
+		]]>
+		</screen>
+		<para>解决方案</para>
+		<screen>
+		<![CDATA[
+echo 2 > /proc/sys/vm/drop_caches		
+		]]>
+		</screen>
+		<para>修复后</para>
+		<screen>
+		<![CDATA[
+mysql> SELECT count(*) FROM netkiller.chain_info;
++----------+
+| count(*) |
++----------+
+|    41890 |
++----------+
+1 row in set (0.00 sec)		
+		]]>
+		</screen>
+		<para>可能是虚拟内存中的数据出错导致。另外也可以尝试下面方法，在 my.cnf 中加入，我没有验证过，因为这种方式需要重启数据库才能生效。我的环境不允许重启，所以没有验证。</para>
+		<screen>
+		<![CDATA[
+[mysqld]
+innodb_force_recovery = 1		
+		]]>
+		</screen>
+		<para>添加 innodb_force_recovery 可以恢复数据读取，但是不能修改，此时可以 dump 备份该表，然后 去掉 innodb_force_recovery 参数，再启动数据库，删除损坏的表，导入新表。</para>
 	</section>
 	<section id="ERROR.3024">
 		<title>ERROR 3024 (HY000): Query execution was interrupted, maximum statement execution time exceeded</title>
