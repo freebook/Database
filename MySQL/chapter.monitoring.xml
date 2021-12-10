@@ -5,9 +5,6 @@
 
 	&chapter.monitoring.analysis.xml;
 
-	<section id="monitoring.munin">
-		<title>Munin</title>
-	</section>
 	<section id="monitoring.cacti">
 		<title>Cacti</title>
 		<para></para>
