@@ -704,6 +704,64 @@ innodb_force_recovery = 1
 		</screen>
 		<para>添加 innodb_force_recovery 可以恢复数据读取，但是不能修改，此时可以 dump 备份该表，然后 去掉 innodb_force_recovery 参数，再启动数据库，删除损坏的表，导入新表。</para>
 	</section>
+	<section id="ERROR.2059">
+		<title>ERROR 2059 (HY000): Authentication plugin 'caching_sha2_password' cannot be loaded: /usr/lib64/mysql/plugin/caching_sha2_password.so: cannot open shared object file: No such file or directory</title>
+		<para>错误信息</para>
+		<screen>
+		<![CDATA[
+[root@nacos-74fb777857-qsvlx nacos]# mysql -h mysql-0.mysql.default.svc.cluster.local -unacos -pnacos
+ERROR 2059 (HY000): Authentication plugin 'caching_sha2_password' cannot be loaded: /usr/lib64/mysql/plugin/caching_sha2_password.so: cannot open shared object file: No such file or directory		
+		]]>
+		</screen>
+		<para>原因分析，MySQL 服务器是 8.0，MySQL 客户端是 5.7 导致客户端链接服务器出错。</para>
+		<screen>
+		<![CDATA[
+MySQL [(none)]> select version();
++-----------+
+| version() |
++-----------+
+| 8.0.27    |
++-----------+
+1 row in set (0.00 sec)		
+		]]>
+		</screen>
+		<para>解决方法，用户密码使用旧的 mysql_native_password </para>
+		<screen>
+		<![CDATA[
+neo@Netkiller-iMac ~/workspace [1]> kubectl exec -it mysql-0 -- bash
+root@mysql-0:/# mysql -uroot -p123456
+mysql: [Warning] Using a password on the command line interface can be insecure.
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 35
+Server version: 8.0.27 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2021, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> ALTER USER 'nacos'@'%' IDENTIFIED WITH mysql_native_password BY 'nacos';
+Query OK, 0 rows affected (0.21 sec)
+
+mysql> ALTER USER 'nacos'@'%' IDENTIFIED BY 'nacos';
+Query OK, 0 rows affected (0.16 sec)
+
+mysql> flush privileges;
+Query OK, 0 rows affected (0.07 sec)
+		]]>
+		</screen>
+		<para>解决方案二</para>
+		<screen>
+		<![CDATA[
+vim my.cnf
+[mysqld]
+default_authentication_plugin=mysql_native_password		
+		]]>
+		</screen>
+	</section>
 	<section id="ERROR.3024">
 		<title>ERROR 3024 (HY000): Query execution was interrupted, maximum statement execution time exceeded</title>
 		<screen>
