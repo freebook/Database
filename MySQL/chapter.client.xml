@@ -834,4 +834,15 @@ $ sudo apt-get install mysql-admin
 mysql-query-browser --query="SELECT * FROM users"
 		]]></screen>
 	</section>
+	<section>
+		<title>MySQL Workbench 数据库恢复</title>
+		<para>mysql 8.0 不再提供数据库重命名服务，无法修改数据库名，只能导出再倒入，使用 MySQL Workbench 恢复数据时也无法改变数据库名。</para>
+		<para>我们只需要下面两条命令，修改dumps数据，就可以恢复到指定的数据库下</para>
+		<screen>
+		<![CDATA[
+rename "s/old_/new_/" old_*
+sed -i "s/Database: old/Database: new/" *
+		]]>
+		</screen>
+	</section>
 </chapter>
