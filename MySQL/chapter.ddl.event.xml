@@ -1,7 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section id="event">
 	<title>事件调度器(EVENT)</title>
-	<section>
+	<para>查看当前系统的 event 状态 SHOW VARIABLES LIKE 'event_scheduler';</para>
+	<screen>
+	<![CDATA[
+mysql> SHOW VARIABLES LIKE 'event_scheduler';
++-----------------+-------+
+| Variable_name   | Value |
++-----------------+-------+
+| event_scheduler | ON    |
++-----------------+-------+
+1 row in set (0.00 sec)
+
+mysql> 	
+	]]>
+	</screen>
+	<section id="event.event_scheduler">
 		<title>启用 EVENT</title>
 		<programlisting>
 		<![CDATA[
@@ -35,7 +49,7 @@ mysql> SHOW VARIABLES LIKE 'event_scheduler';
 			]]>
 		</screen>
 	</section>
-	<section>
+	<section id="event.create">
 		<title>创建 EVENT</title>
 		<programlisting>
 			<![CDATA[
@@ -48,17 +62,21 @@ DELIMITER ;
 			]]>
 		</programlisting>
 	</section>
-	<section>
+	<section id="event.status">
 		<title>禁用/启用</title>
 		<programlisting>
-			ALTER EVENT captcha DISABLE;
+		<![CDATA[
+ALTER EVENT captcha DISABLE;		
+		]]>
 		</programlisting>
 		<programlisting>
-			ALTER EVENT captcha ENABLE;
+		<![CDATA[
+ALTER EVENT captcha ENABLE;		
+		]]>
 		</programlisting>
 	</section>
-	<section>
-		<title>show events</title>
+	<section id="event.show">
+		<title>查看 events</title>
 		<programlisting>
 			<![CDATA[
 mysql> show events;
@@ -170,4 +188,38 @@ END
 			]]>
 		</programlisting>
 	</section>
+	<section>
+		<title>案例·定时删除数据</title>
+		<para>需求：数据需要删除100万条数据，直接删除会对系统造成压力，导致主库阻塞。</para>
+		<para>解决方案：分批删除，使用 event 定时执行删除 SQL 直到删完位置。</para>
+		<para>造数据</para>
+		<programlisting>
+		<![CDATA[
+CREATE EVENT IF NOT EXISTS event_test
+ON SCHEDULE EVERY 2 SECOND ON COMPLETION PRESERVE 
+DO insert into mytable(message,ctime) value(uuid(), now());		
+		]]>
+		</programlisting>
+		<para>定时删除</para>
+		<programlisting>
+		<![CDATA[
+DROP EVENT event_delete;
+DELIMITER $$
+CREATE EVENT IF NOT EXISTS event_delete
+ON SCHEDULE EVERY 1 SECOND ON COMPLETION PRESERVE 
+DO BEGIN
+	DECLARE num integer;
+
+	SELECT  COUNT(*) INTO num FROM mytable;
+    
+	IF num > 0 THEN
+		delete from mytable limit 1;
+		insert into logs(ctime) values(now());
+	END IF;
+    
+END$$
+		]]>
+		</programlisting>
+	</section>
+	
 </section>

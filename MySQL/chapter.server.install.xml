@@ -4,6 +4,89 @@
 	<title>MySQL 安装</title>
 	<subtitle>MySQL Installation</subtitle>
 	<para>http://downloads.mysql.com/archives.php</para>
+	<section>
+		<title>Rocky Linux 9.0</title>
+		<screen>
+		<![CDATA[
+[root@netkiller ~]# dnf install -y mysql-server
+
+[root@netkiller ~]# systemctl enable mysqld
+Created symlink /etc/systemd/system/multi-user.target.wants/mysqld.service → /usr/lib/systemd/system/mysqld.service.
+		]]>
+		</screen>
+		<para>备份配置文件</para>
+		<screen>
+			<![CDATA[
+cp /etc/my.cnf{,.original}
+cp /etc/my.cnf.d/mysql-server.cnf{,.original}
+cp /etc/my.cnf.d/client.cnf{,.original}
+
+cat >> /etc/my.cnf.d/mysql-server.cnf <<EOF
+
+# Add by Neo
+character-set-server=utf8mb4
+collation-server=utf8mb4_general_ci
+explicit_defaults_for_timestamp=true
+lower_case_table_names=1
+EOF
+			]]>
+		</screen>
+		<para>设置文件打开数据</para>
+		<screen>
+			<![CDATA[
+cat >> /etc/security/limits.d/20-nofile.conf <<EOF
+mysql soft nofile 65535
+mysql hard nofile 65535
+EOF
+
+mkdir /etc/systemd/system/mysqld.service.d/
+
+cat >> /etc/systemd/system/mysqld.service.d/override.conf  <<EOF
+[Service]
+LimitNOFILE=65000
+EOF
+			]]>
+		</screen>
+		<para>启动数据库</para>
+		<screen>
+			<![CDATA[
+[root@netkiller ~]# systemctl start mysqld
+			]]>
+		</screen>
+		<para>创建用户数据库 root 用户</para>
+		<para>CREATE USER 'root'@'%' IDENTIFIED BY 'test';</para>
+		<para>GRANT ALL ON *.* TO 'root'@'%' WITH GRANT OPTION;</para>
+		<screen>
+			<![CDATA[
+[root@netkiller ~]# mysql
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 10
+Server version: 8.0.28 Source distribution
+
+Copyright (c) 2000, 2022, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> CREATE USER 'root'@'%' IDENTIFIED BY 'chen';
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> GRANT ALL ON *.* TO 'root'@'%' WITH GRANT OPTION;
+Query OK, 0 rows affected (0.02 sec)
+			]]>
+		</screen>
+		<para>开启防火墙</para>
+		<screen>
+		<![CDATA[
+[root@netkiller ~]# firewall-cmd --permanent --zone=public --add-port=3306/tcp
+success		
+		]]>
+		</screen>
+
+	</section>
 	<section id="mysql.centos">
 		<title>CentOS</title>
 		<section>
@@ -15,7 +98,7 @@
 Created symlink /etc/systemd/system/multi-user.target.wants/mysqld.service → /usr/lib/systemd/system/mysqld.service.	
 			]]>
 			</screen>
-			<para>配分配置文件</para>
+			<para>备份配置文件</para>
 			<screen>
 			<![CDATA[
 cp /etc/my.cnf{,.original}
@@ -90,7 +173,7 @@ Query OK, 0 rows affected (0.00 sec)
 
 mysql>
 				]]>
-				</screen>				
+				</screen>
 			</example>
 		</section>
 		<section>
@@ -175,7 +258,8 @@ Query OK, 0 rows affected (0.03 sec)
 			]]>
 			</screen>
 		</section>
-	</section><section id="mysql.docker">
+	</section>
+	<section id="mysql.docker">
 		<title>Docker</title>
 		<screen>
 		<![CDATA[
@@ -189,7 +273,8 @@ docker run --name mysql -d \
     mysql:latest		
 		]]>
 		</screen>
-	</section><section id="mysql.ubuntu">
+	</section>
+	<section id="mysql.ubuntu">
 		<title>Ubuntu/Debian</title>
 		<subtitle>Installation by apt under debian/ubuntu</subtitle>
 		<para>安装环境 ubuntu 17.10</para>
@@ -508,7 +593,7 @@ iptables -A INPUT -i eth0 -p tcp -s xxx.xxx.xxx.xxx --dport 3306 -j ACCEPT
 		]]>
 		</screen>
 	</section>
-	
+
 	<section id="mac">
 		<title>Mac OS</title>
 		<screen>

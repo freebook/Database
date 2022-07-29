@@ -6,45 +6,45 @@
 	<section id="distinct">
 		<title>DISTINCT</title>
 		<para>SELECT DISTINCT user.name FROM user</para>
-		<screen>
+		<screen><![CDATA[
 SELECT DISTINCT user.name FROM user
-		</screen>
+		]]></screen>
 	</section>
 	<section id="groupby">
 		<title>group by</title>
 		<para>统计重复的手机号吗</para>
-		<screen>
+		<screen><![CDATA[
 select * from (select count(mobile) as c, mobile from member where length(mobile) >= 11 group by mobile) as m where m.c > 1;
-		</screen>
+		]]></screen>
 	</section>
 	<section id="having">
 		<title>HAVING</title>
-		<programlisting>
+		<programlisting><![CDATA[
 select * from accounts where paymode='alipay' group by name having count(name) >1;
-		</programlisting>
+		]]></programlisting>
 	</section>
 	<section id="regexp">
 		<title>REGEXP</title>
 		<subtitle>正则匹配</subtitle>
 		<para>判断非数字字符</para>
-		<programlisting>
+		<programlisting><![CDATA[
 select '看89700' regexp '^[0-9]+$'
 select '89看700' regexp '^[0-9]+$'
 select '89700看' regexp '^[0-9]+$'
-		</programlisting>
+		]]></programlisting>
 		<para>应用到实际工作中</para>
-		<programlisting>
+		<programlisting><![CDATA[
 select count(*) from accounts a where a.name != '' and not a.name regexp '^[0-9]+$';
 select count(*) from accounts a,members m where  a.member = m.id  and a.name != '' and  not a.name regexp '^[0-9]+$' group by member;
 SELECT * FROM tablename WHERE SUBSTRING(fieldname, 1, 1) REGEXP '[[:digit:]]';
-		</programlisting>
+		]]></programlisting>
 	</section>
 	<section id="in">
 		<title>IN / NOT IN</title>
-		<programlisting>
+		<programlisting><![CDATA[
 select * from members where id in ('1','100','1000');
 select * from members where group_id in (select id from members_group);
-		</programlisting>
+		]]></programlisting>
 	</section>
 	<section id="any">
 		<title>ALL / Any</title>
@@ -56,10 +56,10 @@ SELECT s1 FROM t1 WHERE s1 NOT IN (SELECT s1 FROM t2);
 		]]>
 		</programlisting>
 		<para>IN 与 "＝ANY" 两个语句是一样的：</para>
-		<programlisting>
+		<programlisting><![CDATA[
 SELECT s1 FROM t1 WHERE s1 = ANY (SELECT s1 FROM t2);
 SELECT s1 FROM t1 WHERE s1 IN    (SELECT s1 FROM t2);
-		</programlisting>
+		]]></programlisting>
 		<example>
 			<title>SQL ANY example</title>
 			<programlisting>
@@ -71,38 +71,38 @@ select * from members where id = any(select members_id from accounts where id < 
 	</section>
 	<section id="exists">
 		<title>exists, not exists</title>
-		<programlisting>
+		<programlisting><![CDATA[
 SELECT c.id, companyname
 FROM customers c
 WHERE EXISTS(
     SELECT orderid FROM orders o WHERE o.customer_id = cu.id)
-		</programlisting>
+		]]></programlisting>
 	</section>
 	<section id="union">
 		<title>UNION</title>
 		<para>union 分页问题</para>
-		<programlisting>
+		<programlisting><![CDATA[
 (SELECT a FROM tbl_name_a WHERE a=10 AND B=1)
 UNION
 (SELECT a FROM tbl_name_b WHERE a=11 AND B=2)
 ORDER BY a LIMIT 10;
-		</programlisting>
-		<programlisting>
+		]]></programlisting>
+		<programlisting><![CDATA[
 select * from (
 	select a from tbl_name_a WHERE a=10 AND B=1
 	union all
 	select a from tbl_name_b WHERE a=10 AND B=1
 ) tbl_name
 order by a limit 0,1;
-		</programlisting>
+		]]></programlisting>
 		<section>
 			<title>UNION ALL</title>
 			<para>UNION ALL 不会合并重复的记录</para>
-			<programlisting>
+			<programlisting><![CDATA[
 select a,b from tbl_name_a WHERE a=10 AND B=1
 union all
 select a,b from tbl_name_b WHERE a=10 AND B=1
-			</programlisting>
+			]]></programlisting>
 		</section>
 		<section>
 			<title>两张表字段不对等解决方法</title>
@@ -122,9 +122,9 @@ ORDER BY seq
 	<section id="outfile">
 		<title>OUTFILE/LOAD DATA INFILE</title>
 		<para>查询结果输出到文件</para>
-		<screen>
+		<screen><![CDATA[
 SELECT * FROM tablename INTO OUTFILE '/tmp/tablename.txt';
-		</screen>
+		]]></screen>
 		<para>使用tee将屏幕输出到文件</para>
 		<screen>
 		<![CDATA[
@@ -149,7 +149,7 @@ LOAD DATA INFILE 'data.txt' INTO TABLE db2.my_table;
 		</screen>
 		<section id="outfile.csv">
 			<title>Export data to CSV from MySQL</title>
-			<screen>
+			<screen><![CDATA[
 SELECT *
 INTO OUTFILE '/tmp/products.csv'
 FIELDS TERMINATED BY ','
@@ -157,20 +157,20 @@ ENCLOSED BY '"'
 ESCAPED BY '\\'
 LINES TERMINATED BY '\n'
 FROM products
-			</screen>
+			]]></screen>
 		</section>
 		<section>
 			<title>Import data from CSV file.</title>
-			<screen>
+			<screen><![CDATA[
 LOAD DATA LOW_PRIORITY LOCAL INFILE 'C:\\hx.csv' IGNORE INTO TABLE `tmp`.`creditlog`
 CHARACTER SET gbk FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' ESCAPED BY '"' LINES TERMINATED BY '\r\n'
 (`ctime`, `login`, `mode`, `type`, `prevavailcredit`, `change`, `newavailcredit`, `comment`);
-			</screen>
+			]]></screen>
 		</section>
 	</section>
-	<section>
+	<section id="sql.case">
 		<title>CASE Syntax</title>
-		<screen>
+		<screen><![CDATA[
 CASE case_value
     WHEN when_value THEN statement_list
     [WHEN when_value THEN statement_list] ...
@@ -184,22 +184,31 @@ CASE
     [WHEN search_condition THEN statement_list] ...
     [ELSE statement_list]
 END CASE
-		</screen>
-		<screen>
+		]]></screen>
+		<screen><![CDATA[
 
-		</screen>
+		]]></screen>
 	</section>
-<section id="sql.mysql">
-	<title>MySQL 专有命令</title>
-	<section id="sql_no_cache">
-		<title>SQL_NO_CACHE</title>
-		<screen>
-SELECT /*!40001 SQL_NO_CACHE */ * FROM table
-		</screen>
-	</section>
-	<section id="signal">
-		<title>SIGNAL Syntax</title>
+	<section id="sql.variable">
+		<title>查询结果放入变量</title>
 		<programlisting>
+		<![CDATA[
+SELECT count(*)  INTO @num FROM mytable; 
+SELECT @num; 		
+		]]>
+		</programlisting>
+	</section>
+	<section id="sql.mysql">
+		<title>MySQL 专有命令</title>
+		<section id="sql_no_cache">
+			<title>SQL_NO_CACHE</title>
+			<screen><![CDATA[
+SELECT /*!40001 SQL_NO_CACHE */ * FROM table
+		]]></screen>
+		</section>
+		<section id="signal">
+			<title>SIGNAL Syntax</title>
+			<programlisting><![CDATA[
 DROP TRIGGER `members_before_insert`;
 CREATE DEFINER=`neo`@`%` TRIGGER `members_before_insert` BEFORE INSERT ON `members` FOR EACH ROW BEGIN
 	IF new.username IS NOT NULL THEN
@@ -209,32 +218,32 @@ CREATE DEFINER=`neo`@`%` TRIGGER `members_before_insert` BEFORE INSERT ON `membe
 		END IF;
 	END IF;
 END;
-		</programlisting>
-		<screen>
+		]]></programlisting>
+			<screen><![CDATA[
 
-		</screen>
+		]]></screen>
+		</section>
 	</section>
-</section>
 
-<section id="sql.92">
+	<section id="sql.92">
 		<title>SQL 92</title>
 
-			<para>insert + select</para>
-			<screen>
+		<para>insert + select</para>
+		<screen><![CDATA[
 insert into product_type_commission select id,5,1,1,0,0,0,0,0,0 from product_type where title='notebook' and is_physical=0;
-			</screen>
+			]]></screen>
 
-			<para>update table1,table2</para>
-			<screen>
+		<para>update table1,table2</para>
+		<screen><![CDATA[
 begin;
 ALTER TABLE `customer` ADD COLUMN `cutoff_time` TIMESTAMP NOT NULL default '0000-00-00 00:00:00';
 update customer,agent set customer.cutoff_time = agent.cutoff_time where customer.id = agent.id;
 ALTER TABLE `agent` DROP COLUMN `cutoff_time`;
 commit;
-			</screen>
+			]]></screen>
 
-			<para>update table1 set field1 = (select value from table2)</para>
-			<screen>
+		<para>update table1 set field1 = (select value from table2)</para>
+		<screen><![CDATA[
 UPDATE
 	transaction
 SET
@@ -247,9 +256,9 @@ SET
 	)
 WHERE
 	transaction.id = 100
-			</screen>
-			<para>update table1, (select * from other) as table2 set table1.field1 = table2.field1</para>
-			<screen>
+			]]></screen>
+		<para>update table1, (select * from other) as table2 set table1.field1 = table2.field1</para>
+		<screen><![CDATA[
 UPDATE
 	transaction,(	SELECT
 						SUM(product_item.bought_price) AS total_bought_price, transaction_item.transaction_id
@@ -263,38 +272,38 @@ SET
 WHERE
 	transaction.id = total.transaction_id
 
-			</screen>
+			]]></screen>
 
 		<para>join + subquery</para>
-		<screen>
+		<screen><![CDATA[
 select u.*,t.category,t.items,t.[property] from tb_sysregchkusers as u left join (select a.items as category, b.* from (select id, items from tb_sysregchktask where categoryid=0) as a left join tb_sysregchktask as b on b.categoryid=a.id ) as t on u.taskID=t.id
 
 select * from tb_sysregchklog where CONVERT(datetime,CONVERT(varchar(10),checkTime,120)) between convert(datetime,'2007-12-12') and convert(datetime,'2007-12-12')
-		</screen>
+		]]></screen>
 
-		<screen>
+		<screen><![CDATA[
 select DISTINCT user_point_history.user_id,user.username,
 (select count(id) from transaction where id = user_point_history.transaction_id) as transactions,
 (SELECT SUM(u_p_h.points) FROM user_point_history as u_p_h WHERE u_p_h.type != 'RDMP' AND u_p_h.status IN('pr','ac') AND u_p_h.user_id = user_point_history.user_id) as total_points_earned,
 (SELECT SUM(u_p_h.points) FROM user_point_history as u_p_h WHERE u_p_h.type = 'RDMP' AND u_p_h.status IN('pr','ac') AND u_p_h.user_id = user_point_history.user_id) as total_points_redeemed
 from user_point_history,user where user_point_history.user_id = user.id;
-		</screen>
+		]]></screen>
 
 		<para>(total_points_earned - total_points_redeemed) as current_balance_points </para>
-		<screen>
+		<screen><![CDATA[
 select user_id, username, transactions, total_points_earned, total_points_redeemed, (total_points_earned - total_points_redeemed) as current_balance_points
 from (select DISTINCT user_point_history.user_id,user.username,
 (select count(id) from transaction where id = user_point_history.transaction_id) as transactions,
 (SELECT SUM(u_p_h.points) FROM user_point_history as u_p_h WHERE u_p_h.type != 'RDMP' AND u_p_h.status IN('pr','ac') AND u_p_h.user_id = user_point_history.user_id) as total_points_earned,
 (SELECT SUM(u_p_h.points) FROM user_point_history as u_p_h WHERE u_p_h.type = 'RDMP' AND u_p_h.status IN('pr','ac') AND u_p_h.user_id = user_point_history.user_id) as total_points_redeemed
 from user_point_history,user where user_point_history.user_id = user.id) as user_performance;
-		</screen>
+		]]></screen>
 
 		<para>subquery作为一个字段使用 </para>
-		<screen>
+		<screen><![CDATA[
 select product_type_attribute.*,(select 'selected' from product_type_attribute_set where product_type_attribute_set.product_type_attribute_id = product_type_attribute.id and product_type_attribute_set.product_type_id = 26) as selected
 from product_type_attribute;
-		</screen>
+		]]></screen>
 	</section>
 </chapter>
 
