@@ -5,7 +5,7 @@
 	<section id="database">
 		<title>数据库管理(Database)</title>
 		<section>
-			<title>create</title>
+			<title>创建数据库</title>
 			<para>Creating a UTF-8 database</para>
 			<screen>
 			<![CDATA[
@@ -20,7 +20,7 @@ CREATE DATABASE dbname CHARACTER SET utf8 COLLATE utf8_bin;
 			</programlisting>
 		</section>
 		<section>
-			<title>drop</title>
+			<title>删除数据库</title>
 			<screen>
 			<![CDATA[
 DROP DATABASE db_name;
@@ -38,10 +38,11 @@ ALTER DATABASE dbname DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 			<![CDATA[
 			
 			]]>
-			</screen>、
+			</screen>
+			、
 		</section>
 		<section>
-			<title>Rename</title>
+			<title>重命名数据库</title>
 			<screen>
 			<![CDATA[
 RENAME {DATABASE | SCHEMA} db_name TO new_db_name;
@@ -55,7 +56,7 @@ RENAME {DATABASE | SCHEMA} db_name TO new_db_name;
 			</screen>
 		</section>
 		<section>
-			<title>CHARACTER</title>
+			<title>修改字符集</title>
 			<screen>
 			<![CDATA[
 ALTER DATABASE <database_name> CHARACTER SET utf8;
@@ -63,7 +64,7 @@ ALTER DATABASE <database_name> CHARACTER SET utf8;
 			</screen>
 		</section>
 		<section>
-			<title>show create database</title>
+			<title>查看数据库创建语句</title>
 			<screen>
 			<![CDATA[
 mysql> show create database dbname;
@@ -136,7 +137,37 @@ select question, answer from QA where answer = 'B,C';
 			</section>
 		</section>
 		<section>
-			<title>create table ... select</title>
+			<title>基于现有表结构创建新表</title>
+			<programlisting>
+			<![CDATA[
+CREATE TABLE `test`.`old_table` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NULL,
+  PRIMARY KEY (`id`));
+  
+CREATE TABLE new_table LIKE old_table;			
+			]]>
+			</programlisting>
+			<para></para>
+			<screen>
+			<![CDATA[
+mysql> show create table `test`.new_table;
++-----------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Table     | Create Table                                                                                                                                                                                       |
++-----------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| new_table | CREATE TABLE `new_table` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci |
++-----------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+1 row in set (0.00 sec)			
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>基于已存在表创建新表</title>
+			<subtitle>create table ... select</subtitle>
 			<para>创建空表</para>
 			<programlisting>
 			<![CDATA[
@@ -151,7 +182,7 @@ create table admin_user_history select * from admin_user;
 			</programlisting>
 		</section>
 		<section>
-			<title>modifiy table</title>
+			<title>修改表</title>
 			<para>modifiy table</para>
 			<screen>
 			<![CDATA[
@@ -160,7 +191,8 @@ ALTER TABLE ecs_users add user_picture varchar(255);
 			</screen>
 		</section>
 		<section id="temporary">
-			<title>TEMPORARY Table</title>
+			<title>临时表</title>
+			<subtitle>TEMPORARY Table</subtitle>
 			<para>临时表将在你连接期间存在。一旦断开时将自动删除表并释放所用的空间。你在连接期间删除该表也同样释放空间。</para>
 			<screen>
 			<![CDATA[
@@ -180,14 +212,6 @@ CREATE TEMPORARY TABLE tmp_mem_table (
 			]]>
 			</screen>
 		</section>
-		<section id="collate">
-			<title>Collate</title>
-			<programlisting>
-			<![CDATA[
-ALTER TABLE `tmp_cats`  COLLATE='utf8_general_ci',  CONVERT TO CHARSET utf8;
-			]]>
-			</programlisting>
-		</section>
 		<section id="character">
 			<title>CHARACTER</title>
 			<screen>
@@ -196,6 +220,12 @@ ALTER TABLE <table_name> CONVERT TO CHARACTER SET utf8;
 alter table <table_name> convert to charset utf8mb4;
 			]]>
 			</screen>
+			<para>修改表字符集</para>
+			<programlisting>
+			<![CDATA[
+ALTER TABLE `tmp_cats`  COLLATE='utf8_general_ci',  CONVERT TO CHARSET utf8;
+			]]>
+			</programlisting>
 		</section>
 		<section id="default">
 			<title>DEFAULT</title>

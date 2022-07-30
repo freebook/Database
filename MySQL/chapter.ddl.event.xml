@@ -128,10 +128,29 @@ No query specified
 			]]>
 		</programlisting>
 	</section>
-	<section>
-		<title>实例·每月创建一个表</title>
-		<para>每月创建一张新表，适用于分表的场景</para>
+	<section id="event.drop">
+		<title>删除 EVENT</title>
+		<screen>
+		<![CDATA[
+DROP EVENT [IF EXISTS] event_name;
+		]]>
+		</screen>
 		<programlisting>
+		<![CDATA[
+DROP EVENT event_delete;		
+		]]>
+		</programlisting>
+	</section>
+	<section>
+		<title>EVENT 应用案例</title>
+		<section>
+			<title></title>
+
+		</section>
+		<section>
+			<title>实例·每月创建一个表</title>
+			<para>每月创建一张新表，适用于分表的场景</para>
+			<programlisting>
 			<![CDATA[
 CREATE DEFINER=`neo`@`netkiller` EVENT `logging`
 	ON SCHEDULE
@@ -145,8 +164,8 @@ DO BEGIN
 	call logging(_table_date);
 END
 			]]>
-		</programlisting>
-		<programlisting>
+			</programlisting>
+			<programlisting>
 			<![CDATA[
 CREATE DEFINER=`neo`@`netkiller` PROCEDURE `logging`(
 	IN `table_date` VARCHAR(10)
@@ -186,22 +205,28 @@ BEGIN
 	Deallocate prepare stmt;
 END
 			]]>
-		</programlisting>
-	</section>
-	<section>
-		<title>案例·定时删除数据</title>
-		<para>需求：数据需要删除100万条数据，直接删除会对系统造成压力，导致主库阻塞。</para>
-		<para>解决方案：分批删除，使用 event 定时执行删除 SQL 直到删完位置。</para>
-		<para>造数据</para>
-		<programlisting>
+			</programlisting>
+		</section>
+		<section>
+			<title>案例·定时删除数据</title>
+			<para>需求：数据需要删除100万条数据，直接删除会对系统造成压力，导致主库阻塞。</para>
+			<para>解决方案：分批删除，使用 event 定时执行删除 SQL 直到删完位置。</para>
+			<para>开启 EVENT</para>
+			<programlisting>
+		<![CDATA[
+set global event_scheduler = on;		
+		]]>
+			</programlisting>
+			<para>造数据</para>
+			<programlisting>
 		<![CDATA[
 CREATE EVENT IF NOT EXISTS event_test
 ON SCHEDULE EVERY 2 SECOND ON COMPLETION PRESERVE 
 DO insert into mytable(message,ctime) value(uuid(), now());		
 		]]>
-		</programlisting>
-		<para>定时删除</para>
-		<programlisting>
+			</programlisting>
+			<para>定时删除</para>
+			<programlisting>
 		<![CDATA[
 DROP EVENT event_delete;
 DELIMITER $$
@@ -219,7 +244,40 @@ DO BEGIN
     
 END$$
 		]]>
-		</programlisting>
+			</programlisting>
+		</section>
+		<section>
+			<title>指定日期执行</title>
+			<programlisting>
+			<![CDATA[
+每个月的一号凌晨1 点执行 
+CREATE EVENT EVENT2 
+ON SCHEDULE EVERY 1 MONTH STARTS DATE_ADD(DATE_ADD(DATE_SUB(CURDATE(),INTERVAL DAY(CURDATE())-1 DAY), INTERVAL 1 MONTH),INTERVAL 1 HOUR) 
+ON COMPLETION PRESERVE ENABLE 
+DO 
+BEGIN 
+	CALL YOUR(); 
+END 
+
+每个季度一号的凌晨2点执行 
+CREATE EVENT TOTAL_SEASON_EVENT 
+ON SCHEDULE EVERY 1 QUARTER STARTS DATE_ADD(DATE_ADD(DATE( CONCAT(YEAR(CURDATE()),'-',ELT(QUARTER(CURDATE()),1,4,7,10),'-',1)),INTERVAL 1 QUARTER),INTERVAL 2 HOUR) 
+ON COMPLETION PRESERVE ENABLE 
+DO 
+BEGIN 
+CALL YOUR(); 
+END 
+
+每年1月1号凌晨2点执行 
+CREATE EVENT TOTAL_YEAR_EVENT 
+ON SCHEDULE EVERY 1 YEAR STARTS DATE_ADD(DATE(CONCAT(YEAR(CURDATE()) + 1,'-',1,'-',1)),INTERVAL 2 HOUR) 
+ON COMPLETION PRESERVE ENABLE 
+DO 
+BEGIN 
+CALL YOUR(); 
+END			
+			]]>
+			</programlisting>
+		</section>
 	</section>
-	
 </section>
