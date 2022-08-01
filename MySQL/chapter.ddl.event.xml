@@ -141,12 +141,8 @@ DROP EVENT event_delete;
 		]]>
 		</programlisting>
 	</section>
-	<section>
+	<section id="event.example">
 		<title>EVENT 应用案例</title>
-		<section>
-			<title></title>
-
-		</section>
 		<section>
 			<title>实例·每月创建一个表</title>
 			<para>每月创建一张新表，适用于分表的场景</para>
@@ -224,6 +220,12 @@ CREATE EVENT IF NOT EXISTS event_test
 ON SCHEDULE EVERY 2 SECOND ON COMPLETION PRESERVE 
 DO insert into mytable(message,ctime) value(uuid(), now());		
 		]]>
+			</programlisting>
+			<para>备份数据</para>
+			<programlisting>
+			<![CDATA[
+create table new_table_2022_7_30 select * from old_table;			
+			]]>
 			</programlisting>
 			<para>定时删除</para>
 			<programlisting>

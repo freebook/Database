@@ -589,6 +589,14 @@ interactive-timeout
 show variables;
 show global variables;
 	]]></screen>
+	<section>
+		<title>查询多个变量</title>
+		<screen>
+		<![CDATA[
+show variables where Variable_name like 'collation%' or Variable_name like 'character_set_server%';		
+		]]>
+		</screen>
+	</section>
 	<section id="time_zone">
 		<title>time_zone</title>
 		<programlisting>
