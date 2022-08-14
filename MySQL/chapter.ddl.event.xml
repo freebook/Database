@@ -238,12 +238,12 @@ DO BEGIN
 	DECLARE num integer;
 
 	SELECT  COUNT(*) INTO num FROM mytable;
-    
+
 	IF num > 0 THEN
 		delete from mytable limit 1;
 		insert into logs(ctime) values(now());
 	END IF;
-    
+
 END$$
 		]]>
 			</programlisting>
