@@ -329,6 +329,7 @@ SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));
 	<section id="ERROR.1071">
 		<title>ERROR 1071 (42000) at line 25: Specified key was too long; max key length is 767 bytes</title>
 		<para>这个保存通常出现在高版本数据库向低版本数据导入数据，活着云主机例如阿里云。</para>
+		<para>Error Code: 1071. Specified key was too long; max key length is 767 bytes</para>
 		<screen>
 		<![CDATA[
 mysql> show variables like '%innodb_large_prefix%';
@@ -337,13 +338,19 @@ mysql> show variables like '%innodb_large_prefix%';
 +---------------------+-------+
 | innodb_large_prefix | OFF   |
 +---------------------+-------+
-1 row in set (0.00 sec)		
+1 row in set (0.00 sec)	
 		]]>
 		</screen>
 		<para>解决方案</para>
 		<screen>
 		<![CDATA[
 innodb_large_prefix=ON		
+		]]>
+		</screen>
+		<screen>
+		<![CDATA[
+mysql> set global innodb_large_prefix=on;
+Query OK, 0 rows affected (0.00 sec)	
 		]]>
 		</screen>
 	</section>
