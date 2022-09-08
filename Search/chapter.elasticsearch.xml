@@ -5,6 +5,20 @@
 	<section id="install">
 		<title>安装 Elasticsearch</title>
 		<section>
+			<title>Helm Chart 安装 Elasticsearch</title>
+			<screen>
+			<![CDATA[
+Add the Elastic Helm Chart Repo: helm repo add elastic https://helm.elastic.co
+Install Elasticsearch: helm install --name elasticsearch elastic/elasticsearch
+Install Kibana: helm install --name kibana elastic/kibana			
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>Elastic Cloud on Kubernetes</title>
+			<para>https://www.elastic.co/guide/en/cloud-on-k8s/current/index.html</para>
+		</section>
+		<section>
 			<title>6.x 安装</title>
 			<para>安装 6.x 仓库</para>
 			<screen>
