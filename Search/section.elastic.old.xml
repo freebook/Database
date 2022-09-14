@@ -1,0 +1,536 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="install">
+	<title>安装 Elasticsearch 早起版本</title>
+	<section>
+		<title>6.x 安装</title>
+		<para>安装 6.x 仓库</para>
+		<screen>
+			<![CDATA[
+curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elastic/elastic-6.x.sh | bash			
+			]]>
+		</screen>
+		<para>安装 6.x 包</para>
+		<screen>
+			<![CDATA[
+yum install elasticsearch			
+			]]>
+		</screen>
+		<section>
+			<title>发现配置</title>
+			<para>https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-discovery-settings.html</para>
+			<screen>
+			<![CDATA[
+cluster.initial_master_nodes 集群初始化的提供的master候选地址，第一次启动时将从该列表中获取master
+
+discovery.seed_hosts 配置该节点会与哪些候选地址进行通信，hostname,ip ,ip+port
+discovery.seed_providers 指定种子地址提供的方式，默认settings，也支持其他Discovery Plugins，包括EC2 Discovery，Azure Classic discovery，GCE discovery（ Google Compute Engine discovery ）
+
+discovery.seed_providers: file 当指定的时候，可以在该指定文件中填写ip，方便单独维护。
+discovery.find_peers_interval 未发现主节点的重试时间，默认1s
+
+discovery.seed_resolver.timeout 种子提供地址的超时时间
+discovery.seed_resolver.max_concurrent_resolvers 并发查找的数量
+
+由以下配置提供未填写端口时的端口范围。
+transport.profiles.default.port
+transport.port			
+			]]>
+			</screen>
+			<section>
+				<title>即将废弃</title>
+				<para>多播配置下，节点向集群发送多播请求，其他节点收到请求后会做出响应。配置参数如下：</para>
+				<screen>
+			<![CDATA[
+discovery.zen.ping.multicast.group:224.2.2.4  	组地址
+discovery.zen.ping.multicast.port：54328  		端口
+discovery.zen.ping.multicast.ttl:3 				广播消息ttl
+discovery.zen.ping.multicast.address:null		绑定的地址，null表示绑定所有可用的网络接口
+discovery.zen.ping.multicast.enabled:true 		多播自动发现禁用开关
+			]]>
+				</screen>
+				<para>单播配置下，节点向指定的主机发送单播请求，配置如下：</para>
+				<screen>
+			<![CDATA[
+# discovery.zen.ping.unicast.hosts:host1:port1,host2:port2
+discovery.zen.ping.unicast.hosts=es01,es02,es03
+discovery.zen.minimum_master_nodes=2
+discovery.zen.ping_timeout=5s
+			]]>
+				</screen>
+			</section>
+		</section>
+	</section>
+	<section id="single">
+		<title>单机模式 (适用于开发环境) 5.x </title>
+		<para>使用 Netkiller OSCM 一键安装 Elasticsearch 5.6.0</para>
+		<screen><![CDATA[
+# Java
+curl -s https://raw.githubusercontent.com/oscm/shell/master/lang/java/openjdk/java-1.8.0-openjdk.sh | bash
+
+# Install
+curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elasticsearch/elasticsearch-5.x.sh | bash
+
+# Bind 0.0.0.0
+curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elasticsearch/network.bind_host.sh | bash
+
+# Auto create index
+curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elasticsearch/action.auto_create_index.sh | bash
+
+# elasticsearch-analysis-ik
+
+curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elasticsearch/5.5/elasticsearch-analysis-ik-5.6.0.sh | bash
+			]]></screen>
+		<para>通常 elasticsearch-analysis-ik 的版本会比 elasticsearch 慢一个版本，所以请使用下面命令查看版本是否一致，如果不一致可以修改 plugin-descriptor.properties 配置文件，使其一致。</para>
+		<screen><![CDATA[
+root@netkiller /usr/share/elasticsearch/plugins/ik % grep ^version plugin-descriptor.properties
+version=5.5.1
+			]]></screen>
+		<para>启动后使用 jps 命令检查进城是否工作正常</para>
+		<screen><![CDATA[
+root@netkiller /var/log/elasticsearch % jps | grep Elasticsearch
+9706 Elasticsearch
+
+root@netkiller /var/log/elasticsearch % ss -lnt | grep 9200
+LISTEN     0      128    127.0.0.1:9200                     *:*
+			]]></screen>
+	</section>
+	<section id="cluster">
+		<title>Elasticsearch Cluster 5.x</title>
+		<para>集群模式需要两个以上的节点，通常是一个 master 节点，多个 data 节点</para>
+		<para>首先在所有节点上安装 elasticsearch，然后配置各节点的配置文件，对于 5.5.1 不需要配置决定哪些节点属于 master 节点 或者 data 节点。</para>
+		<screen><![CDATA[
+curl -s https://raw.githubusercontent.com/oscm/shell/master/search/elasticsearch/elasticsearch-5.x.sh | bash			
+			]]></screen>
+		<para>配置文件</para>
+		<screen><![CDATA[
+cluster.name: elasticsearch-cluster # 配置集群名称,所有服务器服务器保持一致
+
+node.name: node-1 # 每个节点唯一标识，每个节点只需改动这里，一次递增 node-1, node-2, node-3 ...
+
+network.host: 0.0.0.0
+
+discovery.zen.ping.unicast.hosts: ["172.16.0.20", "172.16.0.21","172.16.0.22"]  # 所有节点的IP 地址写在这里
+
+discovery.zen.minimum_master_nodes: 3 # 可以作为master的节点总数，有多少个节点就写多少
+
+http.cors.enabled: true
+http.cors.allow-origin: "*"
+			]]></screen>
+		<para>查看节点状态，使用curl工具: curl 'http://localhost:9200/_nodes/process?pretty'</para>
+		<screen><![CDATA[
+root@netkiller /var/log/elasticsearch % curl 'http://localhost:9200/_nodes/process?pretty'
+{
+  "_nodes" : {
+    "total" : 2,
+    "successful" : 2,
+    "failed" : 0
+  },
+  "cluster_name" : "my-application",
+  "nodes" : {
+    "-lnKCmBXRpiwExLns0jc9g" : {
+      "name" : "node-1",
+      "transport_address" : "10.104.3.2:9300",
+      "host" : "10.104.3.2",
+      "ip" : "10.104.3.2",
+      "version" : "5.5.1",
+      "build_hash" : "19c13d0",
+      "roles" : [
+        "master",
+        "data",
+        "ingest"
+      ],
+      "process" : {
+        "refresh_interval_in_millis" : 1000,
+        "id" : 23669,
+        "mlockall" : false
+      }
+    },
+    "WVsgYi2HT8GWnZU1kUwFwA" : {
+      "name" : "node-2",
+      "transport_address" : "10.186.7.221:9300",
+      "host" : "10.186.7.221",
+      "ip" : "10.186.7.221",
+      "version" : "5.5.1",
+      "build_hash" : "19c13d0",
+      "roles" : [
+        "master",
+        "data",
+        "ingest"
+      ],
+      "process" : {
+        "refresh_interval_in_millis" : 1000,
+        "id" : 12641,
+        "mlockall" : false
+      }
+    }
+  }
+}
+			]]></screen>
+		<para>启动节点后回生成 cluster.name 为文件名的日志文件。</para>
+		<para>谁先启动谁讲成为master</para>
+		<screen><![CDATA[
+[2017-08-11T17:42:46,018][INFO ][o.e.c.s.ClusterService   ] [node-1] new_master {node-1}{-lnKCmBXRpiwExLns0jc9g}{rZcJDIynSzq2Td3yP2kN5A}{10.104.3.2}{10.104.3.2:9300}, added {{node-2}{WVsgYi2HT8GWnZU1kUwFwA}{X13ShUpAQa2zA1Mgcsm3bQ}{10.186.7.221}{10.186.7.221:9300},}, reason: zen-disco-elected-as-master ([1] nodes joined)[{node-2}{WVsgYi2HT8GWnZU1kUwFwA}{X13ShUpAQa2zA1Mgcsm3bQ}{10.186.7.221}{10.186.7.221:9300}]			
+			]]></screen>
+		<para>如果master出现故障，其他节点会接管</para>
+		<screen><![CDATA[
+[2017-08-11T17:44:52,797][INFO ][o.e.c.s.ClusterService   ] [node-2] master {new {node-2}{WVsgYi2HT8GWnZU1kUwFwA}{vl8kQx8sQdGVVohrNQnZOQ}{10.186.7.221}{10.186.7.221:9300}}, removed {{node-1}{-lnKCmBXRpiwExLns0jc9g}{rZcJDIynSzq2Td3yP2kN5A}{10.104.3.2}{10.104.3.2:9300},}, added {{node-1}{-lnKCmBXRpiwExLns0jc9g}{odnoG9kpQpeX1ltx5KYTSw}{10.104.3.2}{10.104.3.2:9300},}, reason: zen-disco-elected-as-master ([1] nodes joined)[{node-1}{-lnKCmBXRpiwExLns0jc9g}{odnoG9kpQpeX1ltx5KYTSw}{10.104.3.2}{10.104.3.2:9300}]
+[2017-08-11T17:44:53,184][INFO ][o.e.c.r.DelayedAllocationService] [node-2] scheduling reroute for delayed shards in [59.5s] (11 delayed shards)
+[2017-08-11T17:44:53,929][INFO ][o.e.c.r.a.AllocationService] [node-2] Cluster health status changed from [RED] to [YELLOW] (reason: [shards started [[information][0]] ...]).		
+			]]></screen>
+		<para>master 节点恢复上线会提示</para>
+		<screen><![CDATA[
+[2017-08-11T17:44:52,855][INFO ][o.e.c.s.ClusterService   ] [node-1] detected_master {node-2}{WVsgYi2HT8GWnZU1kUwFwA}{vl8kQx8sQdGVVohrNQnZOQ}{10.186.7.221}{10.186.7.221:9300}, added {{node-2}{WVsgYi2HT8GWnZU1kUwFwA}{vl8kQx8sQdGVVohrNQnZOQ}{10.186.7.221}{10.186.7.221:9300},}, reason: zen-disco-receive(from master [master {node-2}{WVsgYi2HT8GWnZU1kUwFwA}{vl8kQx8sQdGVVohrNQnZOQ}{10.186.7.221}{10.186.7.221:9300} committed version [44]])
+			]]></screen>
+		<section id="loadbalance">
+			<title>负载均衡配置</title>
+			<para>首先安装 nginx, 这里使用 Netkiller OSCM 一键安装脚本完成。</para>
+			<screen><![CDATA[
+# curl -s https://raw.githubusercontent.com/oscm/shell/master/web/nginx/stable/nginx.sh | bash
+			]]></screen>
+			<para>因为 elasticsearch 没有用户认证机制我们通常在内网访问他。如果对外提供服务需要增加用户认证。</para>
+			<para></para>
+			<screen>
+			<![CDATA[
+# printf "neo:$(openssl passwd -crypt s3cr3t)n" > /etc/nginx/passwords 			
+			]]>
+			</screen>
+			<para>创建 nginx 配置文件 /etc/nginx/conf.d/elasticsearch.conf</para>
+			<screen><![CDATA[
+upstream elasticsearch {
+	server 172.16.0.10:9200;
+	server 172.16.0.20:9200;
+	server 172.16.0.30:9200;
+
+	keepalive 15;
+}
+
+server {
+	listen 9200;
+	server_name so.netkiller.cn;
+	
+	charset utf-8;
+    access_log /var/log/nginx/so.netkiller.cn.access.log;
+    error_log /var/log/nginx/so.netkiller.cn.error.log;
+	
+	auth_basic "Protected Elasticsearch";
+	auth_basic_user_file passwords;
+
+	location ~* ^(/_cluster|/_nodes) {
+		return 403;
+		break;
+	}
+    location ~* _(open|close) {
+            return 403;
+            break;
+    }
+	location / {
+    
+		if ($request_filename ~ _shutdown) {
+		    return 403;
+		    break;
+		}
+
+        if ($request_method !~ ^(GET|HEAD|POST)$) {
+			return 403;
+		}
+
+		proxy_pass http://elasticsearch;
+		proxy_http_version 1.1;
+		proxy_set_header Connection "Keep-Alive";
+		proxy_set_header Proxy-Connection "Keep-Alive";
+	}
+
+}
+			]]></screen>
+			<para>反复使用下面方法请求，最终你会发现 total_opened 会达到你的nginx 配置数量</para>
+			<screen><![CDATA[
+$ curl 'http://test:test@localhost:9200/_nodes/stats/http?pretty' | grep total_opened
+# "total_opened" : 15			
+			]]></screen>
+			<para>上面的例子适用于绝大多数场景。</para>
+			<example>
+				<title>Elasticsearch master / slave</title>
+				<screen>
+				<![CDATA[
+upstream elasticsearch {
+	server 172.16.0.10:9200;
+	server 172.16.0.20:9200 backup;
+
+	keepalive 15;
+}
+
+server {
+	listen 9200;
+	server_name so.netkiller.cn;
+	
+	auth_basic "Protected Elasticsearch";
+	auth_basic_user_file passwords;
+
+	location ~* ^(/_cluster|/_nodes) {
+		return 403;
+		break;
+	} 
+
+	location / {
+    
+		if ($request_filename ~ _shutdown) {
+		    return 403;
+		    break;
+		}
+		if ($request_method !~ "HEAD") {
+          return 403;
+          break;
+        }
+        if ($request_method ~ "DELETE") {
+          return 403;
+          break;
+        }
+
+		proxy_pass http://elasticsearch;
+		proxy_http_version 1.1;
+		proxy_set_header Connection "Keep-Alive";
+		proxy_set_header Proxy-Connection "Keep-Alive";
+	}
+
+}
+				]]>
+				</screen>
+			</example>
+			<para>通过 limit_except 可以控制访问权限，例如删除操作。</para>
+			<screen>
+			<![CDATA[
+limit_except PUT {
+	allow 192.168.1.1;
+	deny all;
+}
+limit_except DELETE {
+	allow 192.168.1.1;
+	deny all;
+}
+			]]>
+			</screen>
+		</section>
+	</section>
+	<section>
+		<title>RPM 安装</title>
+		<screen>
+			yum localinstall https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/rpm/elasticsearch/2.3.4/elasticsearch-2.3.4.rpm
+		</screen>
+	</section>
+	<section>
+		<title>YUM 安装</title>
+		<screen>
+			<![CDATA[
+rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch
+
+cat >> /etc/yum.repos.d/elasticsearch.repo <<EOF
+[elasticsearch-2.x]
+name=Elasticsearch repository for 2.x packages
+baseurl=https://packages.elastic.co/elasticsearch/2.x/centos
+gpgcheck=1
+gpgkey=https://packages.elastic.co/GPG-KEY-elasticsearch
+enabled=1
+EOF
+
+yum install elasticsearch
+
+sudo /bin/systemctl daemon-reload
+sudo /bin/systemctl enable elasticsearch.service
+			]]>
+		</screen>
+		<para>查看 RPM 包中所含文件</para>
+		<screen>
+			[root@localhost ~]# rpm -ql elasticsearch-2.3.4-1.noarch
+			/etc/elasticsearch
+			/etc/elasticsearch/elasticsearch.yml
+			/etc/elasticsearch/logging.yml
+			/etc/elasticsearch/scripts
+			/etc/init.d/elasticsearch
+			/etc/sysconfig/elasticsearch
+			/usr/lib/sysctl.d
+			/usr/lib/sysctl.d/elasticsearch.conf
+			/usr/lib/systemd/system/elasticsearch.service
+			/usr/lib/tmpfiles.d
+			/usr/lib/tmpfiles.d/elasticsearch.conf
+			/usr/share/elasticsearch/LICENSE.txt
+			/usr/share/elasticsearch/NOTICE.txt
+			/usr/share/elasticsearch/README.textile
+			/usr/share/elasticsearch/bin
+			/usr/share/elasticsearch/bin/elasticsearch
+			/usr/share/elasticsearch/bin/elasticsearch-systemd-pre-exec
+			/usr/share/elasticsearch/bin/elasticsearch.in.sh
+			/usr/share/elasticsearch/bin/plugin
+			/usr/share/elasticsearch/lib
+			/usr/share/elasticsearch/lib/HdrHistogram-2.1.6.jar
+			/usr/share/elasticsearch/lib/apache-log4j-extras-1.2.17.jar
+			/usr/share/elasticsearch/lib/commons-cli-1.3.1.jar
+			/usr/share/elasticsearch/lib/compiler-0.8.13.jar
+			/usr/share/elasticsearch/lib/compress-lzf-1.0.2.jar
+			/usr/share/elasticsearch/lib/elasticsearch-2.3.4.jar
+			/usr/share/elasticsearch/lib/guava-18.0.jar
+			/usr/share/elasticsearch/lib/hppc-0.7.1.jar
+			/usr/share/elasticsearch/lib/jackson-core-2.6.6.jar
+			/usr/share/elasticsearch/lib/jackson-dataformat-cbor-2.6.6.jar
+			/usr/share/elasticsearch/lib/jackson-dataformat-smile-2.6.6.jar
+			/usr/share/elasticsearch/lib/jackson-dataformat-yaml-2.6.6.jar
+			/usr/share/elasticsearch/lib/jna-4.1.0.jar
+			/usr/share/elasticsearch/lib/joda-convert-1.2.jar
+			/usr/share/elasticsearch/lib/joda-time-2.9.4.jar
+			/usr/share/elasticsearch/lib/jsr166e-1.1.0.jar
+			/usr/share/elasticsearch/lib/jts-1.13.jar
+			/usr/share/elasticsearch/lib/log4j-1.2.17.jar
+			/usr/share/elasticsearch/lib/lucene-analyzers-common-5.5.0.jar
+			/usr/share/elasticsearch/lib/lucene-backward-codecs-5.5.0.jar
+			/usr/share/elasticsearch/lib/lucene-core-5.5.0.jar
+			/usr/share/elasticsearch/lib/lucene-grouping-5.5.0.jar
+			/usr/share/elasticsearch/lib/lucene-highlighter-5.5.0.jar
+			/usr/share/elasticsearch/lib/lucene-join-5.5.0.jar
+			/usr/share/elasticsearch/lib/lucene-memory-5.5.0.jar
+			/usr/share/elasticsearch/lib/lucene-misc-5.5.0.jar
+			/usr/share/elasticsearch/lib/lucene-queries-5.5.0.jar
+			/usr/share/elasticsearch/lib/lucene-queryparser-5.5.0.jar
+			/usr/share/elasticsearch/lib/lucene-sandbox-5.5.0.jar
+			/usr/share/elasticsearch/lib/lucene-spatial-5.5.0.jar
+			/usr/share/elasticsearch/lib/lucene-spatial3d-5.5.0.jar
+			/usr/share/elasticsearch/lib/lucene-suggest-5.5.0.jar
+			/usr/share/elasticsearch/lib/netty-3.10.5.Final.jar
+			/usr/share/elasticsearch/lib/securesm-1.0.jar
+			/usr/share/elasticsearch/lib/snakeyaml-1.15.jar
+			/usr/share/elasticsearch/lib/spatial4j-0.5.jar
+			/usr/share/elasticsearch/lib/t-digest-3.0.jar
+			/usr/share/elasticsearch/modules
+			/usr/share/elasticsearch/modules/lang-expression
+			/usr/share/elasticsearch/modules/lang-expression/antlr4-runtime-4.5.1-1.jar
+			/usr/share/elasticsearch/modules/lang-expression/asm-5.0.4.jar
+			/usr/share/elasticsearch/modules/lang-expression/asm-commons-5.0.4.jar
+			/usr/share/elasticsearch/modules/lang-expression/lang-expression-2.3.4.jar
+			/usr/share/elasticsearch/modules/lang-expression/lucene-expressions-5.5.0.jar
+			/usr/share/elasticsearch/modules/lang-expression/plugin-descriptor.properties
+			/usr/share/elasticsearch/modules/lang-expression/plugin-security.policy
+			/usr/share/elasticsearch/modules/lang-groovy
+			/usr/share/elasticsearch/modules/lang-groovy/groovy-2.4.6-indy.jar
+			/usr/share/elasticsearch/modules/lang-groovy/lang-groovy-2.3.4.jar
+			/usr/share/elasticsearch/modules/lang-groovy/plugin-descriptor.properties
+			/usr/share/elasticsearch/modules/lang-groovy/plugin-security.policy
+			/usr/share/elasticsearch/modules/reindex
+			/usr/share/elasticsearch/modules/reindex/plugin-descriptor.properties
+			/usr/share/elasticsearch/modules/reindex/reindex-2.3.4.jar
+			/usr/share/elasticsearch/plugins
+			/var/lib/elasticsearch
+			/var/log/elasticsearch
+			/var/run/elasticsearch
+		</screen>
+	</section>
+	<section>
+		<title>测试安装是否正常</title>
+		<para>启动</para>
+		<screen>
+			/etc/init.d/elasticsearch start
+		</screen>
+		<para>链接测试</para>
+		<screen>
+			[root@localhost ~]# curl -X GET http://localhost:9200/
+			{
+			"name" : "Jack of Hearts",
+			"cluster_name" : "elasticsearch",
+			"version" : {
+			"number" : "2.3.4",
+			"build_hash" : "e455fd0c13dceca8dbbdbb1665d068ae55dabe3f",
+			"build_timestamp" : "2016-06-30T11:24:31Z",
+			"build_snapshot" : false,
+			"lucene_version" : "5.5.0"
+			},
+			"tagline" : "You Know, for Search"
+			}
+		</screen>
+	</section>
+
+	<section id="plugin">
+		<title>Plugin 插件管理</title>
+		<section>
+			<title>手工安装插件</title>
+			<screen>
+				cd /usr/local/src/
+				wget https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v1.9.4/elasticsearch-analysis-ik-1.9.4.zip
+				cd /usr/share/elasticsearch/plugins
+				mkdir ik
+				cd ik
+				unzip /usr/local/src/elasticsearch-analysis-ik-1.9.4.zip
+
+				/etc/init.d/elasticsearch restart
+			</screen>
+		</section>
+		<section>
+			<title>plugin 命令</title>
+			<screen>
+				plugin -install medcl/elasticsearch-analysis-ik/1.9.0
+			</screen>
+		</section>
+		<section>
+			<title>插件测试</title>
+			<screen>
+			<![CDATA[
+curl -XDELETE http://localhost:9200/information/news/_mapping?pretty
+curl -XDELETE http://localhost:9200/information/?pretty
+
+curl -XPUT http://localhost:9200/information
+curl -XPOST http://localhost:9200/information/news/_mapping?pretty -d'
+{
+    "news": {
+            "_all": {
+            "analyzer": "ik_max_word",
+            "search_analyzer": "ik_max_word",
+            "term_vector": "no",
+            "store": "false"
+        },
+        "properties": {
+            "content": {
+                "type": "string",
+                "store": "no",
+                "term_vector": "with_positions_offsets",
+                "analyzer": "ik_max_word",
+                "search_analyzer": "ik_max_word",
+                "include_in_all": "true",
+                "boost": 8
+            }
+        }
+    }
+}'
+
+curl -XPOST http://localhost:9200/information/news/ -d'
+{"title": "越南胡志明游记·教堂·管风琴的天籁之音","content":"这是我平生第一次去教堂，也是第一次完整的参加宗教仪式。当我驻足教堂外的时候，耳边传来天籁之音，是管风琴，确切的说是电子风琴。真正的管风琴造价昂贵，管风琴通常需要根据教堂尺寸定制，无法量产。我记得中国只有4座管风琴，深圳音乐厅有一座。"}
+'
+curl -XPOST http://localhost:9200/information/news/ -d'
+{"title": "越南胡志明游记·信仰·法事","content":"佛经的形成过程是与佛教的发展相始终的，按照佛教发展的时间顺序，最早形成的是小乘佛教三藏，之后形成的是大乘佛教三藏，最后形成的是密宗三藏。"}
+'
+
+curl -XPOST http://localhost:9200/information/news/_search  -d'
+{
+    "query" : { "term" : { "content" : "佛经" }},
+    "highlight" : {
+        "pre_tags" : ["<strong>", "<strong>"],
+        "post_tags" : ["</strong>", "</strong>"],
+        "fields" : {
+            "content" : {}
+        }
+    }
+}'		
+
+curl -XPOST http://localhost:9200/information/news/_search  -d'
+{
+    "query" : { "term" : { "content" : "中国" }},
+    "highlight" : {
+        "pre_tags" : ["<b>", "<i>"],
+        "post_tags" : ["</b>", "</i>"],
+        "fields" : {
+            "content" : {}
+        }
+    }
+}'	
+			]]>
+			</screen>
+		</section>
+
+	</section>
+
+</section>
