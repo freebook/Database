@@ -409,9 +409,22 @@ mysql> SELECT CURRENT_SERIAL FROM CACHE_UPDATE WHERE ID=1;
 		</screen>
 
 	</section>
+	<section>
+		<title>Table 'performance_schema.session_variables' doesn't exist</title>
+		<para>升级表文件即可</para>
+		<screen>
+		<![CDATA[
+mysql_upgrade -u root -p --force
+
+或
+
+mysql_upgrade -h 127.0.0.1 -u root -p --force
+		]]>
+		</screen>
+	</section>
 	<section id="ERROR.1175">
 		<title>Error Code: 1175. You are using safe update mode and you tried to update a table without a WHERE that uses a KEY column.</title>
-		<para>Error Code: 1175. You are using safe update mode and you tried to update a table without a WHERE that uses a KEY column.  To disable safe mode, toggle the option in Preferences -> SQL Editor and reconnect.</para>
+		<para>Error Code: 1175. You are using safe update mode and you tried to update a table without a WHERE that uses a KEY column. To disable safe mode, toggle the option in Preferences -> SQL Editor and reconnect.</para>
 		<para>解决方案</para>
 		<screen>
 		<![CDATA[
