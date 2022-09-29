@@ -81,7 +81,7 @@ mysql> show create database dbname;
 	</section>
 	<section id="table">
 		<title>表管理(Table)</title>
-		<section>
+		<section id="create.table.set">
 			<title>数据类型</title>
 			<section>
 				<title>SET 集合类型</title>
@@ -136,8 +136,8 @@ select question, answer from QA where answer = 'B,C';
 				</programlisting>
 			</section>
 		</section>
-		<section>
-			<title>基于现有表结构创建新表</title>
+		<section id="create.table.like">
+			<title>基于现有表结构创建新空表</title>
 			<programlisting>
 			<![CDATA[
 CREATE TABLE `test`.`old_table` (
@@ -165,7 +165,7 @@ mysql> show create table `test`.new_table;
 			]]>
 			</screen>
 		</section>
-		<section>
+		<section id="create.table.select">
 			<title>基于已存在表创建新表</title>
 			<subtitle>create table ... select</subtitle>
 			<para>创建空表</para>
@@ -181,7 +181,7 @@ create table admin_user_history select * from admin_user;
 			]]>
 			</programlisting>
 		</section>
-		<section>
+		<section id="alter.table.add">
 			<title>修改表</title>
 			<para>modifiy table</para>
 			<screen>
@@ -356,6 +356,15 @@ CREATE TABLE `stuff` (
 ) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1 COMMENT=''用户表''
 /*!50100 PARTITION BY HASH (year(created))
 PARTITIONS 10 */
+			]]>
+			</screen>
+		</section>
+		<section id="table.rename">
+			<title>修改表名</title>
+			<screen>
+			<![CDATA[
+ALTER TABLE old_table_name  RENAME TO new_table_name; 
+RENAME old_table _name TO new_table_name;			
 			]]>
 			</screen>
 		</section>

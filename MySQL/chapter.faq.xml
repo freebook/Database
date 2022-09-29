@@ -495,6 +495,23 @@ UPDATE `cms`.`content` SET `source`='test' WHERE `content_id`='1099';
 		]]>
 		</screen>
 	</section>
+	<section id="ERROR.1292">
+		<title>Error Code: 1292. Incorrect datetime value: '0000-00-00 00:00:00' for column 'create_time' at row 95692</title>
+		<screen>
+		<![CDATA[
+select @global.sql_mode;
+
+'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'
+		]]>
+		</screen>
+		<para>去掉 NO_ZERO_IN_DATE,NO_ZERO_DATE 即可</para>
+		<screen>
+		<![CDATA[
+set @global.sql_mode = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION';			
+		]]>
+		</screen>
+	</section>
+	
 	<section id="ERROR.1415">
 		<title>ERROR 1415: Not allowed to return a result set from a trigger</title>
 		<para>触发器中不允许返回结果集，解决方法是顶一个变量，然后将返回值返回给变量。</para>
