@@ -1241,14 +1241,82 @@ Perl
 			]]>
 			</screen>
 
+
+
+		</section>
+		<section id="redis.hash">
+			<title>HASH</title>
+			<para>设置 hash 值</para>
 			<screen>
 			<![CDATA[
+redis.netkiller.cn:6379> HSET NEO name chen nickname netkiller
+(integer) 2			
 			]]>
 			</screen>
+			<para>获取 hash 值</para>
 			<screen>
 			<![CDATA[
+redis.netkiller.cn:6379> HGET NEO name
+"chen"
+redis.netkiller.cn:6379> HGET NEO nickname
+"netkiller"		
 			]]>
 			</screen>
+			<para>获取所有 key</para>
+			<screen>
+			<![CDATA[
+redis.netkiller.cn:6379> HKEYS NEO
+1) "name"
+2) "nickname"
+			]]>
+			</screen>
+			<para>获取所有值</para>
+			<screen>
+			<![CDATA[
+redis.netkiller.cn:6379> HVALS NEO
+1) "chen"
+2) "netkiller"			
+			]]>
+			</screen>
+			<para>获取哈希表中字段的数量</para>
+			<screen>
+			<![CDATA[
+redis.netkiller.cn:6379> HLEN NEO
+(integer) 2	
+			]]>
+			</screen>
+			<para>获取在哈希表中指定 key 的所有字段和值</para>
+			<screen>
+			<![CDATA[
+redis.netkiller.cn:6379> HGETALL NEO
+1) "name"
+2) "chen"
+3) "nickname"
+4) "netkiller"
+			]]>
+			</screen>
+			<para>查看哈希表 key 中，指定的字段是否存在</para>
+			<screen>
+			<![CDATA[
+redis.netkiller.cn:6379> HEXISTS NEO name
+(integer) 1
+redis.netkiller.cn:6379> HEXISTS NEO test
+(integer) 0	
+			]]>
+			</screen>
+			<para></para>
+			<screen>
+			<![CDATA[
+					
+			]]>
+			</screen>
+			<para></para>
+			<screen>
+			<![CDATA[
+					
+			]]>
+			</screen>
+
 		</section>
 		<section id="pubsub">
 			<title>Pub/Sub 订阅与发布</title>
