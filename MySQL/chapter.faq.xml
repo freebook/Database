@@ -1065,7 +1065,7 @@ mysql> SELECT * FROM test.test_data;
 		</screen>
 		<para>第三条数据无故被增加了一秒，这是因为 500毫秒会做四舍五入，最终成了 2022-12-05 11:40:49.500</para>
 		<para>解决方案一，不要给 mysql 传递毫秒，将 2022-12-05 11:40:49.500 改为 2022-12-05 11:40:49</para>
-		<para>解决方案二，对于时间敏感的场合不允许差一秒，可以设置时间精度解决这个问题</para>
+		<para>解决方案二，对于时间敏感的场合不允许差一秒，可以设置时间精度解决这个问题，例如 datetime(1)，最长设置 datetime(6)</para>
 		<programlisting>
 		<![CDATA[
 CREATE TABLE `test_data` (
