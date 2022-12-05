@@ -1028,5 +1028,142 @@ mysql>
 		]]>
 		</screen>
 	</section>
+	<section>
+		<title>时间自动被加一秒</title>
+		<para>背景，Spring Cloud + MyBatis-Plus 插入数据库的时间被无辜加了一秒中，MyBatis-Plus 日志 2022-12-05 11:40:49，MySQL binlog 2022-12-05 11:40:50。</para>
+		<para>经过排查，发现MyBatis-Plus传递给MySQL的时间携带了毫秒，2022-12-05 11:40:49.500。</para>
+		<programlisting>
+		<![CDATA[
+CREATE TABLE `test_data` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `date` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4
+		]]>
+		</programlisting>
+		<screen>
+		<![CDATA[
+mysql> INSERT INTO `test`.`test_data` (`date`) VALUES ('2022-12-05 11:40:49');
+Query OK, 1 row affected (0.04 sec)
 
+mysql> INSERT INTO `test`.`test_data` (`date`) VALUES ('2022-12-05 11:40:49.449');
+Query OK, 1 row affected (0.04 sec)
+
+mysql> INSERT INTO `test`.`test_data` (`date`) VALUES ('2022-12-05 11:40:49.500');
+Query OK, 1 row affected (0.09 sec)
+
+mysql> SELECT * FROM test.test_data;
++----+---------------------+
+| id | date                |
++----+---------------------+
+|  1 | 2022-12-05 11:40:49 |
+|  2 | 2022-12-05 11:40:49 |
+|  3 | 2022-12-05 11:40:50 |
++----+---------------------+
+3 rows in set (0.00 sec)		
+		]]>
+		</screen>
+		<para>第三条数据无故被增加了一秒，这是因为 500毫秒会做四舍五入，最终成了 2022-12-05 11:40:49.500</para>
+		<para>解决方案一，不要给 mysql 传递毫秒，将 2022-12-05 11:40:49.500 改为 2022-12-05 11:40:49</para>
+		<para>解决方案二，对于时间敏感的场合不允许差一秒，可以设置时间精度解决这个问题</para>
+		<programlisting>
+		<![CDATA[
+CREATE TABLE `test_data` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `date` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4
+		]]>
+		</programlisting>
+		<programlisting>
+		<![CDATA[
+		
+mysql> INSERT INTO `test`.`test_data` (`date`) VALUES ('2022-12-05 11:40:49');
+Query OK, 1 row affected (0.02 sec)
+
+mysql> INSERT INTO `test`.`test_data` (`date`) VALUES ('2022-12-05 11:40:49.449');
+Query OK, 1 row affected (0.04 sec)
+
+mysql> INSERT INTO `test`.`test_data` (`date`) VALUES ('2022-12-05 11:40:49.500');
+Query OK, 1 row affected (0.09 sec)
+
+mysql> SELECT * FROM test.test_data;
++----+-------------------------+
+| id | date                    |
++----+-------------------------+
+|  1 | 2022-12-05 11:40:49.000 |
+|  2 | 2022-12-05 11:40:49.449 |
+|  3 | 2022-12-05 11:40:49.500 |
++----+-------------------------+
+3 rows in set (0.00 sec)		
+		]]>
+		</programlisting>
+		<para>影响范围还有 timestamp, time</para>
+		<programlisting>
+		<![CDATA[
+CREATE TABLE `test_data` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `date` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4
+
+TRUNCATE `test`.`test_data`;
+INSERT INTO `test`.`test_data` (`date`) VALUES ('2022-12-05 11:40:49');
+INSERT INTO `test`.`test_data` (`date`) VALUES ('2022-12-05 11:40:49.449');
+INSERT INTO `test`.`test_data` (`date`) VALUES ('2022-12-05 11:40:49.500');
+SELECT * FROM test.test_data;
+
+		]]>
+		</programlisting>
+		<para>time 演示</para>
+		<programlisting>
+		<![CDATA[
+DROP TABLE `test`.`test_data`;
+CREATE TABLE `test_data` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `date` time NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO `test`.`test_data` (`date`) VALUES ('11:40:49');
+INSERT INTO `test`.`test_data` (`date`) VALUES ('11:40:49.449');
+INSERT INTO `test`.`test_data` (`date`) VALUES ('11:40:49.500');
+SELECT * FROM test.test_data;		
+		]]>
+		</programlisting>
+		<para>time 操作演示</para>
+		<screen>
+		<![CDATA[
+mysql> DROP TABLE `test`.`test_data`;
+Query OK, 0 rows affected (0.16 sec)
+
+mysql> CREATE TABLE `test_data` (
+    ->   `id` int(11) NOT NULL AUTO_INCREMENT,
+    ->   `date` time NULL DEFAULT NULL,
+    ->   PRIMARY KEY (`id`)
+    -> ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+Query OK, 0 rows affected (0.22 sec)
+
+mysql> 
+mysql> INSERT INTO `test`.`test_data` (`date`) VALUES ('11:40:49');
+Query OK, 1 row affected (0.04 sec)
+
+mysql> INSERT INTO `test`.`test_data` (`date`) VALUES ('11:40:49.449');
+Query OK, 1 row affected (0.04 sec)
+
+mysql> INSERT INTO `test`.`test_data` (`date`) VALUES ('11:40:49.500');
+Query OK, 1 row affected (0.09 sec)
+
+mysql> SELECT * FROM test.test_data;
++----+----------+
+| id | date     |
++----+----------+
+|  4 | 11:40:49 |
+|  5 | 11:40:49 |
+|  6 | 11:40:50 |
++----+----------+
+3 rows in set (0.00 sec)
+		]]>
+		</screen>
+	</section>
 </chapter>
