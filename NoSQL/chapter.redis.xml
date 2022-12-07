@@ -1166,6 +1166,19 @@ redis 127.0.0.1:6379> lrange queue:test 0 -1
     5) "a"
 			]]>
 			</screen>
+			<section>
+				<title>查看元素是否存在</title>
+				<para>命令 sismember uid member，返回 1 表示存在，返回 0 表示不存在</para>
+				<screen>
+				<![CDATA[
+48340) "606512255227854"
+127.0.0.1:6379> sismember uid 606512255227854
+(integer) 1
+127.0.0.1:6379> sismember uid 606512255227852
+(integer) 0				
+				]]>
+				</screen>
+			</section>
 		</section>
 		<section id="zset">
 			<title>zset (有序集合)</title>
