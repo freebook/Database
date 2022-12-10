@@ -1034,7 +1034,7 @@ mysql>
 		<para>经过排查，发现MyBatis-Plus传递给MySQL的时间携带了毫秒，2022-12-05 11:40:49.500。</para>
 		<programlisting>
 		<![CDATA[
-CREATE TABLE `test_data` (
+CREATE TABLE `test_date` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -1043,16 +1043,16 @@ CREATE TABLE `test_data` (
 		</programlisting>
 		<screen>
 		<![CDATA[
-mysql> INSERT INTO `test`.`test_data` (`date`) VALUES ('2022-12-05 11:40:49');
+mysql> INSERT INTO `test`.`test_date` (`date`) VALUES ('2022-12-05 11:40:49');
 Query OK, 1 row affected (0.04 sec)
 
-mysql> INSERT INTO `test`.`test_data` (`date`) VALUES ('2022-12-05 11:40:49.449');
+mysql> INSERT INTO `test`.`test_date` (`date`) VALUES ('2022-12-05 11:40:49.449');
 Query OK, 1 row affected (0.04 sec)
 
-mysql> INSERT INTO `test`.`test_data` (`date`) VALUES ('2022-12-05 11:40:49.500');
+mysql> INSERT INTO `test`.`test_date` (`date`) VALUES ('2022-12-05 11:40:49.500');
 Query OK, 1 row affected (0.09 sec)
 
-mysql> SELECT * FROM test.test_data;
+mysql> SELECT * FROM test.test_date;
 +----+---------------------+
 | id | date                |
 +----+---------------------+
@@ -1068,7 +1068,7 @@ mysql> SELECT * FROM test.test_data;
 		<para>解决方案二，对于时间敏感的场合不允许差一秒，可以设置时间精度解决这个问题，例如 datetime(1)，最长设置 datetime(6)</para>
 		<programlisting>
 		<![CDATA[
-CREATE TABLE `test_data` (
+CREATE TABLE `test_date` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `date` datetime(3) DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -1078,16 +1078,16 @@ CREATE TABLE `test_data` (
 		<programlisting>
 		<![CDATA[
 		
-mysql> INSERT INTO `test`.`test_data` (`date`) VALUES ('2022-12-05 11:40:49');
+mysql> INSERT INTO `test`.`test_date` (`date`) VALUES ('2022-12-05 11:40:49');
 Query OK, 1 row affected (0.02 sec)
 
-mysql> INSERT INTO `test`.`test_data` (`date`) VALUES ('2022-12-05 11:40:49.449');
+mysql> INSERT INTO `test`.`test_date` (`date`) VALUES ('2022-12-05 11:40:49.449');
 Query OK, 1 row affected (0.04 sec)
 
-mysql> INSERT INTO `test`.`test_data` (`date`) VALUES ('2022-12-05 11:40:49.500');
+mysql> INSERT INTO `test`.`test_date` (`date`) VALUES ('2022-12-05 11:40:49.500');
 Query OK, 1 row affected (0.09 sec)
 
-mysql> SELECT * FROM test.test_data;
+mysql> SELECT * FROM test.test_date;
 +----+-------------------------+
 | id | date                    |
 +----+-------------------------+
@@ -1101,43 +1101,43 @@ mysql> SELECT * FROM test.test_data;
 		<para>影响范围还有 timestamp, time</para>
 		<programlisting>
 		<![CDATA[
-CREATE TABLE `test_data` (
+CREATE TABLE `test_date` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `date` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4
 
-TRUNCATE `test`.`test_data`;
-INSERT INTO `test`.`test_data` (`date`) VALUES ('2022-12-05 11:40:49');
-INSERT INTO `test`.`test_data` (`date`) VALUES ('2022-12-05 11:40:49.449');
-INSERT INTO `test`.`test_data` (`date`) VALUES ('2022-12-05 11:40:49.500');
-SELECT * FROM test.test_data;
+TRUNCATE `test`.`test_date`;
+INSERT INTO `test`.`test_date` (`date`) VALUES ('2022-12-05 11:40:49');
+INSERT INTO `test`.`test_date` (`date`) VALUES ('2022-12-05 11:40:49.449');
+INSERT INTO `test`.`test_date` (`date`) VALUES ('2022-12-05 11:40:49.500');
+SELECT * FROM test.test_date;
 
 		]]>
 		</programlisting>
 		<para>time 演示</para>
 		<programlisting>
 		<![CDATA[
-DROP TABLE `test`.`test_data`;
-CREATE TABLE `test_data` (
+DROP TABLE `test`.`test_date`;
+CREATE TABLE `test_date` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `date` time NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO `test`.`test_data` (`date`) VALUES ('11:40:49');
-INSERT INTO `test`.`test_data` (`date`) VALUES ('11:40:49.449');
-INSERT INTO `test`.`test_data` (`date`) VALUES ('11:40:49.500');
-SELECT * FROM test.test_data;		
+INSERT INTO `test`.`test_date` (`date`) VALUES ('11:40:49');
+INSERT INTO `test`.`test_date` (`date`) VALUES ('11:40:49.449');
+INSERT INTO `test`.`test_date` (`date`) VALUES ('11:40:49.500');
+SELECT * FROM test.test_date;		
 		]]>
 		</programlisting>
 		<para>time 操作演示</para>
 		<screen>
 		<![CDATA[
-mysql> DROP TABLE `test`.`test_data`;
+mysql> DROP TABLE `test`.`test_date`;
 Query OK, 0 rows affected (0.16 sec)
 
-mysql> CREATE TABLE `test_data` (
+mysql> CREATE TABLE `test_date` (
     ->   `id` int(11) NOT NULL AUTO_INCREMENT,
     ->   `date` time NULL DEFAULT NULL,
     ->   PRIMARY KEY (`id`)
@@ -1145,16 +1145,16 @@ mysql> CREATE TABLE `test_data` (
 Query OK, 0 rows affected (0.22 sec)
 
 mysql> 
-mysql> INSERT INTO `test`.`test_data` (`date`) VALUES ('11:40:49');
+mysql> INSERT INTO `test`.`test_date` (`date`) VALUES ('11:40:49');
 Query OK, 1 row affected (0.04 sec)
 
-mysql> INSERT INTO `test`.`test_data` (`date`) VALUES ('11:40:49.449');
+mysql> INSERT INTO `test`.`test_date` (`date`) VALUES ('11:40:49.449');
 Query OK, 1 row affected (0.04 sec)
 
-mysql> INSERT INTO `test`.`test_data` (`date`) VALUES ('11:40:49.500');
+mysql> INSERT INTO `test`.`test_date` (`date`) VALUES ('11:40:49.500');
 Query OK, 1 row affected (0.09 sec)
 
-mysql> SELECT * FROM test.test_data;
+mysql> SELECT * FROM test.test_date;
 +----+----------+
 | id | date     |
 +----+----------+
@@ -1165,5 +1165,86 @@ mysql> SELECT * FROM test.test_data;
 3 rows in set (0.00 sec)
 		]]>
 		</screen>
+		<para>增加时间精度设置</para>
+		<screen>
+		<![CDATA[ 
+mysql> DROP TABLE `test`.`test_date`;
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> 
+mysql> CREATE TABLE `test_date` (
+	->   `id` int NOT NULL AUTO_INCREMENT,
+	->   `date` datetime(1) DEFAULT NULL,
+	->   PRIMARY KEY (`id`)
+	-> ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> 
+mysql> INSERT INTO `test`.`test_date` (`date`) VALUES ('2022-12-05 11:40:49');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO `test`.`test_date` (`date`) VALUES ('2022-12-05 11:40:49.4');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO `test`.`test_date` (`date`) VALUES ('2022-12-05 11:40:49.5');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO `test`.`test_date` (`date`) VALUES ('2022-12-05 11:40:49.449');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO `test`.`test_date` (`date`) VALUES ('2022-12-05 11:40:49.500');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select * from `test`.`test_date`;
++----+-----------------------+
+| id | date                  |
++----+-----------------------+
+|  1 | 2022-12-05 11:40:49.0 |
+|  2 | 2022-12-05 11:40:49.4 |
+|  3 | 2022-12-05 11:40:49.5 |
+|  4 | 2022-12-05 11:40:49.4 |
+|  5 | 2022-12-05 11:40:49.5 |
++----+-----------------------+
+5 rows in set (0.00 sec)
+		]]>
+		</screen>
+		<para>时间精度最长可以设置为 time(6)</para>
+		<programlisting>
+		<![CDATA[ 
+DROP TABLE `test`.`test_time`; 
+
+CREATE TABLE `test`.`test_time` (
+	`id` int NOT NULL AUTO_INCREMENT,
+	`time` time(6) DEFAULT NULL,
+	PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `test`.`test_time` (`time`) VALUES ('11:40:49');
+INSERT INTO `test`.`test_time` (`time`) VALUES ('11:40:49.4');
+INSERT INTO `test`.`test_time` (`time`) VALUES ('11:40:49.5');
+INSERT INTO `test`.`test_time` (`time`) VALUES ('11:40:49.449');
+INSERT INTO `test`.`test_time` (`time`) VALUES ('11:40:49.500');
+
+select * from `test`.`test_time`; 
+		]]>
+		</programlisting>
+		<para>timestamp 演示</para>
+		<programlisting>
+		<![CDATA[ 
+DROP TABLE `test`.`test_timestamp`; 
+CREATE TABLE `test`.`test_timestamp` (
+	`id` int NOT NULL AUTO_INCREMENT,
+	`d1` timestamp DEFAULT NULL,
+	`d2` timestamp(3) DEFAULT NULL,
+	PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+INSERT INTO `test`.`test_timestamp` (`d1`,`d2`) VALUES ('2022-12-05 11:40:49','2022-12-05 11:40:49');
+INSERT INTO `test`.`test_timestamp` (`d1`,`d2`) VALUES ('2022-12-05 11:40:49.4','2022-12-05 11:40:49.4');
+INSERT INTO `test`.`test_timestamp` (`d1`,`d2`) VALUES ('2022-12-05 11:40:49.5','2022-12-05 11:40:49.5');
+INSERT INTO `test`.`test_timestamp` (`d1`,`d2`) VALUES ('2022-12-05 11:40:49.449','2022-12-05 11:40:49.449');
+INSERT INTO `test`.`test_timestamp` (`d1`,`d2`) VALUES ('2022-12-05 11:40:49.500','2022-12-05 11:40:49.500');
+select * from `test`.`test_timestamp`; 
+		]]>
+		</programlisting>
 	</section>
 </chapter>
