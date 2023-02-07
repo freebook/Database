@@ -51,6 +51,8 @@
 	<!ENTITY chapter.sqoop.xml				SYSTEM "chapter.sqoop.xml">
 	<!ENTITY chapter.phoenix.xml			SYSTEM "chapter.phoenix.xml">
 
+	<!ENTITY chapter.clickhouse.xml			SYSTEM "Clickhouse/chapter.clickhouse.xml">
+
 	<!ENTITY chapter.move.xml				SYSTEM "chapter.move.xml">
 	
 	<!ENTITY home "<![CDATA[ <ulink url='&homepage;'>&homepage;</ulink> ]]>">
@@ -108,6 +110,7 @@
 	&part.nosql.xml;
 	&part.postgres.xml; 
 	&part.oracle.xml;
+	&chapter.clickhouse.xml;
 	
 	&chapter.move.xml;
 

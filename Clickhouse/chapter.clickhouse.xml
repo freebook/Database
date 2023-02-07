@@ -1,0 +1,83 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<chapter>
+    <title>ClickHouse</title>
+    <section>
+        <title>安装 Clickhouse</title>
+        <section>
+            <titile>RPM 安装</titile>
+        
+        <screen>
+        <![CDATA[ 
+root@netkiller ~# yum install -y yum-utils
+Last metadata expiration check: 2:44:02 ago on Tue 07 Feb 2023 11:28:01 AM CST.
+Dependencies resolved.
+============================================================================================================================================================================================================================================================================================================
+ Package                                                                   Architecture                                                           Version                                                                      Repository                                                              Size
+============================================================================================================================================================================================================================================================================================================
+Installing:
+ yum-utils                                                                 noarch                                                                 4.1.0-3.el9                                                                  baseos                                                                  36 k
+
+Transaction Summary
+============================================================================================================================================================================================================================================================================================================
+Install  1 Package
+
+Total download size: 36 k
+Installed size: 23 k
+Downloading Packages:
+yum-utils-4.1.0-3.el9.noarch.rpm                                                                                                                                                                                                                                            131 kB/s |  36 kB     00:00    
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Total                                                                                                                                                                                                                                                                       5.9 kB/s |  36 kB     00:06     
+Running transaction check
+Transaction check succeeded.
+Running transaction test
+Transaction test succeeded.
+Running transaction
+  Preparing        :                                                                                                                                                                                                                                                                                    1/1 
+  Installing       : yum-utils-4.1.0-3.el9.noarch                                                                                                                                                                                                                                                       1/1 
+  Running scriptlet: yum-utils-4.1.0-3.el9.noarch                                                                                                                                                                                                                                                       1/1 
+  Verifying        : yum-utils-4.1.0-3.el9.noarch                                                                                                                                                                                                                                                       1/1 
+
+Installed:
+  yum-utils-4.1.0-3.el9.noarch                                                                                                                                                                                                                                                                              
+
+Complete!
+
+root@netkiller ~# yum-config-manager --add-repo https://packages.clickhouse.com/rpm/clickhouse.repo
+Adding repo from: https://packages.clickhouse.com/rpm/clickhouse.repo
+
+root@netkiller ~# yum install -y clickhouse-server clickhouse-client
+
+        ]]>
+        </screen>
+            <para>启动方式一</para>
+            <screen>
+            <![CDATA[ 
+root@netkiller ~# /etc/init.d/clickhouse-server 
+Usage: /etc/init.d/clickhouse-server {start|stop|status|restart|forcestop|forcerestart|reload|condstart|condstop|condrestart|condreload|initdb}            
+            ]]>
+            </screen>
+            <para>启动方式二</para>
+            <screen>
+            <![CDATA[ 
+root@netkiller ~# systemctl enable clickhouse-server
+root@netkiller ~# systemctl start clickhouse-server
+            ]]>
+            </screen>
+            <para>启动客户端</para>
+            <screen>
+            <![CDATA[ 
+root@netkiller ~# clickhouse-client
+ClickHouse client version 23.1.3.5 (official build).
+Connecting to localhost:9000 as user default.
+Connected to ClickHouse server version 23.1.3 revision 54461.
+
+Warnings:
+ * Linux transparent hugepages are set to "always". Check /sys/kernel/mm/transparent_hugepage/enabled
+
+netkiller :)             
+            ]]>
+            </screen>
+        </section>
+    </section>
+
+</chapter>
