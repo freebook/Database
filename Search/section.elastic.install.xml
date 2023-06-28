@@ -1,23 +1,195 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section id="install">
-	<title>安装 Elasticsearch</title>
-	<section>
-		<title>Helm Chart 安装 Elasticsearch</title>
-		<screen>
+  <title>安装 Elasticsearch</title>
+  <section>
+    <title>Docker 8.8.1</title>
+    <para>创建卷</para>
+    <screen>
+    <![CDATA[ 
+docker volume create es-data
+docker volume create es-plugins
+    ]]>
+    </screen>
+    <para>拉取镜像</para>
+    <screen>
+    <![CDATA[ 
+docker pull docker.elastic.co/elasticsearch/elasticsearch:8.8.1
+    ]]>
+    </screen>
+    <para>HTTP 但节点模式</para>
+    <screen>
+    <![CDATA[
+docker run -d --name elasticsearch -p 9200:9200 -p 9300:9300 \
+-e ES_JAVA_OPTS="-Xms1g -Xmx1g" \
+-e xpack.security.enabled=false \
+-e discovery.type=single-node \
+-v es-data:/usr/share/elasticsearch/data \
+-v es-plugins:/usr/share/elasticsearch/plugins \
+docker.elastic.co/elasticsearch/elasticsearch:8.8.1
+    ]]>
+    </screen>
+    <para>测试安装是否成功</para>
+    <screen>
+    <![CDATA[ 
+[root@netkiller ~]# curl http://localhost:9200
+{
+  "name" : "89eb025a8f53",
+  "cluster_name" : "docker-cluster",
+  "cluster_uuid" : "BXH81Lt-QuS6ZqIQh0ocPw",
+  "version" : {
+    "number" : "8.8.1",
+    "build_flavor" : "default",
+    "build_type" : "docker",
+    "build_hash" : "f8edfccba429b6477927a7c1ce1bc6729521305e",
+    "build_date" : "2023-06-05T21:32:25.188464208Z",
+    "build_snapshot" : false,
+    "lucene_version" : "9.6.0",
+    "minimum_wire_compatibility_version" : "7.17.0",
+    "minimum_index_compatibility_version" : "7.0.0"
+  },
+  "tagline" : "You Know, for Search"
+}    
+    ]]>
+    </screen>
+    <para>HTTPS 模式</para>
+    <screen>
+    <![CDATA[ 
+docker run --name elasticsearch -p 9200:9200 -p 9300:9300 \
+-e ES_JAVA_OPTS="-Xms1g -Xmx1g" \
+-e discovery.type=single-node \
+-e ELASTIC_PASSWORD=elastic \
+-v es-data:/usr/share/elasticsearch/data \
+-v es-plugins:/usr/share/elasticsearch/plugins \
+docker.elastic.co/elasticsearch/elasticsearch:8.8.1    
+
+docker exec -it elasticsearch /usr/share/elasticsearch/bin/elasticsearch-reset-password
+docker cp elasticsearch:/usr/share/elasticsearch/config/certs/http_ca.crt .
+curl --cacert http_ca.crt -u elastic https://localhost:9200
+    ]]>
+    </screen>
+
+  </section>
+  <section>
+    <title>IK 分词</title>
+    <para>安装 IK 分词，方法一</para>
+    <para>https://github.com/medcl/elasticsearch-analysis-ik/releases</para>
+    <screen>
+    <![CDATA[
+下载 zip 解压，复制到 plugins 目录
+wget https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v8.7.0/elasticsearch-analysis-ik-8.7.0.zip
+docker cp ik elasticsearch:/usr/share/elasticsearch/plugins    
+    ]]>
+    </screen>
+    <para>方法二</para>
+    <screen>
+    <![CDATA[
+docker container rm elasticsearch
+docker volume rm es-data
+docker volume rm es-plugins
+
+docker volume create es-data
+docker volume create es-plugins
+
+docker run --name elasticsearch -p 9200:9200 -p 9300:9300 \
+-e ES_JAVA_OPTS="-Xms1g -Xmx1g" \
+-e xpack.security.enabled=false \
+-e discovery.type=single-node \
+-v es-data:/usr/share/elasticsearch/data \
+-v es-plugins:/usr/share/elasticsearch/plugins \
+docker.elastic.co/elasticsearch/elasticsearch:8.7.0
+
+docker exec -it elasticsearch ./bin/elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v8.7.0/elasticsearch-analysis-ik-8.7.0.zip
+
+docker restart elasticsearch
+
+curl -XPOST -H 'Content-Type: application/json' -d '{"analyzer": "ik_smart","text": "我是中国人，我热爱我的祖国"}' http://localhost:9200/_analyze
+
+    ]]>
+    </screen>
+    <para>分词演示</para>
+    <screen>
+    <![CDATA[ 
+[root@sfzito ~]# curl -s -XPOST -H 'Content-Type: application/json' -d '{"analyzer": "ik_smart","text": "我是中国人，我热爱我的祖国"}' http://localhost:9200/_analyze |jq
+{
+  "tokens": [
+    {
+      "token": "我",
+      "start_offset": 0,
+      "end_offset": 1,
+      "type": "CN_CHAR",
+      "position": 0
+    },
+    {
+      "token": "是",
+      "start_offset": 1,
+      "end_offset": 2,
+      "type": "CN_CHAR",
+      "position": 1
+    },
+    {
+      "token": "中国人",
+      "start_offset": 2,
+      "end_offset": 5,
+      "type": "CN_WORD",
+      "position": 2
+    },
+    {
+      "token": "我",
+      "start_offset": 6,
+      "end_offset": 7,
+      "type": "CN_CHAR",
+      "position": 3
+    },
+    {
+      "token": "热",
+      "start_offset": 7,
+      "end_offset": 8,
+      "type": "CN_CHAR",
+      "position": 4
+    },
+    {
+      "token": "爱我",
+      "start_offset": 8,
+      "end_offset": 10,
+      "type": "CN_WORD",
+      "position": 5
+    },
+    {
+      "token": "的",
+      "start_offset": 10,
+      "end_offset": 11,
+      "type": "CN_CHAR",
+      "position": 6
+    },
+    {
+      "token": "祖国",
+      "start_offset": 11,
+      "end_offset": 13,
+      "type": "CN_WORD",
+      "position": 7
+    }
+  ]
+}    
+    ]]>
+    </screen>
+  </section>
+  <section>
+    <title>Helm Chart 安装 Elasticsearch</title>
+    <screen>
 			<![CDATA[
 Add the Elastic Helm Chart Repo: helm repo add elastic https://helm.elastic.co
 Install Elasticsearch: helm install --name elasticsearch elastic/elasticsearch
 Install Kibana: helm install --name kibana elastic/kibana			
 			]]>
 		</screen>
-	</section>
-	<section>
-		<title>Elastic Cloud on Kubernetes</title>
-		<para>https://www.elastic.co/guide/en/cloud-on-k8s/current/index.html</para>
-	</section>
-	<section>
-		<title>docker-compose 安装</title>
-		<screen>
+  </section>
+  <section>
+    <title>Elastic Cloud on Kubernetes</title>
+    <para>https://www.elastic.co/guide/en/cloud-on-k8s/current/index.html</para>
+  </section>
+  <section>
+    <title>docker-compose 安装</title>
+    <screen>
 			<![CDATA[
 version: '3.8'
 services:
@@ -119,8 +291,8 @@ networks:
     driver: bridge   			
 			]]>
 		</screen>
-		<para>查看节点信息</para>
-		<screen>
+    <para>查看节点信息</para>
+    <screen>
 			<![CDATA[
 neo@MacBook-Pro-Neo ~/workspace/docker % curl "http://localhost:9200/_cat/nodes?v&pretty"
 ip         heap.percent ram.percent cpu load_1m load_5m load_15m node.role master name
@@ -129,10 +301,10 @@ ip         heap.percent ram.percent cpu load_1m load_5m load_15m node.role maste
 172.19.0.2           45          86  35    4.86    2.90     1.84 dlmrt     -      es01			
 			]]>
 		</screen>
-	</section>
-	<section>
-		<title>Kubernetes</title>
-		<screen>
+  </section>
+  <section>
+    <title>Kubernetes</title>
+    <screen>
 			<![CDATA[
 apiVersion: v1
 kind: ConfigMap
@@ -279,11 +451,11 @@ spec:
 			
 			]]>
 		</screen>
-	</section>
-	<section>
-		<title>netkiller-devops 编排 elasticsearch</title>
-		<para>创建 docker.py 文件</para>
-		<screen>
+  </section>
+  <section>
+    <title>netkiller-devops 编排 elasticsearch</title>
+    <para>创建 docker.py 文件</para>
+    <screen>
 			<![CDATA[
 #!/usr/bin/env python3
 from netkiller.docker import *
@@ -312,8 +484,8 @@ if __name__ == '__main__':
 		print ("Crtl+C Pressed. Shutting down.")
 			]]>
 		</screen>
-		<para></para>
-		<screen>
+    <para></para>
+    <screen>
 			<![CDATA[
 [root@localhost ~]# python3 docker.py -e experiment -l
 experiment :
@@ -332,32 +504,28 @@ Starting elasticsearch ... done
 elasticsearch   /bin/tini -- /usr/local/bi ...   Up      0.0.0.0:9200->9200/tcp,:::9200->9200/tcp, 0.0.0.0:9300->9300/tcp,:::9300->9300/tcp			
 			]]>
 		</screen>
-		<para>测试</para>
-		<screen>
+    <para>测试</para>
+    <screen>
 			<![CDATA[
 [root@localhost ~]# curl -s -X GET "localhost:9200/_cat/nodes?v=true&pretty"
 ip         heap.percent ram.percent cpu load_1m load_5m load_15m node.role   master name
 172.21.0.2           16          99   5    1.68    0.60     0.26 cdfhilmrstw *      aeedaff1ac15			
 			]]>
 		</screen>
-		<para>停止</para>
-		<screen>
+    <para>停止</para>
+    <screen>
 			<![CDATA[
 [root@localhost ~]# python3 docker.py -e experiment stop elasticsearch
 Stopping elasticsearch ... done			
 			]]>
 		</screen>
-	</section>
-	<section id="version">
-		<title>安装指定版本的 Elasticsearch</title>
-		<para>使用 yum 安装默认为最新版本，我们常常会遇到一个问题 elasticsearch-analysis-ik 的版本晚于 Elasticsearch。如果使用 yum 安装 Elasticsearch 可能 elasticsearch-analysis-ik 插件不支持这个版本，有些版本的 elasticsearch-analysis-ik 可以修改插件配置文件中的版本号，使其与elasticsearch版本相同，可以欺骗 elasticsearch 跳过版本不一致异常。</para>
-		<para>
-			最佳的解决方案是去
-			<ulink url="https://github.com/medcl/elasticsearch-analysis-ik">elasticsearch-analysis-ik github</ulink>
-			找到兼容的版本，安装我们安装 elasticsearch-analysis-ik 的版本需求来指定安装 elasticsearch
-		</para>
-		<para></para>
-		<screen><![CDATA[
+  </section>
+  <section id="version">
+    <title>安装指定版本的 Elasticsearch</title>
+    <para>使用 yum 安装默认为最新版本，我们常常会遇到一个问题 elasticsearch-analysis-ik 的版本晚于 Elasticsearch。如果使用 yum 安装 Elasticsearch 可能 elasticsearch-analysis-ik 插件不支持这个版本，有些版本的 elasticsearch-analysis-ik 可以修改插件配置文件中的版本号，使其与elasticsearch版本相同，可以欺骗 elasticsearch 跳过版本不一致异常。</para>
+    <para> 最佳的解决方案是去 <ulink url="https://github.com/medcl/elasticsearch-analysis-ik">elasticsearch-analysis-ik github</ulink> 找到兼容的版本，安装我们安装 elasticsearch-analysis-ik 的版本需求来指定安装 elasticsearch </para>
+    <para></para>
+    <screen><![CDATA[
 Versions
 
 IK version	ES version
@@ -378,16 +546,16 @@ master	5.x -> master
 1.1.3	0.20.x
 1.0.0	0.16.2 -> 0.19.0			
 			]]></screen>
-		<para>最新版是 elasticsearch 5.6.1 但分词插件 elasticsearch-analysis-ik 仅能支持到 elasticsearch 版本是 5.6.0 </para>
-		<screen><![CDATA[
+    <para>最新版是 elasticsearch 5.6.1 但分词插件 elasticsearch-analysis-ik 仅能支持到 elasticsearch 版本是 5.6.0 </para>
+    <screen><![CDATA[
 root@netkiller /var/log % yum --showduplicates list elasticsearch | expand | tail
 Repository epel is listed more than once in the configuration  
 elasticsearch.noarch                 5.5.3-1                  elasticsearch-5.x     
 elasticsearch.noarch                 5.6.0-1                  elasticsearch-5.x   
 elasticsearch.noarch                 5.6.1-1                  elasticsearch-5.x 
 			]]></screen>
-		<para>安装 5.6.0</para>
-		<screen><![CDATA[
+    <para>安装 5.6.0</para>
+    <screen><![CDATA[
 # yum install elasticsearch-5.6.0-1
 
 Loaded plugins: fastestmirror, langpacks
@@ -415,11 +583,11 @@ Installed size: 36 M
 Is this ok [y/d/N]: y
 			]]></screen>
 
-	</section>
-	<section id="plugin">
-		<title>Plugin</title>
-		<para>Elasticsearch 提供了插件管理命令 elasticsearch-plugin</para>
-		<screen><![CDATA[
+  </section>
+  <section id="plugin">
+    <title>Plugin</title>
+    <para>Elasticsearch 提供了插件管理命令 elasticsearch-plugin</para>
+    <screen><![CDATA[
 root@netkiller ~ % /usr/share/elasticsearch/bin/elasticsearch-plugin -h
 A tool for managing installed elasticsearch plugins
 
@@ -438,16 +606,16 @@ Option         Description
 -s, --silent   show minimal output
 -v, --verbose  show verbose output			
 			]]></screen>
-		<section id="elasticsearch-analysis-ik">
-			<title>elasticsearch-analysis-ik</title>
-			<para>安装插件</para>
-			<screen><![CDATA[
+    <section id="elasticsearch-analysis-ik">
+      <title>elasticsearch-analysis-ik</title>
+      <para>安装插件</para>
+      <screen><![CDATA[
 root@netkiller ~ % /usr/share/elasticsearch/bin/elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v5.5.1/elasticsearch-analysis-ik-5.5.1.zip
 -> Downloading https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v5.5.1/elasticsearch-analysis-ik-5.5.1.zip
 [=================================================] 100%   
 -> Installed analysis-ik
 				]]></screen>
-			<screen><![CDATA[
+      <screen><![CDATA[
 curl -XPOST http://localhost:9200/index/fulltext/_mapping -d'
 {
         "properties": {
@@ -460,14 +628,14 @@ curl -XPOST http://localhost:9200/index/fulltext/_mapping -d'
     
 }'			
 				]]></screen>
-		</section>
-		<section id="elasticsearch-analysis-pinyin">
-			<title>elasticsearch-analysis-pinyin</title>
-			<para>https://github.com/medcl/elasticsearch-analysis-pinyin</para>
-		</section>
-	</section>
-	<section>
-		<title>netkiller-devops 编排 Kubernetes</title>
-		<para>参考《Netkiller Container 手札》</para>
-	</section>
+    </section>
+    <section id="elasticsearch-analysis-pinyin">
+      <title>elasticsearch-analysis-pinyin</title>
+      <para>https://github.com/medcl/elasticsearch-analysis-pinyin</para>
+    </section>
+  </section>
+  <section>
+    <title>netkiller-devops 编排 Kubernetes</title>
+    <para>参考《Netkiller Container 手札》</para>
+  </section>
 </section>
