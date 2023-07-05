@@ -53,7 +53,7 @@
 
 	<!ENTITY chapter.clickhouse.xml			SYSTEM "Clickhouse/chapter.clickhouse.xml">
 
-	<!ENTITY chapter.move.xml				SYSTEM "chapter.move.xml">
+	<!ENTITY chapter.milvus.xml				SYSTEM "chapter.milvus.xml">
 	
 	<!ENTITY home "<![CDATA[ <ulink url='&homepage;'>&homepage;</ulink> ]]>">
 
@@ -111,8 +111,7 @@
 	&part.postgres.xml; 
 	&part.oracle.xml;
 	&chapter.clickhouse.xml;
-	
-	&chapter.move.xml;
+	&chapter.milvus.xml;
 
 <!-- ===========================================================================
 	&book.history;
