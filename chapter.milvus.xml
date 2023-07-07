@@ -35,6 +35,15 @@ milvus-standalone   /tini -- milvus run standalone   Up             0.0.0.0:1953
 		</screen>
 	</section>
 	<section>
+		<title>安装 Milvus insight 管理界面</title>
+		<screen>
+		<![CDATA[ 
+docker run -p 8000:3000 -e HOST_URL=http://{ milvus insight ip }:8000 -e MILVUS_URL={milvus server ip}:19530 milvusdb/milvus-insight:latest
+
+		]]>
+		</screen>
+	</section>
+	<section>
 		<title>Python SDK</title>
 		<screen>
 		<![CDATA[ 
