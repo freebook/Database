@@ -1624,6 +1624,27 @@ OK
 			</screen>
 			<para>如果确认是 dir 权限问题，我们就通过修改redis.conf 中得dir配置解决。</para>
 		</section>
+		<section>
+			<title>You can't write against a read only replica.</title>		
+			<para>Redis 写入出错</para>
+			<screen>
+			<![CDATA[
+[root@netkiller ~]# docker exec -it redis redis-cli
+127.0.0.1:6379> set name neo
+(error) READONLY You can't write against a read only replica.
+127.0.0.1:6379> config set slave-read-only no
+OK
+127.0.0.1:6379> config get slave-read-only
+1) "slave-read-only"
+2) "no"
+127.0.0.1:6379> set name neo
+OK
+127.0.0.1:6379> get name
+"neo"
+			]]>
+		</screen>
+		</section>
+		
 	</chapter>
 
 </part>
