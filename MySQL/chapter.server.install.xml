@@ -273,6 +273,25 @@ docker run --name mysql -d \
     mysql:latest		
 		]]>
 		</screen>
+		<para>注意生产环境不要使用 MYSQL_ROOT_PASSWORD，MYSQL_ROOT_PASSWORD 会泄漏密码</para>
+		<screen>
+		<![CDATA[
+[root@netkiller mysql]# docker exec -it mysql env
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+HOSTNAME=88c404ee4ec2
+TERM=xterm
+MYSQL_ROOT_PASSWORD=0FA8F23DB326
+MYSQL_DATABASE=test
+MYSQL_USER=test
+MYSQL_PASSWORD=test
+TZ=Asia/Shanghai
+GOSU_VERSION=1.16
+MYSQL_MAJOR=8.0
+MYSQL_VERSION=8.0.34-1.el8
+MYSQL_SHELL_VERSION=8.0.34-1.el8
+HOME=/root		
+		]]>
+		</screen>
 	</section>
 	<section id="mysql.ubuntu">
 		<title>Ubuntu/Debian</title>
