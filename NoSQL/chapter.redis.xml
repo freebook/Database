@@ -600,7 +600,8 @@ masterauth password
 			</section>
 			<section>
 				<title>raw</title>
-				<para>--raw Use raw formatting for replies (default when STDOUT is not a tty).</para>
+				<para>--raw Use raw formatting for replies (default when STDOUT is
+					not a tty).</para>
 				<para>有时显示这样的数据</para>
 				<screen>
 				<![CDATA[
@@ -625,7 +626,8 @@ masterauth password
 		</section>
 
 		<section id="latency">
-			<title>--latency Enter a special mode continuously sampling latency.</title>
+			<title>--latency Enter a special mode continuously sampling latency.
+			</title>
 			<para>参数的功能是从客户端发出一条命令到客户端接受到该命令的反馈所用的最长响应时间</para>
 			<screen><![CDATA[
 # redis-cli --latency -h 192.168.2.1
@@ -805,7 +807,8 @@ OK
 			<section id="setnx">
 				<title>setnx</title>
 				<command>SETNX key value</command>
-				<para>当 key 不存在时将 key 的值设为 value，若给定的 key 已经存在，则 SETNX 不做任何动作。SETNX 是(SET if Not eXists) (如果不存在，则 SET)的简写。</para>
+				<para>当 key 不存在时将 key 的值设为 value，若给定的 key 已经存在，则 SETNX 不做任何动作。SETNX
+					是(SET if Not eXists) (如果不存在，则 SET)的简写。</para>
 				<screen>
 				<![CDATA[
 返回值：
@@ -1037,7 +1040,8 @@ redis 127.0.0.1:6379> lrange queue:test 0 -1
 		</section>
 		<section id="set">
 			<title>set 无序字符集合</title>
-			<para>Set和List类型不同的是，Set集合中不允许出现重复的元素，和List类型相比，Set类型在功能上还存在着一个非常重要的特性，即在服务器端完成多个Sets之间的聚合计算操作，如unions、intersections和differences。由于这些操作均在服务端完成，因此效率极高，而且也节省了大量的网络IO开销。</para>
+			<para>Set和List类型不同的是，Set集合中不允许出现重复的元素，和List类型相比，Set类型在功能上还存在着一个非常重要的特性，即在服务器端完成多个Sets之间的聚合计算操作，如unions、intersections和differences。由于这些操作均在服务端完成，因此效率极高，而且也节省了大量的网络IO开销。
+			</para>
 			<para>1. SADD/SMEMBERS/SCARD/SISMEMBER:</para>
 			<screen>
 			<![CDATA[
@@ -1416,7 +1420,8 @@ OK
 -I				空闲模式 只打开N个空闲连接并等待。
 		]]>
 		</screen>
-		<para>代表256各个客户端同时请求 Redis，一 共执行 20000 次。redis-benchmark会对各类数据结构的命令进行测试，并给 出性能指标：</para>
+		<para>代表256各个客户端同时请求 Redis，一 共执行 20000
+			次。redis-benchmark会对各类数据结构的命令进行测试，并给 出性能指标：</para>
 		<screen><![CDATA[
 redis-benchmark -c 256 -n 20000
 		]]></screen>
@@ -1544,7 +1549,8 @@ cat db0.json | redis-cli -h 127.0.0.1 -p 6379 -n '指定数据库'  -a "密码"
 				<ulink url="https://github.com/ErikDubbelboer/phpRedisAdmin" />
 			</para>
 			<para>Example</para>
-			<para>You can find an example database at http://dubbelboer.com/phpRedisAdmin/</para>
+			<para>You can find an example database at
+				http://dubbelboer.com/phpRedisAdmin/</para>
 			<para>第一种方法</para>
 			<screen><![CDATA[
 git clone https://github.com/ErikDubbelboer/phpRedisAdmin
@@ -1575,8 +1581,14 @@ FLUSHALL - Removes data from ALL databases.
 			]]></screen>
 		</section>
 		<section>
-			<title>(error) MISCONF Redis is configured to save RDB snapshots</title>
-			<para>(error) MISCONF Redis is configured to save RDB snapshots, but it is currently not able to persist on disk. Commands that may modify the data set are disabled, because this instance is configured to report errors during writes if RDB snapshotting fails (stop-writes-on-bgsave-error option). Please check the Redis logs for details about the RDB error.</para>
+			<title>(error) MISCONF Redis is configured to save RDB snapshots
+			</title>
+			<para>(error) MISCONF Redis is configured to save RDB snapshots, but
+				it is currently not able to persist on disk. Commands that may
+				modify the data set are disabled, because this instance is
+				configured to report errors during writes if RDB snapshotting fails
+				(stop-writes-on-bgsave-error option). Please check the Redis logs
+				for details about the RDB error.</para>
 			<para>临时解决方案</para>
 			<screen>
 			<![CDATA[
@@ -1625,7 +1637,7 @@ OK
 			<para>如果确认是 dir 权限问题，我们就通过修改redis.conf 中得dir配置解决。</para>
 		</section>
 		<section>
-			<title>You can't write against a read only replica.</title>		
+			<title>You can't write against a read only replica.</title>
 			<para>Redis 写入出错</para>
 			<screen>
 			<![CDATA[
@@ -1642,9 +1654,12 @@ OK
 127.0.0.1:6379> get name
 "neo"
 			]]>
-		</screen>
+			</screen>
 		</section>
-		
+		<section>
+			<title>MISCONF Redis is configured to save RDB snapshots, but it's currently unable to persist to disk. Commands that may modify the data set are disabled, because this instance is configured to report errors during writes if RDB snapshotting fails (stop-writes-on-bgsave-error option). Please check the Redis logs for details about the RDB error.</title>
+			<para>磁盘空间满</para>
+		</section>
 	</chapter>
 
 </part>
