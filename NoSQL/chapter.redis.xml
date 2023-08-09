@@ -1491,7 +1491,7 @@ MONITOR
 		</section>
 	</chapter>
 
-	<chapter id="devel">
+	<chapter id="redis.devel">
 		<title>Redis 开发</title>
 		<section id="subpub">
 			<title>消息订阅与发布</title>
@@ -1520,8 +1520,25 @@ $redis->publish('channel'.$channel, $msg);
 			]]>
 			</screen>
 		</section>
+		<section>
+			<title>选择数据库</title>
+			<para>创建时选择DB</para>
+			<programlisting>
+			<![CDATA[
+import redis
+
+redis_db = redis.StrictRedis(host='localhost', port=6379, db=0)			
+			]]>
+			</programlisting>
+			<para>使用中选择 DB</para>
+			<programlisting>
+			<![CDATA[
+redis.select(1)			
+			]]>
+			</programlisting>
+		</section>
 	</chapter>
-	<chapter>
+	<chapter id="redis.tools">
 		<title>工具</title>
 		<section>
 			<title>导出 / 导入</title>
