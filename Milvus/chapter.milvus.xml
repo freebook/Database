@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="index"><?dbhtml dir="milvus" ?>
+	<title>Milvus 向量数据库</title>
+	<section id="milvus.setup">
+		<title>安装 Milvus</title>
+		<screen>
+		<![CDATA[
+cat << EOF > .env
+DOCKER_VOLUME_DIRECTORY=/opt/milvus
+EOF
+
+wget https://github.com/milvus-io/milvus/releases/download/v2.2.11/milvus-standalone-docker-compose.yml -O docker-compose.yml
+docker-compose --env-file .env up
+		]]>
+		</screen>
+		<!-- docker-compose -e DOCKER_VOLUME_DIRECTORY=/opt/milvus up -d -->
+		<para>查看运行状态</para>
+		<screen>
+		<![CDATA[ 
+[root@sfzito ~]# docker-compose ps 
+      Name                     Command                  State                                               Ports                                         
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+milvus-etcd         etcd -advertise-client-url ...   Up             2379/tcp, 2380/tcp                                                                    
+milvus-minio        /usr/bin/docker-entrypoint ...   Up (healthy)   9000/tcp                                                                              
+milvus-standalone   /tini -- milvus run standalone   Up             0.0.0.0:19530->19530/tcp,:::19530->19530/tcp, 0.0.0.0:9091->9091/tcp,:::9091->9091/tcp		
+		]]>
+		</screen>
+		<para>确认本地端口可用</para>
+		<screen>
+		<![CDATA[
+[root@sfzito ~]# docker port milvus-standalone 19530/tcp
+0.0.0.0:19530
+[::]:19530
+		]]>
+		</screen>
+	</section>
+	<section>
+		<title>安装 Milvus insight 管理界面</title>
+		<screen>
+		<![CDATA[ 
+docker run -p 3000:3000 -e HOST_URL=http://{ milvus insight ip }:8000 -e MILVUS_URL={milvus server ip}:19530 milvusdb/milvus-insight:latest
+
+		]]>
+		</screen>
+	</section>
+	
+	<section>
+		<title>问答模型</title>
+		<screen>
+		<![CDATA[
+docker run -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 -d mysql:latest
+
+docker run -d \
+--name "qa-chatbot-server" \
+-p 8000:8000 \
+-e "MILVUS_HOST=47.100.253.187" \
+-e "MILVUS_PORT=19530" \
+-e "MYSQL_HOST=47.100.253.187" \
+-e "MYSQL_DB=test" \
+milvusbootcamp/qa-chatbot-server:2.2.10
+
+
+docker run -d \
+--name "qa-chatbot-client" \
+-p 80:80 \
+-e API_URL=http://47.100.253.187:8000 \
+milvusbootcamp/qa-chatbot-client:2.2.10
+		]]>
+		</screen>
+		<para>服务器端接口测试地址：http://127.0.0.1:8000/docs</para>
+	</section>
+	
+	
+</chapter>

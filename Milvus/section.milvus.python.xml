@@ -1,91 +1,85 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter id="index"><?dbhtml dir="milvus" ?>
-	<title>Milvus 向量数据库</title>
-	<section id="milvus.setup">
-		<title>安装 Milvus</title>
-		<screen>
-		<![CDATA[
-cat << EOF > .env
-DOCKER_VOLUME_DIRECTORY=/opt/milvus
-EOF
-
-wget https://github.com/milvus-io/milvus/releases/download/v2.2.11/milvus-standalone-docker-compose.yml -O docker-compose.yml
-docker-compose --env-file .env up
-		]]>
-		</screen>
-		<!-- docker-compose -e DOCKER_VOLUME_DIRECTORY=/opt/milvus up -d -->
-		<para>查看运行状态</para>
-		<screen>
-		<![CDATA[ 
-[root@sfzito ~]# docker-compose ps 
-      Name                     Command                  State                                               Ports                                         
-----------------------------------------------------------------------------------------------------------------------------------------------------------
-milvus-etcd         etcd -advertise-client-url ...   Up             2379/tcp, 2380/tcp                                                                    
-milvus-minio        /usr/bin/docker-entrypoint ...   Up (healthy)   9000/tcp                                                                              
-milvus-standalone   /tini -- milvus run standalone   Up             0.0.0.0:19530->19530/tcp,:::19530->19530/tcp, 0.0.0.0:9091->9091/tcp,:::9091->9091/tcp		
-		]]>
-		</screen>
-		<para>确认本地端口可用</para>
-		<screen>
-		<![CDATA[
-[root@sfzito ~]# docker port milvus-standalone 19530/tcp
-0.0.0.0:19530
-[::]:19530
-		]]>
-		</screen>
-	</section>
-	<section>
-		<title>安装 Milvus insight 管理界面</title>
-		<screen>
-		<![CDATA[ 
-docker run -p 3000:3000 -e HOST_URL=http://{ milvus insight ip }:8000 -e MILVUS_URL={milvus server ip}:19530 milvusdb/milvus-insight:latest
-
-		]]>
-		</screen>
-	</section>
-	<section>
-		<title>Python SDK</title>
-		<screen>
+<section>
+	<title>Python SDK</title>
+	<screen>
 		<![CDATA[ 
 neo@MacBook-Pro-M2 ~/w/c/milvus (master) [1]> /opt/homebrew/bin/pip install -i https://pypi.tuna.tsinghua.edu.cn/simple pymilvus		
 		]]>
-		</screen>
+	</screen>
+	<section>
+		<title>数据库管理</title>
+
 		<section>
-			<title>创建分区</title>
+			<title>创建数据库</title>
 			<programlisting>
+			<![CDATA[
+from pymilvus import connections, db
+
+conn = connections.connect(host="127.0.0.1", port=19530)
+
+database = db.create_database("book")			
+			]]>
+			</programlisting>
+		</section>
+		<section>
+			<title>打开数据库</title>
+			<para>链接是打开数据库</para>
+			<programlisting>
+			<![CDATA[
+conn = connections.connect(
+    host="127.0.0.1",
+    port="19530",
+    db_name="book"
+)	
+			]]>
+			</programlisting>
+			<para>链接后打开数据库</para>
+			<programlisting>
+			<![CDATA[
+db.using_database("book")			
+			]]>
+			</programlisting>
+			<para>链接后同样可以使用 using_database 切换数据库</para>
+			<programlisting>
+			<![CDATA[
+db.using_database("book")
+			]]>
+			</programlisting>
+		</section>
+		<section>
+			<title>列出数据库</title>
+			<programlisting>
+			<![CDATA[
+db.list_database()
+
+# Output
+['default', 'book']		
+			]]>
+			</programlisting>
+		</section>
+		<section>
+			<title>删除数据库</title>
+			<programlisting>
+			<![CDATA[
+db.drop_database("book")
+
+db.list_database()
+
+# Output
+['default']
+			]]>
+			</programlisting>
+		</section>
+	</section>
+	<section>
+		<title>创建分区</title>
+		<programlisting>
 			<![CDATA[
 from pymilvus import Collection
 collection = Collection("book")      # Get an existing collection.
 collection.create_partition("novel")			
 			]]>
-			</programlisting>
-		</section>
-		
-	</section>
-	<section>
-		<title>问答模型</title>
-		<screen>
-		<![CDATA[
-docker run -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 -d mysql:latest
-
-docker run -d \
---name "qa-chatbot-server" \
--p 8000:8000 \
--e "MILVUS_HOST=47.100.253.187" \
--e "MILVUS_PORT=19530" \
--e "MYSQL_HOST=47.100.253.187" \
--e "MYSQL_DB=test" \
-milvusbootcamp/qa-chatbot-server:2.2.10
-
-
-docker run -d \
---name "qa-chatbot-client" \
--p 80:80 \
--e API_URL=http://47.100.253.187:8000 \
-milvusbootcamp/qa-chatbot-client:2.2.10
-		]]>
-		</screen>
-		<para>服务器端接口测试地址：http://127.0.0.1:8000/docs</para>
+		</programlisting>
 	</section>
 	<section>
 		<title>Example</title>
@@ -379,5 +373,21 @@ class Milvus(MilvusHelper):
 		]]>
 		</programlisting>
 	</section>
-	
-</chapter>
+	<section>
+		<title>FAQ</title>
+		<section>
+			<title>DataNotMatchException()</title>
+			<para>数据类型 DataType.INT8 不支持 Python 的 int 类型，改为 DataType.INT64 可以解决</para>
+			<programlisting>
+			<![CDATA[
+        question_fields = [
+            FieldSchema(name="id", dtype=DataType.INT64, is_primary=True, auto_id=False, descrition="int64"),
+            FieldSchema(name="question", dtype=DataType.VARCHAR, max_length=1024, description="问题"),
+            FieldSchema(name="answer_id", dtype=DataType.INT64, description="答案ID"),
+            FieldSchema(name="vector", dtype=DataType.FLOAT_VECTOR, dim=768),
+        ]
+			]]>
+			</programlisting>
+		</section>
+	</section>
+</section>
