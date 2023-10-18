@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id=sqlite>
+	<title>sqlite</title>
+	<screen>
+	<![CDATA[
+root@netkiller:~# cd /usr/local/src/
+root@netkiller:/usr/local/src# wget https://www.sqlite.org/2023/sqlite-autoconf-3430200.tar.gz
+root@netkiller:/usr/local/src# tar zxvf sqlite-autoconf-3430200.tar.gz
+root@netkiller:/usr/local/src# cd sqlite-autoconf-3430200/
+root@netkiller:/usr/local/src/sqlite-autoconf-3430200# ./configure --prefix=/srv/sqlite
+root@netkiller:/usr/local/src/sqlite-autoconf-3430200# make -j4
+root@netkiller:/usr/local/src/sqlite-autoconf-3430200# make install
+root@netkiller:/usr/local/src/sqlite-autoconf-3430200# echo "/srv/sqlite/lib" > /etc/ld.so.conf.d/sqlite3.conf
+root@netkiller:/usr/local/src/sqlite-autoconf-3430200# ldconfig
+	]]>
+	</screen>
+</chapter>
