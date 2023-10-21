@@ -1,0 +1,480 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section id="milvus-cli">
+	<title>milvus-cli</title>
+	<section>
+		<title>安装 milvus-cli</title>
+		<screen>
+	<![CDATA[
+pip install milvus-cli
+	]]>
+		</screen>
+		<screen>
+		<![CDATA[
+[root@netkiller milvus]# milvus_cli 
+
+
+
+  __  __ _ _                    ____ _     ___
+ |  \/  (_) |_   ___   _ ___   / ___| |   |_ _|
+ | |\/| | | \ \ / / | | / __| | |   | |    | |
+ | |  | | | |\ V /| |_| \__ \ | |___| |___ | |
+ |_|  |_|_|_| \_/  \__,_|___/  \____|_____|___|
+
+Milvus cli version: 0.4.0
+Pymilvus version: 2.3.0
+
+Learn more: https://github.com/zilliztech/milvus_cli.
+
+
+milvus_cli > 		
+		]]>
+		</screen>
+	</section>
+	<section>
+		<title>查看帮助信息</title>
+		<screen>
+		<![CDATA[
+milvus_cli > help
+Usage:  [OPTIONS] COMMAND [ARGS]...
+
+  Milvus_CLI
+
+Commands:
+  clear    Clear screen.
+  connect  Connect to Milvus.
+  create   Create collection, database, partition,user and index.
+  delete   Delete collection, database, partition,alias,user and index.
+  exit     Exit the CLI.
+  help     Show help messages.
+  insert   Import data from csv file(local or remote) with headers and...
+  list     List collections,databases, partitions,users and indexes.
+  load     Load collection, partition
+  query    Query with a set of criteria, and results in a list of records...
+  release  Release collection, partition
+  rename   Rename collection
+  search   Conducts a vector similarity search with an optional boolean...
+  show     Show connection, database,collection, loading_progress and...
+  use      Use database
+  version  Get Milvus_CLI version.
+
+milvus_cli > 		
+		]]>
+		</screen>
+	</section>
+	<section id="milvus-cli.connetct">
+		<title>链接数据库</title>
+		<screen>
+		<![CDATA[
+milvus_cli > connect
+Connect Milvus successfully.
++---------+-----------------+
+| Address | 127.0.0.1:19530 |
+|  User   |                 |
+|  Alias  |     default     |
++---------+-----------------+
+milvus_cli >		
+		]]>
+		</screen>
+		<para>链接指定服务器</para>
+		<screen>
+		<![CDATA[
+connect -h 172.16.0.1 -p 19530		
+		]]>
+		</screen>
+		<para></para>
+		<screen>
+		<![CDATA[
+		
+		]]>
+		</screen>
+
+	</section>
+	<section id="milvus-cli.list">
+		<title></title>
+		<screen>
+		<![CDATA[
+milvus_cli > list --help
+Usage: milvus_cli list [OPTIONS] COMMAND [ARGS]...
+
+  List collections,databases, partitions,users and indexes.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  aliases      List all aliases of a collection.
+  collections  List all collections.
+  connections  List connections
+  databases    List databases.
+  indexes      List all indexes.
+  partitions   List partitions.
+  users        List all users in Milvus Example:		
+		]]>
+		</screen>
+		<section id="milvus_cli.list.databases">
+			<title>查看数据库列表</title>
+			<screen>
+			<![CDATA[
+milvus_cli > list databases
++---------+
+| db_name |
++---------+
+| default |
+|  test   |
++---------+			
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>查看链接实例</title>
+			<para></para>
+			<screen>
+			<![CDATA[
+milvus_cli > list connections
++---------+---------------------------------------------------------------------+
+|  Alias  |                              Instance                               |
++---------+---------------------------------------------------------------------+
+| default | <pymilvus.client.grpc_handler.GrpcHandler object at 0x7f77d5ddbc90> |
++---------+---------------------------------------------------------------------+
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>查看表</title>
+			<para></para>
+			<screen>
+			<![CDATA[
+milvus_cli > list collections
+['answer', 'album', 'huashan', 'question']			
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>查看索引</title>
+			<para></para>
+			<screen>
+			<![CDATA[
+milvus_cli > list indexes -c album
+question_vector idx {'index_type': 'IVF_FLAT', 'metric_type': 'L2', 'params': {'nlist': 2048}}
++----+-----------------+--------------+--------------+---------------+-----------------+
+|    | Field Name      | Index Name   | Index Type   | Metric Type   | Params          |
++====+=================+==============+==============+===============+=================+
+|  0 | question_vector | idx          | IVF_FLAT     | L2            | {'nlist': 2048} |
++----+-----------------+--------------+--------------+---------------+-----------------+			
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>查看分区</title>
+			<para></para>
+			<screen>
+			<![CDATA[
+milvus_cli > list partitions -c album
+['_default']
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>查看用户</title>
+			<para></para>
+			<screen>
+			<![CDATA[
+milvus_cli > list users
+['root']			
+			]]>
+			</screen>
+		</section>
+	</section>
+	<section id="milvus-cli.show">
+		<title>查看数据库</title>
+		<screen>
+		<![CDATA[
+milvus_cli > show --help
+Usage: milvus_cli show [OPTIONS] COMMAND [ARGS]...
+
+  Show connection, database,collection, loading_progress and index_progress.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  collection        Describe collection.
+  index             Show index details.
+  index_progress    Show index progress.
+  loading_progress  Show loading progress.
+  partition         Describe partition.
+milvus_cli >	
+		]]>
+		</screen>
+		<section>
+			<title>查看表</title>
+			<screen>
+			<![CDATA[
+milvus_cli > show collection -c question
++---------------+---------------------------------+
+| Name          | question                        |
++---------------+---------------------------------+
+| Description   | 问题集                          |
++---------------+---------------------------------+
+| Is Empty      | False                           |
++---------------+---------------------------------+
+| Entities      | 40171                           |
++---------------+---------------------------------+
+| Primary Field | id                              |
++---------------+---------------------------------+
+| Schema        | Description: 问题集             |
+|               |                                 |
+|               | Auto ID: False                  |
+|               |                                 |
+|               | Fields(* is the primary field): |
+|               |  - *id INT64                    |
+|               |  - question VARCHAR  问题       |
+|               |  - answer_id INT64  答案ID      |
+|               |  - vector FLOAT_VECTOR dim: 768 |
++---------------+---------------------------------+
+| Partitions    | - _default                      |
++---------------+---------------------------------+
+| Indexes       | - vector                        |
++---------------+---------------------------------+
+milvus_cli > 				
+			]]>
+			</screen>
+		</section>
+	</section>
+	<section id="milvus-cli.use">
+		<title>数据库管理</title>
+		<screen>
+		<![CDATA[
+milvus_cli > use --help
+Usage: milvus_cli use [OPTIONS] COMMAND [ARGS]...
+
+  Use database
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  database  Use database.
+milvus_cli > 		
+		]]>
+		</screen>
+		<para>查看数据库</para>
+		<screen>
+		<![CDATA[
+milvus_cli > list databases
++---------+
+| db_name |
++---------+
+| default |
+|  test   |
++---------+
+milvus_cli >		
+		]]>
+		</screen>
+		<para>切换到 test 数据库</para>
+		<screen>
+		<![CDATA[
+milvus_cli > use database -db test
+Using database test successfully!
+milvus_cli >		
+		]]>
+		</screen>
+	</section>
+	<section id="milvus-cli.create">
+		<title></title>
+		<screen>
+		<![CDATA[
+milvus_cli > create --help
+Usage: milvus_cli create [OPTIONS] COMMAND [ARGS]...
+
+  Create collection, database, partition,user and index.
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  alias       Specify alias for a collection.
+  collection  Create collection.
+  database    Create database.
+  index       Create index.
+  partition   Create partition.
+  user        Create user.
+		]]>
+		</screen>
+		<section>
+			<title>创建表</title>
+			<para></para>
+			<screen>
+			<![CDATA[
+milvus_cli > list collections
+[]
+			]]>
+			</screen>
+			<para></para>
+			<screen>
+			<![CDATA[
+milvus_cli > create collection -c car -f id:INT64:primary_field -f vector:FLOAT_VECTOR:128 -f color:INT64:color -f brand:INT64:brand -p id -a -d 'car_collection'
++---------------+----------------------------------+
+| Name          | car                              |
++---------------+----------------------------------+
+| Description   |                                  |
++---------------+----------------------------------+
+| Is Empty      | True                             |
++---------------+----------------------------------+
+| Entities      | 0                                |
++---------------+----------------------------------+
+| Primary Field | id                               |
++---------------+----------------------------------+
+| Schema        | Description:                     |
+|               |                                  |
+|               | Auto ID: True                    |
+|               |                                  |
+|               | Fields(* is the primary field):  |
+|               |  - *id INT64  primary_field      |
+|               |  - vector FLOAT_VECTOR dim: 128  |
+|               |  - color INT64  color            |
+|               |  - brand INT64  brand            |
++---------------+----------------------------------+
+| Partitions    | - _default                       |
++---------------+----------------------------------+
+| Indexes       | -                                |
++---------------+----------------------------------+
+Create collection successfully!
+milvus_cli > 
+			]]>
+			</screen>
+			<para></para>
+			<screen>
+			<![CDATA[
+milvus_cli > list collections
+['car']
+			]]>
+			</screen>
+			
+		</section>
+	</section>
+	<section>
+		<title>查询</title>
+		<screen>
+		<![CDATA[
+milvus_cli > query --help
+Usage: milvus_cli query [OPTIONS]
+
+  Query with a set of criteria, and results in a list of records that match
+  the query exactly.
+
+  Example:
+
+      milvus_cli > query
+
+      Collection name: car
+
+      The query expression: color in [2000,2002]
+
+      A list of fields to return(split by "," if multiple) []: id, color,
+      brand
+
+      timeout []:
+
+      Guarantee timestamp. This instructs Milvus to see all operations
+      performed before a provided timestamp. If no such timestamp is provided,
+      then Milvus will search all operations performed to date. [0]:
+
+      Graceful time. Only used in bounded consistency level. If graceful_time
+      is set, PyMilvus will use current timestamp minus the graceful_time as
+      the guarantee_timestamp. This option is 5s by default if not set. [5]:
+
+Options:
+  --help  Show this message and exit.
+milvus_cli > 
+		]]>
+		</screen>
+		<section>
+			<title>查询内容</title>
+			<para></para>
+			<screen>
+			<![CDATA[
+milvus_cli > query 
+Collection name (answer, question, album, huashan): question
+The query expression: id == 1
+Fields to return(split by "," if multiple) ['id', 'question', 'answer_id', 'vector'] []: id, question, answer_id
+timeout []: 
+Guarantee timestamp. This instructs Milvus to see all operations performed before a provided timestamp. If no such timestamp is provided, then Milvus will search all operations performed to date. [0]: 5
+Graceful time. Only used in bounded consistency level. If graceful_time is set, PyMilvus will use current timestamp minus the graceful_time as the guarantee_timestamp. This option is 5s by default if not set. [5]: 
+[{'id': 1, 'question': 'test', 'answer_id': 1}]			
+			]]>
+			</screen>
+			<para>查询结果如下</para>
+			<screen>
+			<![CDATA[
+[{'id': 1, 'question': 'test', 'answer_id': 1}]				
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title></title>
+			<para></para>
+			<screen>
+			<![CDATA[
+			
+			]]>
+			</screen>
+		</section>
+	</section>
+	
+	<section>
+		<title>删除操作</title>
+		<screen>
+		<![CDATA[
+		
+		]]>
+		</screen>
+		<section>
+			<title>删除表</title>
+			<para></para>
+			<screen>
+			<![CDATA[
+delete collection -c car
+			]]>
+			</screen>
+		</section>
+		
+		<section>
+			<title></title>
+			<para></para>
+			<screen>
+			<![CDATA[
+			
+			]]>
+			</screen>
+		</section>
+	</section>
+	<section>
+		<title></title>
+		<screen>
+		<![CDATA[
+		
+		]]>
+		</screen>
+		<section>
+			<title></title>
+			<para></para>
+			<screen>
+			<![CDATA[
+			
+			]]>
+			</screen>
+		</section>
+		
+		<section>
+			<title></title>
+			<para></para>
+			<screen>
+			<![CDATA[
+			
+			]]>
+			</screen>
+		</section>
+	</section>
+
+</section>

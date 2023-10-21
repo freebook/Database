@@ -69,6 +69,7 @@ milvusbootcamp/qa-chatbot-client:2.2.10
 		</screen>
 		<para>服务器端接口测试地址：http://127.0.0.1:8000/docs</para>
 	</section>
-	
+	&section.milvus.cli.xml;
+	&section.milvus.python.xml;
 	
 </chapter>

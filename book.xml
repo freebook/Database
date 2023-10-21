@@ -54,6 +54,9 @@
 	<!ENTITY chapter.clickhouse.xml			SYSTEM "Clickhouse/chapter.clickhouse.xml">
 
 	<!ENTITY chapter.milvus.xml				SYSTEM "chapter.milvus.xml">
+	<!ENTITY section.milvus.cli.xml			SYSTEM "section.milvus.cli.xml">
+	<!ENTITY section.milvus.python.xml		SYSTEM "section.milvus.python.xml">
+	
 	<!ENTITY chapter.sqlite.xml				SYSTEM "chapter.sqlite.xml">
 	
 	<!ENTITY home "<![CDATA[ <ulink url='&homepage;'>&homepage;</ulink> ]]>">
