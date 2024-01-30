@@ -847,7 +847,64 @@ mysql> select /*+ max_execution_time(3000)*/ count(*) from cert;
 		]]>
 		</screen>
 	</section>
+	<section id="ERROR.3780">
+		<title>Error Code: 3780. Referencing column 'id' and referenced column 'id' in foreign key constraint 'FKfeti3hcwwku7l7xqru4emwkc6' are incompatible.</title>
+		<para>重现 SQL</para>
+		<screen>
+		<![CDATA[
+CREATE TABLE `picture` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `audio` varchar(255) DEFAULT NULL COMMENT '故事音频',
+  `ctime` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `device` varchar(255) DEFAULT NULL COMMENT '设备',
+  `favorites` int unsigned NOT NULL DEFAULT '0' COMMENT '收藏',
+  `forward` int unsigned NOT NULL DEFAULT '0' COMMENT '转发',
+  `image` varchar(255) DEFAULT NULL COMMENT '原图',
+  `likes` int unsigned NOT NULL DEFAULT '0' COMMENT '点赞',
+  `model` varchar(255) DEFAULT NULL COMMENT '型号',
+  `mtime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  `prompt` varchar(255) DEFAULT NULL COMMENT '提示词',
+  `session` varchar(255) NOT NULL COMMENT '会话',
+  `share` bit(1) NOT NULL COMMENT '共享',
+  `story` text COMMENT '故事',
+  `thumbnail` varchar(255) DEFAULT NULL COMMENT '缩图',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_6cgmptiqeq2nusk40x5io55oh` (`session`)
+) ENGINE=InnoDB AUTO_INCREMENT=384 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='图片表'
 
+CREATE TABLE `picture_psychoanalysis` (
+  `id` bigint NOT NULL,
+  `analysis` text COMMENT '心里分析',
+  `ctime` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `emotion` varchar(255) DEFAULT NULL COMMENT '感谢|愉快|抱怨|愤怒|喜爱|厌恶|恐惧|悲伤',
+  `mtime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  `plutchik` json DEFAULT NULL COMMENT 'Robert Plutchik 情感轮盘',
+  `replies` text COMMENT '建议回复话术',
+  `sentiment` varchar(255) DEFAULT NULL COMMENT '负向情绪|中性情绪|正向情绪',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='文生图心里分析'
+
+alter table picture_psychoanalysis add constraint FKfeti3hcwwku7l7xqru4emwkc6 foreign key (id) references picture (id) on delete cascade
+		]]>
+		</screen>
+		<para>经过一天排查，最后发现 picture 与 picture_psychoanalysis 表中 id 字段数据类型不同，一个是无符号，另一个是有符号，修改之后解决</para>
+		<screen>
+		<![CDATA[
+CREATE TABLE `picture_psychoanalysis` (
+  `id` bigint unsigned NOT NULL,
+  `analysis` text COMMENT '心里分析',
+  `ctime` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `emotion` varchar(255) DEFAULT NULL COMMENT '感谢|愉快|抱怨|愤怒|喜爱|厌恶|恐惧|悲伤',
+  `mtime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  `plutchik` json DEFAULT NULL COMMENT 'Robert Plutchik 情感轮盘',
+  `replies` text COMMENT '建议回复话术',
+  `sentiment` varchar(255) DEFAULT NULL COMMENT '负向情绪|中性情绪|正向情绪',
+  PRIMARY KEY (`id`),
+  CONSTRAINT `FKfeti3hcwwku7l7xqru4emwkc6` FOREIGN KEY (`id`) REFERENCES `picture` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='文生图心里分析'
+		]]>
+		</screen>
+	</section>
 
 	<section id="caching_sha2_password.so">
 		<title>Authentication plugin 'caching_sha2_password' cannot be loaded: /usr/lib64/mysql/plugin/caching_sha2_password.so: cannot open shared object file: No such fileor directory</title>
