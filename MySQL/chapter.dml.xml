@@ -34,6 +34,12 @@ insert ignore into table(name)  select  name from table2
 		</section>
 		<section id="ON DUPLICATE KEY UPDATE">
 			<title>INSERT...ON DUPLICATE KEY UPDATE</title>
+			<para>插入 Neo, 如果数据不存在就插入，存在就更新 weight 字段，数值+1</para>
+			<screen>
+			<![CDATA[
+INSERT INTO user_persona (device_id, hobby,weight) VALUES ((SELECT id FROM device where sn='test')  , 'Neo', 1) ON DUPLICATE KEY UPDATE weight = weight + 1;			
+			]]>
+			</screen>
 			<screen>
 			<![CDATA[
 create table foo (id serial primary key, u int, unique key (u));
