@@ -583,6 +583,29 @@ masterauth password
 6、noeviction ： 永不过期，返回错误
 			]]></screen>
 		</section>
+		<section id="aclfile">
+			<title>aclfile</title>
+			<para>在 redis.conf 中开启</para>
+			<screen>
+			<![CDATA[
+aclfile /etc/redis/users.acl 
+			]]>
+			</screen>
+			<para>启动命令行货开启</para>
+			<screen>
+			<![CDATA[
+--aclfile /etc/redis/users.acl 
+			]]>
+			</screen>
+			<para>创建一个空配置文件 /etc/redis/users.acl 保证该文件 redis 进程可以读写。</para>
+			<para>然后进入 redis-cli 使用 acl 命令创建用户，使用 acl save 保存，得到类似下面的密码文件</para>
+			<screen>
+			<![CDATA[
+user netkiller on sanitize-payload #3fa0004eed37d149b6929dcad865d03311377f8af5e4465d0c284bd9af950f1e ~* &* +@all
+user default on sanitize-payload #3fa0004eed37d149b6929dcad865d03311377f8af5e4465d0c284bd9af950f1e ~* &* +@all			
+			]]>
+			</screen>
+		</section>
 	</chapter>
 	<chapter id="redis-cli">
 		<title>redis-cli - Command-line client to redis-server</title>
@@ -601,7 +624,8 @@ masterauth password
 			<section>
 				<title>raw</title>
 				<para>--raw Use raw formatting for replies (default when STDOUT is
-					not a tty).</para>
+					not a tty).
+				</para>
 				<para>有时显示这样的数据</para>
 				<screen>
 				<![CDATA[
@@ -634,7 +658,7 @@ masterauth password
 min: 1, max: 210, avg: 3.64 (13453 samples)
 			]]></screen>
 		</section>
-		<section>
+		<section id="flushdb">
 			<title>清空指定数据库</title>
 			<screen>
 			<![CDATA[
@@ -650,9 +674,14 @@ OK
 			</screen>
 		</section>
 		<section id="auth">
-			<title>auth</title>
+			<title>用户认证</title>
+
 			<para>认证密码</para>
-			<screen><![CDATA[
+			<section>
+				<title>传统 requirepass 认证</title>
+				<para></para>
+				<screen>
+				<![CDATA[
 [root@netkiller ~]# redis-cli
 127.0.0.1:6379> keys *
 (error) NOAUTH Authentication required.
@@ -668,8 +697,128 @@ OK
 7) "EURGBP"
 8) "CLN6"
 9) "BU6"
-			]]></screen>
+				]]>
+				</screen>
+				<section>
+					<title>设置密码</title>
+					<screen>
+					<![CDATA[
+127.0.0.1:6379> config set requirepass 123456
+OK
+127.0.0.1:6379> config get requirepass
+1) "requirepass"
+2) "123456"					
+					]]>
+					</screen>
+				</section>
+				<section>
+					<title>临时密码</title>
+					<para>查看密码</para>
+					<screen>
+					<![CDATA[
+root@redis:/data# redis-cli 
+127.0.0.1:6379> config get requirepass
+1) "requirepass"
+2) "b9e3943a9ffb" 					
+					]]>
+					</screen>
+				</section>
+
+			</section>
 		</section>
+		
+		<section id="acl">
+			<title>ACL 用户/密码认证</title>
+			<section>
+				<title>查看用户列表</title>
+				<screen>
+				<![CDATA[
+127.0.0.1:6379> acl users
+1) "default"
+2) "dev"
+3) "neo"
+4) "netkiller"				
+				]]>
+				</screen>
+			</section>
+			<section>
+				<title>用户删除</title>
+				<screen>
+				<![CDATA[
+127.0.0.1:6379> acl users
+1) "default"
+2) "neo"
+3) "netkiller"
+127.0.0.1:6379> acl deluser netkiller
+(integer) 1
+127.0.0.1:6379> acl users
+1) "default"
+2) "neo"				
+				]]>
+				</screen>
+			</section>
+			<section>
+				<title>设置默认密码</title>
+				<screen>
+				<![CDATA[
+127.0.0.1:6379> config set requirepass 123456
+OK
+127.0.0.1:6379> auth 123456
+OK
+127.0.0.1:6379> save
+OK				
+				]]>
+				</screen>
+			</section>
+			<section>
+				<title>创建用户</title>
+				<screen>
+				<![CDATA[
+127.0.0.1:6379> ACL SETUSER netkiller >chen ~* &* +@all
+OK
+127.0.0.1:6379> acl getuser netkiller
+ 1) "flags"
+ 2) 1) "off"
+    2) "sanitize-payload"
+ 3) "passwords"
+ 4) 1) "3abd72ec6352d6085d85e34f0478dca7d14ef8048f3c1986e28106d654713946"
+ 5) "commands"
+ 6) "+@all"
+ 7) "keys"
+ 8) "~*"
+ 9) "channels"
+10) "&*"
+11) "selectors"
+12) (empty array)
+127.0.0.1:6379> save				
+				]]>
+				</screen>
+			</section>
+			<section>
+				<title>查看 ACL 列表</title>
+				<screen>
+				<![CDATA[
+127.0.0.1:6379> acl list
+1) "user default on sanitize-payload #8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92 ~* &* +@all"
+2) "user neo on sanitize-payload ~* resetchannels -@all"
+3) "user netkiller off sanitize-payload #3abd72ec6352d6085d85e34f0478dca7d14ef8048f3c1986e28106d654713946 ~* &* +@all"				
+				]]>
+				</screen>
+			</section>
+			<section>
+				<title>检验用户名和密码</title>
+				<screen>
+				<![CDATA[
+127.0.0.1:6379> ACL SETUSER neo on >netkiller ~* &* +@all
+OK
+127.0.0.1:6379> auth neo netkiller
+OK				
+				]]>
+				</screen>
+			</section>
+			
+		</section>
+		
 		<section id="monitor">
 			<title>MONITOR</title>
 			<screen><![CDATA[
@@ -808,7 +957,8 @@ OK
 				<title>setnx</title>
 				<command>SETNX key value</command>
 				<para>当 key 不存在时将 key 的值设为 value，若给定的 key 已经存在，则 SETNX 不做任何动作。SETNX
-					是(SET if Not eXists) (如果不存在，则 SET)的简写。</para>
+					是(SET if Not eXists) (如果不存在，则 SET)的简写。
+				</para>
 				<screen>
 				<![CDATA[
 返回值：
@@ -1421,7 +1571,8 @@ OK
 		]]>
 		</screen>
 		<para>代表256各个客户端同时请求 Redis，一 共执行 20000
-			次。redis-benchmark会对各类数据结构的命令进行测试，并给 出性能指标：</para>
+			次。redis-benchmark会对各类数据结构的命令进行测试，并给 出性能指标：
+		</para>
 		<screen><![CDATA[
 redis-benchmark -c 256 -n 20000
 		]]></screen>
@@ -1567,7 +1718,8 @@ cat db0.json | redis-cli -h 127.0.0.1 -p 6379 -n '指定数据库'  -a "密码"
 			</para>
 			<para>Example</para>
 			<para>You can find an example database at
-				http://dubbelboer.com/phpRedisAdmin/</para>
+				http://dubbelboer.com/phpRedisAdmin/
+			</para>
 			<para>第一种方法</para>
 			<screen><![CDATA[
 git clone https://github.com/ErikDubbelboer/phpRedisAdmin
@@ -1605,7 +1757,8 @@ FLUSHALL - Removes data from ALL databases.
 				modify the data set are disabled, because this instance is
 				configured to report errors during writes if RDB snapshotting fails
 				(stop-writes-on-bgsave-error option). Please check the Redis logs
-				for details about the RDB error.</para>
+				for details about the RDB error.
+			</para>
 			<para>临时解决方案</para>
 			<screen>
 			<![CDATA[
@@ -1674,8 +1827,18 @@ OK
 			</screen>
 		</section>
 		<section>
-			<title>MISCONF Redis is configured to save RDB snapshots, but it's currently unable to persist to disk. Commands that may modify the data set are disabled, because this instance is configured to report errors during writes if RDB snapshotting fails (stop-writes-on-bgsave-error option). Please check the Redis logs for details about the RDB error.</title>
-			<para>MISCONF Redis is configured to save RDB snapshots, but is currently not able to persist on disk. Commands that may modify the data set are disabled. Please check Redis logs for details about the error.</para> 
+			<title>MISCONF Redis is configured to save RDB snapshots, but it's
+				currently unable to persist to disk. Commands that may modify the
+				data set are disabled, because this instance is configured to report
+				errors during writes if RDB snapshotting fails
+				(stop-writes-on-bgsave-error option). Please check the Redis logs
+				for details about the RDB error.
+			</title>
+			<para>MISCONF Redis is configured to save RDB snapshots, but is
+				currently not able to persist on disk. Commands that may modify the
+				data set are disabled. Please check Redis logs for details about the
+				error.
+			</para>
 			<para>磁盘空间满</para>
 		</section>
 		<section>
