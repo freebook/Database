@@ -10,6 +10,28 @@
 SELECT DISTINCT user.name FROM user
 		]]></screen>
 	</section>
+	<section>
+		<title>order by 排序</title>
+		<section>
+			<title>处理 null</title>
+			<para>null 排在后面</para>
+			<programlisting>
+			<![CDATA[
+select * from user order by age asc;
+
+select * from user order by age is null desc, age desc;
+			]]>
+			</programlisting>
+			<para>null 排在后面</para>
+			<programlisting>
+			<![CDATA[
+select * from user order by age is null asc,age asc;
+
+select * from user order by age desc;
+			]]>
+			</programlisting>
+		</section>
+	</section>
 	<section id="groupby">
 		<title>group by</title>
 		<para>统计重复的手机号吗</para>
