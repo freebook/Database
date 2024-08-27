@@ -57,24 +57,32 @@ debian:/srv# tar zxf mongodb-linux-x86_64-1.5.5.tgz
 debian:/srv# ln -s mongodb-linux-x86_64-1.5.5 mongodb
 			]]></screen>
 		<para>Create a data directory</para>
-		<para>By default MongoDB will store data in /data/db, but it won't automatically create that directory. To create it, do:</para>
+		<para>By default MongoDB will store data in /data/db, but it won't
+			automatically create that directory. To create it, do:
+		</para>
 		<screen><![CDATA[
 $ sudo mkdir -p /data/db/
 $ sudo chown `id -u` /data/db
 			]]></screen>
-		<para>You can also tell MongoDB to use a different data directory, with the --dbpath option.</para>
+		<para>You can also tell MongoDB to use a different data directory,
+			with the --dbpath option.
+		</para>
 		<para>Run and connect to the server</para>
 		<para>First, start the MongoDB server in one terminal:</para>
 		<screen><![CDATA[
 $ ./mongodb/bin/mongod
 			]]></screen>
-		<para>In a separate terminal, start the shell, which will connect to localhost by default:</para>
+		<para>In a separate terminal, start the shell, which will connect to
+			localhost by default:
+		</para>
 		<screen><![CDATA[
 $ ./mongodb/bin/mongo
 > db.foo.save( { a : 1 } )
 > db.foo.find()
 			]]></screen>
-		<para>Congratulations, you've just saved and retrieved your first document with MongoDB!</para>
+		<para>Congratulations, you've just saved and retrieved your first
+			document with MongoDB!
+		</para>
 		<example>
 			<title>MongoDB Test</title>
 			<screen>
@@ -299,7 +307,8 @@ bye
 	<section id="hadoop">
 		<title>MongoDB + Hadoop</title>
 		<para>Hadoop Connector</para>
-		<para>http://docs.mongodb.org/ecosystem/tutorial/getting-started-with-hadoop/</para>
+		<para>http://docs.mongodb.org/ecosystem/tutorial/getting-started-with-hadoop/
+		</para>
 
 		<screen><![CDATA[
 git clone https://github.com/mongodb/mongo-hadoop.git
@@ -423,9 +432,9 @@ WriteResult({ "nInserted" : 1 })
 { "_id" : ObjectId("5646e881a11081d5998bf70c"), "name" : "neo", "address" : { "city" : "shenzhen", "post" : 518000 }, "phone" : [ 13113668890, 13322993040 ] }
 >
 			]]>
-		</screen>
-		<para>进入 Slave</para>
-		<screen>
+			</screen>
+			<para>进入 Slave</para>
+			<screen>
 			<![CDATA[
 [root@localhost ~]# mongo
 MongoDB shell version: 2.6.11
@@ -445,9 +454,9 @@ Server has startup warnings:
 { "_id" : ObjectId("5646e881a11081d5998bf70c"), "name" : "neo", "address" : { "city" : "shenzhen", "post" : 518000 }, "phone" : [ 13113668890, 13322993040 ] }
 >
 			]]>
-		</screen>
+			</screen>
+		</section>
 	</section>
-
 	<section id="drivers">
 		<title>Drivers</title>
 		<section>
@@ -508,6 +517,7 @@ Calvin and Hobbes
 XKCD
 Calvin and Hobbes
 XKCD
+				]]>
 				</screen>
 				<para></para>
 				<screen>
