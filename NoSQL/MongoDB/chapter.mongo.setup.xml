@@ -374,6 +374,7 @@ mongod –port 27017 –dbpath /var/lib/mongodb –master
  创建从：
 
 mongod –port 27017 –dbpath /var/lib/mongodb –slave –source master_ip_address:27017
+		]]>
 		</screen>
 
 		<section>
@@ -382,6 +383,7 @@ mongod –port 27017 –dbpath /var/lib/mongodb –slave –source master_ip_add
 sed -i "s/#master = true/master = true/" /etc/mongod.conf
 
 systemctl restart  mongod
+			]]>
 			</screen>
 		</section>
 		<section>
@@ -391,6 +393,7 @@ sed -i "s/#slave = true/slave = true/" /etc/mongod.conf
 sed -i "s/#source = arg/source = mongodb.master.example.com/" /etc/mongod.conf
 
 systemctl restart  mongod
+			]]>
 			</screen>
 		</section>
 		<section>
