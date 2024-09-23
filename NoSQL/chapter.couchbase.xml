@@ -63,7 +63,7 @@ int(101)
 			</screen>
 		</section>
 	</section>
-	<section>
+	<section id="couchbase-cli">
 		<title>couchbase 命令</title>
 		<section>
 			<title>couchbase-cli</title>

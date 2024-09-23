@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- $Id: book.xml 593 2013-05-21 11:01:33Z netkiller $ -->
-<!DOCTYPE subject SYSTEM "/usr/share/xml/docbook/schema/dtd/5.0/docbook.dtd"
+<!DOCTYPE subject SYSTEM "/opt/homebrew/Cellar/docbook/5.1_1/docbook/xml/5.0/dtd/docbook.dtd"
 	[
 	<!ENTITY homepage "http://netkiller.sf.net/">
 	<!ENTITY mirror "http://netkiller.github.com/">
@@ -53,9 +53,9 @@
 
 	<!ENTITY chapter.clickhouse.xml			SYSTEM "Clickhouse/chapter.clickhouse.xml">
 
-	<!ENTITY chapter.milvus.xml				SYSTEM "chapter.milvus.xml">
-	<!ENTITY section.milvus.cli.xml			SYSTEM "section.milvus.cli.xml">
-	<!ENTITY section.milvus.python.xml		SYSTEM "section.milvus.python.xml">
+	<!ENTITY chapter.milvus.xml				SYSTEM "Milvus/chapter.milvus.xml">
+	<!ENTITY section.milvus.cli.xml			SYSTEM "Milvus/section.milvus.cli.xml">
+	<!ENTITY section.milvus.python.xml		SYSTEM "Milvus/section.milvus.python.xml">
 	
 	<!ENTITY chapter.sqlite.xml				SYSTEM "chapter.sqlite.xml">
 	

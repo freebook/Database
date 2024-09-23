@@ -34,7 +34,7 @@ milvus-standalone   /tini -- milvus run standalone   Up             0.0.0.0:1953
 		]]>
 		</screen>
 	</section>
-	<section>
+	<section id="milvus.insight">
 		<title>安装 Milvus insight 管理界面</title>
 		<screen>
 		<![CDATA[ 
@@ -44,7 +44,7 @@ docker run -p 3000:3000 -e HOST_URL=http://{ milvus insight ip }:8000 -e MILVUS_
 		</screen>
 	</section>
 	
-	<section>
+	<section i="milvus.example">
 		<title>问答模型</title>
 		<screen>
 		<![CDATA[

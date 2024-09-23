@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter>
+<chapter id="clickhouse">
     <title>ClickHouse</title>
-    <section>
+    <section id="clickhouse.install">
         <title>安装 Clickhouse</title>
         <section>
-            <titile>RPM 安装</titile>
+            <title>RPM 安装</title>
         
         <screen>
         <![CDATA[ 
@@ -63,7 +63,12 @@ root@netkiller ~# systemctl enable clickhouse-server
 root@netkiller ~# systemctl start clickhouse-server
             ]]>
             </screen>
-            <para>启动客户端</para>
+           
+        </section>
+    </section>
+    <section id="clickhouse-client">
+    	<title>客户端</title>
+    	 <para>启动客户端</para>
             <screen>
             <![CDATA[ 
 root@netkiller ~# clickhouse-client
@@ -77,7 +82,6 @@ Warnings:
 netkiller :)             
             ]]>
             </screen>
-        </section>
     </section>
 
 </chapter>
