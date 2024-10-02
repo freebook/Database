@@ -181,19 +181,18 @@ Outfile disabled.
 	<section id="mysqldump">
 		<title>mysqldump - a database backup program</title>
 		<section>
-			<title>备份数据库并压缩文件</title>
+			<title>备份数据库结构和数据</title>
 			<screen>
 			<![CDATA[
-mysqldump -uroot -p dbname | gzip > dbname.backup
+mysqldump -uroot -p dbname > dbname.backup
 			]]>
 			</screen>
 		</section>
 		<section>
-			<title>备份数据库/表</title>
+			<title>备份数据库结构和数据并压缩文件</title>
 			<screen>
 			<![CDATA[
-mysqldump -uroot -p -d database
-mysqldump -uroot -p -d database table
+mysqldump -uroot -p dbname | gzip > dbname.backup
 			]]>
 			</screen>
 		</section>
@@ -206,6 +205,15 @@ mysqldump --default-character-set=utf8 -r mysql.sql -h localhost -u root -p your
 			]]>
 			</screen>
 		</section>
+		<section>
+			<title>备份数据库结构/表</title>
+			<screen>
+			<![CDATA[
+mysqldump -uroot -p -d database
+mysqldump -uroot -p -d database table
+			]]>
+			</screen>
+		</section>
 		<section id="no-create-info">
 			<title>备份数据库，无结构，只有数据</title>
 			<para>-t, --no-create-info Don't write table creation info.	</para>
@@ -215,7 +223,15 @@ mysqldump -uroot -p -t -d database
 			]]>
 			</screen>
 		</section>
-
+		<section>
+			<title>备份所有数据库</title>
+			<para>--all-databases 备份所有数据库</para>
+			<screen>
+			<![CDATA[
+[root@netkiller ~]# mysqldump -h 127.0.0.1 -uroot -p --all-databases | gzip > database.backup			
+			]]>
+			</screen>
+		</section>
 		<section id="complete-insert">
 			<title>使用完整的insert插入数据</title>
 			<para>-c, --complete-insert Use complete insert statements.</para>
@@ -743,7 +759,8 @@ mysqlslap --defaults-file=/etc/my.cnf --concurrency=50,100,200 --iterations=1 \
 		]]></screen>
 	</section>
 	<section id="mysqldumpslow">
-		<title>mysqldumpslow - Parse and summarize the MySQL slow query log.</title>
+		<title>mysqldumpslow - Parse and summarize the MySQL slow query log.
+		</title>
 		<para>开启记录日志，修改my.cnf加入下面几行</para>
 		<para>--log-slow-queries[=file_name]</para>
 		<programlisting>
@@ -753,7 +770,8 @@ log-slow-queries =
 		]]>
 		</programlisting>
 		<para>long_query_time 是指执行超过10秒的sql会被记录下来。</para>
-		<para>log-slow-queries设置把日志文件的位置，如果没有给出文件名值， 默认未主机名，后缀为-slow.log。如果给出了文件名，但不是绝对路径名，文件则写入数据目录。</para>
+		<para>log-slow-queries设置把日志文件的位置，如果没有给出文件名值，
+			默认未主机名，后缀为-slow.log。如果给出了文件名，但不是绝对路径名，文件则写入数据目录。</para>
 		<para>cat /etc/mysql/my.cnf</para>
 		<screen><![CDATA[
 [mysqld]
@@ -772,7 +790,9 @@ $ mysqldumpslow /var/log/mysql/log-slow-queries.log
 		<orderedlist>
 			<title>mysqldumpslow 参数</title>
 			<listitem>
-				<para>-s，是order的顺序，说明写的不够详细，俺用下来，包括看了代码，主要有c,t,l,r和ac,at,al,ar，t=time, l=lock time, r=rows分别是按照query次数，时间，lock的时间和返回的记录数来排序，前面加了a的时倒叙</para>
+				<para>-s，是order的顺序，说明写的不够详细，俺用下来，包括看了代码，主要有c,t,l,r和ac,at,al,ar，t=time,
+					l=lock time, r=rows分别是按照query次数，时间，lock的时间和返回的记录数来排序，前面加了a的时倒叙
+				</para>
 			</listitem>
 			<listitem>
 				<para>-t，是top n的意思，即为返回前面多少条的数据</para>
@@ -806,7 +826,7 @@ dnf install https://cdn.mysql.com/archives/mysql-shell/mysql-shell-8.0.26-1.el8.
 		</screen>
 	</section>
 	<section id="mycli">
-		<title></title>
+		<title>mycli</title>
 		<para>
 			<ulink url="https://www.mycli.net" />
 		</para>
@@ -836,7 +856,8 @@ mysql-query-browser --query="SELECT * FROM users"
 	</section>
 	<section>
 		<title>MySQL Workbench 数据库恢复</title>
-		<para>mysql 8.0 不再提供数据库重命名服务，无法修改数据库名，只能导出再倒入，使用 MySQL Workbench 恢复数据时也无法改变数据库名。</para>
+		<para>mysql 8.0 不再提供数据库重命名服务，无法修改数据库名，只能导出再倒入，使用 MySQL Workbench
+			恢复数据时也无法改变数据库名。</para>
 		<para>我们只需要下面两条命令，修改dumps数据，就可以恢复到指定的数据库下</para>
 		<screen>
 		<![CDATA[
