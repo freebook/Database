@@ -241,9 +241,6 @@ CREATE DEFINER=`neo`@`%` TRIGGER `members_before_insert` BEFORE INSERT ON `membe
 	END IF;
 END;
 		]]></programlisting>
-			<screen><![CDATA[
-
-		]]></screen>
 		</section>
 	</section>
 
