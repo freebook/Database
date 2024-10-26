@@ -35,9 +35,19 @@ select * from user order by age desc;
 	<section id="groupby">
 		<title>group by</title>
 		<para>统计重复的手机号吗</para>
-		<screen><![CDATA[
+		<screen>
+		<![CDATA[
 select * from (select count(mobile) as c, mobile from member where length(mobile) >= 11 group by mobile) as m where m.c > 1;
-		]]></screen>
+		]]>
+		</screen>
+		<section>
+			<title>忽略 NULL</title>
+			<programlisting>
+			<![CDATA[ 
+			
+			]]>
+			</programlisting>
+		</section>
 	</section>
 	<section id="having">
 		<title>HAVING</title>
