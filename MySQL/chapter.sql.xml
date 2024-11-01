@@ -3,14 +3,82 @@
 <chapter id="index"><?dbhtml dir="sql"?>
 	<title>SQL Statement Syntax</title>
 	<subtitle>Structured Query Language</subtitle>
-	<section id="distinct">
+	<section id="sql.distinct">
 		<title>DISTINCT</title>
 		<para>SELECT DISTINCT user.name FROM user</para>
 		<screen><![CDATA[
 SELECT DISTINCT user.name FROM user
 		]]></screen>
 	</section>
-	<section>
+	<section id="sql.join">
+		<title>JOIN</title>
+		<section>
+			<title>LEFT JOIN / LEFT OUTER JOIN</title>
+			<para>查询两个表，产生交集的数据，初学者很容易犯的错误。</para>
+			<programlisting>
+		<![CDATA[
+SELECT 
+    COUNT(n1_0.id)
+FROM
+    notification n1_0,
+    notification_status ns1_0
+WHERE
+    n1_0.id <> ns1_0.notification_id	
+		]]>
+			</programlisting>
+			<para>正确的做法是使用 LEFT OUTER JOIN</para>
+			<programlisting>
+		<![CDATA[
+SELECT 
+    COUNT(n1_0.id)
+FROM
+    notification n1_0 LEFT OUTER JOIN notification_status ns1_0 ON n1_0.id<>ns1_0.notification_id;		
+		]]>
+			</programlisting>
+			<para>LEFT JOIN 关键字从左侧表返回所有的行，即使右侧表中没有匹配。如果右侧表中没有匹配，则结果为 NULL。</para>
+		</section>
+		<section>
+			<title>JOIN / INNER JOIN</title>
+			<para>根据两个或多个表中的列之间的关系，从这些表中查询数据。</para>
+			<para>举例</para>
+			<programlisting>
+			<![CDATA[
+SELECT 
+    *
+FROM
+    notification n
+        LEFT JOIN
+    notification_status ns ON n.id = ns.notification_id
+WHERE
+    ns.notification_id IS NOT NULL;
+			]]>
+			</programlisting>
+			<para>使用 JOIN 替代 LEFT JOIN</para>
+			<programlisting>
+			<![CDATA[
+SELECT 
+    *
+FROM
+    notification n
+        JOIN
+    notification_status ns ON n.id = ns.notification_id;					
+			]]>
+			</programlisting>
+			
+			<programlisting>
+			<![CDATA[
+SELECT 
+    *
+FROM
+    notification n
+        INNER JOIN
+    notification_status ns ON n.id = ns.notification_id;
+			]]>
+			</programlisting>
+
+		</section>
+	</section>
+	<section id="sql.orderby">
 		<title>order by 排序</title>
 		<section>
 			<title>处理 null</title>
@@ -32,7 +100,7 @@ select * from user order by age desc;
 			</programlisting>
 		</section>
 	</section>
-	<section id="groupby">
+	<section id="sql.groupby">
 		<title>group by</title>
 		<para>统计重复的手机号吗</para>
 		<screen>
@@ -44,18 +112,19 @@ select * from (select count(mobile) as c, mobile from member where length(mobile
 			<title>忽略 NULL</title>
 			<programlisting>
 			<![CDATA[ 
-			
+SELECT * FROM Picture p WHERE p.audit = true AND p.share = true AND p.image is not null AND audio is not null GROUP BY IFNULL(p.pictureGroup.id,p.session)
+SELECT * FROM Picture p WHERE p.audit = true AND p.share = true AND p.id <= :id GROUP BY IFNULL(p.pictureGroup.id,p.session)
 			]]>
 			</programlisting>
 		</section>
 	</section>
-	<section id="having">
+	<section id="sql.having">
 		<title>HAVING</title>
 		<programlisting><![CDATA[
 select * from accounts where paymode='alipay' group by name having count(name) >1;
 		]]></programlisting>
 	</section>
-	<section id="regexp">
+	<section id="sql.regexp">
 		<title>REGEXP</title>
 		<subtitle>正则匹配</subtitle>
 		<para>判断非数字字符</para>
@@ -71,14 +140,14 @@ select count(*) from accounts a,members m where  a.member = m.id  and a.name != 
 SELECT * FROM tablename WHERE SUBSTRING(fieldname, 1, 1) REGEXP '[[:digit:]]';
 		]]></programlisting>
 	</section>
-	<section id="in">
+	<section id="sql.in">
 		<title>IN / NOT IN</title>
 		<programlisting><![CDATA[
 select * from members where id in ('1','100','1000');
 select * from members where group_id in (select id from members_group);
 		]]></programlisting>
 	</section>
-	<section id="any">
+	<section id="sql.any">
 		<title>ALL / Any</title>
 		<para><![CDATA[NOT IN 与 <> ALL 两个语句是相同的：]]></para>
 		<programlisting>
@@ -101,7 +170,7 @@ select * from members where id = any(select members_id from accounts where id < 
 			</programlisting>
 		</example>
 	</section>
-	<section id="exists">
+	<section id="sql.exists">
 		<title>exists, not exists</title>
 		<programlisting><![CDATA[
 SELECT c.id, companyname
@@ -110,7 +179,7 @@ WHERE EXISTS(
     SELECT orderid FROM orders o WHERE o.customer_id = cu.id)
 		]]></programlisting>
 	</section>
-	<section id="union">
+	<section id="sql.union">
 		<title>UNION</title>
 		<para>union 分页问题</para>
 		<programlisting><![CDATA[
@@ -151,7 +220,7 @@ ORDER BY seq
 			</programlisting>
 		</section>
 	</section>
-	<section id="outfile">
+	<section id="sql.outfile">
 		<title>OUTFILE/LOAD DATA INFILE</title>
 		<para>查询结果输出到文件</para>
 		<screen><![CDATA[
@@ -286,7 +355,8 @@ SET
 WHERE
 	transaction.id = 100
 			]]></screen>
-		<para>update table1, (select * from other) as table2 set table1.field1 = table2.field1</para>
+		<para>update table1, (select * from other) as table2 set table1.field1
+			= table2.field1</para>
 		<screen><![CDATA[
 UPDATE
 	transaction,(	SELECT
@@ -318,7 +388,8 @@ select DISTINCT user_point_history.user_id,user.username,
 from user_point_history,user where user_point_history.user_id = user.id;
 		]]></screen>
 
-		<para>(total_points_earned - total_points_redeemed) as current_balance_points </para>
+		<para>(total_points_earned - total_points_redeemed) as
+			current_balance_points </para>
 		<screen><![CDATA[
 select user_id, username, transactions, total_points_earned, total_points_redeemed, (total_points_earned - total_points_redeemed) as current_balance_points
 from (select DISTINCT user_point_history.user_id,user.username,
