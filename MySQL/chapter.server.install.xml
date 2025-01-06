@@ -5,7 +5,7 @@
 	<subtitle>MySQL Installation</subtitle>
 	<para>http://downloads.mysql.com/archives.php</para>
 	<section>
-		<title>Rocky Linux 9.0</title>
+		<title>Rocky Linux 9.5</title>
 		<screen>
 		<![CDATA[
 [root@netkiller ~]# dnf install -y mysql-server
@@ -37,6 +37,8 @@ EOF
 cat >> /etc/security/limits.d/20-nofile.conf <<EOF
 mysql soft nofile 65535
 mysql hard nofile 65535
+redis soft nofile 65535
+redis hard nofile 65535
 EOF
 
 mkdir /etc/systemd/system/mysqld.service.d/
@@ -76,6 +78,9 @@ Query OK, 0 rows affected (0.03 sec)
 
 mysql> GRANT ALL ON *.* TO 'root'@'%' WITH GRANT OPTION;
 Query OK, 0 rows affected (0.02 sec)
+
+mysql> flush privileges;
+Query OK, 0 rows affected (0.00 sec)
 			]]>
 		</screen>
 		<para>开启防火墙</para>
