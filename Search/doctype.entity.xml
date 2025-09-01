@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!ENTITY part.search.xml				SYSTEM "part.search.xml">
 <!ENTITY chapter.solr.xml				SYSTEM "chapter.solr.xml">
-<!ENTITY chapter.solr.old.xml			SYSTEM "chapter.solr.old.xml">
+<!ENTITY chapter.meilisearch.xml		SYSTEM "chapter.meilisearch.xml">
 <!ENTITY chapter.elasticsearch.xml		SYSTEM "chapter.elasticsearch.xml">
 <!ENTITY section.elastic.install.xml	SYSTEM "section.elastic.install.xml">
 <!ENTITY section.elastic.old.xml		SYSTEM "section.elastic.old.xml">

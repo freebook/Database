@@ -1,17 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter id="sphinx">
-	<title>Sphinx</title>
-	<para>http://sphinxsearch.com/</para>
+<chapter id="index"><?dbhtml dir="manticore" ?>
+	<title>Manticore Search</title>
+	<para>Manticore Search 是一个开源数据库，于 2017 年作为 Sphinx Search 引擎的延续而创建。我们在其优点的基础上，显著提高了其功能，并修复了 数百个错误 ，同时保持开源。这使得 Manticore Search 成为一个现代、快速、轻量级且功能完善的数据库，具有出色的全文搜索能力。</para>
+	<section>
+		<title>安装</title>
+		<section>
+			<title>Ubuntu</title>
+			<screen>
+			<![CDATA[
+wget https://repo.manticoresearch.com/manticore-repo.noarch.deb
+sudo dpkg -i manticore-repo.noarch.deb
+sudo apt update
+sudo apt install manticore manticore-extra			
+			]]>
+			</screen>
+			<para>启动 Manticore</para>
+			<screen>
+			<![CDATA[
+sudo systemctl start manticore			
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>Ubuntu</title>
+			<screen>
+			<![CDATA[
+sudo dnf install https://repo.manticoresearch.com/manticore-repo.noarch.rpm
+sudo dnf install manticore manticore-extra		
+			]]>
+			</screen>
+			<para>启动 Manticore</para>
+			<screen>
+			<![CDATA[
+sudo systemctl start manticore			
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>Docker</title>
+			<screen>
+			<![CDATA[
+docker run --name manticore -v $(pwd)/data:/var/lib/manticore -p 127.0.0.1:9306:9306 -p 127.0.0.1:9308:9308 -d manticoresearch/manticore			
+			]]>
+			</screen>
+		</section>
+	</section>
+	<section>
+		<title>Sphinx</title>
+		<para>http://sphinxsearch.com/</para>
 
-	<screen>
+		<screen>
+	<![CDATA[
 sudo apt-get install sphinxsearch
-	</screen>
-	<para>/etc/sphinxsearch/sphinx.conf</para>
-	<screen>
+]]>
+		</screen>
+		<para>/etc/sphinxsearch/sphinx.conf</para>
+		<screen>
+	<![CDATA[
 sudo cp /etc/sphinxsearch/sphinx-min.conf.dist /etc/sphinxsearch/sphinx.conf
-	</screen>
-	<para>创建测试数据库并导入测试数据</para>
-	<screen>
+	]]>
+		</screen>
+		<para>创建测试数据库并导入测试数据</para>
+		<screen>
 	<![CDATA[
 $ wget http://sphinxsearch.googlecode.com/svn/trunk/example.sql
 $ mysql -h localhost -uroot -p < example.sql
@@ -31,10 +81,10 @@ id      group_id        group_id2       date_added      title   content
 4       2       8       2011-02-12 15:29:34     doc number four this is to test groups
 
 	]]>
-	</screen>
-	<para>创建索引</para>
-	<command><![CDATA[sudo indexer <index>]]></command>
-	<screen>
+		</screen>
+		<para>创建索引</para>
+		<command><![CDATA[sudo indexer <index>]]></command>
+		<screen>
 	<![CDATA[
 $ sudo indexer test1
 
@@ -48,8 +98,9 @@ sorted 0.0 Mhits, 100.0% done
 total 4 docs, 193 bytes
 total 0.012 sec, 16531.05 bytes/sec, 342.61 docs/sec
 	]]>
-	</screen>
-	<screen>
+		</screen>
+		<screen>
+	<![CDATA[
 $ sudo /etc/init.d/sphinxsearch start
 Starting sphinx: Sphinx 0.9.8.1-release (r1533)
 Copyright (c) 2001-2008, Andrew Aksyonoff
@@ -57,10 +108,11 @@ Copyright (c) 2001-2008, Andrew Aksyonoff
 using config file '/etc/sphinxsearch/sphinx.conf'...
 creating server socket on 0.0.0.0:3312
 sphinx.
-	</screen>
-	<para>测试</para>
-	<para>search "keyword"</para>
-	<screen>
+		]]>
+		</screen>
+		<para>测试</para>
+		<para>search "keyword"</para>
+		<screen>
 	<![CDATA[
 $ search test
 Sphinx 0.9.8.1-release (r1533)
@@ -96,10 +148,13 @@ words:
 1. 'test': 3 documents, 5 hits
 
 	]]>
-	</screen>
-	<screen>
+		</screen>
+		<screen>
+	<![CDATA[
 wget http://sphinxsearch.googlecode.com/svn/trunk/api/sphinxapi.php
 wget http://sphinxsearch.googlecode.com/svn/trunk/api/test.php
 php test.php test
-	</screen>
+	]]>
+		</screen>
+	</section>
 </chapter>

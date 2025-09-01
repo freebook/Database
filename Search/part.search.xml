@@ -1,10 +1,10 @@
 <part id="index"><?dbhtml dir="search" ?>
 	<title>Search Engine</title>
-
+	&chapter.meilisearch.xml;
 	&chapter.elasticsearch.xml;
+	&chapter.sphinx.xml;
 	&chapter.solr.xml;
 	&chapter.nutch.xml;
-	&chapter.sphinx.xml;
 	
 <chapter id="lucene">
 	<title>Lucene</title>
