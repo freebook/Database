@@ -5,7 +5,7 @@
 	<subtitle>MySQL Installation</subtitle>
 	<para>http://downloads.mysql.com/archives.php</para>
 	<section>
-		<title>Rocky Linux 9.0</title>
+		<title>Rocky Linux 9.5</title>
 		<screen>
 		<![CDATA[
 [root@netkiller ~]# dnf install -y mysql-server
@@ -37,6 +37,8 @@ EOF
 cat >> /etc/security/limits.d/20-nofile.conf <<EOF
 mysql soft nofile 65535
 mysql hard nofile 65535
+redis soft nofile 65535
+redis hard nofile 65535
 EOF
 
 mkdir /etc/systemd/system/mysqld.service.d/
@@ -76,6 +78,9 @@ Query OK, 0 rows affected (0.03 sec)
 
 mysql> GRANT ALL ON *.* TO 'root'@'%' WITH GRANT OPTION;
 Query OK, 0 rows affected (0.02 sec)
+
+mysql> flush privileges;
+Query OK, 0 rows affected (0.00 sec)
 			]]>
 		</screen>
 		<para>开启防火墙</para>
@@ -296,14 +301,166 @@ HOME=/root
 	<section id="mysql.ubuntu">
 		<title>Ubuntu/Debian</title>
 		<subtitle>Installation by apt under debian/ubuntu</subtitle>
-		<para>安装环境 ubuntu 17.10</para>
-		<screen>
+		<section>
+			<title>Ubuntu 20.04 LTS</title>
+			<screen>
+			<![CDATA[
+ubuntu@VM-0-13-ubuntu:~$ sudo apt install mysql-server
+			]]>
+			</screen>
+			<para>查看端口</para>
+			<screen>
+			<![CDATA[
+ubuntu@VM-0-13-ubuntu:~$ ss -lnt | grep 3306
+LISTEN   0        70                                          127.0.0.1:33060                           0.0.0.0:*                                               
+LISTEN   0        151                                         127.0.0.1:3306                            0.0.0.0:* 			
+			]]>
+			</screen>
+			<para>查看密码</para>
+			<screen>
+			<![CDATA[
+ubuntu@VM-0-13-ubuntu:~$ sudo cat /etc/mysql/debian.cnf
+# Automatically generated for Debian scripts. DO NOT TOUCH!
+[client]
+host     = localhost
+user     = debian-sys-maint
+password = DAl49JLNkjCHo9ib
+socket   = /var/run/mysqld/mysqld.sock
+[mysql_upgrade]
+host     = localhost
+user     = debian-sys-maint
+password = DAl49JLNkjCHo9ib
+socket   = /var/run/mysqld/mysqld.sock			
+			]]>
+			</screen>
+			<para>测试登陆</para>
+			<screen>
+			<![CDATA[
+ubuntu@VM-0-13-ubuntu:~$ mysql -h localhost -u debian-sys-maint -p 
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 18
+Server version: 8.0.40-0ubuntu0.20.04.1 (Ubuntu)
+
+Copyright (c) 2000, 2024, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> 			
+			]]>	
+			</screen>
+			<para>重制 root 密码</para>
+			<screen>
+			<![CDATA[
+sudo vim /etc/mysql/mysql.conf.d/mysqld.cnf
+加入
+skip-grant-tables	
+			]]>
+			</screen>
+			<para>重启 mysql，然后运行下面SQL修改本地 root 密码</para>
+			<screen>
+			<![CDATA[
+use mysql;
+flush privileges;
+alter user 'root'@'localhost' identified with mysql_native_password by 'MQt7SOmtiEge6tlXzB1iks4b'; 	
+			]]>
+			</screen>
+			<screen>
+			<![CDATA[
+mysql> FLUSH PRIVILEGES;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> alter user 'root'@'localhost' identified with mysql_native_password by '123456'; 
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from user where user='root' \G
+*************************** 1. row ***************************
+                    Host: localhost
+                    User: root
+             Select_priv: Y
+             Insert_priv: Y
+             Update_priv: Y
+             Delete_priv: Y
+             Create_priv: Y
+               Drop_priv: Y
+             Reload_priv: Y
+           Shutdown_priv: Y
+            Process_priv: Y
+               File_priv: Y
+              Grant_priv: Y
+         References_priv: Y
+              Index_priv: Y
+              Alter_priv: Y
+            Show_db_priv: Y
+              Super_priv: Y
+   Create_tmp_table_priv: Y
+        Lock_tables_priv: Y
+            Execute_priv: Y
+         Repl_slave_priv: Y
+        Repl_client_priv: Y
+        Create_view_priv: Y
+          Show_view_priv: Y
+     Create_routine_priv: Y
+      Alter_routine_priv: Y
+        Create_user_priv: Y
+              Event_priv: Y
+            Trigger_priv: Y
+  Create_tablespace_priv: Y
+                ssl_type: 
+              ssl_cipher: 0x
+             x509_issuer: 0x
+            x509_subject: 0x
+           max_questions: 0
+             max_updates: 0
+         max_connections: 0
+    max_user_connections: 0
+                  plugin: mysql_native_password
+   authentication_string: *6BB4837EB74329105EE4568DDA7DC67ED2CA2AD9
+        password_expired: N
+   password_last_changed: 2025-01-06 16:50:36
+       password_lifetime: NULL
+          account_locked: N
+        Create_role_priv: Y
+          Drop_role_priv: Y
+  Password_reuse_history: NULL
+     Password_reuse_time: NULL
+Password_require_current: NULL
+         User_attributes: NULL
+1 row in set (0.00 sec)
+			]]>
+			</screen>
+			<para>创建外部访问 root 用户</para>
+			<programlisting>
+			<![CDATA[
+mysql> CREATE USER 'root'@'%' IDENTIFIED BY 'lXzB1it7SOmtiMQEge6tks4b';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> GRANT ALL ON *.* TO 'root'@'%' WITH GRANT OPTION;
+Query OK, 0 rows affected (0.01 sec)			
+			]]>
+			</programlisting>
+			<para>修改配置文件，移除 skip-grant-tables	增加下面配置项,然后重启</para>
+			<screen>
+			<![CDATA[
+bind-address            = 0.0.0.0			
+			]]>
+			</screen>
+		</section>
+		
+		<section>
+			<title>Ubuntu 旧版本</title>
+			<para>安装环境 ubuntu 17.10</para>
+			<screen>
 		<![CDATA[
 			sudo apt install mysql-server mysql-client
 		]]>
-		</screen>
-		<para>New password for the MySQL "root" user</para>
-		<screen>
+			</screen>
+			<para>New password for the MySQL "root" user</para>
+			<screen>
 		<![CDATA[
 ┌──────────────────────┤ Configuring mysql-server-5.7 ├─────────────────────┐
 │ While not mandatory, it is highly recommended that you set a password for the MySQL administrative "root" user.  │
@@ -318,9 +475,9 @@ HOME=/root
 │                                                                                                                  │
 └─────────────────────────────────────────────────────────────┘
 		]]>
-		</screen>
-		<para>Repeat password for the MySQL "root" user</para>
-		<screen>
+			</screen>
+			<para>Repeat password for the MySQL "root" user</para>
+			<screen>
 		<![CDATA[
          ┌───┤ Configuring mysql-server-5.7 ├────┐
          │                                             │
@@ -333,9 +490,9 @@ HOME=/root
          │                                             │
          └─────────────────────────┘
          ]]>
-		</screen>
-		<para>尝试登录，验证是否安装成功</para>
-		<screen>
+			</screen>
+			<para>尝试登录，验证是否安装成功</para>
+			<screen>
 		<![CDATA[
 # mysql -udbuser -p
 Enter password:
@@ -351,17 +508,17 @@ mysql> SHOW GRANTS;
 GRANT ALL PRIVILEGES ON example.* TO 'dbuser'@'localhost' IDENTIFIED BY '******' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 		]]>
-		</screen>
-		<para>配置监听IP地址，默认数据库只能从 127.0.0.1访问</para>
-		<screen><![CDATA[
-			neo@netkiller /etc/mysql/mysql.conf.d % vim
-			/etc/mysql/mysql.conf.d/mysqld.cnf
+			</screen>
+			<para>配置监听IP地址，默认数据库只能从 127.0.0.1访问</para>
+			<screen><![CDATA[
+neo@netkiller /etc/mysql/mysql.conf.d % vim
+/etc/mysql/mysql.conf.d/mysqld.cnf
 
-			bind-address = 0.0.0.0
+bind-address = 0.0.0.0
 		]]></screen>
-		<section id="mysql-5.5.21">
-			<title>mysql-5.5.21-debian6.0-i686.deb</title>
-			<screen>
+			<section id="mysql-5.5.21">
+				<title>mysql-5.5.21-debian6.0-i686.deb</title>
+				<screen>
 			<![CDATA[
 sudo apt-get install libaio1
 
@@ -389,7 +546,8 @@ shell> bin/mysqld_safe --user=mysql &
 # Next command is optional
 sudo cp support-files/mysql.server /etc/init.d/mysql
 			]]>
-			</screen>
+				</screen>
+			</section>
 		</section>
 	</section>
 	<section id="mysql.source">
