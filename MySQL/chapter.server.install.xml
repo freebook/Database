@@ -786,6 +786,43 @@ brew services start mysql
 		]]>
 		</screen>
 	</section>
+	<section>
+		<title>重置数据库</title>
+		<screen>
+		<![CDATA[
+rm -rf /var/lib/mysql/*		
+sudo mysqld --initialize --user=mysql
+systemctl restart mysqld
+		]]>
+		</screen>
+		<para>查看密码</para>
+		<screen>
+		<![CDATA[
+[root@netkiller ~]# grep "A temporary password" /var/log/mysql/mysqld.log 
+2025-09-08T08:54:35.596154Z 6 [Note] [MY-010454] [Server] A temporary password is generated for root@localhost: 5rSSf=rM7z&7		
+		]]>
+		</screen>
+		<para>首先要重置临时密码</para>
+		<screen>
+		<![CDATA[
+mysql> alter user 'root'@'localhost' identified by 'ZLVJYTIw0R6m70MSmjLQlGguMuMW9NMj';
+Query OK, 0 rows affected (0.01 sec)	
+		]]>
+		</screen>
+		<para>然后创建其他用户</para>
+		<screen>
+		<![CDATA[
+mysql> CREATE USER 'root'@'%' IDENTIFIED BY 'ZLVJYTIw0R6m70MSmjLQlGguMuMW9NMj';
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> GRANT ALL ON *.* TO 'root'@'%' WITH GRANT OPTION;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> FLUSH PRIVILEGES;
+Query OK, 0 rows affected (0.01 sec)	
+		]]>
+		</screen>
+	</section>
 	&chapter.mariadb.xml;
 	&chapter.percona.xml;
 </section>
