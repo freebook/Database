@@ -786,7 +786,7 @@ brew services start mysql
 		]]>
 		</screen>
 	</section>
-	<section>
+	<section id="mysql.reset">
 		<title>重置数据库</title>
 		<screen>
 		<![CDATA[
