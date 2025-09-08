@@ -5,7 +5,7 @@
 	<subtitle>MySQL Installation</subtitle>
 	<para>http://downloads.mysql.com/archives.php</para>
 	<section>
-		<title>Rocky Linux 9.5</title>
+		<title>Rocky Linux</title>
 		<screen>
 		<![CDATA[
 [root@netkiller ~]# dnf install -y mysql-server
@@ -52,6 +52,7 @@ EOF
 		<para>启动数据库</para>
 		<screen>
 			<![CDATA[
+[root@netkiller ~]# systemctl enable mysqld
 [root@netkiller ~]# systemctl start mysqld
 			]]>
 		</screen>

@@ -5,6 +5,65 @@
 	<chapter id="redis">
 		<title>Redis 安装</title>
 		<section>
+			<title>Rocky Linux</title>
+			<screen>
+			<![CDATA[
+cat >> /etc/yum.repos.d/redis.repo <<EOF
+[Redis]
+name=Redis
+baseurl=http://packages.redis.io/rpm/rockylinux9
+enabled=1
+gpgcheck=1
+EOF
+
+curl -fsSL https://packages.redis.io/gpg > /tmp/redis.key
+sudo rpm --import /tmp/redis.key
+			]]>
+			</screen>
+			<screen>
+			<![CDATA[
+[root@netkiller ~]# dnf info redis
+Redis                                                                                                                                                                                       198  B/s | 3.2 kB     00:16    
+Available Packages
+Name         : redis
+Version      : 8.2.1
+Release      : 1
+Architecture : aarch64
+Size         : 29 M
+Source       : redis-8.2.1-1.src.rpm
+Repository   : Redis
+Summary      : Redis is an in-memory database that persists on disk. The data model is key-value, but many different kind of values are supported: Strings, Lists, Sets, Sorted Sets, Hashes, Streams, HyperLogLogs,
+             : Bitmaps.
+URL          : https://redis.io/
+License      : 
+Description  : Redis is an in-memory database that persists on disk. The data model is key-value, but many different kind of values are supported: Strings, Lists, Sets, Sorted Sets, Hashes, Streams, HyperLogLogs,
+             : Bitmaps.
+
+Name         : redis
+Version      : 8.2.1
+Release      : 1
+Architecture : x86_64
+Size         : 30 M
+Source       : redis-8.2.1-1.src.rpm
+Repository   : Redis
+Summary      : Redis is an in-memory database that persists on disk. The data model is key-value, but many different kind of values are supported: Strings, Lists, Sets, Sorted Sets, Hashes, Streams, HyperLogLogs,
+             : Bitmaps.
+URL          : https://redis.io/
+License      : 
+Description  : Redis is an in-memory database that persists on disk. The data model is key-value, but many different kind of values are supported: Strings, Lists, Sets, Sorted Sets, Hashes, Streams, HyperLogLogs,
+             : Bitmaps.			
+			]]>
+			</screen>
+			<screen>
+			<![CDATA[
+[root@netkiller ~]# dnf install redis
+[root@netkiller ~]# systemctl enable redis
+[root@netkiller ~]# systemctl start redis
+			]]>
+			</screen>
+		</section>
+
+		<section>
 			<title>CentOS 8 Stream</title>
 			<screen>
 			<![CDATA[
@@ -338,7 +397,7 @@ shareobjectspoolsize 1024
 $ sudo /etc/init.d/redis-server start
 			]]></screen>
 		</section>
-		<section>
+		<section id="redis.install.mac">
 			<title>Mac 安装 Redis</title>
 			<screen>
 			<![CDATA[
@@ -370,9 +429,7 @@ curl -s https://raw.githubusercontent.com/oscm/shell/master/database/redis/sourc
 			]]>
 			</screen>
 		</section>
-		<section>
-			<title></title>
-		</section>
+
 		<section id="test">
 			<title>Test Redis</title>
 			<para>
@@ -496,8 +553,29 @@ Connection closed by foreign host.
     include /path/to/local.conf
     		]]>
 		</screen>
+		<section>
+			<title>备份配置文件</title>
+			<screen>
+			<![CDATA[
+cp /etc/redis/redis.conf{,.original}
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>绑定配置</title>
+			<screen>
+			<![CDATA[
+sed -i '89s/bind 127.0.0.1/bind 0.0.0.0/g' /etc/redis/redis.conf
+			]]>
+			</screen>
+		</section>
 		<section id="auth">
 			<title>密码认证</title>
+			<screen>
+			<![CDATA[
+sed -i '1077s/# requirepass foobared/requirepass xN9Xm1EA7AREYoG0B4KPBnbchIMbiDzO/' /etc/redis/redis.conf
+			]]>
+			</screen>
 			<para>打开 /etc/redis.conf 修改 requirepass 配置项</para>
 			<screen><![CDATA[
 # vim /etc/redis.conf
@@ -726,7 +804,7 @@ root@redis:/data# redis-cli
 
 			</section>
 		</section>
-		
+
 		<section id="acl">
 			<title>ACL 用户/密码认证</title>
 			<section>
@@ -816,9 +894,9 @@ OK
 				]]>
 				</screen>
 			</section>
-			
+
 		</section>
-		
+
 		<section id="monitor">
 			<title>MONITOR</title>
 			<screen><![CDATA[
