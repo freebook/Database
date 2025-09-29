@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <chapter id="index"><?dbhtml dir="meilisearch" ?>
 	<title>Meilisearch</title>
+	<section>
+		<title>安装 </title>
+		<para>docker</para>
+		<screen>
+		<![CDATA[
+# 拉取最新镜像
+docker pull getmeili/meilisearch:latest
 
+# 启动服务，映射端口7700，数据持久化到当前目录meili_data
+docker run -itd --rm -p 7700:7700 -v $(pwd)/meili_data:/meili_data getmeili/meilisearch:latest
+		
+		]]>
+		</screen>
+		
+	</section>
 </chapter>
