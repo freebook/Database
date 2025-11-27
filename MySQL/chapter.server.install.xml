@@ -5,6 +5,58 @@
 	<subtitle>MySQL Installation</subtitle>
 	<para>http://downloads.mysql.com/archives.php</para>
 	<section>
+		<title>Rocky Linux + MySQL 9.5</title>
+		<screen>
+		<![CDATA[
+#!/bin/sh
+dnf install -y https://dev.mysql.com/get/Downloads/MySQL-9.5/mysql-community-common-9.5.0-1.el10.x86_64.rpm
+dnf install -y https://dev.mysql.com/get/Downloads/MySQL-9.5/mysql-community-icu-data-files-9.5.0-1.el10.x86_64.rpm
+dnf install -y https://dev.mysql.com/get/Downloads/MySQL-9.5/mysql-community-client-plugins-9.5.0-1.el10.x86_64.rpm
+dnf install -y https://dev.mysql.com/get/Downloads/MySQL-9.5/mysql-community-libs-9.5.0-1.el10.x86_64.rpm
+dnf install -y https://dev.mysql.com/get/Downloads/MySQL-9.5/mysql-community-client-9.5.0-1.el10.x86_64.rpm
+dnf install -y https://dev.mysql.com/get/Downloads/MySQL-9.5/mysql-community-server-9.5.0-1.el10.x86_64.rpm
+
+cp /etc/my.cnf{,.original}
+
+cat >>  /etc/security/limits.conf <<EOF
+
+mysql soft nofile 65535
+mysql hard nofile 65535
+EOF
+
+sed -i "53s/LimitNOFILE = 5000/LimitNOFILE = 65535/g" /usr/lib/systemd/system/mysqld.service
+
+cat >> /etc/my.cnf.d/server.cnf <<EOF
+# Add by Neo
+
+[mysqld]
+character-set-server=utf8mb4
+collation-server=utf8mb4_general_ci
+explicit_defaults_for_timestamp=true
+lower_case_table_names=1
+EOF
+
+
+systemctl enable mysqld
+systemctl start mysqld
+
+grep "A temporary password" /var/log/mysqld.log		
+		]]>
+		</screen>
+		<screen>
+		<![CDATA[
+[root@beta my.cnf.d]# grep "A temporary password" /var/log/mysqld.log
+2025-11-27T03:23:06.977137Z 6 [Note] [MY-010454] [Server] A temporary password is generated for root@localhost: 48Ukp_j?Ntth
+
+[root@beta my.cnf.d]# mysqladmin -u root -p'48Ukp_j?Ntth' password
+mysqladmin: [Warning] Using a password on the command line interface can be insecure.
+New password: 
+Confirm new password: 
+Warning: Since password will be sent to server in plain text, use ssl connection to ensure password safety.		
+		]]>
+		</screen>
+	</section>
+	<section>
 		<title>Rocky Linux</title>
 		<screen>
 		<![CDATA[
@@ -250,7 +302,6 @@ owners.
 Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 
 mysql>
-
 			]]>
 			</screen>
 			<para>创建用户</para>
