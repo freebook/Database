@@ -559,6 +559,14 @@ mysql> select mod(5,2);
 			]]>
 			</screen>
 		</section>
+		<section>
+			<title>无符号整型，减法操作，回零操作</title>
+			<programlisting>
+			<![CDATA[
+update development.promotion set gift=GREATEST(CAST(gift AS SIGNED)-10,0) where device='46ADD234253233';
+			]]>
+			</programlisting>
+		</section>
 	</section>
 	<section id="flow">
 		<title>Control Flow Functions</title>
