@@ -117,6 +117,14 @@ SELECT * FROM Picture p WHERE p.audit = true AND p.share = true AND p.id <= :id 
 			]]>
 			</programlisting>
 		</section>
+		<section>
+			<title>分组统计</title>
+			<screen>
+			<![CDATA[
+SELECT date(ctime),`status`,count(1) as count FROM production.meeting group by date(ctime),`status`;			
+			]]>
+			</screen>
+		</section>
 	</section>
 	<section id="sql.having">
 		<title>HAVING</title>

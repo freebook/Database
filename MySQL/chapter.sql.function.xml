@@ -508,6 +508,16 @@ mysql> select datediff('2008-08-08 12:00:00', '2008-08-01 00:00:00');
 			]]>
 			</screen>
 		</section>
+		<section>
+			<title>当前日期 CURDATE()</title>
+			<screen>
+			<![CDATA[
+SELECT `status`,count(1) as count FROM production.meeting where DATE(ctime) = CURDATE() group by `status`;
+
+SELECT sum(completion_tokens) as completion_tokens, sum(prompt_tokens) as prompt_tokens,sum(total_tokens) as total_tokens FROM production.token where YEAR(ctime) = YEAR(CURDATE()) AND MONTH(ctime) = MONTH(CURDATE());	
+			]]>
+			</screen>
+		</section>
 	</section>
 	<section id="numeric">
 		<title>数值函数</title>
