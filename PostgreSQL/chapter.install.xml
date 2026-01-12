@@ -2,7 +2,16 @@
 <!-- $Id: chapter.install.xml 603 2013-05-27 10:09:07Z netkiller $ -->
 <chapter id="install">
 	<title>PostgreSQL 安装</title>
-	<section id="pgsql.install">
+	<section>
+		<title>Rocky Linux / Almalinux</title>
+		<screen>
+		<![CDATA[
+[root@netkiller ~]# dnf install -y postgresql postgresql-server		
+		]]>
+		</screen>
+		
+	</section>
+	<section id="pgsql.ubuntu">
 		<title>Ubuntu 12.04.1 LTS 安装</title>
 		<para>安装环境</para>
 		<para>PostgreSQL 9.1</para>
@@ -198,7 +207,7 @@ sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /var/lib/pgsq
 systemctl start postgresql-9.6
 
 iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 5432 -j ACCEPT
-systemctl save iptables			
+systemctl save iptables
 			]]>
 			</screen>
 			<para>一键安装</para>
