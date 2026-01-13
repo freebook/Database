@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-	&chapter.install.xml;
-	&chapter.manager.xml;
-	&chapter.command.xml;
-	&chapter.ddl.xml;
-	&chapter.dml.xml;
-	&chapter.sql.xml;
-	&chapter.gui.xml;
-	&chapter.pgbouncer.xml;
-	&chapter.connector.xml;
-	&chapter.replication.xml;
-	&chapter.faq.xml;
+	&chapter.postgres.install.xml;
+	&chapter.postgres.manager.xml;
+	&chapter.postgres.command.xml;
+	&chapter.postgres.ddl.xml;
+	&chapter.postgres.dml.xml;
+	&chapter.postgres.sql.xml;
+	&chapter.postgres.gui.xml;
+	&chapter.postgres.pgbouncer.xml;
+	&chapter.postgres.connector.xml;
+	&chapter.postgres.replication.xml;
+	&chapter.postgres.faq.xml;

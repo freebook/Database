@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 	<!ENTITY chapter.postgres.xml			SYSTEM "chapter.postgres.xml">
-	<!ENTITY chapter.install.xml			SYSTEM "chapter.install.xml">
-	<!ENTITY chapter.command.xml			SYSTEM "chapter.command.xml">
-	<!ENTITY chapter.manager.xml			SYSTEM "chapter.manager.xml">
-	<!ENTITY chapter.gui.xml		 		SYSTEM "chapter.gui.xml">
-	<!ENTITY chapter.sql.xml		 		SYSTEM "chapter.sql.xml">
+	<!ENTITY chapter.postgres.install.xml	SYSTEM "chapter.postgres.install.xml">
+	<!ENTITY chapter.postgres.command.xml	SYSTEM "chapter.postgres.command.xml">
+	<!ENTITY chapter.postgres.manager.xml	SYSTEM "chapter.postgres.manager.xml">
+	<!ENTITY chapter.postgres.gui.xml 		SYSTEM "chapter.postgres.gui.xml">
+	<!ENTITY chapter.postgres.sql.xml 		SYSTEM "chapter.postgres.sql.xml">
 	<!ENTITY chapter.sql.function.xml 		SYSTEM "chapter.sql.function.xml">
-	<!ENTITY chapter.ddl.xml		 		SYSTEM "chapter.ddl.xml">
-	<!ENTITY chapter.dml.xml		 		SYSTEM "chapter.dml.xml">
-	<!ENTITY chapter.pgbouncer.xml			SYSTEM "chapter.pgbouncer.xml">
-	<!ENTITY chapter.faq.xml		 		SYSTEM "chapter.faq.xml">
-	<!ENTITY chapter.connector.xml	 		SYSTEM "chapter.connector.xml">
-	<!ENTITY chapter.replication.xml 		SYSTEM "chapter.replication.xml">
+	<!ENTITY chapter.postgres.ddl.xml 		SYSTEM "chapter.postgres.ddl.xml">
+	<!ENTITY chapter.postgres.dml.xml 		SYSTEM "chapter.postgres.dml.xml">
+	<!ENTITY chapter.postgres.pgbouncer.xml		SYSTEM "chapter.postgres.pgbouncer.xml">
+	<!ENTITY chapter.postgres.faq.xml		 	SYSTEM "chapter.postgres.faq.xml">
+	<!ENTITY chapter.postgres.connector.xml	 	SYSTEM "chapter.postgres.connector.xml">
+	<!ENTITY chapter.postgres.replication.xml 	SYSTEM "chapter.postgres.replication.xml">

@@ -217,6 +217,54 @@ psql -U user -d your-db -f schema.sql
 			]]>
 			</screen>
 		</section>
-	</section>
+		<section>
+			<title>Docker 恢复数据</title>
+			<para>首先吧 pg_dump 导出的数据复制到 docker 容器内</para>
+			<screen>
+			<![CDATA[
+[root@rwa pptx]# docker cp api.sql postgres:/tmp/
+Successfully copied 73.7kB to postgres:/tmp/
 
+[root@rwa pptx]# docker cp bills.sql postgres:/tmp/
+Successfully copied 125kB to postgres:/tmp/
+			]]>
+			</screen>
+			<para></para>
+			<screen>
+			<![CDATA[
+[root@rwa pptx]# docker exec -it postgres bash
+root@f402670ad8c3:/# createdb -h 127.0.0.1 -U postgres -E UTF8 -O postgres nano-bills
+root@f402670ad8c3:/# psql -U postgres -d nano-bills -f /tmp/bills.sql
+root@f402670ad8c3:/# exit
+exit
+			]]>
+			</screen>
+		</section>
+	</section>
+	<section>
+		<title>创建数据库</title>
+		<screen>
+		<![CDATA[
+createdb -h 127.0.0.1 -U postgres -E UTF8 -O postgres nano-api		
+		]]>
+		</screen>
+		<para>docker 环境演示</para>
+		<screen>
+		<![CDATA[
+[root@netkilller ~]# docker exec -it postgres bash
+root@f402670ad8c3:/# createdb -h 127.0.0.1 -U postgres -E UTF8 -O postgres netkiller
+root@f402670ad8c3:/# exit
+exit
+[root@netkilller ~]# 
+		]]>
+		</screen>
+	</section>
+	<section>
+		<title>删除数据库</title>
+		<screen>
+		<![CDATA[
+dropdb -U postgres bills		
+		]]>
+		</screen>
+	</section>
 </chapter>
