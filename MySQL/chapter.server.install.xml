@@ -57,6 +57,24 @@ Warning: Since password will be sent to server in plain text, use ssl connection
 		</screen>
 	</section>
 	<section>
+		<title>Rocky Linux 10 + MySQL 8.4</title>
+		<screen>
+		<![CDATA[
+dnf install mysql8.4
+dnf install mysql8.4-server
+systemctl enable mysqld
+systemctl start mysqld
+		]]>
+		</screen>
+		<screen>
+		<![CDATA[
+CREATE USER 'root'@'%' IDENTIFIED BY 'chen';
+GRANT ALL ON *.* TO 'root'@'%' WITH GRANT OPTION;
+flush privileges;
+		]]>
+		</screen>
+	</section>
+	<section>
 		<title>Rocky Linux</title>
 		<screen>
 		<![CDATA[
