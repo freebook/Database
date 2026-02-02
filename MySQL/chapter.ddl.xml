@@ -262,7 +262,8 @@ alter table cms.article ADD  COLUMN `mtime` TIMESTAMP NULL DEFAULT NULL ON UPDAT
 				</screen>
 
 				<para>更新时间</para>
-				<para>`mtime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更改时间',</para>
+				<para>`mtime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE
+					CURRENT_TIMESTAMP COMMENT '更改时间',</para>
 				<screen>
 				<![CDATA[
 CREATE TABLE `bank_account` (
@@ -318,11 +319,9 @@ PRIMARY KEY (`id`, `user_id`),
 				]]>
 				</screen>
 			</section>
-
-		</section>
-		<section id="auto_increment">
-			<title>AUTO_INCREMENT 定义初始值</title>
-			<screen>
+			<section id="auto_increment">
+				<title>AUTO_INCREMENT 定义初始值</title>
+				<screen>
 			<![CDATA[
 DROP TABLE IF EXISTS users;
 CREATE TABLE user(
@@ -330,13 +329,65 @@ CREATE TABLE user(
 PRIMARY KEY(id)
 )ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8;			
 			]]>
+				</screen>
+				<para>修改 auto_incremenrt 起始值</para>
+				<screen>
+			<![CDATA[
+alter table tab1 auto_incremenrt=n			
+			]]>
+				</screen>
+			</section>
+		</section>
+		<section id="table.GENERATED">
+			<title>虚拟列</title>
+			<para>虚拟列分为两种类型：</para>
+			<para>VIRTUAL（虚拟列）：在读取时实时计算，不占用存储空间</para>
+			<para>STORED（存储列）：在数据写入时计算并存储，会占用实际存储空间</para>
+			<para>下面是 VIRTUAL 的例子</para>
+			<screen>
+			<![CDATA[
+CREATE TABLE member (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID（主键）',
+  firstname VARCHAR(10) NOT NULL COMMENT '名',
+  lastname VARCHAR(10) NOT NULL COMMENT '姓',
+  -- 计算字段：拼接姓+名，用空格分隔，设置为虚拟列（VIRTUAL）
+  name VARCHAR(30) GENERATED ALWAYS AS (CONCAT(lastname, ' ', firstname)) VIRTUAL COMMENT '完整姓名（姓+名）',
+  -- 设置主键，指定字符集和排序规则
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='会员表表';	
+			]]>
 			</screen>
 			<para>修改 auto_incremenrt 起始值</para>
 			<screen>
 			<![CDATA[
-alter table tab1 auto_incremenrt=n			
+INSERT INTO `test`.`member` (`firstname`, `lastname`) VALUES ('景峰','陈');	
 			]]>
 			</screen>
+			<para>下面是 STORED 例子</para>
+			<screen>
+			<![CDATA[
+CREATE TABLE `member` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID（主键）',
+  `firstname` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '名',
+  `lastname` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '姓',
+  `name` varchar(30) COLLATE utf8mb4_unicode_ci GENERATED ALWAYS AS (concat(`lastname`,`firstname`)) stored COMMENT '完整姓名（姓+名）',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='会员表表'
+			]]>
+			</screen>
+			<para>下面为 STORED 创建索引</para>
+			<programlisting>
+			<![CDATA[
+CREATE TABLE `member` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID（主键）',
+  `firstname` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '名',
+  `lastname` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '姓',
+  `name` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci GENERATED ALWAYS AS (concat(`lastname`,`firstname`)) STORED COMMENT '完整姓名（姓+名）',
+  PRIMARY KEY (`id`),
+  KEY `idx_member_name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='会员表表'			
+			]]>
+			</programlisting>
 		</section>
 		<section id="comment">
 			<title>COMMENT</title>
@@ -424,7 +475,8 @@ alter index IND_PK rebuild;
 	<section id="key">
 		<title>外键(Foreign Key)</title>
 		<orderedlist>
-			<title>ON DELETE, ON UPDATE 事件触发限制，可选参数： RESTRICT | CASCADE | SET NULL | NO ACTION</title>
+			<title>ON DELETE, ON UPDATE 事件触发限制，可选参数： RESTRICT | CASCADE | SET
+				NULL | NO ACTION</title>
 			<listitem>
 				<para>RESTRICT（限制外表中的外键改动）</para>
 			</listitem>
