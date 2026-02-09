@@ -28,6 +28,11 @@ DELIMITER ;
 SET SQL_MODE=@OLDTMP_SQL_MODE;
 			]]>
 			</screen>
+			<screen>
+			<![CDATA[
+insert into document(task_id,`name`,content) SELECT task_id,`name`,content FROM production.markdown;			
+			]]>
+			</screen>
 		</section>
 		<section>
 			<title>INSERT IGNORE</title>
