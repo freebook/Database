@@ -122,7 +122,13 @@ Caching
 Upcoming simple desgin with Mongodb.
 
 -->
-
+	&chapter.redis.xml;
+	&chapter.valkey.xml;
+	&chapter.mongo.xml;
+	&chapter.cassandra.xml;
+	&chapter.hypertable.xml;
+	&chapter.couchbase.xml;
+	&chapter.memcached.xml;
 	&chapter.nosql.xml;
 
 

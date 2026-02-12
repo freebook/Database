@@ -1,39 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<chapter id="RethinkDB">
+	<title>RethinkDB</title>
+	<para>http://www.rethinkdb.com/</para>
+</chapter>
+<chapter id="tokyotyrant">
+	<title>TokyoCabinet/Tyrant</title>
+	<para>http://www.162cm.com/p/tokyotyrant.html</para>
+	<screen>
+		# yum install tokyocabinet tokyocabinet-devel -y
+	</screen>
+</chapter>
 
-	&chapter.redis.xml;
-	&chapter.mongo.xml;
-	&chapter.cassandra.xml;
-	&chapter.hypertable.xml;
-	&chapter.couchbase.xml;
-	&chapter.memcached.xml;
-	
-	<chapter id="RethinkDB">
-		<title>RethinkDB</title>
-		<para>http://www.rethinkdb.com/</para>
-	</chapter>
-	<chapter id="tokyotyrant">
-		<title>TokyoCabinet/Tyrant</title>
-		<para>http://www.162cm.com/p/tokyotyrant.html</para>
-		<screen>
-# yum install tokyocabinet tokyocabinet-devel -y
-		</screen>
-	</chapter>
+<chapter id="flare">
+	<title>Flare</title>
+</chapter>
+<chapter id="voldemort">
+	<title>Voldemort</title>
+	<para></para>
+</chapter>
+<chapter id="leveldb">
+	<title>LevelDB</title>
+	<para>LevelDB is a fast key-value storage library written at Google
+		that provides an ordered mapping from string keys to string values.
+	</para>
+	<para>
+		<ulink url="http://code.google.com/p/leveldb/"></ulink>
+	</para>
+</chapter>
 
-	<chapter id="flare">
-		<title>Flare</title>
-	</chapter>
-	<chapter id="voldemort">
-		<title>Voldemort</title>
-		<para></para>
-	</chapter>
-	<chapter id="leveldb">
-		<title>LevelDB</title>
-		<para>LevelDB is a fast key-value storage library written at Google that provides an ordered mapping from string keys to string values.</para>
-		<para><ulink url="http://code.google.com/p/leveldb/"></ulink></para>
-	</chapter>
-
-	<chapter id="HyperDex">
-		<title>HyperDex</title>
-		<para>http://hyperdex.org/</para>
-	</chapter>
-	&chapter.leofs.xml;
+<chapter id="HyperDex">
+	<title>HyperDex</title>
+	<para>http://hyperdex.org/</para>
+</chapter>
+<chapter id="leofs">
+	<title>LeoFS</title>
+	<para>LeoFS is an Unstructured Object Storage for the Web and a highly
+		available, distributed, eventually consistent storage system.</para>
+</chapter>

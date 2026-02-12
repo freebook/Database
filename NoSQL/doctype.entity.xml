@@ -6,4 +6,4 @@
 <!ENTITY chapter.redis.xml				SYSTEM "chapter.redis.xml">
 <!ENTITY chapter.hypertable.xml			SYSTEM "chapter.hypertable.xml">
 <!ENTITY chapter.memcached.xml			SYSTEM "chapter.memcached.xml">
-<!ENTITY chapter.leofs.xml				SYSTEM "chapter.leofs.xml">
+<!ENTITY chapter.valkey.xml				SYSTEM "chapter.valkey.xml">

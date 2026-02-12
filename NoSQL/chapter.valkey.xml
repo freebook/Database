@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="index"><?dbhtml dir="valkey" ?>
+	<title>valkey</title>
+	<para>https://valkey.io</para>
+	<para></para>
+	<section id="valkey.install">
+		<title>安装 valkey</title>
+		<section>
+			<title>dnf 安装</title>
+			<screen>
+			<![CDATA[
+[root@netkiller ~]# dnf install valkey
+			]]>
+			</screen>
+			<para>查看rpm包中有哪些文件</para>
+			<screen>
+			<![CDATA[
+[root@netkiller ~]# rpm -ql valkey
+/etc/logrotate.d/valkey
+/etc/valkey
+/etc/valkey/sentinel.conf
+/etc/valkey/valkey.conf
+/usr/bin/valkey-benchmark
+/usr/bin/valkey-check-aof
+/usr/bin/valkey-check-rdb
+/usr/bin/valkey-cli
+/usr/bin/valkey-sentinel
+/usr/bin/valkey-server
+/usr/lib/.build-id
+/usr/lib/.build-id/42
+/usr/lib/.build-id/42/a8aee490e5ec6438772608eafc18a9600dd01a
+/usr/lib/.build-id/d2
+/usr/lib/.build-id/d2/4453032dfbeade7ff904df6713395537cf5a33
+/usr/lib/.build-id/ea
+/usr/lib/.build-id/ea/b291c461344003aa06274d037311b702a48a29
+/usr/lib/systemd/system/valkey-sentinel.service
+/usr/lib/systemd/system/valkey.service
+/usr/lib/sysusers.d/valkey.conf
+/usr/lib/tmpfiles.d/valkey.conf
+/usr/lib64/valkey
+/usr/lib64/valkey/modules
+/usr/share/licenses/valkey
+/usr/share/licenses/valkey/COPYING
+/usr/share/licenses/valkey/COPYING-hdrhistogram
+/usr/share/licenses/valkey/COPYING-hiredis-BSD-3-Clause
+/usr/share/licenses/valkey/COPYING-jemalloc
+/usr/share/licenses/valkey/COPYRIGHT-lua
+/usr/share/licenses/valkey/LICENSE-fpconv
+/usr/share/licenses/valkey/LICENSE-hdrhistogram
+/var/lib/valkey
+/var/log/valkey
+/var/run/valkey			
+			]]>
+			</screen>
+			<para>启动 valkey</para>
+			<screen>
+			<![CDATA[
+[root@netkiller ~]# systemctl enable valkey.service
+Created symlink /etc/systemd/system/multi-user.target.wants/valkey.service → /usr/lib/systemd/system/valkey.service.
+[root@netkiller ~]# systemctl start valkey.service
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>docker 安装</title>
+			<screen>
+			<![CDATA[
+	
+			]]>
+			</screen>
+		</section>
+	</section>
+	<section id="valkey.conf">
+		<title>配置 valkey</title>
+		<para>备份配置文件</para>
+		<screen>
+			<![CDATA[
+cp /etc/valkey/valkey.conf{,.backup}
+			]]>
+		</screen>
+		<section>
+			<title>listen 地址配置</title>
+			<screen>
+			<![CDATA[
+[root@testing ~]# ss -lnt | grep 6379
+LISTEN 0      511                                    127.0.0.1:6379      0.0.0.0:*   
+LISTEN 0      511                                        [::1]:6379         [::]:*
+			]]>
+			</screen>
+			<screen>
+			<![CDATA[
+[root@testing ~]# vim /etc/valkey/valkey.conf
+#bind 127.0.0.1 -::1
+bind * -::*
+			]]>
+			</screen>
+			<screen>
+			<![CDATA[
+[root@testing ~]# systemctl restart valkey
+			]]>
+			</screen>
+			<screen>
+			<![CDATA[
+[root@testing ~]# ss -lnt | grep 6379
+LISTEN 0      511                                      0.0.0.0:6379      0.0.0.0:*   
+LISTEN 0      511                                         [::]:6379         [::]:* 
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>设置密码</title>
+			<para>临时密码</para>
+			<screen>
+			<![CDATA[
+127.0.0.1:6379> config set requirepass "yourpassword"
+OK
+			]]>
+			</screen>
+			<para>认证密码</para>
+			<screen>
+			<![CDATA[
+127.0.0.1:6379> auth "yourpassword"
+OK
+			]]>
+			</screen>
+			<para>取消临时密码</para>
+			<screen>
+			<![CDATA[
+127.0.0.1:6379> config set requirepass ""
+OK
+			]]>
+			</screen>
+			<para>永久配置密码（需要重启后生效）</para>
+			<screen>
+			<![CDATA[
+# /etc/valkey/valkey.conf 找到这行（默认被注释）
+# requirepass foobared
+# 取消注释并修改为你的密码
+requirepass yourpassword
+			]]>
+			</screen>
+		</section>
+	</section>
+	<section id="valkey.cli">
+		<title>valkey-cli</title>
+		<screen>
+		<![CDATA[
+[root@testing ~]# valkey-cli 
+127.0.0.1:6379> 		
+		]]>
+		</screen>
+		<section id="Valkey">
+			<title>Valkey</title>
+			<para>https://valkey.io</para>
+		</section>
+	</section>
+</chapter>

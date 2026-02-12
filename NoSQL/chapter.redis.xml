@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<part id="index"><?dbhtml dir="redis" ?>
+<chapter id="index"><?dbhtml dir="redis" ?>
 	<title>Redis</title>
 	<para>http://redis.io/</para>
-	<chapter id="redis">
+	<section id="redis">
 		<title>Redis 安装</title>
 		<section>
 			<title>Rocky Linux</title>
@@ -474,8 +474,8 @@ Connection closed by foreign host.
 			]]>
 			</screen>
 		</section>
-	</chapter>
-	<chapter id="redis.conf">
+	</section>
+	<section id="redis.conf">
 		<title>/etc/redis.conf</title>
 		<para>参数说明, redis.conf 配置项说明如下：</para>
 		<screen>
@@ -684,8 +684,8 @@ user default on sanitize-payload #3fa0004eed37d149b6929dcad865d03311377f8af5e446
 			]]>
 			</screen>
 		</section>
-	</chapter>
-	<chapter id="redis-cli">
+	</section>
+	<section id="redis-cli">
 		<title>redis-cli - Command-line client to redis-server</title>
 		<section id="redis-cli.args">
 			<title>命令参数</title>
@@ -1619,8 +1619,8 @@ OK
 			]]>
 			</screen>
 		</section>
-	</chapter>
-	<chapter id="redis-benchmark">
+	</section>
+	<section id="redis-benchmark">
 		<title>redis-benchmark 测试工具</title>
 		<para>redis-benchmark 基准性能测试</para>
 		<screen>
@@ -1654,8 +1654,8 @@ OK
 		<screen><![CDATA[
 redis-benchmark -c 256 -n 20000
 		]]></screen>
-	</chapter>
-	<chapter id="cluster">
+	</section>
+	<section id="cluster">
 		<title>Redis Cluster</title>
 		<screen>
 		<![CDATA[
@@ -1682,8 +1682,8 @@ READONLY 在集群中的salve节点开启只读模式
 READWRITE 禁止读取请求跳转到集群中的salve节点上clust		
 		]]>
 		</screen>
-	</chapter>
-	<chapter id="protocol">
+	</section>
+	<section id="protocol">
 		<title>Redis 通信协议</title>
 		<section>
 			<title>切换DB</title>
@@ -1718,9 +1718,9 @@ MONITOR
 # (echo -en "MONITOR\r\n"; sleep 10) | nc 172.18.52.13 6379
 			]]></screen>
 		</section>
-	</chapter>
+	</section>
 
-	<chapter id="redis.devel">
+	<section id="redis.devel">
 		<title>Redis 开发</title>
 		<section id="subpub">
 			<title>消息订阅与发布</title>
@@ -1766,8 +1766,8 @@ redis.select(1)
 			]]>
 			</programlisting>
 		</section>
-	</chapter>
-	<chapter id="redis.tools">
+	</section>
+	<section id="redis.tools">
 		<title>工具</title>
 		<section>
 			<title>导出 / 导入</title>
@@ -1816,9 +1816,9 @@ git submodule update
 			<title>A fast, light-weight proxy for memcached and redis</title>
 			<para>https://github.com/twitter/twemproxy</para>
 		</section>
-	</chapter>
+	</section>
 
-	<chapter id="faq">
+	<section id="faq">
 		<title>FAQ</title>
 		<section>
 			<title>清空数据库</title>
@@ -1922,9 +1922,5 @@ OK
 		<section>
 			<title></title>
 		</section>
-	</chapter>
-	<chapter id="Valkey">
-		<title>Valkey</title>
-		<para>https://valkey.io</para>
-	</chapter>
-</part>
+	</section>
+</chapter>
