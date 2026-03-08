@@ -2,7 +2,6 @@
 <chapter id="index"><?dbhtml dir="valkey" ?>
 	<title>valkey</title>
 	<para>https://valkey.io</para>
-	<para></para>
 	<section id="valkey.install">
 		<title>安装 valkey</title>
 		<section>
@@ -63,6 +62,108 @@ Created symlink /etc/systemd/system/multi-user.target.wants/valkey.service → /
 		</section>
 		<section>
 			<title>docker 安装</title>
+			<para></para>
+			<screen>
+			<![CDATA[
+[root@development ~]# docker pull valkey/valkey:latest
+latest: Pulling from valkey/valkey
+3afb833cf95f: Pull complete 
+057025682372: Pull complete 
+e8fade468d5c: Pull complete 
+ca4edd5b0001: Pull complete 
+4f4fb700ef54: Pull complete 
+94f12cff9db9: Pull complete 
+206356c42440: Pull complete 
+Digest: sha256:2bce660b767cb62c8c0ea020e94a230093be63dbd6af4f21b044960517a5842d
+Status: Downloaded newer image for valkey/valkey:latest
+docker.io/valkey/valkey:latest	
+			]]>
+			</screen>
+			<para></para>
+			<screen>
+			<![CDATA[
+docker run -d \
+  --name valkey \
+  -p 6379:6379 \
+  valkey/valkey:latest	
+			]]>
+			</screen>
+			<para>使用 netkiller-devops 编排工具部署</para>
+			<screen>
+			<![CDATA[
+#!/usr/bin/env python3
+##################################################
+# Home	: https://www.netkiller.cn
+# Author: Neo <netkiller@msn.com>
+# Upgrade: 2025-04-25
+# Docker 编排工具
+##################################################
+
+import sys
+
+try:
+    from netkiller.docker import *
+except ModuleNotFoundError as err:
+    print("pip install netkiller-devops, %s" % (err))
+    exit()
+
+development = Composes("radio")
+# -----------------------------------------------------------------------------------------------
+valkey = Services("valkey")
+valkey.container_name("valkey")
+valkey.image("valkey/valkey:latest")
+valkey.restart("unless-stopped")
+valkey.volumes(["/srv/valkey/valkey.conf:/etc/valkey/valkey.conf","/srv/valkey/data:/data"])
+valkey.ports(["6379:6379"])
+valkey.command(
+    [
+        "/etc/valkey/valkey.conf",
+    ]
+)
+
+valkey.file(r"/srv/valkey/valkey.conf", """
+requirepass CC2E34-11FC-40D0-A1B2-B9D5880FFA5
+""")
+
+# -----------------------------------------------------------------------------------------------
+# production.services(valkey)
+development.services(valkey)
+# testing.services(valkey)
+# beta.services(valkey)
+# -----------------------------------------------------------------------------------------------
+
+
+if __name__ == "__main__":
+    try:
+        docker = Docker()
+        docker.none()
+        # docker.env({'DOCKER_HOST':'ssh://root@192.168.30.13','COMPOSE_PROJECT_NAME':'experiment'})
+        docker.sysctl({"vm.overcommit_memory": "1"})
+        docker.environment(development)
+        # docker.environment(testing)
+        # docker.environment(production)
+        docker.main()
+    except KeyboardInterrupt:
+        print("Crtl+C Pressed. Shutting down.")
+			]]>
+			</screen>
+			<para></para>
+			<screen>
+			<![CDATA[
+	
+			]]>
+			</screen>
+			<para></para>
+			<screen>
+			<![CDATA[
+	
+			]]>
+			</screen>
+			<screen>
+			<![CDATA[
+	
+			]]>
+			</screen>
 			<screen>
 			<![CDATA[
 	
@@ -153,5 +254,14 @@ requirepass yourpassword
 			<title>Valkey</title>
 			<para>https://valkey.io</para>
 		</section>
+	</section>
+	<section>
+		<title>客户端库</title>
+		<para></para>
+		<screen>
+		<![CDATA[
+pip install valkey-glide
+		]]>
+		</screen>
 	</section>
 </chapter>
