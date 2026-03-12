@@ -147,12 +147,7 @@ if __name__ == "__main__":
         print("Crtl+C Pressed. Shutting down.")
 			]]>
 			</screen>
-			<para></para>
-			<screen>
-			<![CDATA[
-	
-			]]>
-			</screen>
+
 			<para></para>
 			<screen>
 			<![CDATA[

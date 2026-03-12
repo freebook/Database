@@ -301,6 +301,42 @@ CREATE TABLE IF NOT EXISTS `tab_name` (
 				]]>
 				</programlisting>
 			</section>
+			<section>
+				<title>默认值，日期年YYYY</title>
+				<para>`expired` year DEFAULT (year(now()))</para>
+				<programlisting>
+				<![CDATA[
+CREATE TABLE `device` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `bluetooth` varchar(17) DEFAULT NULL COMMENT '蓝牙 mac 地址',
+  `brand` varchar(255) DEFAULT NULL COMMENT '品牌',
+  `capacity` int unsigned DEFAULT NULL COMMENT '存储容量',
+  `cpu` varchar(255) DEFAULT NULL COMMENT 'CPU',
+  `ctime` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `description` varchar(255) DEFAULT NULL COMMENT '设备状态描述',
+  `device` varchar(255) DEFAULT NULL COMMENT '设备驱动',
+  `display` varchar(255) DEFAULT NULL COMMENT '显示屏',
+  `fingerprint` varchar(255) DEFAULT NULL COMMENT '设备标识',
+  `fireware` varchar(32) DEFAULT NULL COMMENT '固件版本',
+  `hardware` varchar(255) DEFAULT NULL COMMENT '硬件',
+  `iccid` varchar(20) DEFAULT NULL COMMENT 'ICCID',
+  `imei` varchar(15) DEFAULT NULL COMMENT 'IMEI',
+  `imsi` varchar(15) DEFAULT NULL COMMENT 'IMSI(International Mobile Subscriber Identity)国际移动用户识别码',
+  `manufacturer` varchar(255) DEFAULT NULL COMMENT '制造商',
+  `meid` varchar(15) DEFAULT NULL COMMENT 'MEID',
+  `memory` int unsigned DEFAULT NULL COMMENT '内存容量',
+  `model` varchar(32) DEFAULT NULL COMMENT '型号',
+  `mtime` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+  `android_id` varchar(32) NOT NULL COMMENT '设备名称',
+  `product` varchar(255) DEFAULT NULL COMMENT '产品',
+  `status` enum('Y','N') NOT NULL DEFAULT 'N' COMMENT '设备状态，Y=正常，N=禁用，冻结，description 会描述冻结原因',
+  `version` varchar(32) DEFAULT NULL COMMENT '软件版本',
+  `expired` year DEFAULT (year(now())),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=83 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='设备表'				
+				]]>
+				</programlisting>
+			</section>
 		</section>
 		<section id="key">
 			<title>KEY</title>
