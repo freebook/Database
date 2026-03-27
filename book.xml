@@ -58,6 +58,7 @@
 	<!ENTITY section.milvus.python.xml		SYSTEM "Milvus/section.milvus.python.xml">
 	
 	<!ENTITY chapter.sqlite.xml				SYSTEM "chapter.sqlite.xml">
+	<!ENTITY chapter.dbtools.xml			SYSTEM "chapter.dbtools.xml">
 	
 	<!ENTITY home "<![CDATA[ <ulink url='&homepage;'>&homepage;</ulink> ]]>">
 
@@ -117,6 +118,7 @@
 	&chapter.clickhouse.xml;
 	&chapter.milvus.xml;
 	&chapter.sqlite.xml;
+	&chapter.dbtools.xml;
 
 <!-- ===========================================================================
 	&book.history;

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter id="dbtools">
+	<title>数据库工具</title>
+	<section>
+		<title>lazysql 一款基于TUI的数据库管理工具</title>
+		<para>https://github.com/jorgerojas26/lazysql</para>
+		<screen>
+		<![CDATA[
+brew install lazysql		
+		]]>
+		</screen>
+		<graphic format="png" fileref="https://github.com/jorgerojas26/lazysql/raw/main/images/lazysql.png" srccredit="neo" />
+	</section>
+</chapter>

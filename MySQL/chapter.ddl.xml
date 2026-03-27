@@ -136,6 +136,55 @@ select question, answer from QA where answer = 'B,C';
 				</programlisting>
 			</section>
 		</section>
+		<section>
+			<title>POINT</title>
+			<programlisting>
+			<![CDATA[
+CREATE TABLE `locations` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `address` varchar(255) NOT NULL,
+  `location` point NOT NULL,
+  PRIMARY KEY (`id`),
+  SPATIAL KEY (`location`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;			
+			]]>
+			</programlisting>
+			<para>插入坐标需要用到 POINT() 函数</para>
+			<programlisting>
+			<![CDATA[
+INSERT INTO `locations` (`address`, `location`) VALUES ('深圳市南山区', POINT(112.33492879028215, 22.104983451516895));			
+			]]>
+			</programlisting>
+			<para>从坐标中提取经纬度数据</para>
+			<programlisting>
+			<![CDATA[
+SELECT X(`location`) AS `longitude`,
+       Y(`location`) AS `latitude`,
+       address
+FROM locations;			
+
+# 或
+
+SELECT ST_X(`location`) AS `longitude`,
+       ST_Y(`location`) AS `latitude`,
+       address
+FROM locations;
+			]]>
+			</programlisting>
+			<para>计算两点之间的距离</para>
+			<programlisting>
+			<![CDATA[
+SELECT ST_Distance_Sphere(POINT(112.45793492676519, 23.166846183324765), POINT(111.45793492676519, 23.166846183324765)) AS distance			
+			]]>
+			</programlisting>
+			<para>给定位数据加索引，注意是 SPATIAL 类型的索引。</para>
+			<programlisting>
+			<![CDATA[
+ALTER TABLE `beta`.`geo` 
+ADD SPATIAL INDEX `location` (`location`) COMMENT '定位索引' VISIBLE;			
+			]]>
+			</programlisting>
+		</section>
 		<section id="create.table.like">
 			<title>基于现有表结构创建新空表</title>
 			<programlisting>

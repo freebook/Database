@@ -9,7 +9,7 @@
 	<title>MHA</title>
 	<para><ulink url="https://code.google.com/p/mysql-master-ha/" /></para>
 </section>
-	&chapter.handlersocket.xml;
+	
 	&chapter.maatkit.xml;
 	<section id="Mroonga">
 		<title>Mroonga</title>

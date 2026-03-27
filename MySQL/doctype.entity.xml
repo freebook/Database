@@ -33,7 +33,6 @@
 <!ENTITY chapter.connectors.xml 		SYSTEM "chapter.connectors.xml">
 <!ENTITY chapter.faq.xml				SYSTEM "chapter.faq.xml">
 <!ENTITY chapter.mariadb.xml			SYSTEM "chapter.mariadb.xml">
-<!ENTITY chapter.handlersocket.xml		SYSTEM "chapter.handlersocket.xml">
 <!ENTITY chapter.maatkit.xml			SYSTEM "chapter.maatkit.xml">
 <!ENTITY chapter.percona.xml			SYSTEM "chapter.percona.xml">
 <!ENTITY chapter.optimization.xml		SYSTEM "chapter.optimization.xml">
