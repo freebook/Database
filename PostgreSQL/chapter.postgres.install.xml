@@ -3,6 +3,59 @@
 <chapter id="install">
 	<title>PostgreSQL 安装</title>
 	<section>
+		<title>netkiller-devops 部署 postgres</title>
+		<screen>
+		<![CDATA[
+volumes = Volumes("postgres")
+development.volumes(volumes)
+
+postgres=Services("postgres")
+postgres.image("postgres:18.3")
+postgres.container_name("postgres")
+postgres.environment({"TZ": "Asia/Shanghai",
+    "POSTGRES_USER": "postgres",
+    "POSTGRES_PASSWORD":"0BDC2BE5FA72",
+    "POSTGRES_DB":"postgres",
+    "POSTGRES_INITDB_ARGS":"--encoding=UTF-8 --locale=C"
+})
+
+# PGDATA: /var/lib/postgresql/data/pgdata
+# MAX_CONNECTIONS: "100"
+# SHARED_BUFFERS: "512MB"
+# EFFECTIVE_CACHE_SIZE: "1536MB"
+postgres.ports(["5432:5432"])
+postgres.volumes(['postgres:/var/lib/postgresql'])
+postgres.healthcheck({
+      'test': ["CMD-SHELL", "pg_isready -U postgres"],
+      'interval': '5s',
+      'timeout': '5s',
+      'retries': 5
+})
+development.services(postgres)		
+		]]>
+		</screen>
+		<para>创建数据库</para>
+		<screen>
+		<![CDATA[
+[root@development ~]# docker exec -it postgres createdb -h 127.0.0.1 -U postgres leenana3		
+		]]>
+		</screen>
+		<para>修改书库所有者</para>
+		<screen>
+		<![CDATA[
+postgres=# ALTER DATABASE leenana1 OWNER TO leenana;
+ALTER DATABASE
+postgres=# ALTER DATABASE leenana2 OWNER TO leenana;
+ALTER DATABASE		
+		]]>
+		</screen>
+		<screen>
+		<![CDATA[
+		
+		]]>
+		</screen>
+	</section>
+	<section>
 		<title>Rocky Linux / Almalinux</title>
 		<screen>
 		<![CDATA[
