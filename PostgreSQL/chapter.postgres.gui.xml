@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chapter id="gui">
-	<title>PostgreSQL GUI</title>
+<chapter id="postgres.other">
+	<title>PostgreSQL 其他相关</title>
 	<section>
 		<title>pgAdmin III</title>
-		<para><ulink url="http://www.pgadmin.org/" /></para>
+		<para>
+			<ulink url="http://www.pgadmin.org/" />
+		</para>
 	</section>
 	<section id="phppgadmin">
 		<title>phpPgAdmin</title>
 		<para>homepage: http://phppgadmin.sourceforge.net/</para>
 		<screen>
-$ wget http://nchc.dl.sourceforge.net/sourceforge/phppgadmin/phpPgAdmin-4.2.2.tar.bz2
-$ tar jxvf phpPgAdmin-4.2.2.tar.bz2
-$ ln -s phpPgAdmin-4.2.2 phpPgAdmin
+			$ wget
+			http://nchc.dl.sourceforge.net/sourceforge/phppgadmin/phpPgAdmin-4.2.2.tar.bz2
+			$ tar jxvf phpPgAdmin-4.2.2.tar.bz2
+			$ ln -s phpPgAdmin-4.2.2 phpPgAdmin
 		</screen>
 	</section>
 	<section id="monitoring">
@@ -26,10 +29,19 @@ $ ln -s phpPgAdmin-4.2.2 phpPgAdmin
 
 	<section id="pgModeler">
 		<title>pgModeler - PostgreSQL Database Modeler</title>
-		<para><ulink url="http://pgmodeler.com.br/" /></para>
+		<para>
+			<ulink url="http://pgmodeler.com.br/" />
+		</para>
 	</section>
-</chapter>
-<chapter id="barman">
-	<title>Barman Backup &amp; recovery for PostgreSQL</title>
-	<para>http://www.pgbarman.org/</para>
+
+	<section id="barman">
+		<title>Barman Backup &amp; recovery for PostgreSQL</title>
+		<para>Barman for PostgreSQL http://www.pgbarman.org/</para>
+	</section>
+
+	<section id="wrappers">
+		<title>Foreign data wrappers</title>
+		<para>http://wiki.postgresql.org/wiki/Foreign_data_wrappers</para>
+	</section>
+
 </chapter>

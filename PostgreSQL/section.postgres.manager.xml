@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+&section.postgres.command.xml;
+<chapter id="pgsql.administration">
+	<title>数据库管理（Administration）</title>
+	<section id="user">
+		<title>用户管理(User)</title>
+		<section>
+			<title>新建用户</title>
+			<para>createuser 命令</para>
+			<screen>
+			<![CDATA[
+$ createuser -P wechat
+Enter password for new role: 
+Enter it again: 			
+			]]>
+			</screen>
+			<para>新建用户 SQL</para>
+			<screen>
+			<![CDATA[
+CREATE ROLE woodart LOGIN PASSWORD 'chen'
+  NOINHERIT
+   VALID UNTIL 'infinity';			
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>SUPERUSER</title>
+			<screen>
+			<![CDATA[
+CREATE ROLE dba LOGIN
+  PASSWORD 'your password'
+  SUPERUSER INHERIT CREATEDB CREATEROLE REPLICATION;			
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>删除用户</title>
+			<para>本地操作</para>
+			<screen>
+			<![CDATA[
+$ dropuser dba	
+			]]>
+			</screen>
+			<para>远程操作</para>
+			<screen>
+			<![CDATA[
+dropuser -h192.168.1.1 -p 5432 -i -e testuser
+User "testuser" and any owned databases will be permanently deleted.
+Are you sure? (y/n) y			
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>链接数限制</title>
+			<programlisting>
+			<![CDATA[
+CREATE ROLE sender LOGIN ENCRYPTED PASSWORD 'md51fd19061f37b296d27bf52b4c32c12ad'
+   VALID UNTIL 'infinity' CONNECTION LIMIT 2048;			
+			]]>
+			</programlisting>
+		</section>
+		<section>
+			<title>复制用户</title>
+			<programlisting>
+			<![CDATA[
+CREATE ROLE sender LOGIN ENCRYPTED PASSWORD 'md51fd19061f37b296d27bf52b4c32c12ad' REPLICATION
+   VALID UNTIL 'infinity' CONNECTION LIMIT 2048;			
+			]]>
+			</programlisting>
+		</section>
+		<section>
+			<title>修改用户密码</title>
+			<programlisting>
+			<![CDATA[
+alter user wechat with password 'new password'
+alter user postgres with password 'new password'			
+			]]>
+			</programlisting>
+			<para>使用psql运行上面语句</para>
+			<programlisting>
+			<![CDATA[
+psql -d template1 -U postgres -c "alter role postgres password ‘123456’;"				
+			]]>
+			</programlisting>
+		</section>
+	</section>
+	<section id="database">
+		<title>数据库管理 (Database)</title>
+		<screen>
+		<![CDATA[
+$ sudo -u postgres createuser -W dbuser
+Shall the new role be a superuser? (y/n) n
+Shall the new role be allowed to create databases? (y/n) y
+Shall the new role be allowed to create more new roles? (y/n) n
+Password:
+
+$ sudo -u postgres createdb testdb -O dbuser
+		]]>
+		</screen>
+		<para>新建数据库</para>
+		<screen>
+		<![CDATA[
+CREATE DATABASE woodart
+  WITH ENCODING='UTF8'
+       OWNER=woodart;
+       ]]>
+		</screen>
+		<screen>
+		<![CDATA[
+CREATE DATABASE mydb ENCODING 'UTF8' TEMPLATE template0 OWNER dbuser TABLESPACE myspace;			
+		]]>
+		</screen>
+		<section>
+			<title>删除数据库</title>
+			<screen>
+			<![CDATA[
+dropdb mydb			
+			]]>
+			</screen>
+			<para></para>
+			<screen>
+			<![CDATA[
+DROP DATABASE mydb			
+			]]>
+			</screen>
+		</section>
+	</section>
+	<section id="table">
+		<title>表管理（Table）</title>
+
+	</section>
+
+
+	<section id="pg_table">
+		<title>PostgreSQL 系统状态与管理</title>
+		<section>
+			<title>查看配置文件位置</title>
+			<screen>
+		<![CDATA[
+postgres=# SHOW config_file;
+                  config_file                  
+-----------------------------------------------
+ /var/lib/postgresql/18/docker/postgresql.conf
+(1 row)
+		]]>
+			</screen>
+		</section>
+		<!-- <section> <title></title> <screen> <![CDATA[ ]]> </screen> </section> 
+			<section> <title></title> <screen> <![CDATA[ ]]> </screen> </section> <section> 
+			<title></title> <screen> <![CDATA[ ]]> </screen> <screen> <![CDATA[ ]]> </screen> 
+			<screen> <![CDATA[ ]]> </screen> </section> -->
+
+
+		<section>
+			<title>连接数</title>
+			<screen>
+		<![CDATA[
+[root@development ~]# docker exec -it postgres psql -h 127.0.0.1 -U postgres
+psql (18.3 (Debian 18.3-1.pgdg13+1))
+Type "help" for help.
+
+postgres=# SHOW max_connections;
+ max_connections 
+-----------------
+ 100
+(1 row)		
+		]]>
+			</screen>
+			<para>连接数/使用率</para>
+			<screen>
+		<![CDATA[
+postgres=# SELECT
+  current_setting('max_connections')::int AS max_conn,
+  count(*) AS current_conn,
+  round(count(*)::numeric / current_setting('max_connections')::numeric * 100, 1) AS usage_pct
+FROM pg_stat_activity;
+ max_conn | current_conn | usage_pct 
+----------+--------------+-----------
+      100 |           58 |      58.0
+(1 row)
+		]]>
+			</screen>
+			<para>按用户/库连接数</para>
+			<screen>
+		<![CDATA[
+SELECT datname, usename, count(*) FROM pg_stat_activity GROUP BY 1,2;
+		]]>
+			</screen>
+			<para>长事务</para>
+			<screen>
+		<![CDATA[
+SELECT pid, datname, usename, now() - xact_start AS xact_duration, query
+FROM pg_stat_activity
+WHERE state = 'idle in transaction'
+ORDER BY xact_duration DESC;
+		]]>
+			</screen>
+		</section>
+		<section>
+			<title>查看总连接数</title>
+			<para>查看当前总连接数，可使用如下SQL语句：</para>
+			<screen>
+		<![CDATA[
+SELECT COUNT(*) AS total_connections FROM pg_stat_activity;		
+		]]>
+			</screen>
+			<para>查看连接状态分布</para>
+			<screen>
+		<![CDATA[
+连接状态通常包括active（活跃）、idle（空闲）、idle in transaction（事务中空闲）等。可通过以下SQL统计各类连接状态：
+SELECT state, COUNT(*) AS count FROM pg_stat_activity GROUP BY state;
+
+State	描述
+active	当前正在执行SQL语句
+idle	连接空闲，未执行任何操作
+idle in transaction	连接处于事务中但未执行任何操作
+fastpath function call	使用快速路径调用函数		
+		]]>
+			</screen>
+		</section>
+		<section>
+			<title>杀掉空闲超久的连接</title>
+			<screen>
+		<![CDATA[
+-- 空闲 > 5 分钟的连接
+SELECT pid, datname, usename, state, query_start, now() - query_start AS duration
+FROM pg_stat_activity
+WHERE state = 'idle' AND now() - query_start > interval '5 min'
+ORDER BY duration DESC;
+
+-- 执行终止（替换 PID）
+SELECT pg_terminate_backend(PID);
+		]]>
+			</screen>
+		</section>
+		<section>
+			<title>杀掉长事务 / 锁等待</title>
+			<screen>
+		<![CDATA[
+-- 运行超过 1 分钟的活跃查询
+SELECT pid, datname, usename, state, query, now() - query_start AS duration
+FROM pg_stat_activity
+WHERE state IN ('active', 'idle in transaction')
+  AND now() - query_start > interval '1 min'
+ORDER BY duration DESC;
+
+-- 终止
+SELECT pg_terminate_backend(PID);
+		]]>
+			</screen>
+		</section>
+		<section id="pg_available_extensions">
+			<title>pg_available_extensions</title>
+			<screen>
+		<![CDATA[
+SELECT * FROM pg_available_extensions;			
+		]]>
+			</screen>
+			<screen>
+		<![CDATA[
+postgres=# SELECT * FROM pg_available_extensions;
+  name   | default_version | installed_version |           comment
+---------+-----------------+-------------------+------------------------------
+ plpgsql | 1.0             | 1.0               | PL/pgSQL procedural language
+(1 row)
+		]]>
+			</screen>
+		</section>
+		<section id="pg_shadow">
+			<title>pg_shadow</title>
+			<screen>
+		<![CDATA[
+postgres=# SELECT * FROM pg_shadow;
+ usename  | usesysid | usecreatedb | usesuper | usecatupd | userepl |               passwd                | valuntil | useconfig
+----------+----------+-------------+----------+-----------+---------+-------------------------------------+----------+-----------
+ postgres |       10 | t           | t        | t         | t       |                                     |          |
+ wechat   |    16385 | f           | f        | f         | f       | md55bf335eef50073dbc3a4a2103e7b3757 |          |
+ test     |    16387 | f           | f        | f         | f       | md505a671c66aefea124cc08b76ea6d30bb |          |
+ dba      |    16384 | t           | t        | t         | f       | md5a1453e5a69943d1674eb2f7100efa04c |          |
+(4 rows)
+		]]>
+			</screen>
+		</section>
+	</section>
+</chapter>
