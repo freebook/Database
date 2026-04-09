@@ -50,15 +50,17 @@ ALTER DATABASE
 		]]>
 		</screen>
 		
+		<screen>
+		<![CDATA[
+docker exec -it postgres pg_dump -h dev.netkiller.com -U neo -d neo -F c -b -v -f neo.dump
+docker exec -it postgres pg_restore -h db.netkiller.com -U dev -d dev -v neo.dump
+		]]>
+		</screen>
 		
 	<!-- 		<section id="barman">
 		<title></title>
 		<para>http://www.pgbarman.org/</para>
-		<screen>
-		<![CDATA[
 		
-		]]>
-		</screen>
 	</section>
 	 -->
 	</section>
