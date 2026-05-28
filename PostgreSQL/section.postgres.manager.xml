@@ -84,6 +84,25 @@ psql -d template1 -U postgres -c "alter role postgres password ‘123456’;"
 			</programlisting>
 		</section>
 	</section>
+	<section id="owned.role">
+		<title>Role 管理</title>
+		<section>
+			<title>超级用户降级为普通用户</title>
+			<screen>
+			<![CDATA[
+ALTER ROLE some_user NOSUPERUSER NOCREATEDB NOCREATEROLE;			
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>统一修改 role</title>
+			<programlisting>
+			<![CDATA[
+REASSIGN OWNED BY old_role TO new_role;			
+			]]>
+			</programlisting>
+		</section>
+	</section>
 	<section id="database">
 		<title>数据库管理 (Database)</title>
 		<screen>
@@ -125,9 +144,43 @@ DROP DATABASE mydb
 			</screen>
 		</section>
 	</section>
+	<section id="admin.SCHEMA">
+		<title>SCHEMA </title>
+		<para>调用用户的 schema 权限</para>
+		<screen>
+		<![CDATA[
+REVOKE CREATE ON SCHEMA public FROM some_user;
+		]]>
+		</screen>
+		<para>禁止使用 schema：</para>
+		<screen>
+		<![CDATA[
+REVOKE USAGE ON SCHEMA public FROM some_user;		
+		]]>
+		</screen>
+	</section>
 	<section id="table">
 		<title>表管理（Table）</title>
-
+		<section>
+			<title>吊销用户表权限</title>
+			<screen>
+			<![CDATA[
+ALTER TABLE public.my_table OWNER TO app_owner;			
+			]]>
+			</screen>
+		</section>
+		<section>
+			<title>SELECT, INSERT, UPDATE, DELETE</title>
+			<screen> 
+			<![CDATA[
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO some_user;			
+			]]>
+			</screen>
+			<screen> <![CDATA[ ]]>
+			</screen>
+			<screen> <![CDATA[ ]]>
+			</screen>
+		</section>
 	</section>
 
 
@@ -145,12 +198,7 @@ postgres=# SHOW config_file;
 		]]>
 			</screen>
 		</section>
-		<!-- <section> <title></title> <screen> <![CDATA[ ]]> </screen> </section> 
-			<section> <title></title> <screen> <![CDATA[ ]]> </screen> </section> <section> 
-			<title></title> <screen> <![CDATA[ ]]> </screen> <screen> <![CDATA[ ]]> </screen> 
-			<screen> <![CDATA[ ]]> </screen> </section> -->
-
-
+		
 		<section>
 			<title>连接数</title>
 			<screen>
