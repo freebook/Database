@@ -13,14 +13,22 @@ CREATE USER user [IDENTIFIED BY [PASSWORD] 'password']
 			]]>
 			</screen>
 			<screen>
-<![CDATA[
+			<![CDATA[
 CREATE USER 'test'@'xxx.xxx.xxx.xxx' IDENTIFIED BY  'your_password';
-			]]></screen>
+			]]>
+			</screen>
+			<para></para>
 			<screen>
-<![CDATA[
+			<![CDATA[
+CREATE USER 'user'@'%' IDENTIFIED BY 'password';
+			]]>
+			</screen>
+			<screen>
+			<![CDATA[
 CREATE USER 'root'@'192.168.1.%' IDENTIFIED BY 'password';
-			]]></screen>
-			<para>add a new user by grant</para>
+			]]>
+			</screen>
+			<para>添加用户并分配权限</para>
 			<screen>
 			<![CDATA[
 GRANT ALL PRIVILEGES ON opencart.* TO 'neo'@'localhost' IDENTIFIED BY 'chen' WITH GRANT OPTION;
@@ -101,7 +109,7 @@ Query OK, 0 rows affected (0.00 sec)
 		</section>
 	</section>
 	<section id="privilege">
-		<title>Access Privilege System</title>
+		<title>用户权限</title>
 		<screen>
 <![CDATA[
 global privileges
@@ -111,79 +119,6 @@ OR column privileges
 OR routine privileges
 		]]></screen>
 		<screen>
-<![CDATA[
-Table 12.1. Permissible Privileges for GRANT and REVOKE
-
-Privilege	Meaning
-ALL [PRIVILEGES]	Grant all privileges at specified access level except GRANT OPTION
-ALTER	Enable use of ALTER TABLE
-ALTER ROUTINE	Enable stored routines to be altered or dropped
-CREATE	Enable database and table creation
-CREATE ROUTINE	Enable stored routine creation
-CREATE TABLESPACE	Enable tablespaces and log file groups to be created, altered, or dropped
-CREATE TEMPORARY TABLES	Enable use of CREATE TEMPORARY TABLE
-CREATE USER	Enable use of CREATE USER, DROP USER, RENAME USER, and REVOKE ALL PRIVILEGES
-CREATE VIEW	Enable views to be created or altered
-DELETE	Enable use of DELETE
-DROP	Enable databases, tables, and views to be dropped
-EVENT	Enable use of events for the Event Scheduler
-EXECUTE	Enable the user to execute stored routines
-FILE	Enable the user to cause the server to read or write files
-GRANT OPTION	Enable privileges to be granted to or removed from other accounts
-INDEX	Enable indexes to be created or dropped
-INSERT	Enable use of INSERT
-LOCK TABLES	Enable use of LOCK TABLES on tables for which you have the SELECT privilege
-PROCESS	Enable the user to see all processes with SHOW PROCESSLIST
-PROXY	Enable user proxying
-REFERENCES	Not implemented
-RELOAD	Enable use of FLUSH operations
-REPLICATION CLIENT	Enable the user to ask where master or slave servers are
-REPLICATION SLAVE	Enable replication slaves to read binary log events from the master
-SELECT	Enable use of SELECT
-SHOW DATABASES	Enable SHOW DATABASES to show all databases
-SHOW VIEW	Enable use of SHOW CREATE VIEW
-SHUTDOWN	Enable use of mysqladmin shutdown
-SUPER	Enable use of other administrative operations such as CHANGE MASTER TO, KILL, PURGE BINARY LOGS, SET GLOBAL, and mysqladmin debug command
-TRIGGER	Enable trigger operations
-UPDATE	Enable use of UPDATE
-USAGE	Synonym for “no privileges”
-		]]></screen>
-		<ulink url="http://dev.mysql.com/doc/refman/5.5/en/grant.html#grant-table-privileges" />
-		<para>REPLICATION CLIENT 与 REPLICATION SLAVE区别，前者只能使用SHOW MASTER STATUS和SHOW SLAVE STATUS命令监控复制状态，后者才能从主库复制binlog.</para>
-		<section>
-			<title>SHOW GRANTS</title>
-			<para></para>
-			<screen>
-			<![CDATA[
-SHOW GRANTS FOR 'root'@'%';			
-			]]>
-			</screen>
-			<screen>
-			<![CDATA[
-mysql> SHOW GRANTS FOR 'root'@'localhost';
-+---------------------------------------------------------------------+
-| Grants for root@localhost                                           |
-+---------------------------------------------------------------------+
-| GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION |
-+---------------------------------------------------------------------+
-1 row in set (0.00 sec)
-			]]>
-			</screen>
-			<screen>
-			<![CDATA[
-mysql> show grants;
-+---------------------------------------------------------------------------------+
-| Grants for root@localhost                                           |
-+---------------------------------------------------------------------------------+
-| GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION |
-+---------------------------------------------------------------------------------+
-1 row in set (0.00 sec)
-			]]>
-			</screen>
-		</section>
-		<section>
-			<title>show privileges</title>
-			<screen>
 			<![CDATA[
 mysql> show privileges;
 +-------------------------+---------------------------------------+-------------------------------------------------------+
@@ -223,39 +158,164 @@ mysql> show privileges;
 +-------------------------+---------------------------------------+-------------------------------------------------------+
 31 rows in set (0.00 sec)
 			]]>
+		</screen>
+		<screen>
+	<![CDATA[
+Table 12.1. Permissible Privileges for GRANT and REVOKE
+
+Privilege	Meaning
+ALL [PRIVILEGES]	Grant all privileges at specified access level except GRANT OPTION
+ALTER	Enable use of ALTER TABLE
+ALTER ROUTINE	Enable stored routines to be altered or dropped
+CREATE	Enable database and table creation
+CREATE ROUTINE	Enable stored routine creation
+CREATE TABLESPACE	Enable tablespaces and log file groups to be created, altered, or dropped
+CREATE TEMPORARY TABLES	Enable use of CREATE TEMPORARY TABLE
+CREATE USER	Enable use of CREATE USER, DROP USER, RENAME USER, and REVOKE ALL PRIVILEGES
+CREATE VIEW	Enable views to be created or altered
+DELETE	Enable use of DELETE
+DROP	Enable databases, tables, and views to be dropped
+EVENT	Enable use of events for the Event Scheduler
+EXECUTE	Enable the user to execute stored routines
+FILE	Enable the user to cause the server to read or write files
+GRANT OPTION	Enable privileges to be granted to or removed from other accounts
+INDEX	Enable indexes to be created or dropped
+INSERT	Enable use of INSERT
+LOCK TABLES	Enable use of LOCK TABLES on tables for which you have the SELECT privilege
+PROCESS	Enable the user to see all processes with SHOW PROCESSLIST
+PROXY	Enable user proxying
+REFERENCES	Not implemented
+RELOAD	Enable use of FLUSH operations
+REPLICATION CLIENT	Enable the user to ask where master or slave servers are
+REPLICATION SLAVE	Enable replication slaves to read binary log events from the master
+SELECT	Enable use of SELECT
+SHOW DATABASES	Enable SHOW DATABASES to show all databases
+SHOW VIEW	Enable use of SHOW CREATE VIEW
+SHUTDOWN	Enable use of mysqladmin shutdown
+SUPER	Enable use of other administrative operations such as CHANGE MASTER TO, KILL, PURGE BINARY LOGS, SET GLOBAL, and mysqladmin debug command
+TRIGGER	Enable trigger operations
+UPDATE	Enable use of UPDATE
+USAGE	Synonym for “no privileges”
+		]]></screen>
+		<ulink
+			url="http://dev.mysql.com/doc/refman/5.5/en/grant.html#grant-table-privileges" />
+		<para>REPLICATION CLIENT 与 REPLICATION SLAVE区别，前者只能使用SHOW MASTER
+			STATUS和SHOW SLAVE STATUS命令监控复制状态，后者才能从主库复制binlog.
+		</para>
+		<section>
+			<title>SHOW GRANTS</title>
+			<para></para>
+			<screen>
+			<![CDATA[
+SHOW GRANTS FOR 'root'@'%';			
+			]]>
+			</screen>
+			<screen>
+			<![CDATA[
+mysql> SHOW GRANTS FOR 'root'@'localhost';
++---------------------------------------------------------------------+
+| Grants for root@localhost                                           |
++---------------------------------------------------------------------+
+| GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION |
++---------------------------------------------------------------------+
+1 row in set (0.00 sec)
+			]]>
+			</screen>
+			<screen>
+			<![CDATA[
+mysql> show grants;
++---------------------------------------------------------------------------------+
+| Grants for root@localhost                                           |
++---------------------------------------------------------------------------------+
+| GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION |
++---------------------------------------------------------------------------------+
+1 row in set (0.00 sec)
+			]]>
 			</screen>
 		</section>
 		<section>
-			<title>Grant privileges </title>
-			<para>Global privileges </para>
+			<title>分配权限</title>
+			<para>基础语法</para>
 			<screen>
-<![CDATA[
+				<![CDATA[
+GRANT 权限列表 ON 库名.表名 TO '用户名'@'访问主机';
+				]]>
+			</screen>
+			<section>
+				<title>库权限</title>
+				<para>Global privileges </para>
+				<screen>
+				<![CDATA[
 GRANT ALL ON *.* TO 'someuser'@'somehost';
 GRANT SELECT, INSERT ON *.* TO 'someuser'@'somehost';
-			]]></screen>
-			<para>Database privileges </para>
-			<screen>
-<![CDATA[
+				]]>
+				</screen>
+				<para>Database privileges </para>
+				<screen>
+				<![CDATA[
 GRANT ALL ON mydb.* TO 'someuser'@'somehost';
 GRANT SELECT, INSERT ON mydb.* TO 'someuser'@'somehost';
-			]]></screen>
-			<para>Table privileges </para>
-			<screen>
-<![CDATA[
+				]]>
+				</screen>
+			</section>
+			<section>
+				<title>表权限</title>
+				<subtitle>Table Privileges</subtitle>
+				<para>授权tmp用户只能访问tabname表</para>
+				<screen>
+			<![CDATA[
+GRANT ALL PRIVILEGES ON tmp.tabname TO 'tmp'@'%' IDENTIFIED BY 'chen' WITH GRANT OPTION;
+			]]>
+				</screen>
+				<para>如果用户已经存在仅仅是分配权限可以使用下面方法</para>
+				<screen>
+				<![CDATA[
 GRANT ALL ON mydb.mytbl TO 'someuser'@'somehost';
-GRANT SELECT, INSERT ON mydb.mytbl TO 'someuser'@'somehost';
-			]]></screen>
-			<para>Column privileges </para>
-			<screen>
-<![CDATA[
+GRANT SELECT, INSERT ON mydb.mytbl TO 'someuser'@'somehost';			
+				]]>
+				</screen>
+				<para>更多例子</para>
+				<screen>
+				<![CDATA[
+-- 给 testuser 用户，授予 test_db.user 表 查询、新增、修改、删除权限
+GRANT SELECT,INSERT,UPDATE,DELETE ON test_db.user TO 'testuser'@'%';
+
+-- 给单张表所有表级权限（慎用）
+GRANT ALL ON test_db.user TO 'testuser'@'%';
+
+-- 授权时允许该用户把权限再授予别人（WITH GRANT OPTION）
+GRANT SELECT ON test_db.user TO 'testuser'@'%' WITH GRANT OPTION;
+				
+				]]>
+				</screen>
+			</section>
+			<section>
+				<title>列权限</title>
+				<subtitle>Column Privileges</subtitle>
+				<para>mydb.mytbl 表 col1字段允许查询，col1,col2允许插入</para>
+				<screen>
+				<![CDATA[
+GRANT SELECT (col1), INSERT (col1,col2) ON mydb.mytbl TO 'someuser'@'somehost';			
+				]]>
+				</screen>
+				<para>Column privileges </para>
+				<screen>
+				<![CDATA[
 GRANT SELECT (col1), INSERT (col1,col2) ON mydb.mytbl TO 'someuser'@'somehost';
-			]]></screen>
-			<para>Routine privileges </para>
-			<screen>
-<![CDATA[
+				]]>
+				</screen>
+
+			</section>
+			<section>
+				<title>Routine 权限</title>
+				<para>Routine privileges </para>
+				<screen>
+				<![CDATA[
 GRANT CREATE ROUTINE ON mydb.* TO 'someuser'@'somehost';
 GRANT EXECUTE ON PROCEDURE mydb.myproc TO 'someuser'@'somehost';
-			]]></screen>
+				]]>
+				</screen>
+			</section>
 		</section>
 		<section>
 			<title>Revoke privileges</title>
@@ -272,7 +332,8 @@ REVOKE ALL PRIVILEGES, GRANT OPTION
 			]]></screen>
 		</section>
 		<section>
-			<title>Show Privileges</title>
+			<title>查看权限</title>
+			<subtitle>Show Privileges</subtitle>
 			<screen>
 			<![CDATA[
 mysql> select * from user where user = 'neo'\G
@@ -331,28 +392,8 @@ GRANT USAGE ON *.* TO ...
 			]]>
 			</screen>
 		</section>
-		<section>
-			<title>Table Privileges</title>
-			<para>授权tmp用户只能访问tabname表</para>
-			<screen>
-<![CDATA[
-GRANT ALL PRIVILEGES ON tmp.tabname TO 'tmp'@'%' IDENTIFIED BY 'chen' WITH GRANT OPTION;
-			]]></screen>
-			<para>如果用户已经存在仅仅是分配权限可以使用下面方法</para>
-			<screen>
-<![CDATA[
-GRANT ALL ON mydb.mytbl TO 'someuser'@'somehost';
-GRANT SELECT, INSERT ON mydb.mytbl TO 'someuser'@'somehost';			
-			]]></screen>
-		</section>
-		<section>
-			<title>Column Privileges</title>
-			<para>mydb.mytbl 表 col1字段允许查询，col1,col2允许插入</para>
-			<screen>
-<![CDATA[
-GRANT SELECT (col1), INSERT (col1,col2) ON mydb.mytbl TO 'someuser'@'somehost';			
-			]]></screen>
-		</section>
+
+
 	</section>
 	<section id="collate">
 		<title>字符集转换</title>
@@ -390,7 +431,9 @@ description=convert(cast(convert(description using latin1) as binary) using utf8
 
 	<section id="auto_increment">
 		<title>重新整理AUTO_INCREMENT字段</title>
-		<para>AUTO_INCREMENT 并非按照我们意愿，顺序排列，经常会跳过一些数字，例如当插入失败的时候，再次插入会使用新的值。有时会造成浪费，我们可以使用下面SQL重新编排AUTO_INCREMENT序列。</para>
+		<para>AUTO_INCREMENT
+			并非按照我们意愿，顺序排列，经常会跳过一些数字，例如当插入失败的时候，再次插入会使用新的值。有时会造成浪费，我们可以使用下面SQL重新编排AUTO_INCREMENT序列。
+		</para>
 		<screen>
 		<![CDATA[
 SET @newid=0;
@@ -404,7 +447,10 @@ select max(id) from mytable;
 ALTER TABLE mytable AUTO_INCREMENT = 1000;
 		]]>
 		</screen>
-		<para>注意外键，需要 ON UPDATE CASCADE 支持，否则无法更新。CONSTRAINT `FK_group_has_contact_contact` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,</para>
+		<para>注意外键，需要 ON UPDATE CASCADE 支持，否则无法更新。CONSTRAINT
+			`FK_group_has_contact_contact` FOREIGN KEY (`contact_id`) REFERENCES
+			`contact` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+		</para>
 		<screen>
 		<![CDATA[
 CREATE TABLE `contact` (
@@ -493,9 +539,16 @@ $MYSQLDUMP $MYSQLDUMPOPTS ${SDB} | sed -e 's/netkiller\.8800\.org/netkiller\.sf\
 	<section id="sqlkill">
 		<title>Kill 脚本</title>
 		<para>查询出锁定的表</para>
-		<para>SELECT concat('KILL ',id,';') FROM information_schema.processlist WHERE user='root';</para>
-		<para>SELECT concat('KILL ',id,';') FROM information_schema.processlist WHERE command='Locked' and user='root';</para>
-		<para>SELECT concat('KILL ',id,';') FROM information_schema.processlist WHERE command='Locked' and user='root' and db='test';
+		<para>SELECT concat('KILL ',id,';') FROM
+			information_schema.processlist WHERE user='root';
+		</para>
+		<para>SELECT concat('KILL ',id,';') FROM
+			information_schema.processlist WHERE command='Locked' and
+			user='root';
+		</para>
+		<para>SELECT concat('KILL ',id,';') FROM
+			information_schema.processlist WHERE command='Locked' and user='root'
+			and db='test';
 		</para>
 		<para>拼装kill命令后输入到kill.sql, source 将从kill.sql读取sql命令并执行。</para>
 		<screen>
@@ -540,7 +593,9 @@ mysql> show variables like "%time_zone";
 		]]>
 		</screen>
 		<para>system_time_zone 当前时区是 CST，time_zone 表示数据库使用操作系统的时区设置。</para>
-		<para>临时修改时区 set time_zone='+8:00'; 设置当前时区，set global time_zone = '+8:00'; 设置全局时区。</para>
+		<para>临时修改时区 set time_zone='+8:00'; 设置当前时区，set global time_zone =
+			'+8:00'; 设置全局时区。
+		</para>
 		<screen>
 		<![CDATA[
 #设置全局时区，即时生效，作用于所有session

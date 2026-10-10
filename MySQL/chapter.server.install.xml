@@ -5,6 +5,60 @@
 	<subtitle>MySQL Installation</subtitle>
 	<para>http://downloads.mysql.com/archives.php</para>
 	<section>
+		<title>MySQL 26.7.0</title>
+		<screen>
+		<![CDATA[
+[root@netkiller ~]# docker pull mysql		
+[root@netkiller ~]# docker image inspect mysql:latest | grep -i version
+                "GOSU_VERSION=1.19",
+                "MYSQL_VERSION=26.7.0-1.el9",
+                "MYSQL_SHELL_VERSION=26.7.0-1.el9"		
+		]]>
+		</screen>
+		<para>netkiller-devops 部署代码</para>
+		<screen>
+		<![CDATA[
+mysql = Services("mysql")
+mysql.image("mysql:latest")
+mysql.container_name("mysql")
+# mysql.hostname("mysql.netkiller.cn")
+mysql.restart("unless-stopped")
+# mysql.extra_hosts(extra_hosts)
+mysql.environment(
+    {
+        "TZ": "Asia/Shanghai",
+        "MYSQL_ROOT_PASSWORD": "0N4yVWRnaqsfnI5wHPwUlE1vVGTf6Rvi",
+        "MYSQL_DATABASE": "test",
+        "MYSQL_USER": "test",
+        "MYSQL_PASSWORD": "0N46RviWRUlE1vVGyVaqsfnI5wHPwTfn",
+    }
+)
+mysql.ports(["3306:3306"])
+mysql.volumes(["mysql:/var/lib/mysql", "/var/run/mysqld:/var/run/mysqld"])
+# mysql.volumes(["/var/lib/mysql:/var/lib/mysql"])
+mysql.command(
+    [
+        "--character-set-server=utf8mb4",
+        "--collation-server=utf8mb4_general_ci",
+        # "--explicit_defaults_for_timestamp=true",
+        # "--lower_case_table_names=1",
+        # "--max_allowed_packet=128M",
+        # "--host_cache_size=0",
+        "--max_connections=4000",
+        # "--sql-mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"
+    ]
+)
+# RDS 配置 STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+# '--sql-mode="STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO"',
+
+# /etc/mysql/conf.d/mysqld.cnf
+# =16384             -- 设置该 DB 最大连接数
+# max_user_connections=2000        -- 设置单用户最大连接数
+development.services(mysql)		
+		]]>
+		</screen>
+	</section>
+	<section>
 		<title>Rocky Linux + MySQL 9.5</title>
 		<screen>
 		<![CDATA[
